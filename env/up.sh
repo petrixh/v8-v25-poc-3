@@ -19,6 +19,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 BUILD=1
 for a in "$@"; do case "$a" in --no-build) BUILD=0 ;; *) echo "usage: $0 [--no-build]" >&2; exit 2 ;; esac; done
 need_host_tools
+check_user_files
 
 # ---------------------------------------------------------------- image
 build_image() {

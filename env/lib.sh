@@ -88,22 +88,27 @@ create_mgmt() { # mgmt-server: Flyway schema owner, Management API (seed), rollo
     "$(image_tag_in_use)" java -cp /app/mgmt-server.jar "${JAVA_ARGS[@]}" \
     --spring.config.additional-location=file:/run/secrets/mgmt-admin.properties >/dev/null
 }
-check_env_file() { # $1 = an env file that Spring reads as properties: KEY=value lines, values without '\' or leading blanks
+check_user_files() { # up.sh, before it starts anything. The env file is read by Spring as properties: KEY=value
+  # lines, values without '\' or leading blanks, so that both formats give the same values. Values are never shown.
   local bad
-  bad="$(grep -nvE '^[[:space:]]*(#.*)?$|^[A-Za-z_][A-Za-z0-9_]*=([^[:space:]\\][^\\]*)?$' "$1" | cut -d: -f1 | tr '\n' ' ')"
-  [ -z "$bad" ] || die "APP_ENV_USERS_ENV: line(s) $bad not KEY=value, or the value has a backslash or leading blank (values not shown)"
-}
-create_ui() { # vv8-ui: the Vaadin 8 UI, the app under migration; test users only here (as the pre-check)
-  # Both test-user files are mounted read-only and loaded as Spring config, so no password is in the container's
-  # config. The env file's KEY=value lines are read as properties: they resolve ${KEY} in the properties file.
-  local mounts=() locs=()
   if [ -n "${APP_ENV_USERS_PROPERTIES:-}" ]; then
     [ -r "$APP_ENV_USERS_PROPERTIES" ] || die "APP_ENV_USERS_PROPERTIES is set but not readable"
-    mounts+=(-v "$(abs_path "$APP_ENV_USERS_PROPERTIES"):/run/users/users.properties:ro"); locs+=(file:/run/users/users.properties)
   fi
   if [ -n "${APP_ENV_USERS_ENV:-}" ]; then
     [ -r "$APP_ENV_USERS_ENV" ] || die "APP_ENV_USERS_ENV is set but not readable"
-    check_env_file "$APP_ENV_USERS_ENV"
+    bad="$(grep -nvE '^[[:space:]]*(#.*)?$|^[A-Za-z_][A-Za-z0-9_]*=([^[:space:]\\][^\\]*)?$' "$APP_ENV_USERS_ENV" | cut -d: -f1 | tr '\n' ' ')"
+    [ -z "$bad" ] || die "APP_ENV_USERS_ENV: line(s) $bad not KEY=value, or the value has a backslash or leading blank (values not shown)"
+  fi
+  return 0
+}
+create_ui() { # vv8-ui: the Vaadin 8 UI, the app under migration; test users only here (as the pre-check)
+  # Both test-user files (checked by check_user_files) are mounted read-only and loaded as Spring config, so no password is in the container's
+  # config. The env file's KEY=value lines are read as properties: they resolve ${KEY} in the properties file.
+  local mounts=() locs=()
+  if [ -n "${APP_ENV_USERS_PROPERTIES:-}" ]; then
+    mounts+=(-v "$(abs_path "$APP_ENV_USERS_PROPERTIES"):/run/users/users.properties:ro"); locs+=(file:/run/users/users.properties)
+  fi
+  if [ -n "${APP_ENV_USERS_ENV:-}" ]; then
     mounts+=(-v "$(abs_path "$APP_ENV_USERS_ENV"):/run/users/users-env.properties:ro"); locs+=(file:/run/users/users-env.properties)
   fi
   local extra=()
