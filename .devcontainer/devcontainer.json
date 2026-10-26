@@ -11,7 +11,7 @@
     "settings": {
         "terminal.integrated.shell.linux": "/bin/bash",
         "java.home": "/docker-java-home",
-        "java.format.settings.url": "https://raw.githubusercontent.com/eclipse/hawkbit/master/eclipse_codeformatter.xml",
+        "java.format.settings.url": "eclipse_codeformatter.xml",
         "maven.executable.path": "/usr/local/sdkman/candidates/maven/current/bin/mvn"
     },
     // Add the IDs of extensions you want installed when the container is created.
