@@ -14,6 +14,7 @@
 # The JVM restart is deliberate: the app caches tenant configuration and rollout status in memory, which a
 # database restore alone would leave stale.
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
+need_host_tools
 
 [ -s "$COPY_DIR/seed.sql" ] || die "no seed dump for copy $PROJECT ($COPY_DIR/seed.sql): is it up?"
 { running "$C_MYSQL" && running "$C_RABBIT"; } || die "copy $PROJECT is not running (mysql/rabbitmq)"

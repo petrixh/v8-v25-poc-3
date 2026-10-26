@@ -17,9 +17,11 @@
 #   SEED_MGMT_URL     Management API base URL on that network, e.g. http://<project>-mgmt:8080
 #   SEED_CREDENTIALS  env file with MGMT_USER and MGMT_PASSWORD for the Management API
 #   SEED_LABEL        label to put on any container it starts
-# Exit 0 when the seed is in place.
+#   SEED_IMAGE        the pinned Python image of the env (env/lib.sh), for hooks that run Python
+# Exit 0 when the seed is in place. up.sh stops a hook after 600 s.
 set -u -o pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# credentials as a read-only mounted file, so they are not in the container's config (docker inspect)
 exec docker run --rm --network "$SEED_NETWORK" --label "$SEED_LABEL" \
-  -v "$SEED_RESOLV:/etc/resolv.conf:ro" -v "$HERE/seed.py:/seed.py:ro" --env-file "$SEED_CREDENTIALS" \
-  python:3.9.6-slim python -u /seed.py "$SEED_MGMT_URL"
+  -v "$SEED_RESOLV:/etc/resolv.conf:ro" -v "$HERE/seed.py:/seed.py:ro" -v "$SEED_CREDENTIALS:/run/secrets/seed.env:ro" \
+  "$SEED_IMAGE" python -u /seed.py "$SEED_MGMT_URL" /run/secrets/seed.env
