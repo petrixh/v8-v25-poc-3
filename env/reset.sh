@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
+#
+# Copyright (c) 2023 Contributors to the Eclipse Foundation
+#
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
 # Return one running copy to its seed state (env/README.md "Reset"): stop both app JVMs, restore the seed dump,
 # drop every RabbitMQ queue, empty the artifact store, start the JVMs again. Exit 0 when the app answers again.
 # The JVM restart is deliberate: the app caches tenant configuration and rollout status in memory, which a

@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
+#
+# Copyright (c) 2023 Contributors to the Eclipse Foundation
+#
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
 # Seed hook (env/README.md "Seed"). up.sh runs it once per copy, on a fresh database, after mgmt-server is up and
 # before the seed dump that reset.sh restores. Replace it with APP_ENV_SEED=<script>, or APP_ENV_SEED=none for an
 # empty seed (fresh schema only). Gets from up.sh:

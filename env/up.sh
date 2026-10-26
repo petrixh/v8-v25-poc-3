@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
+#
+# Copyright (c) 2023 Contributors to the Eclipse Foundation
+#
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
 # Start one copy of the app (env/README.md): its own internal network, logging DNS, MySQL, RabbitMQ, mgmt-server,
 # the seed, vv8-ui as $APP_ENV_CONTAINER, and an inbound-only forward to 127.0.0.1:$APP_ENV_PORT.
 # Returns 0 once http://127.0.0.1:$APP_ENV_PORT/UI/login answers 200.

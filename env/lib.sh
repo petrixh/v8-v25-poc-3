@@ -1,3 +1,13 @@
+#
+# Copyright (c) 2023 Contributors to the Eclipse Foundation
+#
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
 # Shared by up.sh, reset.sh and down.sh. Sourced, not run. See README.md in this folder.
 # Needs bash, git, docker and curl on the host. Never prints passwords: credential files are passed to Docker by path.
 # shellcheck disable=SC2034  # names used by the scripts that source this file

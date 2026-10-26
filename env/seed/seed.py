@@ -1,3 +1,13 @@
+#
+# Copyright (c) 2023 Contributors to the Eclipse Foundation
+#
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
 # Synthetic seed for one env copy (env/README.md "Seed"), created through the app's own Management API on
 # mgmt-server. Fixed names and values; the only generated values are the ids and timestamps the app assigns.
 # Run by env/seed/seed.sh in a python container on the copy's internal network, once, on a fresh database.
