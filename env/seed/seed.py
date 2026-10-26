@@ -1,11 +1,23 @@
+#
+# Copyright (c) 2023 Contributors to the Eclipse Foundation
+#
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
 # Synthetic seed for one env copy (env/README.md "Seed"), created through the app's own Management API on
 # mgmt-server. Fixed names and values; the only generated values are the ids and timestamps the app assigns.
 # Run by env/seed/seed.sh in a python container on the copy's internal network, once, on a fresh database.
-#   python seed.py <mgmt base url>      credentials in env MGMT_USER / MGMT_PASSWORD (never printed)
-import base64, json, os, sys, urllib.error, urllib.request
+#   python seed.py <mgmt base url> <credentials file>   file with MGMT_USER= and MGMT_PASSWORD= lines (never printed)
+import base64, json, sys, urllib.error, urllib.request
 
 BASE = sys.argv[1].rstrip("/") + "/rest/v1"
-AUTH = "Basic " + base64.b64encode(("%s:%s" % (os.environ["MGMT_USER"], os.environ["MGMT_PASSWORD"])).encode()).decode()
+with open(sys.argv[2]) as f:
+    CRED = dict(line.rstrip("\n").split("=", 1) for line in f if "=" in line and not line.startswith("#"))
+AUTH = "Basic " + base64.b64encode(("%s:%s" % (CRED["MGMT_USER"], CRED["MGMT_PASSWORD"])).encode()).decode()
 
 # ---- the seed: change it here, and in README.md "Seed"
 TARGET_TAGS = [("Lab", "Seed: devices on the test bench", "#2e7d32"),
