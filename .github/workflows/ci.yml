@@ -1,0 +1,121 @@
+#
+# Copyright (c) 2023 Contributors to the Eclipse Foundation
+#
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+# CI of the migration (.github/CI.md): build the Vaadin 8 UI path, start one isolated copy, smoke-log-in every test
+# user, run the test suite. One job, so the build is never passed between jobs through artifact storage; diagnostics
+# are uploaded only on failure (a step over its time limit is a failure). Downloads only from Maven Central, maven.vaadin.com, official Docker Hub images, npm
+# and the Playwright browser download.
+name: CI
+
+on:
+  push:
+    branches: [main, mig-dev, 'stage/**', 'stabilise/**', 'fix/**']
+  pull_request:
+    branches: [main, mig-dev]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PLAYWRIGHT_VERSION: 1.63.0
+  # one env copy (env/README.md); the UI on 127.0.0.1:18081
+  APP_ENV_PROJECT: ci
+  APP_ENV_PORT: '18081'
+  APP_ENV_USERS_PROPERTIES: /home/runner/.config/mig-ci/test-users.properties
+  APP_ENV_USERS_ENV: /home/runner/.config/mig-ci/test-users.env
+  APP_ENV_MAVEN_REPO: /home/runner/.m2/repository
+  CI_OUT: /home/runner/ci-out
+  # build logs and the logs env/down.sh saves (app, DNS), next to the step output for the diagnostics upload
+  APP_ENV_LOG_DIR: /home/runner/ci-out/env-logs
+
+jobs:
+  build-test-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash  # -eo pipefail
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Restore Maven repository
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /home/runner/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: maven-${{ runner.os }}-
+
+      - name: Restore Playwright browser
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /home/runner/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ env.PLAYWRIGHT_VERSION }}
+
+      - name: Test users (throw-away, random passwords)
+        run: .github/ci/test-users.sh /home/runner/.config/mig-ci
+
+      - name: Build and start (env/up.sh)
+        id: up
+        timeout-minutes: 20
+        # Maven package of -pl hawkbit-vv8-ui,hawkbit-mgmt-server -am in Docker with env/maven-settings.xml and
+        # -DskipNexusStaging; fails if Maven downloaded from any host but repo.maven.apache.org and maven.vaadin.com.
+        # Then one copy on an internal Docker network, seeded, UI at 127.0.0.1:18081.
+        run: |
+          mkdir -p "$CI_OUT"
+          env/up.sh 2>&1 | tee "$CI_OUT/up.log"
+
+      - name: Install Playwright
+        timeout-minutes: 5
+        run: |
+          npm install --no-save --no-audit --no-fund --prefix /home/runner/pw "playwright@$PLAYWRIGHT_VERSION"
+          /home/runner/pw/node_modules/.bin/playwright install --only-shell chromium
+
+      - name: Smoke (log in every test user, open their views; non-app hosts blocked)
+        timeout-minutes: 10
+        env:
+          PW: /home/runner/pw/node_modules/playwright
+        run: node .github/ci/smoke/smoke.cjs .github/ci/smoke/old-app.json "http://127.0.0.1:$APP_ENV_PORT" "$CI_OUT/smoke"
+
+      - name: Tests (vv8-ui path, offline, with RabbitMQ)
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        timeout-minutes: 20
+        run: .github/ci/run-tests.sh "$CI_OUT/tests"
+
+      - name: Stop (env/down.sh)
+        if: ${{ always() }}
+        run: env/down.sh
+
+      - name: Summary
+        if: ${{ always() }}
+        continue-on-error: true
+        run: .github/ci/summary.sh | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload diagnostics (failure only)
+        # failure() includes a step over its timeout-minutes; the step limits add up to under the job's 60 minutes, so
+        # a hung step still gets its diagnostics. A run cancelled by a newer push uploads nothing.
+        if: ${{ failure() }}
+        continue-on-error: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ci-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: |
+            /home/runner/ci-out/
+            **/target/surefire-reports/*.txt
+            **/target/failsafe-reports/*.txt
