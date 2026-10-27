@@ -24,7 +24,6 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.UI;
 import org.eclipse.hawkbit.utils.TenantConfigHelper;
 import org.springframework.util.StringUtils;
 

@@ -26,7 +26,6 @@ import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
 
 /**
