@@ -53,9 +53,9 @@ import com.vaadin.server.Page;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.Page.BrowserWindowResizeListener;
 import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.spring.annotation.UIScope;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.UI;
 
 /**
  * Display artifacts upload view.
@@ -140,29 +140,29 @@ public class UploadArtifactView extends AbstractEventListenersAwareView implemen
 
     @Override
     protected void buildLayout() {
-        setMargin(false);
+        setPadding(false);
         setSpacing(false);
         setSizeFull();
 
         createMainLayout();
 
-        addComponent(mainLayout);
-        setExpandRatio(mainLayout, 1.0F);
+        add(mainLayout);
+        setFlexGrow(1.0F, mainLayout);
     }
 
     private void createMainLayout() {
         mainLayout = new HorizontalLayout();
         mainLayout.setSizeFull();
-        mainLayout.setMargin(false);
+        mainLayout.setPadding(false);
         mainLayout.setSpacing(true);
 
-        mainLayout.addComponent(smTypeFilterLayout);
-        mainLayout.addComponent(smGridLayout);
-        mainLayout.addComponent(artifactDetailsGridLayout);
+        mainLayout.add(smTypeFilterLayout);
+        mainLayout.add(smGridLayout);
+        mainLayout.add(artifactDetailsGridLayout);
 
-        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(smGridLayout, 0.5F);
-        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
+        mainLayout.setFlexGrow(0F, smTypeFilterLayout);
+        mainLayout.setFlexGrow(0.5F, smGridLayout);
+        mainLayout.setFlexGrow(0.5F, artifactDetailsGridLayout);
     }
 
     @Override
@@ -207,9 +207,9 @@ public class UploadArtifactView extends AbstractEventListenersAwareView implemen
     private void maximizeSmGridLayout() {
         artifactDetailsGridLayout.setVisible(false);
 
-        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(smGridLayout, 1.0F);
-        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0F);
+        mainLayout.setFlexGrow(0F, smTypeFilterLayout);
+        mainLayout.setFlexGrow(1.0F, smGridLayout);
+        mainLayout.setFlexGrow(0F, artifactDetailsGridLayout);
 
         smGridLayout.maximize();
     }
@@ -217,9 +217,9 @@ public class UploadArtifactView extends AbstractEventListenersAwareView implemen
     private void minimizeSmGridLayout() {
         artifactDetailsGridLayout.setVisible(true);
 
-        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(smGridLayout, 0.5F);
-        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
+        mainLayout.setFlexGrow(0F, smTypeFilterLayout);
+        mainLayout.setFlexGrow(0.5F, smGridLayout);
+        mainLayout.setFlexGrow(0.5F, artifactDetailsGridLayout);
 
         smGridLayout.minimize();
     }
@@ -228,9 +228,9 @@ public class UploadArtifactView extends AbstractEventListenersAwareView implemen
         smTypeFilterLayout.setVisible(false);
         smGridLayout.setVisible(false);
 
-        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(smGridLayout, 0F);
-        mainLayout.setExpandRatio(artifactDetailsGridLayout, 1.0F);
+        mainLayout.setFlexGrow(0F, smTypeFilterLayout);
+        mainLayout.setFlexGrow(0F, smGridLayout);
+        mainLayout.setFlexGrow(1.0F, artifactDetailsGridLayout);
 
         artifactDetailsGridLayout.maximize();
     }
@@ -241,9 +241,9 @@ public class UploadArtifactView extends AbstractEventListenersAwareView implemen
         }
         smGridLayout.setVisible(true);
 
-        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(smGridLayout, 0.5F);
-        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
+        mainLayout.setFlexGrow(0F, smTypeFilterLayout);
+        mainLayout.setFlexGrow(0.5F, smGridLayout);
+        mainLayout.setFlexGrow(0.5F, artifactDetailsGridLayout);
 
         artifactDetailsGridLayout.minimize();
     }
@@ -319,7 +319,7 @@ public class UploadArtifactView extends AbstractEventListenersAwareView implemen
                         final DashboardMenuItem dashboardMenuItem = dashboardMenu.getByViewName(VIEW_NAME);
                         dashboardMenu.postViewChange(DashboardEvent.createPostViewChangeEvent(dashboardMenuItem));
                     }).build();
-            UI.getCurrent().addWindow(confirmDeleteDialog.getWindow());
+            confirmDeleteDialog.getWindow().open();
             confirmDeleteDialog.getWindow().bringToFront();
         } else {
             super.beforeLeave(event);

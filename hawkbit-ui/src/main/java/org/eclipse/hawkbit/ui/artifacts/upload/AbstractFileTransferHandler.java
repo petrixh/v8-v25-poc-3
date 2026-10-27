@@ -44,7 +44,7 @@ import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
 
 /**
  * Abstract base class for transferring files from the browser to the

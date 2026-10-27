@@ -51,8 +51,8 @@ import com.vaadin.server.Page;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.Page.BrowserWindowResizeListener;
 import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.flow.spring.annotation.UIScope;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 /**
  * Manage distributions and distributions type view.
@@ -149,31 +149,31 @@ public class DistributionsView extends AbstractEventListenersAwareView implement
 
     @Override
     protected void buildLayout() {
-        setMargin(false);
+        setPadding(false);
         setSpacing(false);
         setSizeFull();
 
         createMainLayout();
 
-        addComponent(mainLayout);
-        setExpandRatio(mainLayout, 1.0F);
+        add(mainLayout);
+        setFlexGrow(1.0F, mainLayout);
     }
 
     private void createMainLayout() {
         mainLayout = new HorizontalLayout();
         mainLayout.setSizeFull();
-        mainLayout.setMargin(false);
+        mainLayout.setPadding(false);
         mainLayout.setSpacing(true);
 
-        mainLayout.addComponent(dsTypeFilterLayout);
-        mainLayout.addComponent(distributionSetGridLayout);
-        mainLayout.addComponent(swModuleGridLayout);
-        mainLayout.addComponent(distSMTypeFilterLayout);
+        mainLayout.add(dsTypeFilterLayout);
+        mainLayout.add(distributionSetGridLayout);
+        mainLayout.add(swModuleGridLayout);
+        mainLayout.add(distSMTypeFilterLayout);
 
-        mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(distributionSetGridLayout, 0.5F);
-        mainLayout.setExpandRatio(swModuleGridLayout, 0.5F);
-        mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
+        mainLayout.setFlexGrow(0F, dsTypeFilterLayout);
+        mainLayout.setFlexGrow(0.5F, distributionSetGridLayout);
+        mainLayout.setFlexGrow(0.5F, swModuleGridLayout);
+        mainLayout.setFlexGrow(0F, distSMTypeFilterLayout);
     }
 
     @Override
@@ -226,10 +226,10 @@ public class DistributionsView extends AbstractEventListenersAwareView implement
         swModuleGridLayout.setVisible(false);
         hideSmTypeLayout();
 
-        mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(distributionSetGridLayout, 1.0F);
-        mainLayout.setExpandRatio(swModuleGridLayout, 0F);
-        mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
+        mainLayout.setFlexGrow(0F, dsTypeFilterLayout);
+        mainLayout.setFlexGrow(1.0F, distributionSetGridLayout);
+        mainLayout.setFlexGrow(0F, swModuleGridLayout);
+        mainLayout.setFlexGrow(0F, distSMTypeFilterLayout);
 
         distributionSetGridLayout.maximize();
     }
@@ -240,10 +240,10 @@ public class DistributionsView extends AbstractEventListenersAwareView implement
             showSmTypeLayout();
         }
 
-        mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(distributionSetGridLayout, 0.5F);
-        mainLayout.setExpandRatio(swModuleGridLayout, 0.5F);
-        mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
+        mainLayout.setFlexGrow(0F, dsTypeFilterLayout);
+        mainLayout.setFlexGrow(0.5F, distributionSetGridLayout);
+        mainLayout.setFlexGrow(0.5F, swModuleGridLayout);
+        mainLayout.setFlexGrow(0F, distSMTypeFilterLayout);
 
         distributionSetGridLayout.minimize();
     }
@@ -252,10 +252,10 @@ public class DistributionsView extends AbstractEventListenersAwareView implement
         distributionSetGridLayout.setVisible(false);
         hideDsTypeLayout();
 
-        mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(distributionSetGridLayout, 0F);
-        mainLayout.setExpandRatio(swModuleGridLayout, 1.0F);
-        mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
+        mainLayout.setFlexGrow(0F, dsTypeFilterLayout);
+        mainLayout.setFlexGrow(0F, distributionSetGridLayout);
+        mainLayout.setFlexGrow(1.0F, swModuleGridLayout);
+        mainLayout.setFlexGrow(0F, distSMTypeFilterLayout);
 
         swModuleGridLayout.maximize();
     }
@@ -266,10 +266,10 @@ public class DistributionsView extends AbstractEventListenersAwareView implement
             showDsTypeLayout();
         }
 
-        mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(distributionSetGridLayout, 0.5F);
-        mainLayout.setExpandRatio(swModuleGridLayout, 0.5F);
-        mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
+        mainLayout.setFlexGrow(0F, dsTypeFilterLayout);
+        mainLayout.setFlexGrow(0.5F, distributionSetGridLayout);
+        mainLayout.setFlexGrow(0.5F, swModuleGridLayout);
+        mainLayout.setFlexGrow(0F, distSMTypeFilterLayout);
 
         swModuleGridLayout.minimize();
     }

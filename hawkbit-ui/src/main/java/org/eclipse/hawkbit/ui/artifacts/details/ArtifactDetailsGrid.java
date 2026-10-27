@@ -37,11 +37,11 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.server.FileDownloader;
 import com.vaadin.server.StreamResource;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.UI;
 
 /**
  * Artifact Details grid which is shown on the Upload View.
@@ -108,7 +108,7 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     public void init() {
         super.init();
 
-        addStyleName("grid-row-border");
+        addClassNames("grid-row-border");
     }
 
     private boolean artifactsDeletionCallback(final Collection<ProxyArtifact> artifactsToBeDeleted) {
@@ -167,7 +167,7 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
 
     private Button buildDownloadButton(final ProxyArtifact artifact) {
         final Button downloadButton = GridComponentBuilder.buildActionButton(i18n, clickEvent -> {
-        }, VaadinIcons.DOWNLOAD, UIMessageIdProvider.TOOLTIP_ARTIFACT_DOWNLOAD,
+        }, VaadinIcon.DOWNLOAD, UIMessageIdProvider.TOOLTIP_ARTIFACT_DOWNLOAD,
                 SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.ARTIFACT_FILE_DOWNLOAD_ICON + "." + artifact.getId(),
                 permissionChecker.hasDownloadRepositoryPermission());

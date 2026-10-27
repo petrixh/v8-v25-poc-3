@@ -27,9 +27,9 @@ import org.eclipse.hawkbit.ui.tenantconfiguration.polling.DurationConfigField;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * View to configure the polling interval and the overdue time.
@@ -69,15 +69,15 @@ public class PollingConfigurationView extends BaseConfigurationView<ProxySystemC
 
         final Panel rootPanel = new Panel();
         rootPanel.setSizeFull();
-        rootPanel.addStyleName("config-panel");
+        rootPanel.addClassNames("config-panel");
 
         final VerticalLayout vLayout = new VerticalLayout();
         vLayout.setSpacing(false);
-        vLayout.setMargin(true);
+        vLayout.setPadding(true);
 
-        final Label headerDisSetType = new Label(i18n.getMessage("configuration.polling.title"));
-        headerDisSetType.addStyleName("config-panel-header");
-        vLayout.addComponent(headerDisSetType);
+        final Span headerDisSetType = new Span(i18n.getMessage("configuration.polling.title"));
+        headerDisSetType.addClassNames("config-panel-header");
+        vLayout.add(headerDisSetType);
 
         DurationConfigField fieldPollTime = DurationConfigField
                 .builder(UIComponentIdProvider.SYSTEM_CONFIGURATION_POLLING, i18n)
@@ -94,7 +94,7 @@ public class PollingConfigurationView extends BaseConfigurationView<ProxySystemC
                 .bind(ProxySystemConfigPolling::getPollingTimeDuration,
                         ProxySystemConfigPolling::setPollingTimeDuration);
 
-        vLayout.addComponent(fieldPollTime);
+        vLayout.add(fieldPollTime);
 
         DurationConfigField fieldPollingOverdueTime = DurationConfigField
                 .builder(UIComponentIdProvider.SYSTEM_CONFIGURATION_OVERDUE, i18n)
@@ -110,7 +110,7 @@ public class PollingConfigurationView extends BaseConfigurationView<ProxySystemC
                 .bind(ProxySystemConfigPolling::getPollingOverdueDuration,
                         ProxySystemConfigPolling::setPollingOverdueDuration);
 
-        vLayout.addComponent(fieldPollingOverdueTime);
+        vLayout.add(fieldPollingOverdueTime);
 
         rootPanel.setContent(vLayout);
         setCompositionRoot(rootPanel);

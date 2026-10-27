@@ -22,7 +22,7 @@ import org.eclipse.hawkbit.ui.common.filterlayout.AbstractTypeFilterButtons;
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Software module type filter buttons.
@@ -112,7 +112,7 @@ public class SMTypeFilterButtons extends AbstractTypeFilterButtons {
     }
 
     @Override
-    protected Window getUpdateWindow(final ProxyType clickedFilter) {
+    protected Dialog getUpdateWindow(final ProxyType clickedFilter) {
         return smTypeWindowBuilder.getWindowForUpdate(clickedFilter);
     }
 

@@ -18,10 +18,9 @@ import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.grid.Grid;
 
 /**
  * Software Module Selected Type grid which is shown on the Distribution Type
@@ -54,13 +53,13 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
 
     private void init() {
         setSizeFull();
-        setHeightUndefined();
-        addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        addStyleName(ValoTheme.TABLE_NO_STRIPES);
-        addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-        addStyleName(ValoTheme.TABLE_SMALL);
+        setHeight(null);
+        addClassNames("no-horizontal-lines");
+        addClassNames("no-stripes");
+        addClassNames("no-vertical-lines");
+        addClassNames("small");
         // used to deactivate cell text selection by user
-        addStyleName(AbstractGrid.MULTI_SELECT_STYLE);
+        addClassNames(AbstractGrid.MULTI_SELECT_STYLE);
 
         setId(SPUIDefinitions.TWIN_TABLE_SELECTED_ID);
         setSelectionModel(new RangeSelectionModel<>(i18n));
@@ -77,7 +76,7 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
                 .setDescriptionGenerator(smType -> i18n.getMessage(UIMessageIdProvider.TOOLTIP_CHECK_FOR_MANDATORY));
     }
 
-    private CheckBox buildMandatoryTypeCheckBox(final ProxyType smType) {
+    private Checkbox buildMandatoryTypeCheckBox(final ProxyType smType) {
         final Binder<ProxyType> binder = new Binder<>();
         binder.setBean(smType);
         binder.addValueChangeListener(event -> mandatoryPropertyChangedCallback.run());

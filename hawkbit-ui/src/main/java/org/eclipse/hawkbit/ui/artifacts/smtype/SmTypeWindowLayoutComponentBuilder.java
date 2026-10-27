@@ -14,8 +14,8 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType.SmTypeAssign;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.ui.RadioButtonGroup;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 
 /**
  * Builder for software module type window layout component

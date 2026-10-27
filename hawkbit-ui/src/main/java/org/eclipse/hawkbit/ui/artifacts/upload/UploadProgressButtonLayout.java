@@ -24,10 +24,10 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Button;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.UI;
 import com.vaadin.ui.Upload;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Container for upload and progress button.
@@ -141,7 +141,7 @@ public class UploadProgressButtonLayout extends VerticalLayout {
     private void createComponents() {
         uploadProgressButton = SPUIComponentProvider.getButton(UIComponentIdProvider.UPLOAD_STATUS_BUTTON, "", "", "",
                 false, null, SPUIButtonStyleNoBorder.class);
-        uploadProgressButton.addStyleName(SPUIStyleDefinitions.UPLOAD_PROGRESS_INDICATOR_STYLE);
+        uploadProgressButton.addClassNames(SPUIStyleDefinitions.UPLOAD_PROGRESS_INDICATOR_STYLE);
         uploadProgressButton.addClickListener(event -> showUploadInfoWindow());
     }
 
@@ -158,9 +158,9 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         upload.addStartedListener(uploadHandler);
         upload.setId(UIComponentIdProvider.UPLOAD_BUTTON);
 
-        addComponent(upload);
+        add(upload);
         setSizeFull();
-        setMargin(false);
+        setPadding(false);
     }
 
     /**
@@ -199,12 +199,12 @@ public class UploadProgressButtonLayout extends VerticalLayout {
     }
 
     private void showUploadProgressButton() {
-        removeComponent(upload);
-        addComponent(uploadProgressButton);
+        remove(upload);
+        add(uploadProgressButton);
     }
 
     private void hideUploadProgressButton() {
-        removeComponent(uploadProgressButton);
-        addComponent(upload);
+        remove(uploadProgressButton);
+        add(upload);
     }
 }

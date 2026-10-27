@@ -18,7 +18,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.Grid;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.ui.renderers.ProgressBarRenderer;
 
 /**
@@ -53,7 +53,7 @@ public class UploadProgressGrid extends Grid<ProxyUploadProgress> {
 
     private void init() {
         setId(UIComponentIdProvider.UPLOAD_STATUS_POPUP_GRID);
-        addStyleName(SPUIStyleDefinitions.UPLOAD_STATUS_GRID);
+        addClassNames(SPUIStyleDefinitions.UPLOAD_STATUS_GRID);
         setSelectionMode(SelectionMode.NONE);
         setSizeFull();
 

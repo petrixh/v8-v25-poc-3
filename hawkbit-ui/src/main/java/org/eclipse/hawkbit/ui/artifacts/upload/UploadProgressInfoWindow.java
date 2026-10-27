@@ -24,20 +24,19 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.shared.ui.window.WindowMode;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
- * Window that shows the progress of all uploads.
+ * Dialog that shows the progress of all uploads.
  */
-public class UploadProgressInfoWindow extends Window {
+public class UploadProgressInfoWindow extends Dialog {
     private static final long serialVersionUID = 1L;
 
     private final VaadinMessageSource i18n;
@@ -47,7 +46,7 @@ public class UploadProgressInfoWindow extends Window {
     private final UploadProgressGrid uploadProgressGrid;
     private final VerticalLayout mainLayout;
 
-    private Label windowCaption;
+    private Span windowCaption;
     private Button closeButton;
 
     private final List<ProxyUploadProgress> uploads;
@@ -68,8 +67,8 @@ public class UploadProgressInfoWindow extends Window {
         uploadProgressGrid = new UploadProgressGrid(i18n);
         uploadProgressGrid.setItems(uploads);
 
-        mainLayout.addComponents(getCaptionLayout(), uploadProgressGrid);
-        mainLayout.setExpandRatio(uploadProgressGrid, 1.0F);
+        mainLayout.add(getCaptionLayout(), uploadProgressGrid);
+        mainLayout.setFlexGrow(1.0F, uploadProgressGrid);
         setContent(mainLayout);
     }
 
@@ -158,7 +157,7 @@ public class UploadProgressInfoWindow extends Window {
 
     private void setPopupProperties() {
         setId(UIComponentIdProvider.UPLOAD_STATUS_POPUP_ID);
-        addStyleName(SPUIStyleDefinitions.UPLOAD_INFO);
+        addClassNames(SPUIStyleDefinitions.UPLOAD_INFO);
 
         setResizable(false);
         setDraggable(true);
@@ -170,19 +169,19 @@ public class UploadProgressInfoWindow extends Window {
         final HorizontalLayout captionLayout = new HorizontalLayout();
         captionLayout.setSizeFull();
         captionLayout.setHeight("36px");
-        captionLayout.addComponents(windowCaption, closeButton);
-        captionLayout.setExpandRatio(windowCaption, 1.0F);
-        captionLayout.addStyleName("v-window-header");
+        captionLayout.add(windowCaption, closeButton);
+        captionLayout.setFlexGrow(1.0F, windowCaption);
+        captionLayout.addClassNames("v-window-header");
         return captionLayout;
     }
 
     private void createStatusPopupHeaderComponents() {
-        windowCaption = new Label(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_POPUP));
+        windowCaption = new Span(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_POPUP));
         closeButton = getCloseButton();
     }
 
     private void openWindow() {
-        UI.getCurrent().addWindow(this);
+        this.open();
         center();
     }
 
@@ -221,15 +220,15 @@ public class UploadProgressInfoWindow extends Window {
     }
 
     private void setPopupSizeInMinMode() {
-        mainLayout.setWidth(900, Unit.PIXELS);
-        mainLayout.setHeight(510, Unit.PIXELS);
+        mainLayout.setWidth("900px");
+        mainLayout.setHeight("510px");
     }
 
     private Button getCloseButton() {
         final Button closeBtn = SPUIComponentProvider.getButton(
-                UIComponentIdProvider.UPLOAD_STATUS_POPUP_CLOSE_BUTTON_ID, "", "", "", true, VaadinIcons.CLOSE,
+                UIComponentIdProvider.UPLOAD_STATUS_POPUP_CLOSE_BUTTON_ID, "", "", "", true, VaadinIcon.CLOSE,
                 SPUIButtonStyleNoBorder.class);
-        closeBtn.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+        closeBtn.addClassNames("borderless");
         closeBtn.addClickListener(event -> onClose());
         return closeBtn;
     }

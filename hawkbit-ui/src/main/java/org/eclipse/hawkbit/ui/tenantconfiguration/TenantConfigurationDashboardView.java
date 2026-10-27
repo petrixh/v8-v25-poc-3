@@ -27,19 +27,19 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
-import com.vaadin.data.Binder;
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.ViewScope;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Main UI for the system configuration view.
@@ -86,16 +86,16 @@ public class TenantConfigurationDashboardView extends CustomComponent
         filteredConfigurationViews.forEach(entry -> binders.add(entry.getBinder()));
 
         final Panel rootPanel = new Panel();
-        rootPanel.setStyleName("tenantconfig-root");
+        rootPanel.setClassName("tenantconfig-root");
 
         final VerticalLayout rootLayout = new VerticalLayout();
         rootLayout.setSizeFull();
-        rootLayout.setMargin(true);
+        rootLayout.setPadding(true);
         rootLayout.setSpacing(true);
         filteredConfigurationViews.forEach(rootLayout::addComponent);
 
         final HorizontalLayout buttonContent = saveConfigurationButtonsLayout();
-        rootLayout.addComponent(buttonContent);
+        rootLayout.add(buttonContent);
         rootLayout.setComponentAlignment(buttonContent, Alignment.BOTTOM_LEFT);
         rootPanel.setContent(rootLayout);
         setCompositionRoot(rootPanel);
@@ -111,22 +111,22 @@ public class TenantConfigurationDashboardView extends CustomComponent
         final HorizontalLayout hlayout = new HorizontalLayout();
         hlayout.setSpacing(true);
         saveConfigurationBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.SYSTEM_CONFIGURATION_SAVE, "", "",
-                "", true, VaadinIcons.HARDDRIVE, SPUIButtonStyleNoBorder.class);
+                "", true, VaadinIcon.HARDDRIVE, SPUIButtonStyleNoBorder.class);
         saveConfigurationBtn.setEnabled(false);
         saveConfigurationBtn.setDescription(i18n.getMessage("configuration.savebutton.tooltip"));
         saveConfigurationBtn.addClickListener(event -> saveConfiguration());
-        hlayout.addComponent(saveConfigurationBtn);
+        hlayout.add(saveConfigurationBtn);
 
         undoConfigurationBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.SYSTEM_CONFIGURATION_CANCEL, "",
-                "", "", true, VaadinIcons.ARROW_BACKWARD, SPUIButtonStyleNoBorder.class);
+                "", "", true, VaadinIcon.ARROW_BACKWARD, SPUIButtonStyleNoBorder.class);
         undoConfigurationBtn.setEnabled(false);
         undoConfigurationBtn.setDescription(i18n.getMessage("configuration.cancellbutton.tooltip"));
         undoConfigurationBtn.addClickListener(event -> undoConfiguration());
-        hlayout.addComponent(undoConfigurationBtn);
+        hlayout.add(undoConfigurationBtn);
 
         final Link linkToSystemConfigHelp = SPUIComponentProvider.getHelpLink(i18n,
                 uiProperties.getLinks().getDocumentation().getSystemConfigurationView());
-        hlayout.addComponent(linkToSystemConfigHelp);
+        hlayout.add(linkToSystemConfigHelp);
 
         return hlayout;
     }

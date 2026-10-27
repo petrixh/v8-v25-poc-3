@@ -24,16 +24,15 @@ import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.data.provider.DataProvider;
-import com.vaadin.data.validator.IntegerRangeValidator;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.validator.IntegerRangeValidator;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * This class represents the UI item for configuring automatic action cleanup in
@@ -73,23 +72,23 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
             final VaadinMessageSource i18n) {
         this.i18n = i18n;
         this.setSpacing(false);
-        this.setMargin(false);
-        addComponent(SPUIComponentProvider.generateLabel(i18n, "label.configuration.repository.autocleanup.action"));
+        this.setPadding(false);
+        add(SPUIComponentProvider.generateLabel(i18n, "label.configuration.repository.autocleanup.action"));
         container = new VerticalLayout();
         container.setSpacing(false);
-        container.setMargin(false);
+        container.setPadding(false);
         final HorizontalLayout row1 = newHorizontalLayout();
         actionStatusCombobox = SPUIComponentProvider.getComboBox(
                 UIComponentIdProvider.SYSTEM_CONFIGURATION_ACTION_CLEANUP_ACTION_TYPES, null, null, null, false,
                 ActionStatusOption::getName, DataProvider.ofCollection(ACTION_STATUS_OPTIONS));
-        actionStatusCombobox.removeStyleName(ValoTheme.COMBOBOX_SMALL);
-        actionStatusCombobox.addStyleName(ValoTheme.COMBOBOX_TINY);
-        actionStatusCombobox.setWidth(200.0F, Unit.PIXELS);
+        actionStatusCombobox.removeClassNames("small");
+        actionStatusCombobox.addClassNames("tiny");
+        actionStatusCombobox.setWidth("200px");
         binder.bind(actionStatusCombobox, ProxySystemConfigRepository::getActionCleanupStatus,
                 ProxySystemConfigRepository::setActionCleanupStatus);
         actionExpiryInput = new TextFieldBuilder(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
         actionExpiryInput.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_ACTION_CLEANUP_ACTION_EXPIRY);
-        actionExpiryInput.setWidth(55, Unit.PIXELS);
+        actionExpiryInput.setWidth("55px");
         binder.forField(actionExpiryInput).asRequired(i18n.getMessage(MSG_KEY_INVALID_EXPIRY))
                 .withValidator((value, context) -> {
                     try {
@@ -100,24 +99,24 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
                     }
                 }).bind(ProxySystemConfigRepository::getActionExpiryDays, ProxySystemConfigRepository::setActionExpiryDays);
 
-        row1.addComponent(newLabel(MSG_KEY_PREFIX));
-        row1.addComponent(actionStatusCombobox);
-        row1.addComponent(newLabel(MSG_KEY_BODY));
-        row1.addComponent(actionExpiryInput);
-        row1.addComponent(newLabel(MSG_KEY_SUFFIX));
-        container.addComponent(row1);
+        row1.add(newLabel(MSG_KEY_PREFIX));
+        row1.add(actionStatusCombobox);
+        row1.add(newLabel(MSG_KEY_BODY));
+        row1.add(actionExpiryInput);
+        row1.add(newLabel(MSG_KEY_SUFFIX));
+        container.add(row1);
 
         final HorizontalLayout row2 = newHorizontalLayout();
-        row2.addComponent(newLabel(MSG_KEY_NOTICE));
-        container.addComponent(row2);
+        row2.add(newLabel(MSG_KEY_NOTICE));
+        container.add(row2);
         if (binder.getBean().isActionAutocleanup()) {
             showSettings();
         }
     }
 
-    private Label newLabel(final String msgKey) {
-        final Label label = SPUIComponentProvider.generateLabel(i18n, msgKey);
-        label.setWidthUndefined();
+    private Span newLabel(final String msgKey) {
+        final Span label = SPUIComponentProvider.generateLabel(i18n, msgKey);
+        label.setWidth(null);
         return label;
     }
 
@@ -131,14 +130,14 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
      * Show action auto cleanup settings
      */
     public void showSettings() {
-        addComponent(container);
+        add(container);
     }
 
     /**
      * Hide action auto cleanup settings
      */
     public void hideSettings() {
-        removeComponent(container);
+        remove(container);
     }
 
     /**

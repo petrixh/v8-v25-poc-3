@@ -16,8 +16,8 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
 
 import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Distribution set window layout
@@ -61,7 +61,7 @@ public class DsTypeWindowLayout extends TagWindowLayout<ProxyType> {
     public ComponentContainer getRootComponent() {
         final ComponentContainer rootLayout = super.getRootComponent();
 
-        rootLayout.addComponent(dsTypeSmSelectLayout);
+        rootLayout.add(dsTypeSmSelectLayout);
 
         return rootLayout;
     }

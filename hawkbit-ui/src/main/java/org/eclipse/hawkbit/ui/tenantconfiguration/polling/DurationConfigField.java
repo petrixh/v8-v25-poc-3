@@ -14,39 +14,39 @@ import java.time.Duration;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
 
 /**
- * The DurationConfigField consists of three vaadin fields. A {@link Label}
- * {@link DurationField} and a {@link CheckBox}. The user can then enter a
+ * The DurationConfigField consists of three vaadin fields. A {@link Span}
+ * {@link DurationField} and a {@link Checkbox}. The user can then enter a
  * duration in the DurationField or he can configure using the global duration
- * by changing the CheckBox.
+ * by changing the Checkbox.
  */
 public final class DurationConfigField extends HorizontalLayout {
     private static final long serialVersionUID = 1L;
 
-    private final CheckBox checkBox = new CheckBox();
+    private final Checkbox checkBox = new Checkbox();
     private final DurationField durationField = new DurationField();
     private transient Duration globalDuration;
 
     private DurationConfigField(final String id, final VaadinMessageSource i18n) {
         this.setId(id);
         this.setSpacing(true);
-        this.setMargin(false);
-        this.addStyleName("duration-config-field");
+        this.setPadding(false);
+        this.addClassNames("duration-config-field");
 
         durationField.setId(id + ".field");
         checkBox.setId(id + ".checkbox");
         durationField.setEnabled(false);
         durationField.setI18n(i18n);
 
-        this.addComponent(checkBox);
+        this.add(checkBox);
         this.setComponentAlignment(checkBox, Alignment.MIDDLE_LEFT);
 
-        this.addComponent(durationField);
-        this.setExpandRatio(durationField, 1.0F);
+        this.add(durationField);
+        this.setFlexGrow(1.0F, durationField);
         this.setComponentAlignment(durationField, Alignment.MIDDLE_LEFT);
 
         checkBox.addValueChangeListener(event -> checkBoxChanged(event.getValue()));
@@ -73,7 +73,7 @@ public final class DurationConfigField extends HorizontalLayout {
     /**
      * @return Duration config checkbox
      */
-    public CheckBox getCheckBox() {
+    public Checkbox getCheckBox() {
         return checkBox;
     }
 

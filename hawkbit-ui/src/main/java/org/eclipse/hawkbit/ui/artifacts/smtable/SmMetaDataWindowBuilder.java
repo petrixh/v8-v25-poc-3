@@ -14,7 +14,7 @@ import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractMetaDataWindowBuilder;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Builder for Software module meta data windows
@@ -47,7 +47,7 @@ public class SmMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<Long>
      *
      * @return software module window
      */
-    public Window getWindowForShowSmMetaData(final Long smId, final String name) {
+    public Dialog getWindowForShowSmMetaData(final Long smId, final String name) {
         return getWindowForShowSmMetaData(smId, name, null);
     }
 
@@ -63,7 +63,7 @@ public class SmMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<Long>
      *
      * @return software module window
      */
-    public Window getWindowForShowSmMetaData(final Long smId, final String name, final ProxyMetaData proxyMetaData) {
+    public Dialog getWindowForShowSmMetaData(final Long smId, final String name, final ProxyMetaData proxyMetaData) {
         return getWindowForShowMetaData(new SmMetaDataWindowLayout(uiDependencies, smManagement), smId, name, proxyMetaData);
     }
 }

@@ -19,11 +19,11 @@ import org.eclipse.hawkbit.ui.utils.TrimmingStringConverter;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Builder for software module window layout
@@ -128,7 +128,7 @@ public class SmWindowLayoutComponentBuilder {
      *
      * @return input component
      */
-    public CheckBox createArtifactEncryptionCheck(final Binder<ProxySoftwareModule> binder) {
+    public Checkbox createArtifactEncryptionCheck(final Binder<ProxySoftwareModule> binder) {
         return FormComponentBuilder.createCheckBox(i18n.getMessage(ARTIFACT_ENCRYPTION),
                 UIComponentIdProvider.ARTIFACT_ENCRYPTION_ID, binder, ProxySoftwareModule::isEncrypted,
                 ProxySoftwareModule::setEncrypted);

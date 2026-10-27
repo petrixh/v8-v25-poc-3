@@ -30,8 +30,8 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.vaadin.spring.annotation.SpringComponent;
-import com.vaadin.spring.annotation.VaadinSessionScope;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 
 /**
  * User status of Artifact upload.

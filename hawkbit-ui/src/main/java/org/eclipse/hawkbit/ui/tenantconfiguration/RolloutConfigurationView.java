@@ -20,12 +20,12 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.CheckBox;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Provides configuration of the RolloutManagement including enabling/disabling
@@ -56,23 +56,23 @@ public class RolloutConfigurationView extends BaseConfigurationView<ProxySystemC
     private void init() {
         final Panel rootPanel = new Panel();
         rootPanel.setSizeFull();
-        rootPanel.addStyleName("config-panel");
+        rootPanel.addClassNames("config-panel");
 
         final VerticalLayout vLayout = new VerticalLayout();
         vLayout.setSpacing(false);
-        vLayout.setMargin(true);
+        vLayout.setPadding(true);
         vLayout.setSizeFull();
 
-        final Label header = new Label(i18n.getMessage("configuration.rollout.title"));
-        header.addStyleName("config-panel-header");
-        vLayout.addComponent(header);
+        final Span header = new Span(i18n.getMessage("configuration.rollout.title"));
+        header.addClassNames("config-panel-header");
+        vLayout.add(header);
 
         final GridLayout gridLayout = new GridLayout(3, 1);
         gridLayout.setSpacing(true);
         gridLayout.setColumnExpandRatio(1, 1.0F);
         gridLayout.setSizeFull();
 
-        final CheckBox approvalCheckbox = FormComponentBuilder.createCheckBox(
+        final Checkbox approvalCheckbox = FormComponentBuilder.createCheckBox(
                 UIComponentIdProvider.ROLLOUT_APPROVAL_ENABLED_CHECKBOX, getBinder(),
                 ProxySystemConfigRollout::isRolloutApproval, ProxySystemConfigRollout::setRolloutApproval);
 
@@ -83,7 +83,7 @@ public class RolloutConfigurationView extends BaseConfigurationView<ProxySystemC
         gridLayout.addComponent(linkToApprovalHelp, 2, 0);
         gridLayout.setComponentAlignment(linkToApprovalHelp, Alignment.BOTTOM_RIGHT);
 
-        vLayout.addComponent(gridLayout);
+        vLayout.add(gridLayout);
         rootPanel.setContent(vLayout);
         setCompositionRoot(rootPanel);
     }

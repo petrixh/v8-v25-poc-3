@@ -23,10 +23,9 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.data.Result;
+import com.vaadin.flow.data.binder.Result;
 import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.ui.DateTimeField;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * This class represents a Field which is optimized to enter a time duration in
@@ -57,8 +56,8 @@ public class DurationField extends DateTimeField {
     protected DurationField() {
         this.setResolution(DateTimeResolution.SECOND);
         this.setDateFormat(DURATION_FORMAT_STIRNG);
-        this.addStyleName(CSS_STYLE_NAME);
-        this.addStyleName(ValoTheme.TEXTFIELD_TINY);
+        this.addClassNames(CSS_STYLE_NAME);
+        this.addClassNames("tiny");
         this.setWidth("100px");
 
         // needed that popup shows a 24h clock

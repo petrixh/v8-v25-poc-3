@@ -9,7 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.Component;
 
 /**
  * Interface that all system configurations have to implement to save and undo

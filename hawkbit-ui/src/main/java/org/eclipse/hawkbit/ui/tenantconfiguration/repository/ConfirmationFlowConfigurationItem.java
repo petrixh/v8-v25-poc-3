@@ -9,7 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration.repository;
 
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
@@ -31,7 +31,7 @@ public class ConfirmationFlowConfigurationItem extends VerticalLayout {
    */
   public ConfirmationFlowConfigurationItem(final VaadinMessageSource i18n) {
     this.setSpacing(false);
-    this.setMargin(false);
-    addComponent(SPUIComponentProvider.generateLabel(i18n, MSG_KEY_CHECKBOX));
+    this.setPadding(false);
+    add(SPUIComponentProvider.generateLabel(i18n, MSG_KEY_CHECKBOX));
   }
 }

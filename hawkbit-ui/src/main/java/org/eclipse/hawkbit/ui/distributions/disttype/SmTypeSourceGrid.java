@@ -16,8 +16,7 @@ import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionModel;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.grid.Grid;
 
 /**
  * Software Module Source Type grid which is shown on the Distribution Type
@@ -44,13 +43,13 @@ public class SmTypeSourceGrid extends Grid<ProxyType> {
 
     private void init() {
         setSizeFull();
-        setHeightUndefined();
-        addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        addStyleName(ValoTheme.TABLE_NO_STRIPES);
-        addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-        addStyleName(ValoTheme.TABLE_SMALL);
+        setHeight(null);
+        addClassNames("no-horizontal-lines");
+        addClassNames("no-stripes");
+        addClassNames("no-vertical-lines");
+        addClassNames("small");
         // used to deactivate cell text selection by user
-        addStyleName(AbstractGrid.MULTI_SELECT_STYLE);
+        addClassNames(AbstractGrid.MULTI_SELECT_STYLE);
 
         setId(SPUIDefinitions.TWIN_TABLE_SOURCE_ID);
         setSelectionModel(new RangeSelectionModel<>(i18n));

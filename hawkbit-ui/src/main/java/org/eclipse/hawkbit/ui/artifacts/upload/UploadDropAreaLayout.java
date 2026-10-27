@@ -27,12 +27,12 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Html5File;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.ui.dnd.FileDropHandler;
 import com.vaadin.ui.dnd.FileDropTarget;
 import com.vaadin.ui.dnd.event.FileDropEvent;
@@ -92,24 +92,24 @@ public class UploadDropAreaLayout extends CustomComponent implements MasterEntit
     private void buildLayout() {
         dropAreaLayout = new VerticalLayout();
         dropAreaLayout.setId(UIComponentIdProvider.UPLOAD_ARTIFACT_FILE_DROP_LAYOUT);
-        dropAreaLayout.setMargin(false);
+        dropAreaLayout.setPadding(false);
         dropAreaLayout.setSpacing(false);
-        dropAreaLayout.addStyleName("upload-drop-area-layout-info");
+        dropAreaLayout.addClassNames("upload-drop-area-layout-info");
         dropAreaLayout.setEnabled(false);
-        dropAreaLayout.setHeightUndefined();
+        dropAreaLayout.setHeight(null);
 
-        final Label dropIcon = new Label(VaadinIcons.ARROW_DOWN.getHtml(), ContentMode.HTML);
-        dropIcon.addStyleName("drop-icon");
+        final Span dropIcon = new Span(VaadinIcon.ARROW_DOWN.getHtml(), ContentMode.HTML);
+        dropIcon.addClassNames("drop-icon");
         dropIcon.setWidth(null);
-        dropAreaLayout.addComponent(dropIcon);
+        dropAreaLayout.add(dropIcon);
 
-        final Label dropHereLabel = new Label(i18n.getMessage(UIMessageIdProvider.LABEL_DROP_AREA_UPLOAD));
+        final Span dropHereLabel = new Span(i18n.getMessage(UIMessageIdProvider.LABEL_DROP_AREA_UPLOAD));
         dropHereLabel.setWidth(null);
-        dropAreaLayout.addComponent(dropHereLabel);
+        dropAreaLayout.add(dropHereLabel);
 
         uploadButtonLayout.setWidth(null);
-        uploadButtonLayout.addStyleName("upload-button");
-        dropAreaLayout.addComponent(uploadButtonLayout);
+        uploadButtonLayout.addClassNames("upload-button");
+        dropAreaLayout.add(uploadButtonLayout);
 
         new FileDropTarget<>(dropAreaLayout, new UploadFileDropHandler());
 

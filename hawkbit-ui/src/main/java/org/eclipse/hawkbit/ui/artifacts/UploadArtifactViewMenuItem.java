@@ -18,10 +18,10 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.server.Resource;
-import com.vaadin.spring.annotation.SpringComponent;
-import com.vaadin.spring.annotation.UIScope;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 
 /**
  * Display artifacts upload view menu item.
@@ -46,7 +46,7 @@ public class UploadArtifactViewMenuItem extends AbstractDashboardMenuItemNotific
 
     @Override
     public Resource getDashboardIcon() {
-        return VaadinIcons.UPLOAD;
+        return VaadinIcon.UPLOAD;
     }
 
     @Override

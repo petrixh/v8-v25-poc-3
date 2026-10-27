@@ -17,7 +17,7 @@ import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Builder for distribution set type window
@@ -55,14 +55,14 @@ public class DsTypeWindowBuilder extends AbstractEntityWindowBuilder<ProxyType> 
     }
 
     @Override
-    public Window getWindowForAdd() {
+    public Dialog getWindowForAdd() {
         return getWindowForNewEntity(new AddDsTypeWindowController(uiDependencies, dsTypeManagement,
                 new DsTypeWindowLayout(uiDependencies, smTypeManagement)));
 
     }
 
     @Override
-    public Window getWindowForUpdate(final ProxyType proxyType) {
+    public Dialog getWindowForUpdate(final ProxyType proxyType) {
         return getWindowForEntity(proxyType, new UpdateDsTypeWindowController(uiDependencies, dsTypeManagement, dsManagement,
                 new DsTypeWindowLayout(uiDependencies, smTypeManagement)));
     }

@@ -23,13 +23,13 @@ import org.eclipse.hawkbit.ui.tenantconfiguration.window.SystemConfigWindowDepen
 import org.eclipse.hawkbit.ui.tenantconfiguration.window.SystemConfigWindowLayoutComponentBuilder;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.HasValue;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Default DistributionSet Panel.
@@ -45,7 +45,7 @@ public class DefaultDistributionSetTypeView extends BaseConfigurationView<ProxyS
     private ComboBox<ProxyTypeInfo> dsSetTypeComboBox;
     private final transient SystemManagement systemManagement;
     private final transient SystemConfigWindowLayoutComponentBuilder builder;
-    private Label changeIcon;
+    private Span changeIcon;
 
     DefaultDistributionSetTypeView(final VaadinMessageSource i18n,
             final TenantConfigurationManagement tenantConfigurationManagement, final SystemManagement systemManagement,
@@ -73,34 +73,34 @@ public class DefaultDistributionSetTypeView extends BaseConfigurationView<ProxyS
         }
         final Panel rootPanel = new Panel();
         rootPanel.setSizeFull();
-        rootPanel.addStyleName("config-panel");
+        rootPanel.addClassNames("config-panel");
         final VerticalLayout vlayout = new VerticalLayout();
         vlayout.setSpacing(false);
-        vlayout.setMargin(true);
+        vlayout.setPadding(true);
         vlayout.setSizeFull();
 
-        final Label header = new Label(i18n.getMessage("configuration.defaultdistributionset.title"));
-        header.addStyleName("config-panel-header");
-        vlayout.addComponent(header);
+        final Span header = new Span(i18n.getMessage("configuration.defaultdistributionset.title"));
+        header.addClassNames("config-panel-header");
+        vlayout.add(header);
 
         currentDefaultDistSetTypeId = getCurrentDistributionSetTypeId();
 
         final HorizontalLayout hlayout = new HorizontalLayout();
         hlayout.setSpacing(true);
 
-        final Label configurationLabel = new LabelBuilder()
+        final Span configurationLabel = new LabelBuilder()
                 .name(i18n.getMessage("configuration.defaultdistributionset.select.label")).buildLabel();
-        hlayout.addComponent(configurationLabel);
+        hlayout.add(configurationLabel);
 
         initDsSetTypeComboBox();
-        hlayout.addComponent(dsSetTypeComboBox);
+        hlayout.add(dsSetTypeComboBox);
 
-        changeIcon = new Label();
-        changeIcon.setIcon(VaadinIcons.CHECK);
-        hlayout.addComponent(changeIcon);
+        changeIcon = new Span();
+        changeIcon.setIcon(VaadinIcon.CHECK);
+        hlayout.add(changeIcon);
         changeIcon.setVisible(false);
 
-        vlayout.addComponent(hlayout);
+        vlayout.add(hlayout);
         rootPanel.setContent(vlayout);
         setCompositionRoot(rootPanel);
     }

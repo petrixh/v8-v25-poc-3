@@ -24,7 +24,7 @@ import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Distribution Set Type filter buttons.
@@ -107,7 +107,7 @@ public class DSTypeFilterButtons extends AbstractTypeFilterButtons {
     }
 
     @Override
-    protected Window getUpdateWindow(final ProxyType clickedFilter) {
+    protected Dialog getUpdateWindow(final ProxyType clickedFilter) {
         return dsTypeWindowBuilder.getWindowForUpdate(clickedFilter);
     }
 

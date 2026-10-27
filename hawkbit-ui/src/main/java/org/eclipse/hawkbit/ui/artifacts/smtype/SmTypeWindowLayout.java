@@ -15,9 +15,9 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType.SmTypeAssign;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
 
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.RadioButtonGroup;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Software module type Window Layout view
