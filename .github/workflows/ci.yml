@@ -8,10 +8,11 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-# CI of the migration (.github/CI.md): build the Vaadin 8 UI path, start one isolated copy, smoke-log-in every test
-# user, run the test suite. One job, so the build is never passed between jobs through artifact storage; diagnostics
-# are uploaded only on failure (a step over its time limit is a failure). Downloads only from Maven Central, maven.vaadin.com, official Docker Hub images, npm
-# and the Playwright browser download.
+# CI of the migration (.github/CI.md): build the UI path on Java 21 and Vaadin 25, start one isolated copy, smoke-log-in
+# every test user, run the test suite. One job, so the build is never passed between jobs through artifact storage;
+# diagnostics are uploaded only on failure (a step over its time limit is a failure). Downloads only from Maven
+# Central, nodejs.org (Node for the frontend build), the npm registry, official Docker Hub images and the Playwright
+# browser download.
 name: CI
 
 on:
@@ -36,6 +37,8 @@ env:
   APP_ENV_USERS_PROPERTIES: /home/runner/.config/mig-ci/test-users.properties
   APP_ENV_USERS_ENV: /home/runner/.config/mig-ci/test-users.env
   APP_ENV_MAVEN_REPO: /home/runner/.m2/repository
+  # Node (Vaadin's frontend build) and the npm cache, kept between runs
+  APP_ENV_BUILD_HOME: /home/runner/.cache/mig-env-build-home
   CI_OUT: /home/runner/ci-out
   # build logs and the logs env/down.sh saves (app, DNS), next to the step output for the diagnostics upload
   APP_ENV_LOG_DIR: /home/runner/ci-out/env-logs
@@ -60,6 +63,13 @@ jobs:
           key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
           restore-keys: maven-${{ runner.os }}-
 
+      - name: Restore Node and npm cache of the frontend build
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /home/runner/.cache/mig-env-build-home
+          key: build-home-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: build-home-${{ runner.os }}-
+
       - name: Restore Playwright browser
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -72,9 +82,9 @@ jobs:
       - name: Build and start (env/up.sh)
         id: up
         timeout-minutes: 20
-        # Maven package of -pl hawkbit-vv8-ui,hawkbit-mgmt-server -am in Docker with env/maven-settings.xml and
-        # -DskipNexusStaging; fails if Maven downloaded from any host but repo.maven.apache.org and maven.vaadin.com.
-        # Then one copy on an internal Docker network, seeded, UI at 127.0.0.1:18081.
+        # Maven package of -pl hawkbit-vv8-ui,hawkbit-mgmt-server -am in Docker (JDK 21) with env/maven-settings.xml and
+        # -DskipNexusStaging; fails if Maven or the frontend build downloaded from any host but repo.maven.apache.org,
+        # nodejs.org and registry.npmjs.org. Then one copy on an internal Docker network, seeded, UI at 127.0.0.1:18081.
         run: |
           mkdir -p "$CI_OUT"
           env/up.sh 2>&1 | tee "$CI_OUT/up.log"

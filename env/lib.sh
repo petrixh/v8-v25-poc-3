@@ -36,15 +36,23 @@ COPY_DIR="$STATE_ROOT/copies/$PROJECT"    # resolv.conf, DNS log, seed dump, mgm
 LOG_ROOT="${APP_ENV_LOG_DIR:-$STATE_ROOT/logs}"
 
 # ---- images: official Docker Hub images only, each pinned by its multi-arch index digest, so every host runs the
-# same versions: Maven 3.9.16 on JDK 17.0.20.1, JRE 17.0.20.1, MySQL 8.0.46, RabbitMQ 3.13.7, Python 3.9.6 (helpers
+# same versions: Maven 3.9.16 on JDK 21.0.12.1, JRE 21.0.12.1, MySQL 8.0.46, RabbitMQ 3.13.7, Python 3.9.6 (helpers
 # only: DNS, proxy, seed). The tag is for readers; Docker resolves the digest. Change a version here and in README.md.
-MAVEN_IMG="${APP_ENV_MAVEN_IMAGE:-maven:3.9-eclipse-temurin-17@sha256:1a352420f7aba21f5ad08df31bab55f74c013fb491f1ae8ab1dd7ff9ed698584}"
-JRE_IMG="eclipse-temurin:17-jre@sha256:e04fa72be13b257a59fdec6dc14af78c8f80f035d3c1ed4e03e45552a231d4c8"
+MAVEN_IMG="${APP_ENV_MAVEN_IMAGE:-maven:3.9-eclipse-temurin-21@sha256:99e61abcff91a9b1333463bd8451fb18495d6eba9250ac66a338b518f8278320}"
+JRE_IMG="eclipse-temurin:21-jre@sha256:ff92a063dac03a29fca3987bcfc66aa5f17769542df802bbf7d2ebaba4df8ebe"
 MYSQL_IMG="mysql:8.0@sha256:7dcddc01f13bab2f15cde676d44d01f61fc9f99fe7785e86196dfc07d358ae2b"
 RABBIT_IMG="rabbitmq:3-management-alpine@sha256:606d8c0d6b3c18d1da9afc53bc7cdb2a8d5486df91b5a9830e9e07626c9ae281"
 PY_IMG="python:3.9.6-slim@sha256:4115592fd02679fb3d9e8c513cae33ad3fdd64747b64d32b504419d7118bcd7c"
-MARIADB_VER="3.1.4"
-IMAGE_REPO="${APP_ENV_IMAGE_REPO:-mig-old-hawkbit}"
+MARIADB_VER="3.5.10"   # the version Spring Boot 4.1.2 manages (the new dependency tree); proven with MySQL 8.0 in the stage 1a spike
+IMAGE_REPO="${APP_ENV_IMAGE_REPO:-mig-new-hawkbit}"   # distinct from the old app's mig-old-hawkbit: the two never share an image
+
+# ---- the Maven container's home. Vaadin's frontend build puts Node in ${user.home}/.vaadin (Java takes user.home from
+# the passwd entry of the uid, not from $HOME, so it is set with -Duser.home) and npm its cache in $HOME/.npm. One
+# host dir holds both, so Node is downloaded once and not on every build. Hosts: nodejs.org, registry.npmjs.org.
+BUILD_HOME="${APP_ENV_BUILD_HOME:-$HOME/.cache/mig-env-build-home}"
+BUILD_HOME_ARGS=(-v "$BUILD_HOME:/build-home" -e HOME=/build-home -e MAVEN_OPTS=-Duser.home=/build-home)
+# Default download hosts of a build: Maven Central, and for the frontend build Node and the npm registry
+MAVEN_HOSTS_DEFAULT="repo.maven.apache.org nodejs.org registry.npmjs.org"
 
 say() { printf '%s [%s] %s\n' "$(date -u +%H:%M:%S)" "$PROJECT" "$*"; }
 die() { say "ERROR $*" >&2; exit 1; }
@@ -74,10 +82,10 @@ mgmt_up() { [ "$(timeout 15 docker exec "$C_MGMT" curl -s -o /dev/null -w '%{htt
 ui_up()   { [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "http://127.0.0.1:$PORT/UI/login")" = 200 ]; }
 
 # ---- the two app JVMs, with the settings the migration's pre-check ran them with: profile mysql, MariaDB driver on the
-# loader path. (The project's own Dockerfile-mysql puts the driver in BOOT-INF/lib and sets more JVM flags; not used.)
+# loader path (Boot 3.2 and later: the launcher is in package ...loader.launch). (The project's own Dockerfile-mysql puts the driver in BOOT-INF/lib and sets more JVM flags; not used.)
 APP_ENV_ARGS=(-e SPRING_DATASOURCE_URL=jdbc:mariadb://mysql:3306/hawkbit -e SPRING_DATASOURCE_USERNAME=root
   -e SPRING_RABBITMQ_HOST=rabbitmq -e SPRING_RABBITMQ_USERNAME=guest -e SPRING_RABBITMQ_PASSWORD=guest)
-JAVA_ARGS=(-Dspring.profiles.active=mysql -Xms768m -Xmx768m -Dloader.path=/drivers/ org.springframework.boot.loader.PropertiesLauncher)
+JAVA_ARGS=(-Dspring.profiles.active=mysql -Xms768m -Xmx768m -Dloader.path=/drivers/ org.springframework.boot.loader.launch.PropertiesLauncher)
 abs_path() { echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"; }
 
 create_mgmt() { # mgmt-server: Flyway schema owner, Management API (seed), rollout and auto-assign schedulers
@@ -101,7 +109,7 @@ check_user_files() { # up.sh, before it starts anything. The env file is read by
   fi
   return 0
 }
-create_ui() { # vv8-ui: the Vaadin 8 UI, the app under migration; test users only here (as the pre-check)
+create_ui() { # vv8-ui: the UI runtime, the app under migration; test users only here (as the pre-check)
   # Both test-user files (checked by check_user_files) are mounted read-only and loaded as Spring config, so no password is in the container's
   # config. The env file's KEY=value lines are read as properties: they resolve ${KEY} in the properties file.
   local mounts=() locs=()
