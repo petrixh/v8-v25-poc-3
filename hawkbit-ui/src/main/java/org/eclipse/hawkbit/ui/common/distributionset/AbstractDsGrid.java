@@ -26,6 +26,7 @@ import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.ColumnToggleMenu;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
@@ -157,7 +158,6 @@ public abstract class AbstractDsGrid<F extends DsFilterParams> extends AbstractG
 
         addDeleteColumn();
 
-        // Vaadin 8: setHidable(true) on every column (the user could hide
-        // columns); Flow grids have no column hiding menu
+        ColumnToggleMenu.setAllHidable(this);
     }
 }

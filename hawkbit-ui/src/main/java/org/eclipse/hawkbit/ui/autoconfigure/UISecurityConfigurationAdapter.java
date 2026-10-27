@@ -43,7 +43,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
@@ -281,10 +281,11 @@ public class UISecurityConfigurationAdapter {
         private SystemSecurityContext systemSecurityContext;
 
         // what vaadin4spring's VaadinUrlAuthenticationSuccessHandler did: the
-        // saved request, else the target URL parameter, else the default
-        // target URL; the redirect goes through the browser (Page.setLocation)
+        // target URL parameter, else the default target URL (it did not use
+        // the saved request, so the user lands on the start view as before,
+        // BR-026); the redirect goes through the browser (Page.setLocation)
         // because the login runs inside a Vaadin request
-        private final SavedRequestAwareAuthenticationSuccessHandler redirectHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+        private final SimpleUrlAuthenticationSuccessHandler redirectHandler = new SimpleUrlAuthenticationSuccessHandler();
 
         public TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler(final String defaultTargetUrl) {
             redirectHandler.setDefaultTargetUrl(defaultTargetUrl);
