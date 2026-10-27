@@ -39,9 +39,8 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.FontIcon;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 
 /**
  *
@@ -77,18 +76,18 @@ public final class StatusIconBuilder {
                 final String labelIdPrefix) {
             super(i18n, Status.class, getEntityStatus, labelIdPrefix,
                     status -> UIMessageIdProvider.TOOLTIP_ACTION_STATUS_PREFIX + status.toString().toLowerCase());
-            addMapping(Status.FINISHED, VaadinIcons.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
-            addMapping(Status.SCHEDULED, VaadinIcons.HOURGLASS_EMPTY, SPUIStyleDefinitions.STATUS_ICON_PENDING);
-            addMapping(Status.RUNNING, VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_PENDING);
-            addMapping(Status.RETRIEVED, VaadinIcons.CHECK_CIRCLE_O, SPUIStyleDefinitions.STATUS_ICON_PENDING);
-            addMapping(Status.WARNING, VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_ORANGE);
-            addMapping(Status.DOWNLOAD, VaadinIcons.CLOUD_DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_PENDING);
-            addMapping(Status.DOWNLOADED, VaadinIcons.CLOUD_DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_GREEN);
-            addMapping(Status.CANCELING, VaadinIcons.CLOSE_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_PENDING);
-            addMapping(Status.CANCEL_REJECTED, VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_ORANGE);
-            addMapping(Status.CANCELED, VaadinIcons.CLOSE_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
-            addMapping(Status.ERROR, VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED);
-            addMapping(Status.WAIT_FOR_CONFIRMATION, VaadinIcons.USER_CLOCK, SPUIStyleDefinitions.STATUS_ICON_PENDING);
+            addMapping(Status.FINISHED, VaadinIcon.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
+            addMapping(Status.SCHEDULED, VaadinIcon.HOURGLASS_EMPTY, SPUIStyleDefinitions.STATUS_ICON_PENDING);
+            addMapping(Status.RUNNING, VaadinIcon.ADJUST, SPUIStyleDefinitions.STATUS_ICON_PENDING);
+            addMapping(Status.RETRIEVED, VaadinIcon.CHECK_CIRCLE_O, SPUIStyleDefinitions.STATUS_ICON_PENDING);
+            addMapping(Status.WARNING, VaadinIcon.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_ORANGE);
+            addMapping(Status.DOWNLOAD, VaadinIcon.CLOUD_DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_PENDING);
+            addMapping(Status.DOWNLOADED, VaadinIcon.CLOUD_DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_GREEN);
+            addMapping(Status.CANCELING, VaadinIcon.CLOSE_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_PENDING);
+            addMapping(Status.CANCEL_REJECTED, VaadinIcon.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_ORANGE);
+            addMapping(Status.CANCELED, VaadinIcon.CLOSE_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
+            addMapping(Status.ERROR, VaadinIcon.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED);
+            addMapping(Status.WAIT_FOR_CONFIRMATION, VaadinIcon.USER_CLOCK, SPUIStyleDefinitions.STATUS_ICON_PENDING);
 
         }
     }
@@ -117,14 +116,14 @@ public final class StatusIconBuilder {
                 final Function<E, RolloutStatus> getEntityStatus, final String labelIdPrefix) {
             super(i18n, RolloutStatus.class, getEntityStatus, labelIdPrefix,
                     status -> UIMessageIdProvider.TOOLTIP_ROLLOUT_STATUS_PREFIX + status.toString().toLowerCase());
-            addMapping(RolloutStatus.FINISHED, VaadinIcons.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
-            addMapping(RolloutStatus.PAUSED, VaadinIcons.PAUSE, SPUIStyleDefinitions.STATUS_ICON_BLUE);
+            addMapping(RolloutStatus.FINISHED, VaadinIcon.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
+            addMapping(RolloutStatus.PAUSED, VaadinIcon.PAUSE, SPUIStyleDefinitions.STATUS_ICON_BLUE);
             addMapping(RolloutStatus.RUNNING, null, SPUIStyleDefinitions.STATUS_SPINNER_YELLOW);
-            addMapping(RolloutStatus.WAITING_FOR_APPROVAL, VaadinIcons.HOURGLASS,
+            addMapping(RolloutStatus.WAITING_FOR_APPROVAL, VaadinIcon.HOURGLASS,
                     SPUIStyleDefinitions.STATUS_ICON_ORANGE);
-            addMapping(RolloutStatus.APPROVAL_DENIED, VaadinIcons.CLOSE_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED);
-            addMapping(RolloutStatus.READY, VaadinIcons.BULLSEYE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE);
-            addMapping(RolloutStatus.STOPPED, VaadinIcons.STOP, SPUIStyleDefinitions.STATUS_ICON_RED);
+            addMapping(RolloutStatus.APPROVAL_DENIED, VaadinIcon.CLOSE_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED);
+            addMapping(RolloutStatus.READY, VaadinIcon.BULLSEYE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE);
+            addMapping(RolloutStatus.STOPPED, VaadinIcon.STOP, SPUIStyleDefinitions.STATUS_ICON_RED);
             addMapping(RolloutStatus.CREATING, null, SPUIStyleDefinitions.STATUS_SPINNER_GREY);
             addMapping(RolloutStatus.STARTING, null, SPUIStyleDefinitions.STATUS_SPINNER_BLUE);
             addMapping(RolloutStatus.DELETING, null, SPUIStyleDefinitions.STATUS_SPINNER_RED);
@@ -157,11 +156,11 @@ public final class StatusIconBuilder {
             super(i18n, RolloutGroupStatus.class, getEntityStatus, labelIdPrefix,
                     status -> UIMessageIdProvider.TOOLTIP_ROLLOUT_GROUP_STATUS_PREFIX
                             + status.toString().toLowerCase());
-            addMapping(RolloutGroupStatus.FINISHED, VaadinIcons.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
-            addMapping(RolloutGroupStatus.RUNNING, VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW);
-            addMapping(RolloutGroupStatus.READY, VaadinIcons.BULLSEYE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE);
-            addMapping(RolloutGroupStatus.ERROR, VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED);
-            addMapping(RolloutGroupStatus.SCHEDULED, VaadinIcons.HOURGLASS_START,
+            addMapping(RolloutGroupStatus.FINISHED, VaadinIcon.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
+            addMapping(RolloutGroupStatus.RUNNING, VaadinIcon.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW);
+            addMapping(RolloutGroupStatus.READY, VaadinIcon.BULLSEYE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE);
+            addMapping(RolloutGroupStatus.ERROR, VaadinIcon.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED);
+            addMapping(RolloutGroupStatus.SCHEDULED, VaadinIcon.HOURGLASS_START,
                     SPUIStyleDefinitions.STATUS_ICON_PENDING);
         }
     }
@@ -203,7 +202,7 @@ public final class StatusIconBuilder {
         }
 
         @Override
-        public Label getLabel(final E entity) {
+        public Span getLabel(final E entity) {
             final Optional<RolloutGroup> group = rolloutGroupManagement
                     .get(rolloutManagementUIState.getSelectedRolloutGroupId());
             final Optional<ProxyFontIcon> optionalIcon = getIcon(entity);
@@ -239,19 +238,19 @@ public final class StatusIconBuilder {
         // display a appropriate status with description
         private ProxyFontIcon buildStatusIcon(final RolloutGroup rolloutGroup) {
             if (rolloutGroup != null && rolloutGroup.getStatus() == RolloutGroupStatus.READY) {
-                return new ProxyFontIcon(VaadinIcons.BULLSEYE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE,
+                return new ProxyFontIcon(VaadinIcon.BULLSEYE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE,
                         i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_GROUP_STATUS_PREFIX
                                 + RolloutGroupStatus.READY.toString().toLowerCase()));
             } else if (rolloutGroup != null && rolloutGroup.getStatus() == RolloutGroupStatus.FINISHED) {
                 final DistributionSet dist = rolloutGroup.getRollout().getDistributionSet();
                 final String ds = HawkbitCommonUtil.getFormattedNameVersion(dist.getName(), dist.getVersion());
                 if (dist.isValid()) {
-                    return new ProxyFontIcon(VaadinIcons.MINUS_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+                    return new ProxyFontIcon(VaadinIcon.MINUS_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
                             i18n.getMessage(UIMessageIdProvider.MESSAGE_DISTRIBUTION_ASSIGNED, ds));
                 } else {
                     // invalidated ds, finished rollout but ds wasn't assigned
                     // to target
-                    return new ProxyFontIcon(VaadinIcons.BAN, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+                    return new ProxyFontIcon(VaadinIcon.BAN, SPUIStyleDefinitions.STATUS_ICON_BLUE,
                             i18n.getMessage(UIMessageIdProvider.MESSAGE_DISTRIBUTION_NOT_ASSIGNED, ds));
                 }
             } else {
@@ -287,11 +286,11 @@ public final class StatusIconBuilder {
             super(i18n, IsActiveDecoration.class, getEntityStatus, labelIdPrefix,
                     status -> UIMessageIdProvider.TOOLTIP_ACTIVE_ACTION_STATUS_PREFIX + status.getMsgName());
             addMapping(IsActiveDecoration.ACTIVE, null, SPUIStyleDefinitions.STATUS_ICON_ACTIVE);
-            addMapping(IsActiveDecoration.SCHEDULED, VaadinIcons.HOURGLASS_EMPTY,
+            addMapping(IsActiveDecoration.SCHEDULED, VaadinIcon.HOURGLASS_EMPTY,
                     SPUIStyleDefinitions.STATUS_ICON_PENDING);
-            addMapping(IsActiveDecoration.IN_ACTIVE, VaadinIcons.CHECK_CIRCLE,
+            addMapping(IsActiveDecoration.IN_ACTIVE, VaadinIcon.CHECK_CIRCLE,
                     SPUIStyleDefinitions.STATUS_ICON_NEUTRAL);
-            addMapping(IsActiveDecoration.IN_ACTIVE_ERROR, VaadinIcons.CHECK_CIRCLE,
+            addMapping(IsActiveDecoration.IN_ACTIVE_ERROR, VaadinIcon.CHECK_CIRCLE,
                     SPUIStyleDefinitions.STATUS_ICON_RED);
         }
     }
@@ -319,13 +318,13 @@ public final class StatusIconBuilder {
         public ActionTypeIconSupplier(final VaadinMessageSource i18n, final Function<E, ActionType> getEntityStatus,
                 final String labelIdPrefix) {
             super(i18n, ActionType.class, getEntityStatus, labelIdPrefix);
-            addMapping(ActionType.FORCED, VaadinIcons.BOLT, SPUIStyleDefinitions.STATUS_ICON_FORCED,
+            addMapping(ActionType.FORCED, VaadinIcon.BOLT, SPUIStyleDefinitions.STATUS_ICON_FORCED,
                     UIMessageIdProvider.CAPTION_ACTION_FORCED);
-            addMapping(ActionType.TIMEFORCED, VaadinIcons.BOLT, SPUIStyleDefinitions.STATUS_ICON_FORCED,
+            addMapping(ActionType.TIMEFORCED, VaadinIcon.BOLT, SPUIStyleDefinitions.STATUS_ICON_FORCED,
                     UIMessageIdProvider.CAPTION_ACTION_FORCED);
-            addMapping(ActionType.SOFT, VaadinIcons.STEP_FORWARD, SPUIStyleDefinitions.STATUS_ICON_SOFT,
+            addMapping(ActionType.SOFT, VaadinIcon.STEP_FORWARD, SPUIStyleDefinitions.STATUS_ICON_SOFT,
                     UIMessageIdProvider.CAPTION_ACTION_SOFT);
-            addMapping(ActionType.DOWNLOAD_ONLY, VaadinIcons.DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_DOWNLOAD_ONLY,
+            addMapping(ActionType.DOWNLOAD_ONLY, VaadinIcon.DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_DOWNLOAD_ONLY,
                     UIMessageIdProvider.CAPTION_ACTION_DOWNLOAD_ONLY);
         }
     }
@@ -350,16 +349,16 @@ public final class StatusIconBuilder {
         }
 
         @Override
-        public Label getLabel(final ProxyTargetFilterQuery entity) {
+        public Span getLabel(final ProxyTargetFilterQuery entity) {
             final ProxyFontIcon icon;
             if (entity.isAutoAssignmentEnabled() && entity.getDistributionSetInfo() != null) {
                 icon = entity.isConfirmationRequired()
-                        ? new ProxyFontIcon(VaadinIcons.USER_CLOCK, SPUIStyleDefinitions.STATUS_ICON_GREEN,
+                        ? new ProxyFontIcon(VaadinIcon.USER_CLOCK, SPUIStyleDefinitions.STATUS_ICON_GREEN,
                                 i18n.getMessage(UIMessageIdProvider.TOOLTIP_TARGET_FILTER_CONFIRMATION_REQUIRED))
-                        : new ProxyFontIcon(VaadinIcons.USER_CHECK, SPUIStyleDefinitions.STATUS_ICON_RED,
+                        : new ProxyFontIcon(VaadinIcon.USER_CHECK, SPUIStyleDefinitions.STATUS_ICON_RED,
                                 i18n.getMessage(UIMessageIdProvider.TOOLTIP_TARGET_FILTER_CONFIRMATION_NOT_REQUIRED));
             } else {
-                icon = new ProxyFontIcon(VaadinIcons.MINUS_CIRCLE_O, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                icon = new ProxyFontIcon(VaadinIcon.MINUS_CIRCLE_O, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                         i18n.getMessage(UIMessageIdProvider.TOOLTIP_TARGET_FILTER_CONFIRMATION_NOT_CONFIGURED));
             }
 
@@ -392,11 +391,11 @@ public final class StatusIconBuilder {
                 final Function<E, TargetUpdateStatus> getEntityStatus, final String labelIdPrefix) {
             super(i18n, TargetUpdateStatus.class, getEntityStatus, labelIdPrefix,
                     status -> UIMessageIdProvider.TOOLTIP_TARGET_STATUS_PREFIX + status.toString().toLowerCase());
-            addMapping(TargetUpdateStatus.ERROR, VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED);
-            addMapping(TargetUpdateStatus.UNKNOWN, VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE);
-            addMapping(TargetUpdateStatus.IN_SYNC, VaadinIcons.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
-            addMapping(TargetUpdateStatus.PENDING, VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW);
-            addMapping(TargetUpdateStatus.REGISTERED, VaadinIcons.DOT_CIRCLE,
+            addMapping(TargetUpdateStatus.ERROR, VaadinIcon.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED);
+            addMapping(TargetUpdateStatus.UNKNOWN, VaadinIcon.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE);
+            addMapping(TargetUpdateStatus.IN_SYNC, VaadinIcon.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
+            addMapping(TargetUpdateStatus.PENDING, VaadinIcon.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW);
+            addMapping(TargetUpdateStatus.REGISTERED, VaadinIcon.DOT_CIRCLE,
                     SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE);
         }
     }
@@ -425,9 +424,9 @@ public final class StatusIconBuilder {
                 final Function<E, ProgressSatus> getEntityStatus, final String labelIdPrefix) {
             super(i18n, ProgressSatus.class, getEntityStatus, labelIdPrefix,
                     status -> UIMessageIdProvider.TOOLTIP_UPLOAD_STATUS_PREFIX + status.toString().toLowerCase());
-            addMapping(ProgressSatus.INPROGRESS, VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW);
-            addMapping(ProgressSatus.FINISHED, VaadinIcons.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
-            addMapping(ProgressSatus.FAILED, VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED);
+            addMapping(ProgressSatus.INPROGRESS, VaadinIcon.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW);
+            addMapping(ProgressSatus.FINISHED, VaadinIcon.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
+            addMapping(ProgressSatus.FAILED, VaadinIcon.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED);
         }
     }
 
@@ -451,12 +450,12 @@ public final class StatusIconBuilder {
         }
 
         @Override
-        public Label getLabel(final ProxyTarget entity) {
+        public Span getLabel(final ProxyTarget entity) {
             final String pollStatusToolTip = entity.getPollStatusToolTip();
             final ProxyFontIcon icon = StringUtils.hasText(pollStatusToolTip)
-                    ? new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                    ? new ProxyFontIcon(VaadinIcon.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                             pollStatusToolTip)
-                    : new ProxyFontIcon(VaadinIcons.CLOCK, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                    : new ProxyFontIcon(VaadinIcon.CLOCK, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                             i18n.getMessage(UIMessageIdProvider.TOOLTIP_IN_TIME));
             return getLabel(entity, icon);
         }
@@ -482,7 +481,7 @@ public final class StatusIconBuilder {
         }
 
         @Override
-        public Label getLabel(final ProxyAction action) {
+        public Span getLabel(final ProxyAction action) {
             if (ActionType.TIMEFORCED != action.getActionType()) {
                 return null;
             }
@@ -502,7 +501,7 @@ public final class StatusIconBuilder {
                 description = i18n.getMessage(UIMessageIdProvider.TOOLTIP_TIMEFORCED_FORCED_IN, duration);
             }
 
-            final ProxyFontIcon icon = new ProxyFontIcon(VaadinIcons.TIMER, style, description);
+            final ProxyFontIcon icon = new ProxyFontIcon(VaadinIcon.TIMER, style, description);
             return getLabel(action, icon);
         }
     }
@@ -520,7 +519,7 @@ public final class StatusIconBuilder {
             this.tooltipGenerator = tooltipGenerator;
         }
 
-        protected void addMapping(final T status, final FontIcon icon, final String style) {
+        protected void addMapping(final T status, final VaadinIcon icon, final String style) {
             addMapping(status, icon, style, tooltipGenerator.apply(status));
         }
     }
@@ -539,12 +538,12 @@ public final class StatusIconBuilder {
             this.getEntityStatus = getEntityStatus;
         }
 
-        protected void addMapping(final T status, final FontIcon icon, final String style, final String tooltip) {
+        protected void addMapping(final T status, final VaadinIcon icon, final String style, final String tooltip) {
             iconMap.put(status, new ProxyFontIcon(icon, style, i18n.getMessage(tooltip)));
         }
 
         @Override
-        public Label getLabel(final E entity) {
+        public Span getLabel(final E entity) {
             final ProxyFontIcon icon = getIcon(entity).orElse(generateUnknwonStateIcon());
             return getLabel(entity, icon);
         }
@@ -575,14 +574,14 @@ public final class StatusIconBuilder {
             this.labelIdPrefix = labelIdPrefix;
         }
 
-        protected Label getLabel(final E entity, final ProxyFontIcon icon) {
+        protected Span getLabel(final E entity, final ProxyFontIcon icon) {
             final String entityStatusId = new StringBuilder(labelIdPrefix).append(".").append(entity.getId())
                     .toString();
             return SPUIComponentProvider.getLabelIcon(icon, entityStatusId);
         }
 
         protected ProxyFontIcon generateUnknwonStateIcon() {
-            return new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+            return new ProxyFontIcon(VaadinIcon.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
                     i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN));
         }
 
@@ -593,7 +592,7 @@ public final class StatusIconBuilder {
          *            to read the state from
          * @return the label
          */
-        public abstract Label getLabel(final E entity);
+        public abstract Span getLabel(final E entity);
     }
 
 }
