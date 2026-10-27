@@ -13,14 +13,19 @@
 # diagnostics are uploaded only on failure (a step over its time limit is a failure). Downloads only from Maven
 # Central, nodejs.org (Node for the frontend build), the npm registry, official Docker Hub images and the Playwright
 # browser download.
+# Runs once per commit: no pull_request trigger (the checks of a push show on its PR), and the first job ends the run
+# at once, as a success, when the commit already has a successful run of this workflow (.github/CI.md "When it runs").
 name: CI
 
 on:
   push:
     branches: [main, mig-dev, 'stage/**', 'stabilise/**', 'fix/**']
-  pull_request:
-    branches: [main, mig-dev]
   workflow_dispatch:
+    inputs:
+      force:
+        description: Run even if this commit already has a successful run of CI
+        type: boolean
+        default: false
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -44,7 +49,38 @@ env:
   APP_ENV_LOG_DIR: /home/runner/ci-out/env-logs
 
 jobs:
+  already-green:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    # the only job with this permission; it reads run metadata of this repository with the job's own token
+    permissions:
+      actions: read
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - name: Has this commit a successful CI run already
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FORCE: ${{ inputs.force }}
+        run: |
+          skip=false
+          if [ "$FORCE" = true ]; then
+            echo "force was set: running"
+          else
+            n=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$GITHUB_SHA&status=success&per_page=1" --jq .total_count)
+            if [ "$n" -gt 0 ]; then
+              skip=true
+              echo "::notice::Commit $GITHUB_SHA already has a successful CI run: skipping. Run the workflow by hand with force to run it again."
+            else
+              echo "no successful run of this commit yet: running"
+            fi
+          fi
+          echo "skip=$skip" >> "$GITHUB_OUTPUT"
+
   build-test-smoke:
+    needs: already-green
+    if: ${{ needs.already-green.outputs.skip != 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     defaults:
