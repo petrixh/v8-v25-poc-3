@@ -9,10 +9,15 @@
  */
 package org.eclipse.hawkbit.ui.common.notification;
 
-import com.vaadin.ui.Notification;
+import org.springframework.util.StringUtils;
+
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
 
 /**
- * Creates {@link Notification} that do not hide each other
+ * Creates {@link Notification} that do not hide each other. Vaadin 25
+ * notifications stack by themselves (add-on A5: the client-side widget is
+ * gone); the caption and description become the notification's content.
  *
  */
 public class ParallelNotification extends Notification {
@@ -25,19 +30,7 @@ public class ParallelNotification extends Notification {
      *            The message to show
      */
     public ParallelNotification(final String caption) {
-        super(caption);
-    }
-
-    /**
-     * Creates notification
-     *
-     * @param caption
-     *            The message to show
-     * @param type
-     *            The type of message
-     */
-    public ParallelNotification(final String caption, final Type type) {
-        super(caption, type);
+        this(caption, null);
     }
 
     /**
@@ -49,39 +42,16 @@ public class ParallelNotification extends Notification {
      *            The message description
      */
     public ParallelNotification(final String caption, final String description) {
-        super(caption, description);
-    }
-
-    /**
-     * Creates notification
-     *
-     * @param caption
-     *            The message caption
-     * @param description
-     *            The message description
-     * @param type
-     *            The type of message
-     */
-    public ParallelNotification(final String caption, final String description, final Type type) {
-        super(caption, description, type);
-    }
-
-    /**
-     * Creates notification
-     *
-     * @param caption
-     *            The message caption
-     * @param description
-     *            The message description
-     * @param type
-     *            The type of message
-     * @param htmlContentAllowed
-     *            Whether html in the caption and description should be
-     *            displayed as html or as plain text
-     */
-    public ParallelNotification(final String caption, final String description, final Type type,
-            final boolean htmlContentAllowed) {
-        super(caption, description, type, htmlContentAllowed);
+        if (StringUtils.hasText(caption)) {
+            final Span captionText = new Span(caption);
+            captionText.addClassName("v-Notification-caption");
+            add(captionText);
+        }
+        if (StringUtils.hasText(description)) {
+            final Span descriptionText = new Span(description);
+            descriptionText.addClassName("v-Notification-description");
+            add(descriptionText);
+        }
     }
 
 }

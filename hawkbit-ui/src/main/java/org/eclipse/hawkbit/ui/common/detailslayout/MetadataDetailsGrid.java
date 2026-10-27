@@ -22,9 +22,7 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.shared.ui.grid.HeightMode;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.button.Button;
 
 /**
  * Metadata grid for entities.
@@ -71,15 +69,16 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> imple
     public void init() {
         super.init();
 
-        setHeaderVisible(false);
-        setHeightMode(HeightMode.UNDEFINED);
+        // Vaadin 8: setHeaderVisible(false); Flow grids always show the
+        // header row (look: stage 2a)
+        setAllRowsVisible(true);
 
-        addStyleName("metadata-details");
-        addStyleName(ValoTheme.TABLE_NO_STRIPES);
-        addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-        addStyleName(ValoTheme.TABLE_BORDERLESS);
-        addStyleName(ValoTheme.TABLE_COMPACT);
+        addClassNames("metadata-details");
+        addClassNames("no-stripes");
+        addClassNames("no-horizontal-lines");
+        addClassNames("no-vertical-lines");
+        addClassNames("borderless");
+        addClassNames("compact");
     }
 
     @Override
@@ -89,8 +88,8 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> imple
 
     @Override
     public void addColumns() {
-        GridComponentBuilder.addComponentColumn(this, this::buildKeyLink).setId(METADATA_KEY_ID)
-                .setCaption(i18n.getMessage("header.key"));
+        GridComponentBuilder.addComponentColumn(this, this::buildKeyLink).setKey(METADATA_KEY_ID)
+                .setHeader(i18n.getMessage("header.key"));
     }
 
     private Button buildKeyLink(final ProxyMetaData metaData) {
@@ -102,7 +101,7 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> imple
                 event -> showMetadataDetailsCallback.accept(metaData));
 
         final String description = i18n.getMessage(UIMessageIdProvider.METADATA_LINK_DESCRIPTION, metaDataKey);
-        link.setDescription(description);
+        link.setTooltipText(description);
         return link;
     }
 

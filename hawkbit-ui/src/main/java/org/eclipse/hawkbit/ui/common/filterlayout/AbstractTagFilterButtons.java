@@ -9,9 +9,9 @@
  */
 package org.eclipse.hawkbit.ui.common.filterlayout;
 
-import com.vaadin.ui.Button;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dialog.Dialog;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -117,9 +117,9 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
         final boolean isNoTagActivated = ClickBehaviourType.CLICKED == clickType;
 
         if (isNoTagActivated) {
-            getNoTagButton().addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+            getNoTagButton().addClassNames(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         } else {
-            getNoTagButton().removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+            getNoTagButton().removeClassNames(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         }
 
         publishNoTagChangedEvent(isNoTagActivated);
@@ -192,10 +192,10 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
 
     @Override
     protected void editButtonClickListener(final ProxyTag clickedFilter) {
-        final Window updateWindow = getUpdateWindow(clickedFilter);
+        final Dialog updateWindow = getUpdateWindow(clickedFilter);
 
-        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.tag")));
-        UI.getCurrent().addWindow(updateWindow);
+        updateWindow.setHeaderTitle(i18n.getMessage("caption.update", i18n.getMessage("caption.tag")));
+        updateWindow.open();
         updateWindow.setVisible(Boolean.TRUE);
     }
 
@@ -206,7 +206,7 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
      *            tag to update
      * @return update window
      */
-    protected abstract Window getUpdateWindow(final ProxyTag clickedFilter);
+    protected abstract Dialog getUpdateWindow(final ProxyTag clickedFilter);
 
     /**
      * @return Button component of no tag
@@ -222,7 +222,7 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
         if (getFilterButtonClickBehaviour().getPreviouslyClickedFiltersSize() > 0) {
             if (tagFilterLayoutUiState.isNoTagClicked()) {
                 tagFilterLayoutUiState.setNoTagClicked(false);
-                getNoTagButton().removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+                getNoTagButton().removeClassNames(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
             }
 
             getFilterButtonClickBehaviour().clearPreviouslyClickedFilters();
@@ -240,7 +240,7 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
         }
 
         if (tagFilterLayoutUiState.isNoTagClicked()) {
-            getNoTagButton().addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+            getNoTagButton().addClassNames(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         }
     }
 

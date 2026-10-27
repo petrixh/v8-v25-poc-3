@@ -20,10 +20,10 @@ import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Abstract grid header.
@@ -80,10 +80,10 @@ public abstract class AbstractGridHeader extends VerticalLayout {
 
     protected void init() {
         setSpacing(false);
-        setMargin(false);
+        setPadding(false);
 
-        addStyleName("bordered-layout");
-        addStyleName("no-border-bottom");
+        addClassNames("bordered-layout");
+        addClassNames("no-border-bottom");
 
         setHeight("50px");
     }
@@ -93,25 +93,25 @@ public abstract class AbstractGridHeader extends VerticalLayout {
      */
     public void buildHeader() {
         final HorizontalLayout headerComponentsLayout = new HorizontalLayout();
-        headerComponentsLayout.addStyleName(SPUIStyleDefinitions.WIDGET_TITLE);
+        headerComponentsLayout.addClassNames(SPUIStyleDefinitions.WIDGET_TITLE);
         headerComponentsLayout.setSpacing(false);
-        headerComponentsLayout.setMargin(false);
+        headerComponentsLayout.setPadding(false);
         headerComponentsLayout.setSizeFull();
 
         final Component headerCaption = getHeaderCaption();
-        headerComponentsLayout.addComponent(headerCaption);
-        headerComponentsLayout.setComponentAlignment(headerCaption, Alignment.TOP_LEFT);
-        headerComponentsLayout.setExpandRatio(headerCaption, 0.4F);
+        headerComponentsLayout.add(headerCaption);
+        headerComponentsLayout.setVerticalComponentAlignment(Alignment.START, headerCaption);
+        headerComponentsLayout.setFlexGrow(0.4F, headerCaption);
 
         headerSupports.stream().filter(Objects::nonNull).forEach(headerSupport -> {
             final Component headerComponent = headerSupport.getHeaderComponent();
 
-            headerComponentsLayout.addComponent(headerComponent);
-            headerComponentsLayout.setComponentAlignment(headerComponent, Alignment.TOP_RIGHT);
-            headerComponentsLayout.setExpandRatio(headerComponent, headerSupport.getExpandRation());
+            headerComponentsLayout.add(headerComponent);
+            headerComponentsLayout.setVerticalComponentAlignment(Alignment.START, headerComponent);
+            headerComponentsLayout.setFlexGrow(headerSupport.getExpandRation(), headerComponent);
         });
 
-        addComponent(headerComponentsLayout);
+        add(headerComponentsLayout);
     }
 
     protected abstract Component getHeaderCaption();

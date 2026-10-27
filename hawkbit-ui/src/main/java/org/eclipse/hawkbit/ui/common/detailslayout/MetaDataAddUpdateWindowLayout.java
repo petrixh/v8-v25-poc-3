@@ -15,10 +15,10 @@ import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Class for metadata add/update window layout.
@@ -50,7 +50,7 @@ public class MetaDataAddUpdateWindowLayout extends AbstractEntityWindowLayout<Pr
     }
 
     @Override
-    public ComponentContainer getRootComponent() {
+    public Component getRootComponent() {
         final VerticalLayout addUpdateLayout = getMetadataAddUpdateLayout();
 
         if (!hasMetadataChangePermission.getAsBoolean()) {
@@ -63,14 +63,14 @@ public class MetaDataAddUpdateWindowLayout extends AbstractEntityWindowLayout<Pr
     protected VerticalLayout getMetadataAddUpdateLayout() {
         final VerticalLayout addUpdateLayout = new VerticalLayout();
         addUpdateLayout.setSpacing(true);
-        addUpdateLayout.setMargin(false);
+        addUpdateLayout.setPadding(false);
         addUpdateLayout.setSizeFull();
 
-        addUpdateLayout.addComponent(metadataKey);
+        addUpdateLayout.add(metadataKey);
         metadataKey.focus();
 
-        addUpdateLayout.addComponent(metadataValue);
-        addUpdateLayout.setExpandRatio(metadataValue, 1.0F);
+        addUpdateLayout.add(metadataValue);
+        addUpdateLayout.setFlexGrow(1.0F, metadataValue);
 
         return addUpdateLayout;
     }

@@ -12,7 +12,7 @@ package org.eclipse.hawkbit.ui.common;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import com.vaadin.data.Binder;
+import com.vaadin.flow.data.binder.Binder;
 
 /**
  * Abstract class for entity window layout

@@ -11,13 +11,12 @@ package org.eclipse.hawkbit.ui.common.grid.header.support;
 
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.CollectionUtils;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.shared.Registration;
 
 /**
  * Header support for CRUD menu
@@ -38,6 +37,8 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
     private final MenuItem crudMenuItem;
 
     private Mode currentMode;
+    // Vaadin 8: the command of the menu item
+    private Registration crudMenuItemCommand;
 
     /**
      * Constructor for CrudMenuHeaderSupport
@@ -87,54 +88,73 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
         final MenuBar menuBar = new MenuBar();
 
         menuBar.setId(crudMenuBarId);
-        menuBar.setStyleName(ValoTheme.MENUBAR_BORDERLESS);
-        menuBar.addStyleName("crud-menubar");
+        menuBar.setClassName("borderless");
+        menuBar.addClassNames("crud-menubar");
 
         return menuBar;
     }
 
     private void addCrudMenuItemCommands() {
         if (hasCreatePermission) {
-            crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_CREATE), VaadinIcons.PLUS,
-                    menuItem -> addCallback.run());
+            addSubItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_CREATE), VaadinIcon.PLUS,
+                    addCallback);
         }
         if (hasUpdatePermission) {
-            crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_EDIT), VaadinIcons.EDIT,
-                    menuItem -> {
-                        activateModifyMode(Mode.EDIT);
-                        editCallback.run();
-                    });
+            addSubItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_EDIT), VaadinIcon.EDIT, () -> {
+                activateModifyMode(Mode.EDIT);
+                editCallback.run();
+            });
         }
         if (hasDeletePermission) {
-            crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_DELETE), VaadinIcons.TRASH,
-                    menuItem -> {
-                        activateModifyMode(Mode.DELETE);
-                        deleteCallback.run();
-                    });
+            addSubItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_DELETE), VaadinIcon.TRASH, () -> {
+                activateModifyMode(Mode.DELETE);
+                deleteCallback.run();
+            });
         }
 
         // in case of missing CUD permissions we disable the menu button
-        if (CollectionUtils.isEmpty(crudMenuItem.getChildren())) {
+        if (crudMenuItem.getSubMenu().getItems().isEmpty()) {
             crudMenuItem.setEnabled(false);
         }
     }
 
+    private void addSubItem(final String caption, final VaadinIcon icon, final Runnable command) {
+        final MenuItem subItem = crudMenuItem.getSubMenu().addItem(caption, menuItem -> command.run());
+        subItem.addComponentAsFirst(icon.create());
+    }
+
+    // Vaadin 8: MenuItem#setIcon on an item without text
+    private void setCrudMenuItemIcon(final VaadinIcon icon) {
+        crudMenuItem.removeAll();
+        crudMenuItem.add(icon.create());
+    }
+
+    private void setCrudMenuItemCommand(final Runnable command) {
+        if (crudMenuItemCommand != null) {
+            crudMenuItemCommand.remove();
+            crudMenuItemCommand = null;
+        }
+        if (command != null) {
+            crudMenuItemCommand = crudMenuItem.addClickListener(event -> command.run());
+        }
+    }
+
     private void activateSelectMode() {
-        crudMenuItem.setIcon(VaadinIcons.COG);
-        crudMenuItem.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE));
-        crudMenuItem.setCommand(null);
+        setCrudMenuItemIcon(VaadinIcon.COG);
+        crudMenuItem.setTooltipText(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE));
+        setCrudMenuItemCommand(null);
 
         currentMode = Mode.SELECT;
-        crudMenuBar.removeStyleNames(Mode.EDIT.getStyle(), Mode.DELETE.getStyle());
+        crudMenuBar.removeClassNames(Mode.EDIT.getStyle(), Mode.DELETE.getStyle());
     }
 
     private void activateModifyMode(final Mode mode) {
-        crudMenuItem.setIcon(VaadinIcons.CLOSE_CIRCLE);
-        crudMenuItem.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE_CLOSE));
-        crudMenuItem.setCommand(menuItem -> resetModifyMode());
+        setCrudMenuItemIcon(VaadinIcon.CLOSE_CIRCLE);
+        crudMenuItem.setTooltipText(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE_CLOSE));
+        setCrudMenuItemCommand(this::resetModifyMode);
 
         currentMode = mode;
-        crudMenuBar.addStyleName(mode.getStyle());
+        crudMenuBar.addClassNames(mode.getStyle());
     }
 
     private void resetModifyMode() {

@@ -20,15 +20,13 @@ import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.ValueProvider;
-import com.vaadin.data.provider.DataCommunicator;
-import com.vaadin.data.provider.DataProviderListener;
-import com.vaadin.data.provider.Query;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.Grid.Column.NestedNullBehavior;
-import com.vaadin.ui.components.grid.GridSelectionModel;
-import com.vaadin.ui.renderers.AbstractRenderer;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSelectionModel;
+import com.vaadin.flow.data.provider.DataProviderListener;
+import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.data.renderer.Renderer;
+import com.vaadin.flow.function.ValueProvider;
 
 /**
  * Abstract grid that offers various capabilities (aka support) to offer
@@ -52,6 +50,7 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
     private transient FilterSupport<T, F> filterSupport;
     private transient SelectionSupport<T> selectionSupport;
     private transient DragAndDropSupport<T> dragAndDropSupport;
+    private RangeSelectionModel<T> rangeSelectionModel;
 
     /**
      * Constructor.
@@ -77,25 +76,8 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
      */
     protected AbstractGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker) {
-        this(i18n, eventBus, permissionChecker, new DataCommunicator<>());
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param i18n
-     *            i18n
-     * @param eventBus
-     *            eventBus
-     * @param permissionChecker
-     *            permissionChecker
-     * @param dataCommunicator
-     *            dataCommunicator
-     */
-    protected AbstractGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final DataCommunicator<T> dataCommunicator) {
-        super(dataCommunicator);
-
+        // Vaadin 25: a Flow grid creates its own data communicator, so the
+        // constructor that took one is gone
         this.i18n = i18n;
         this.eventBus = eventBus;
         this.permissionChecker = permissionChecker;
@@ -103,14 +85,19 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
 
     @Override
     public GridSelectionModel<T> setSelectionMode(final SelectionMode mode) {
+        if (rangeSelectionModel != null) {
+            rangeSelectionModel.remove();
+            rangeSelectionModel = null;
+        }
+
         if (mode == SelectionMode.MULTI) {
-            final RangeSelectionModel<T> model = new RangeSelectionModel<>(i18n);
-            setSelectionModel(model);
+            // A4: Flow multi-selection plus the same clicks and keys
+            rangeSelectionModel = new RangeSelectionModel<>(i18n);
 
             // used to deactivate cell text selection by user
-            addStyleName(MULTI_SELECT_STYLE);
+            addClassName(MULTI_SELECT_STYLE);
 
-            return model;
+            return rangeSelectionModel.extend(this);
         }
 
         return super.setSelectionMode(mode);
@@ -128,7 +115,8 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
         setId(getGridId());
         setColumnReorderingAllowed(false);
         addColumns();
-        setFrozenColumnCount(-1);
+        // Vaadin 8: setFrozenColumnCount(-1), i.e. the selection column not
+        // frozen; Flow does not freeze it by default
 
         if (selectionSupport == null) {
             selectionSupport = new SelectionSupport<>(this);
@@ -160,8 +148,9 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
     /**
      * Get total number of items.
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public int getDataSize() {
-        return getDataProvider().size(new Query<>());
+        return getDataProvider().size(new Query());
     }
 
     /**
@@ -181,55 +170,20 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
     public abstract void addColumns();
 
     @Override
-    public Column<T, ?> addColumn(final String propertyName) {
-        return super.addColumn(propertyName).setSortable(false);
-    }
-
-    @Override
-    public Column<T, ?> addColumn(final String propertyName, final AbstractRenderer<? super T, ?> renderer) {
-        return super.addColumn(propertyName, renderer).setSortable(false);
-    }
-
-    @Override
-    public Column<T, ?> addColumn(final String propertyName, final AbstractRenderer<? super T, ?> renderer,
-            final NestedNullBehavior nestedNullBehavior) {
-        return super.addColumn(propertyName, renderer, nestedNullBehavior).setSortable(false);
-    }
-
-    @Override
-    public <V> Column<T, V> addColumn(final ValueProvider<T, V> valueProvider) {
+    public Column<T> addColumn(final ValueProvider<T, ?> valueProvider) {
         return super.addColumn(valueProvider).setSortable(false);
     }
 
     @Override
-    public <V> Column<T, V> addColumn(final ValueProvider<T, V> valueProvider,
-            final AbstractRenderer<? super T, ? super V> renderer) {
-        return super.addColumn(valueProvider, renderer).setSortable(false);
+    public Column<T> addColumn(final Renderer<T> renderer) {
+        return super.addColumn(renderer).setSortable(false);
     }
 
     @Override
-    public <V, P> Column<T, V> addColumn(final ValueProvider<T, V> valueProvider,
-            final ValueProvider<V, P> presentationProvider, final AbstractRenderer<? super T, ? super P> renderer) {
-        return super.addColumn(valueProvider, presentationProvider, renderer).setSortable(false);
-    }
-
-    @Override
-    public <V> Column<T, V> addColumn(final ValueProvider<T, V> valueProvider,
-            final ValueProvider<V, String> presentationProvider) {
-        return super.addColumn(valueProvider, presentationProvider).setSortable(false);
-    }
-
-    @Override
-    public <V extends Component> Column<T, V> addComponentColumn(final ValueProvider<T, V> componentProvider) {
+    public <V extends Component> Column<T> addComponentColumn(final ValueProvider<T, V> componentProvider) {
         return super.addComponentColumn(componentProvider).setSortable(false);
     }
 
-    /**
-     * Gets the FilterSupport implementation describing the data provider with
-     * filter.
-     *
-     * @return filterSupport that encapsulates the data provider with filter.
-     */
     public FilterSupport<T, F> getFilterSupport() {
         return filterSupport;
     }

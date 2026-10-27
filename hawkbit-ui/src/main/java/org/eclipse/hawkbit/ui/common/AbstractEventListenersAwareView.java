@@ -23,16 +23,21 @@ import jakarta.annotation.PreDestroy;
 
 import org.springframework.util.StringUtils;
 
-import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewBeforeLeaveEvent;
-import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.BeforeLeaveEvent;
+import com.vaadin.flow.router.BeforeLeaveObserver;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.WildcardParameter;
 
 /**
  * Abstract class managing event listeners aware layouts.
  *
  */
-public abstract class AbstractEventListenersAwareView extends VerticalLayout implements View, ViewNameAware {
+public abstract class AbstractEventListenersAwareView extends VerticalLayout
+        implements HasUrlParameter<String>, AfterNavigationObserver, BeforeLeaveObserver, ViewNameAware {
     private static final long serialVersionUID = 1L;
 
     // directly taken from Vaadin Navigator for consistency
@@ -41,6 +46,7 @@ public abstract class AbstractEventListenersAwareView extends VerticalLayout imp
 
     private final transient List<EventListenersAwareLayout> eventAwareLayouts = new ArrayList<>();
     private boolean initial;
+    private String parameters;
 
     /**
      * Adds event aware layout.
@@ -76,8 +82,20 @@ public abstract class AbstractEventListenersAwareView extends VerticalLayout imp
      */
     protected abstract void buildLayout();
 
+    /**
+     * Vaadin 8: the view parameters after the view name ({@code #!view/params}),
+     * now the rest of the path ({@code /UI/view/params}).
+     */
     @Override
-    public void enter(final ViewChangeEvent event) {
+    public void setParameter(final BeforeEvent event, @WildcardParameter final String parameter) {
+        this.parameters = parameter;
+    }
+
+    /**
+     * Vaadin 8: View#enter, called by the Navigator once the view is shown.
+     */
+    @Override
+    public void afterNavigation(final AfterNavigationEvent event) {
         subscribeListeners();
 
         if (initial) {
@@ -87,8 +105,8 @@ public abstract class AbstractEventListenersAwareView extends VerticalLayout imp
             updateLayoutsOnViewEnter();
         }
 
-        if (StringUtils.hasText(event.getParameters())) {
-            handleStateParams(parseStateParameters(event.getParameters()));
+        if (StringUtils.hasText(parameters)) {
+            handleStateParams(parseStateParameters(parameters));
         }
     }
 
@@ -137,10 +155,13 @@ public abstract class AbstractEventListenersAwareView extends VerticalLayout imp
         eventAwareLayouts.forEach(EventListenersAwareLayout::onViewEnter);
     }
 
+    /**
+     * Vaadin 8: View#beforeLeave; Flow continues the navigation unless it is
+     * postponed.
+     */
     @Override
-    public void beforeLeave(final ViewBeforeLeaveEvent event) {
+    public void beforeLeave(final BeforeLeaveEvent event) {
         unsubscribeListeners();
-        event.navigate();
     }
 
     /**

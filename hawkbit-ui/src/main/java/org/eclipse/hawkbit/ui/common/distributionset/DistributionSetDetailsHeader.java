@@ -14,8 +14,8 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractDetailsHeader;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Distribution set detail header
@@ -78,10 +78,10 @@ public class DistributionSetDetailsHeader extends AbstractDetailsHeader<ProxyDis
             return;
         }
 
-        final Window updateWindow = dsWindowBuilder.getWindowForUpdate(selectedEntity);
+        final Dialog updateWindow = dsWindowBuilder.getWindowForUpdate(selectedEntity);
 
-        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.distribution")));
-        UI.getCurrent().addWindow(updateWindow);
+        updateWindow.setHeaderTitle(i18n.getMessage("caption.update", i18n.getMessage("caption.distribution")));
+        updateWindow.open();
         updateWindow.setVisible(Boolean.TRUE);
     }
 
@@ -96,10 +96,10 @@ public class DistributionSetDetailsHeader extends AbstractDetailsHeader<ProxyDis
             return;
         }
 
-        final Window metaDataWindow = dsMetaDataWindowBuilder.getWindowForShowDsMetaData(selectedEntity.getId(),
+        final Dialog metaDataWindow = dsMetaDataWindowBuilder.getWindowForShowDsMetaData(selectedEntity.getId(),
                 selectedEntity.getNameVersion());
 
-        UI.getCurrent().addWindow(metaDataWindow);
+        metaDataWindow.open();
         metaDataWindow.setVisible(Boolean.TRUE);
     }
 }

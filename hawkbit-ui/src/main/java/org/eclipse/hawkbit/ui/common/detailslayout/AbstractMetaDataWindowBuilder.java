@@ -15,8 +15,7 @@ import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Abstract builder for metadata window
@@ -41,32 +40,31 @@ public abstract class AbstractMetaDataWindowBuilder<F> extends AbstractEntityWin
         return UIComponentIdProvider.METADATA_POPUP_ID;
     }
 
-    protected Window getWindowForShowMetaData(final AbstractMetaDataWindowLayout<F> metaDataWindowLayout,
+    protected Dialog getWindowForShowMetaData(final AbstractMetaDataWindowLayout<F> metaDataWindowLayout,
             final F selectedEntityFilter, final String selectedEntityName, final ProxyMetaData proxyMetaData) {
         final CommonDialogWindow window = createWindow(metaDataWindowLayout, null);
 
-        window.setAssistivePrefix(getI18n().getMessage("caption.metadata.popup") + " " + "<b>");
-        window.setCaptionAsHtml(false);
-        window.setCaption(selectedEntityName);
-        window.setAssistivePostfix("</b>");
+        // Vaadin 8: caption with an assistive prefix for screen readers (no
+        // public Flow API for the dialog's aria label)
+        window.setHeaderTitle(selectedEntityName);
 
         metaDataWindowLayout.addValidationListener(window::setSaveButtonEnabled);
         metaDataWindowLayout.setSaveCallback(window::setCloseListener);
         metaDataWindowLayout.setMasterEntityFilter(selectedEntityFilter, proxyMetaData);
 
-        window.setHeight(600, Unit.PIXELS);
-        window.setWidth(800, Unit.PIXELS);
+        window.setHeight("600px");
+        window.setWidth("800px");
 
         return window;
     }
 
     @Override
-    public Window getWindowForAdd() {
+    public Dialog getWindowForAdd() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Window getWindowForUpdate(final ProxyMetaData entity) {
+    public Dialog getWindowForUpdate(final ProxyMetaData entity) {
         throw new UnsupportedOperationException();
     }
 }

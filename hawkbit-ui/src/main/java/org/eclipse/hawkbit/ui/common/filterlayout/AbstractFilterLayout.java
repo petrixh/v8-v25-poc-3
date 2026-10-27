@@ -13,10 +13,11 @@ import org.eclipse.hawkbit.ui.common.EventListenersAwareLayout;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.HasStyle;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Parent class for filter button layout.
@@ -25,38 +26,43 @@ public abstract class AbstractFilterLayout extends VerticalLayout implements Eve
     private static final long serialVersionUID = 1L;
 
     protected void buildLayout() {
-        setWidth(SPUIDefinitions.FILTER_BY_TYPE_WIDTH, Unit.PIXELS);
-        setStyleName("filter-btns-main-layout");
-        setHeight(100.0F, Unit.PERCENTAGE);
+        setWidth(SPUIDefinitions.FILTER_BY_TYPE_WIDTH + "px");
+        setClassName("filter-btns-main-layout");
+        setHeight("100%");
         setSpacing(false);
-        setMargin(false);
+        setPadding(false);
 
         final Component filterHeader = getFilterHeader();
-        final ComponentContainer filterButtons = getFilterContent();
-        // adding border
-        filterButtons.addStyleName("filter-btns-layout");
-        filterButtons.setSizeFull();
+        final Component filterButtons = getFilterContent();
+        // adding border (Vaadin 8: any ComponentContainer; Flow: the
+        // component's style and size mixins)
+        if (filterButtons instanceof HasStyle styledFilterButtons) {
+            styledFilterButtons.addClassNames("filter-btns-layout");
+        }
+        if (filterButtons instanceof HasSize sizedFilterButtons) {
+            sizedFilterButtons.setSizeFull();
+        }
 
-        addComponents(filterHeader, filterButtons);
+        add(filterHeader, filterButtons);
 
-        setComponentAlignment(filterHeader, Alignment.TOP_CENTER);
-        setComponentAlignment(filterButtons, Alignment.TOP_CENTER);
+        setHorizontalComponentAlignment(Alignment.CENTER, filterHeader);
+        setHorizontalComponentAlignment(Alignment.CENTER, filterButtons);
 
-        setExpandRatio(filterButtons, 1.0F);
+        setFlexGrow(1.0F, filterButtons);
     }
 
     protected abstract AbstractGridHeader getFilterHeader();
 
-    protected abstract ComponentContainer getFilterContent();
+    protected abstract Component getFilterContent();
 
     protected static VerticalLayout wrapFilterContent(final Component filterContent) {
         final VerticalLayout filterContentWrapper = new VerticalLayout();
-        filterContentWrapper.setMargin(false);
+        filterContentWrapper.setPadding(false);
         filterContentWrapper.setSpacing(false);
 
-        filterContentWrapper.addComponent(filterContent);
-        filterContentWrapper.setComponentAlignment(filterContent, Alignment.TOP_LEFT);
-        filterContentWrapper.setExpandRatio(filterContent, 1.0F);
+        filterContentWrapper.add(filterContent);
+        filterContentWrapper.setHorizontalComponentAlignment(Alignment.START, filterContent);
+        filterContentWrapper.setFlexGrow(1.0F, filterContent);
 
         return filterContentWrapper;
     }

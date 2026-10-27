@@ -93,7 +93,7 @@ public abstract class AbstractDetailsHeader<T> extends AbstractMasterAwareGridHe
     @Override
     protected void init() {
         setSpacing(false);
-        setMargin(false);
+        setPadding(false);
     }
 
     @Override

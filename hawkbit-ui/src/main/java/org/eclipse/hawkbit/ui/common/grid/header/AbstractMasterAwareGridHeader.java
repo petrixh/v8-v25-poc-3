@@ -15,11 +15,10 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
 
 /**
  * Abstract header for master entity aware grids.
@@ -31,8 +30,8 @@ public abstract class AbstractMasterAwareGridHeader<T> extends AbstractGridHeade
         implements MasterEntityAwareComponent<T> {
     private static final long serialVersionUID = 1L;
 
-    private final Label entityDetailsCaption;
-    private final Label masterEntityDetailsCaption;
+    private final Span entityDetailsCaption;
+    private final Span masterEntityDetailsCaption;
 
     /**
      * Constructor for AbstractMasterAwareGridHeader
@@ -52,26 +51,26 @@ public abstract class AbstractMasterAwareGridHeader<T> extends AbstractGridHeade
         this.masterEntityDetailsCaption = buildMasterEntityDetailsCaption();
     }
 
-    private Label buildEntityDetailsCaption() {
-        final Label caption = new Label(i18n.getMessage(getEntityDetailsCaptionMsgKey()));
+    private Span buildEntityDetailsCaption() {
+        final Span caption = new Span(i18n.getMessage(getEntityDetailsCaptionMsgKey()));
 
-        caption.addStyleName(ValoTheme.LABEL_SMALL);
-        caption.addStyleName(ValoTheme.LABEL_BOLD);
+        caption.addClassNames("small");
+        caption.addClassNames("bold");
 
         return caption;
     }
 
     protected abstract String getEntityDetailsCaptionMsgKey();
 
-    private Label buildMasterEntityDetailsCaption() {
-        final Label caption = new Label();
+    private Span buildMasterEntityDetailsCaption() {
+        final Span caption = new Span();
 
         caption.setId(getMasterEntityDetailsCaptionId());
         caption.setWidthFull();
-        caption.addStyleName(ValoTheme.LABEL_SMALL);
-        caption.addStyleName(ValoTheme.LABEL_BOLD);
-        caption.addStyleName("text-bold");
-        caption.addStyleName("text-cut");
+        caption.addClassNames("small");
+        caption.addClassNames("bold");
+        caption.addClassNames("text-bold");
+        caption.addClassNames("text-cut");
 
         return caption;
     }
@@ -81,18 +80,18 @@ public abstract class AbstractMasterAwareGridHeader<T> extends AbstractGridHeade
     @Override
     protected Component getHeaderCaption() {
         final HorizontalLayout masterAwareCaptionLayout = new HorizontalLayout();
-        masterAwareCaptionLayout.setMargin(false);
+        masterAwareCaptionLayout.setPadding(false);
         masterAwareCaptionLayout.setSpacing(true);
         masterAwareCaptionLayout.setSizeFull();
-        masterAwareCaptionLayout.addStyleName("header-caption");
+        masterAwareCaptionLayout.addClassNames("header-caption");
 
-        masterAwareCaptionLayout.addComponent(entityDetailsCaption);
-        masterAwareCaptionLayout.setComponentAlignment(entityDetailsCaption, Alignment.TOP_LEFT);
-        masterAwareCaptionLayout.setExpandRatio(entityDetailsCaption, 0.0F);
+        masterAwareCaptionLayout.add(entityDetailsCaption);
+        masterAwareCaptionLayout.setVerticalComponentAlignment(Alignment.START, entityDetailsCaption);
+        masterAwareCaptionLayout.setFlexGrow(0.0F, entityDetailsCaption);
 
-        masterAwareCaptionLayout.addComponent(masterEntityDetailsCaption);
-        masterAwareCaptionLayout.setComponentAlignment(masterEntityDetailsCaption, Alignment.TOP_LEFT);
-        masterAwareCaptionLayout.setExpandRatio(masterEntityDetailsCaption, 1.0F);
+        masterAwareCaptionLayout.add(masterEntityDetailsCaption);
+        masterAwareCaptionLayout.setVerticalComponentAlignment(Alignment.START, masterEntityDetailsCaption);
+        masterAwareCaptionLayout.setFlexGrow(1.0F, masterEntityDetailsCaption);
 
         return masterAwareCaptionLayout;
     }
@@ -102,11 +101,11 @@ public abstract class AbstractMasterAwareGridHeader<T> extends AbstractGridHeade
         final String masterEntityName = masterEntity != null ? getMasterEntityName(masterEntity) : "";
 
         if (StringUtils.hasText(masterEntityName)) {
-            entityDetailsCaption.setValue(i18n.getMessage(getEntityDetailsCaptionOfMsgKey()));
-            masterEntityDetailsCaption.setValue(masterEntityName);
+            entityDetailsCaption.setText(i18n.getMessage(getEntityDetailsCaptionOfMsgKey()));
+            masterEntityDetailsCaption.setText(masterEntityName);
         } else {
-            entityDetailsCaption.setValue(i18n.getMessage(getEntityDetailsCaptionMsgKey()));
-            masterEntityDetailsCaption.setValue("");
+            entityDetailsCaption.setText(i18n.getMessage(getEntityDetailsCaptionMsgKey()));
+            masterEntityDetailsCaption.setText("");
         }
     }
 

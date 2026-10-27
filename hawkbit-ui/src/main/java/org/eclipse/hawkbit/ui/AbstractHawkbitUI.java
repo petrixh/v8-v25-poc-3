@@ -9,72 +9,76 @@
  */
 package org.eclipse.hawkbit.ui;
 
-import com.vaadin.shared.ui.ContentMode;
 import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
-import org.eclipse.hawkbit.ui.error.ErrorView;
 import org.eclipse.hawkbit.ui.menu.DashboardEvent.PostViewChangeEvent;
 import org.eclipse.hawkbit.ui.menu.DashboardMenu;
 import org.eclipse.hawkbit.ui.menu.DashboardMenuItem;
 import org.eclipse.hawkbit.ui.push.EventPushStrategy;
 import org.eclipse.hawkbit.ui.push.UIEventProvider;
-import org.eclipse.hawkbit.ui.themes.HawkbitTheme;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.util.ObjectUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.annotations.Theme;
-import com.vaadin.annotations.Title;
-import com.vaadin.annotations.Widgetset;
-import com.vaadin.navigator.Navigator;
-import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.navigator.ViewProvider;
-import com.vaadin.server.ClientConnector.DetachListener;
-import com.vaadin.server.ErrorHandler;
-import com.vaadin.server.Responsive;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.spring.navigator.SpringViewProvider;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.HasErrorParameter;
+import com.vaadin.flow.router.NotFoundException;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouterLayout;
+import com.vaadin.flow.server.ErrorHandler;
+import com.vaadin.flow.server.VaadinSession;
+
+import jakarta.annotation.security.PermitAll;
 
 /**
  * Vaadin management UI.
  *
+ * Vaadin 25: the shell around every route (menu, view title, notifications
+ * button, content). The runtime's subclass is annotated {@code @Layout}, so
+ * every {@code @Route} is shown inside it. The Vaadin 8 Navigator and its
+ * view provider are replaced by the Flow router: the empty route
+ * ({@link EmptyView}) forwards to the first accessible view or to an old
+ * {@code #!view} address, and a view the user may not open goes to the error
+ * view, as before.
  */
-@Title("hawkBit Update Server")
-@Widgetset(value = HawkbitTheme.WIDGET_SET_NAME)
-@Theme(HawkbitTheme.THEME_NAME)
-public abstract class AbstractHawkbitUI extends UI implements DetachListener {
+public abstract class AbstractHawkbitUI extends HorizontalLayout
+        implements RouterLayout, BeforeEnterObserver, AfterNavigationObserver {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractHawkbitUI.class);
+
+    private static final String TITLE = "hawkBit Update Server";
 
     private static final String EMPTY_VIEW = "";
 
     private final VaadinMessageSource i18n;
     private final UiProperties uiProperties;
 
-    private Label viewTitle;
+    private Span viewTitle;
+    private Div content;
 
     private final DashboardMenu dashboardMenu;
-    private final ErrorView errorview;
     private final NotificationUnreadButton notificationUnreadButton;
 
-    private final SpringViewProvider viewProvider;
     private final transient ApplicationContext context;
     private final transient EventPushStrategy pushStrategy;
     private final transient ErrorHandler uiErrorHandler;
@@ -82,26 +86,25 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
     private final transient HawkbitEntityEventListener entityEventsListener;
 
     protected AbstractHawkbitUI(final EventPushStrategy pushStrategy, final UIEventBus eventBus,
-            final UIEventProvider eventProvider, final SpringViewProvider viewProvider,
-            final ApplicationContext context, final DashboardMenu dashboardMenu, final ErrorView errorview,
+            final UIEventProvider eventProvider, final ApplicationContext context, final DashboardMenu dashboardMenu,
             final NotificationUnreadButton notificationUnreadButton, final UiProperties uiProperties,
             final VaadinMessageSource i18n, final ErrorHandler uiErrorHandler) {
         this.pushStrategy = pushStrategy;
-        this.viewProvider = viewProvider;
         this.context = context;
         this.dashboardMenu = dashboardMenu;
-        this.errorview = errorview;
         this.notificationUnreadButton = notificationUnreadButton;
         this.uiProperties = uiProperties;
         this.i18n = i18n;
         this.uiErrorHandler = uiErrorHandler;
 
         this.entityEventsListener = new HawkbitEntityEventListener(eventBus, eventProvider, notificationUnreadButton);
+
+        init();
     }
 
     @Override
-    public void detach(final DetachEvent event) {
-        LOG.debug("ManagementUI is detached uiid - {}", getUIId());
+    protected void onDetach(final DetachEvent event) {
+        LOG.debug("ManagementUI is detached uiid - {}", event.getUI().getUIId());
 
         entityEventsListener.unsubscribeListeners();
 
@@ -123,149 +126,166 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
         }
     }
 
-    @Override
-    protected void init(final VaadinRequest vaadinRequest) {
-        LOG.debug("ManagementUI init starts uiid - {}", getUI().getUIId());
+    private void init() {
+        final UI ui = UI.getCurrent();
+        LOG.debug("ManagementUI init starts uiid - {}", ui.getUIId());
         if (pushStrategy != null) {
-            pushStrategy.init(getUI());
+            pushStrategy.init(ui);
         }
-        addDetachListener(this);
 
-        Responsive.makeResponsive(this);
-        addStyleName(ValoTheme.UI_WITH_MENU);
-        setResponsive(Boolean.TRUE);
+        addClassName("valo-menu-responsive");
 
-        final HorizontalLayout rootLayout = new HorizontalLayout();
-        rootLayout.setMargin(false);
-        rootLayout.setSpacing(false);
-        rootLayout.setSizeFull();
+        setPadding(false);
+        setSpacing(false);
+        setSizeFull();
 
-        HawkbitCommonUtil.initLocalization(this, uiProperties.getLocalization(), i18n);
+        HawkbitCommonUtil.initLocalization(ui, uiProperties.getLocalization(), i18n);
         SPDateTimeUtil.initializeFixedTimeZoneProperty(uiProperties.getFixedTimeZone());
 
         dashboardMenu.init();
-        dashboardMenu.setResponsive(true);
 
         final VerticalLayout contentVerticalLayout = new VerticalLayout();
-        contentVerticalLayout.setMargin(false);
+        contentVerticalLayout.setPadding(false);
         contentVerticalLayout.setSpacing(false);
         contentVerticalLayout.setSizeFull();
-        contentVerticalLayout.setStyleName("main-content");
-        contentVerticalLayout.addComponent(buildHeader());
-        contentVerticalLayout.addComponent(buildViewTitle());
+        contentVerticalLayout.setClassName("main-content");
+        contentVerticalLayout.add(buildHeader());
+        contentVerticalLayout.add(buildViewTitle());
 
-        final Panel content = buildContent();
-        contentVerticalLayout.addComponent(content);
-        contentVerticalLayout.setExpandRatio(content, 1.0F);
+        content = buildContent();
+        contentVerticalLayout.add(content);
+        contentVerticalLayout.setFlexGrow(1.0, content);
 
-        String footerNotification = uiProperties.getNotification().getText();
+        final String footerNotification = uiProperties.getNotification().getText();
         if (!ObjectUtils.isEmpty(footerNotification)) {
-            contentVerticalLayout.addComponent(buildFooterNotification(footerNotification));
+            contentVerticalLayout.add(buildFooterNotification(footerNotification));
         }
 
-        rootLayout.addComponent(dashboardMenu);
-        rootLayout.addComponent(contentVerticalLayout);
-        rootLayout.setExpandRatio(contentVerticalLayout, 1.0F);
-        setContent(rootLayout);
+        add(dashboardMenu);
+        add(contentVerticalLayout);
+        setFlexGrow(1.0, contentVerticalLayout);
 
-        final Navigator navigator = new Navigator(this, content);
-        navigator.addViewChangeListener(new ViewChangeListener() {
-            private static final long serialVersionUID = 1L;
+        // Vaadin 8 set the handler on the UI; Flow has it on the session
+        VaadinSession.getCurrent().setErrorHandler(uiErrorHandler);
 
-            @Override
-            public boolean beforeViewChange(final ViewChangeEvent event) {
-                return true;
-            }
+        ui.getPage().setTitle(TITLE);
 
-            @Override
-            public void afterViewChange(final ViewChangeEvent event) {
-                final DashboardMenuItem view = dashboardMenu.getByViewName(event.getViewName());
-                dashboardMenu.postViewChange(new PostViewChangeEvent(view));
-                if (view == null) {
-                    viewTitle.setCaption(null);
-                    return;
-                }
-                viewTitle.setCaption(view.getDashboardCaptionLong());
-            }
-        });
-
-        navigator.setErrorView(errorview);
-        navigator.addView(EMPTY_VIEW, new Navigator.EmptyView());
-        navigator.addProvider(new ManagementViewProvider());
-        setNavigator(navigator);
-
-        if (UI.getCurrent().getErrorHandler() == null) {
-            UI.getCurrent().setErrorHandler(uiErrorHandler);
-        }
-
-        LOG.debug("Current locale of the application is : {}", getLocale());
+        LOG.debug("Current locale of the application is : {}", ui.getLocale());
     }
 
-    private static Component buildFooterNotification(String text) {
-        Label notification = new Label();
-        notification.setValue(text);
+    @Override
+    public void showRouterLayoutContent(final HasElement routerContent) {
+        content.getElement().removeAllChildren();
+        if (routerContent != null) {
+            content.getElement().appendChild(routerContent.getElement());
+        }
+    }
+
+    @Override
+    public void removeRouterLayoutContent(final HasElement oldContent) {
+        content.getElement().removeAllChildren();
+    }
+
+    /**
+     * Vaadin 8: ManagementViewProvider#getStartView. A view that exists but
+     * that the user may not open goes to the error view.
+     */
+    @Override
+    public void beforeEnter(final BeforeEnterEvent event) {
+        if (HasErrorParameter.class.isAssignableFrom(event.getNavigationTarget())) {
+            return;
+        }
+        final String viewName = event.getLocation().getFirstSegment();
+        if (dashboardMenu.getByViewName(viewName) != null && dashboardMenu.isAccessDenied(viewName)) {
+            event.rerouteToError(NotFoundException.class);
+        }
+    }
+
+    /**
+     * Vaadin 8: the Navigator's afterViewChange listener.
+     */
+    @Override
+    public void afterNavigation(final AfterNavigationEvent event) {
+        final DashboardMenuItem view = dashboardMenu.getByViewName(event.getLocation().getFirstSegment());
+        dashboardMenu.postViewChange(new PostViewChangeEvent(view));
+        UI.getCurrent().getPage().setTitle(TITLE);
+        if (view == null) {
+            viewTitle.setText("");
+            return;
+        }
+        viewTitle.setText(view.getDashboardCaptionLong());
+    }
+
+    private static Component buildFooterNotification(final String text) {
+        final Span notification = new Span();
+        notification.getElement().setProperty("innerHTML", text);
         notification.setWidth("100%");
-        notification.setContentMode(ContentMode.HTML);
         return notification;
     }
 
-    private static Panel buildContent() {
-        final Panel content = new Panel();
+    private static Div buildContent() {
+        final Div content = new Div();
         content.setSizeFull();
-        content.setStyleName("view-content");
+        content.setClassName("view-content");
         return content;
     }
 
     private HorizontalLayout buildViewTitle() {
         final HorizontalLayout viewHeadercontent = new HorizontalLayout();
-        viewHeadercontent.setMargin(false);
+        viewHeadercontent.setPadding(false);
         viewHeadercontent.setSpacing(false);
         viewHeadercontent.setWidth("100%");
-        viewHeadercontent.addStyleName("view-header-layout");
+        viewHeadercontent.addClassName("view-header-layout");
 
-        viewTitle = new Label();
+        viewTitle = new Span();
         viewTitle.setWidth("100%");
-        viewTitle.setStyleName("header-content");
-        viewHeadercontent.addComponent(viewTitle);
+        viewTitle.setClassName("header-content");
+        viewHeadercontent.add(viewTitle);
 
-        viewHeadercontent.addComponent(notificationUnreadButton);
-        viewHeadercontent.setComponentAlignment(notificationUnreadButton, Alignment.MIDDLE_RIGHT);
+        viewHeadercontent.add(notificationUnreadButton);
+        viewHeadercontent.setVerticalComponentAlignment(Alignment.CENTER, notificationUnreadButton);
         return viewHeadercontent;
     }
 
     private static Component buildHeader() {
-        final CssLayout cssLayout = new CssLayout();
-        cssLayout.setStyleName("view-header");
+        final Div cssLayout = new Div();
+        cssLayout.setClassName("view-header");
         return cssLayout;
     }
 
-    private class ManagementViewProvider implements ViewProvider {
+    /**
+     * The empty route ({@code /UI/}), Vaadin 8's {@code Navigator.EmptyView}
+     * with ManagementViewProvider#getStartView: forwards an old
+     * {@code /UI/#!view/parameters} address to {@code /UI/view/parameters},
+     * otherwise opens the first view the user may access. With no accessible
+     * view it stays empty, as before.
+     */
+    @Route(EMPTY_VIEW)
+    @PermitAll
+    public static class EmptyView extends Div implements BeforeEnterObserver {
         private static final long serialVersionUID = 1L;
 
-        private static final String DEFAULT_PARAMETER_SEPARATOR = "/";
+        private static final String OLD_FRAGMENT_PREFIX = "!";
 
-        @Override
-        public String getViewName(final String viewAndParameters) {
-            final int paramsDelimeterIndex = viewAndParameters.indexOf(DEFAULT_PARAMETER_SEPARATOR);
-            final String viewName = paramsDelimeterIndex != -1 ? viewAndParameters.substring(0, paramsDelimeterIndex)
-                    : viewAndParameters;
-            return viewProvider.getViewName(getStartView(viewName));
+        private final DashboardMenu dashboardMenu;
+
+        @Autowired
+        EmptyView(final DashboardMenu dashboardMenu) {
+            this.dashboardMenu = dashboardMenu;
         }
 
         @Override
-        public View getView(final String viewName) {
-            return viewProvider.getView(viewName);
-        }
-
-        private String getStartView(final String viewName) {
-            final DashboardMenuItem view = dashboardMenu.getByViewName(viewName);
-            if ("".equals(viewName) && !dashboardMenu.isAccessibleViewsEmpty()) {
-                return dashboardMenu.getInitialViewName();
-            }
-            if (view == null || dashboardMenu.isAccessDenied(viewName)) {
-                return " ";
-            }
-            return viewName;
+        public void beforeEnter(final BeforeEnterEvent event) {
+            final UI ui = event.getUI();
+            // the fragment is never sent to the server: ask the browser
+            ui.getPage().fetchCurrentURL(url -> {
+                final String fragment = url.getRef();
+                if (fragment != null && fragment.startsWith(OLD_FRAGMENT_PREFIX)) {
+                    ui.navigate(fragment.substring(OLD_FRAGMENT_PREFIX.length()));
+                } else if (!dashboardMenu.isAccessibleViewsEmpty()) {
+                    ui.navigate(dashboardMenu.getInitialViewName());
+                }
+            });
         }
     }
 }

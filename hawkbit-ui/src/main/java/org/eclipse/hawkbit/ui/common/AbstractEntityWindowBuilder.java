@@ -14,8 +14,8 @@ import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Builder for abstract entity window
@@ -69,7 +69,7 @@ public abstract class AbstractEntityWindowBuilder<T> {
      *
      * @return window
      */
-    public abstract Window getWindowForAdd();
+    public abstract Dialog getWindowForAdd();
 
     /**
      * Gets the update window
@@ -79,7 +79,7 @@ public abstract class AbstractEntityWindowBuilder<T> {
      *
      * @return window
      */
-    public abstract Window getWindowForUpdate(final T entity);
+    public abstract Dialog getWindowForUpdate(final T entity);
 
     protected String getHelpLink() {
         // can be overriden to provide help link to documentation

@@ -24,9 +24,8 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.google.common.collect.Sets;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 /**
  * Combobox that lists all available Tags that can be assigned to a
@@ -63,20 +62,21 @@ public class TagAssignementComboBox extends HorizontalLayout {
         this.allAssignableTags = new HashSet<>();
         this.assignableTagsComboBox.setItems(allAssignableTags);
 
-        addComponent(assignableTagsComboBox);
+        add(assignableTagsComboBox);
     }
 
     private ComboBox<ProxyTag> getAssignableTagsComboBox(final String description) {
         final ComboBox<ProxyTag> tagsComboBox = new ComboBox<>();
 
         tagsComboBox.setId(UIComponentIdProvider.TAG_SELECTION_ID);
-        tagsComboBox.setDescription(description);
-        tagsComboBox.addStyleName(ValoTheme.COMBOBOX_TINY);
+        tagsComboBox.setTooltipText(description);
+        tagsComboBox.addClassNames("tiny");
         tagsComboBox.setEnabled(!readOnlyMode);
         tagsComboBox.setWidth("100%");
-        tagsComboBox.setEmptySelectionAllowed(true);
+        // Vaadin 8 setEmptySelectionAllowed(true): Flow's clear button
+        tagsComboBox.setClearButtonVisible(true);
 
-        tagsComboBox.setItemCaptionGenerator(ProxyTag::getName);
+        tagsComboBox.setItemLabelGenerator(ProxyTag::getName);
         tagsComboBox.addValueChangeListener(event -> assignTag(event.getValue()));
 
         return tagsComboBox;
