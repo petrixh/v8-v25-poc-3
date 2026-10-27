@@ -9,7 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.push;
 
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
 
 /**
  * Interface declaring a strategy to push events from the back-end to the UI.

@@ -9,38 +9,26 @@
  */
 package org.eclipse.hawkbit.ui.components;
 
-import org.eclipse.hawkbit.ui.common.CoordinatesToColor;
+import java.awt.Color;
+
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.google.common.primitives.Doubles;
-import com.vaadin.shared.ui.colorpicker.Color;
-import com.vaadin.ui.ColorPicker;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Slider;
-import com.vaadin.ui.components.colorpicker.ColorPickerGradient;
-import com.vaadin.ui.components.colorpicker.ColorPickerPreview;
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.html.Input;
+import com.vaadin.flow.data.value.ValueChangeMode;
 
 /**
  * Defines the Layout for the Tag/Type ColorPicker
+ * <p>
+ * Vaadin Flow (decision A10): the browser's own colour picker, an
+ * {@code <input type="color">}, replaces the Vaadin 8 colour picker popup
+ * with its gradient, preview and RGB sliders. The value type is
+ * {@link java.awt.Color} (Vaadin 8: {@code com.vaadin.shared.ui.colorpicker.Color}).
  */
 public class ColorPickerComponent extends CustomField<Color> {
     private static final long serialVersionUID = 1L;
 
-    private static final int RGB_START = 0;
-    private static final int RGB_END = 255;
-
     private final CustomColorPicker colorPickerBtn;
-
-    private final Slider redSlider;
-    private final Slider greenSlider;
-    private final Slider blueSlider;
-
-    private final ColorPickerPreview preview;
-    private final ColorPickerGradient gradient;
-
-    private final GridLayout layout;
 
     private Color selectedColor;
     private boolean isColorUpdateInProgress;
@@ -56,24 +44,17 @@ public class ColorPickerComponent extends CustomField<Color> {
     public ColorPickerComponent(final String coloPickerBtnId, final String coloPickerBtnCaption) {
         this.colorPickerBtn = new CustomColorPicker(coloPickerBtnId, coloPickerBtnCaption);
 
-        this.redSlider = createRGBSlider("red");
-        this.greenSlider = createRGBSlider("green");
-        this.blueSlider = createRGBSlider("blue");
-
-        this.preview = new ColorPickerPreview(Color.WHITE);
-        this.gradient = new ColorPickerGradient("rgb-gradient", new CoordinatesToColor());
-
-        this.layout = new GridLayout(2, 4);
-
         init();
         addValueChangeListeners();
     }
 
     /**
-     * Custom colour picker
+     * Custom colour picker: the browser's colour input
      */
-    public class CustomColorPicker extends ColorPicker {
+    public class CustomColorPicker extends CustomField<Color> {
         private static final long serialVersionUID = 1L;
+
+        private final Input colorInput = new Input(ValueChangeMode.ON_CHANGE);
 
         /**
          * Constructor for CustomColorPicker
@@ -86,50 +67,35 @@ public class ColorPickerComponent extends CustomField<Color> {
         public CustomColorPicker(final String id, final String caption) {
             super();
 
+            colorInput.setType("color");
+            add(colorInput);
+            colorInput.addValueChangeListener(event -> updateValue());
+
             setId(id);
-            setCaption(caption);
+            setLabel(caption);
         }
 
         @Override
-        protected void showPopup(final boolean open) {
-            layout.setVisible(open);
+        protected Color generateModelValue() {
+            final String hex = colorInput.getValue();
+            return hex == null || hex.isEmpty() ? null : Color.decode(hex);
+        }
+
+        @Override
+        protected void setPresentationValue(final Color color) {
+            colorInput.setValue(color == null ? ""
+                    : String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue()));
         }
     }
 
-    private static Slider createRGBSlider(final String styleName) {
-        final Slider slider = new Slider(RGB_START, RGB_END);
-
-        slider.setWidth("150px");
-        slider.addStyleName(styleName);
-
-        return slider;
-    }
-
     private void init() {
-        gradient.setWidth("220px");
-
-        layout.setId(UIComponentIdProvider.COLOR_PICKER_LAYOUT);
-        layout.setStyleName("rgb-vertical-layout");
-        layout.setVisible(false);
-
-        layout.addComponent(redSlider, 0, 1);
-        layout.addComponent(greenSlider, 0, 2);
-        layout.addComponent(blueSlider, 0, 3);
-
-        layout.addComponent(preview, 1, 0);
-        layout.addComponent(gradient, 1, 1, 1, 3);
+        // the Vaadin 8 popup layout (gradient, preview, sliders) is gone: the
+        // browser shows its own picker, so this field has no content
+        setId(UIComponentIdProvider.COLOR_PICKER_LAYOUT);
     }
 
     private void addValueChangeListeners() {
-        redSlider.addValueChangeListener(event -> colorUpdated(
-                new Color(event.getValue().intValue(), selectedColor.getGreen(), selectedColor.getBlue())));
-        greenSlider.addValueChangeListener(event -> colorUpdated(
-                new Color(selectedColor.getRed(), event.getValue().intValue(), selectedColor.getBlue())));
-        blueSlider.addValueChangeListener(event -> colorUpdated(
-                new Color(selectedColor.getRed(), selectedColor.getGreen(), event.getValue().intValue())));
-
-        preview.addValueChangeListener(event -> colorUpdated(event.getValue()));
-        gradient.addValueChangeListener(event -> colorUpdated(event.getValue()));
+        colorPickerBtn.addValueChangeListener(event -> colorUpdated(event.getValue()));
     }
 
     private void colorUpdated(final Color newColor) {
@@ -139,35 +105,19 @@ public class ColorPickerComponent extends CustomField<Color> {
     }
 
     @Override
-    public Color getValue() {
+    protected Color generateModelValue() {
         return selectedColor;
     }
 
     @Override
-    protected Component initContent() {
-        return layout;
-    }
-
-    @Override
-    protected void doSetValue(final Color value) {
+    protected void setPresentationValue(final Color value) {
         isColorUpdateInProgress = true;
 
         selectedColor = value;
 
         colorPickerBtn.setValue(selectedColor);
 
-        redSlider.setValue(sanitizeSliderRGBValue(selectedColor.getRed()));
-        greenSlider.setValue(sanitizeSliderRGBValue(selectedColor.getGreen()));
-        blueSlider.setValue(sanitizeSliderRGBValue(selectedColor.getBlue()));
-
-        preview.setValue(selectedColor);
-        gradient.setValue(selectedColor);
-
         isColorUpdateInProgress = false;
-    }
-
-    private static double sanitizeSliderRGBValue(final int colorValue) {
-        return Doubles.constrainToRange(colorValue, RGB_START, RGB_END);
     }
 
     /**

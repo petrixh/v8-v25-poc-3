@@ -49,10 +49,10 @@ import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.VaadinSession.State;
-import com.vaadin.server.WrappedSession;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.VaadinSessionState;
+import com.vaadin.flow.server.WrappedSession;
+import com.vaadin.flow.component.UI;
 
 /**
  * An {@link EventPushStrategy} implementation which retrieves events from
@@ -193,7 +193,7 @@ public class DelayedEventBusPushStrategy
                 }
 
                 vaadinUI.access(() -> {
-                    if (vaadinSession.getState() != State.OPEN) {
+                    if (vaadinSession.getState() != VaadinSessionState.OPEN) {
                         return;
                     }
                     LOG.debug("UI EventBus aggregator of UI {} got lock on session.", vaadinUI.getUIId());

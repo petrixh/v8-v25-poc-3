@@ -23,7 +23,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.HtmlUtils;
 
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
 
 /**
  * Common util class.
