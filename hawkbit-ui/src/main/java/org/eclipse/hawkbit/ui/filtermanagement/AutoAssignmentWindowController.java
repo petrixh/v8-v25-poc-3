@@ -24,7 +24,6 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.server.Sizeable;
 import com.vaadin.flow.component.UI;
 import org.eclipse.hawkbit.utils.TenantConfigHelper;
 import org.springframework.util.StringUtils;
@@ -143,10 +142,10 @@ public class AutoAssignmentWindowController extends
                     publishModifiedEvent(createModifiedEventPayload(targetFilterQuery));
                 }).build();
 
-        confirmDialog.getWindow().setWidth(40.0F, Sizeable.Unit.PERCENTAGE);
+        confirmDialog.getWindow().setWidth("40%");
 
+        // Flow: the dialog opened last is on top (no bringToFront)
         confirmDialog.getWindow().open();
-        confirmDialog.getWindow().bringToFront();
     }
 
     @Override

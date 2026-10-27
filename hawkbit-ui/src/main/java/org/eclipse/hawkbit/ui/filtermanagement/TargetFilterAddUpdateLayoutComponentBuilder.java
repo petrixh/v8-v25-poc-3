@@ -22,9 +22,8 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.ui.Link;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.textfield.TextField;
 
 /**
@@ -94,7 +93,7 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
      *
      * @return Filter help link
      */
-    public Link createFilterHelpLink() {
+    public Anchor createFilterHelpLink() {
         return SPUIComponentProvider.getHelpLink(i18n,
                 uiProperties.getLinks().getDocumentation().getTargetfilterView());
     }

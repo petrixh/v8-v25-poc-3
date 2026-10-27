@@ -21,7 +21,6 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.TenantAware;
-import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.AbstractEventListenersAwareView;
@@ -40,15 +39,20 @@ import org.eclipse.hawkbit.utils.TenantConfigHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.spring.annotation.SpringView;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import com.vaadin.ui.Alignment;
+
+import jakarta.annotation.security.PermitAll;
 
 /**
  * View for custom target filter management.
  */
 @UIScope
-@SpringView(name = FilterManagementView.VIEW_NAME, ui = AbstractHawkbitUI.class)
+@SpringComponent
+@Route(FilterManagementView.VIEW_NAME)
+@PermitAll
 public class FilterManagementView extends AbstractEventListenersAwareView {
     private static final long serialVersionUID = 1L;
 
@@ -103,12 +107,12 @@ public class FilterManagementView extends AbstractEventListenersAwareView {
         setSizeFull();
 
         add(targetFilterGridLayout);
-        setComponentAlignment(targetFilterGridLayout, Alignment.TOP_CENTER);
+        setHorizontalComponentAlignment(Alignment.CENTER, targetFilterGridLayout);
         setFlexGrow(1.0F, targetFilterGridLayout);
 
         targetFilterDetailsLayout.setVisible(false);
         add(targetFilterDetailsLayout);
-        setComponentAlignment(targetFilterDetailsLayout, Alignment.TOP_CENTER);
+        setHorizontalComponentAlignment(Alignment.CENTER, targetFilterDetailsLayout);
         setFlexGrow(1.0F, targetFilterDetailsLayout);
     }
 

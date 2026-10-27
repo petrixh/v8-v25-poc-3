@@ -20,7 +20,7 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.ui.CheckBox;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Span;
 
@@ -64,15 +64,15 @@ public class AutoAssignmentWindowLayoutComponentBuilder {
      *
      * @return Auto assignment checkbox
      */
-    public CheckBox createEnableCheckbox(final Binder<ProxyTargetFilterQuery> binder) {
+    public Checkbox createEnableCheckbox(final Binder<ProxyTargetFilterQuery> binder) {
         final String caption = i18n.getMessage(UIMessageIdProvider.LABEL_AUTO_ASSIGNMENT_ENABLE);
-        return FormComponentBuilder.createCheckBox(caption, UIComponentIdProvider.DIST_SET_SELECT_ENABLE_ID, binder,
+        return FormComponentBuilder.createCheckbox(caption, UIComponentIdProvider.DIST_SET_SELECT_ENABLE_ID, binder,
                 ProxyTargetFilterQuery::isAutoAssignmentEnabled, ProxyTargetFilterQuery::setAutoAssignmentEnabled);
     }
 
-    public CheckBox createConfirmationCheckbox(final Binder<ProxyTargetFilterQuery> binder) {
+    public Checkbox createConfirmationCheckbox(final Binder<ProxyTargetFilterQuery> binder) {
         final String caption = i18n.getMessage(UIMessageIdProvider.LABEL_AUTO_ASSIGNMENT_CONFIRMATION_REQUIRED);
-        return FormComponentBuilder.createCheckBox(caption, UIComponentIdProvider.ASSIGNMENT_CONFIRMATION_REQUIRED,
+        return FormComponentBuilder.createCheckbox(caption, UIComponentIdProvider.ASSIGNMENT_CONFIRMATION_REQUIRED,
                 binder, ProxyTargetFilterQuery::isConfirmationRequired,
                 ProxyTargetFilterQuery::setConfirmationRequired);
     }

@@ -20,8 +20,6 @@ import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.flow.component.html.Span;
-
 /**
  * Shows the targets as a result of the executed filter query.
  */
@@ -50,8 +48,8 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     public TargetFilterTargetGrid(final CommonUiDependencies uiDependencies,
             final TargetFilterStateDataSupplier targetFilterStateDataSupplier,
             final TargetFilterDetailsLayoutUiState uiState) {
-        super(uiDependencies.getI18n(), uiDependencies.getEventBus(), null,
-                targetFilterStateDataSupplier.dataCommunicator());
+        // Vaadin 25: the Flow grid creates its own data communicator
+        super(uiDependencies.getI18n(), uiDependencies.getEventBus(), null);
 
         this.uiState = uiState;
 
@@ -91,14 +89,15 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
 
         GridComponentBuilder.addDescriptionColumn(this, i18n, TARGET_DESCRIPTION_ID);
 
-        final Column<ProxyTarget, Span> statusColumn = GridComponentBuilder.addIconColumn(this,
+        final Column<ProxyTarget> statusColumn = GridComponentBuilder.addIconColumn(this,
                 targetStatusIconSupplier::getLabel, TARGET_STATUS_ID,
                 i18n.getMessage("header.status"));
         GridComponentBuilder.setColumnSortable(statusColumn, "updateStatus");
 
         GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n);
 
-        getColumns().forEach(column -> column.setHidable(true));
+        // Vaadin 8: setHidable(true) on every column (the user could hide
+        // columns); Flow grids have no column hiding menu
     }
 
 }

@@ -57,6 +57,6 @@ public class TargetFilterCountMessageLabel extends AbstractFooterSupport {
         targetMessage.append(": ");
         targetMessage.append(totalFilteredTargetsCount);
 
-        countLabel.setCaption(targetMessage.toString());
+        setCountLabelCaption(targetMessage.toString());
     }
 }

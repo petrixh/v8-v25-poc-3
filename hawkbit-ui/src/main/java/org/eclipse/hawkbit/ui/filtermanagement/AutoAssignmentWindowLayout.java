@@ -19,9 +19,9 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAutoAssignmentLayout;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.CheckBox;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.ui.ComponentContainer;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.eclipse.hawkbit.utils.TenantConfigHelper;
@@ -33,8 +33,8 @@ public class AutoAssignmentWindowLayout extends AbstractEntityWindowLayout<Proxy
     private final AutoAssignmentWindowLayoutComponentBuilder autoAssignComponentBuilder;
 
     private final Span descriptionLabel;
-    private final CheckBox enableCheckBox;
-    private final CheckBox confirmationCheckBox;
+    private final Checkbox enableCheckBox;
+    private final Checkbox confirmationCheckBox;
     private final ActionTypeOptionGroupAutoAssignmentLayout actionTypeOptionGroupLayout;
     private final BoundComponent<ComboBox<ProxyDistributionSet>> autoAssignDsComboBox;
     
@@ -68,7 +68,7 @@ public class AutoAssignmentWindowLayout extends AbstractEntityWindowLayout<Proxy
     }
 
     @Override
-    public ComponentContainer getRootComponent() {
+    public Component getRootComponent() {
         final VerticalLayout autoAssignmentLayout = new VerticalLayout();
         autoAssignmentLayout.setSpacing(true);
         autoAssignmentLayout.setPadding(true);

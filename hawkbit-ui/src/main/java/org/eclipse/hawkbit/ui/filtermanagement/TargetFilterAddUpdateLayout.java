@@ -26,16 +26,16 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.flow.component.HasValue.ValueChangeEvent;
-import com.vaadin.event.ShortcutAction;
-import com.vaadin.event.ShortcutListener;
-import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.ui.Alignment;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.ui.ComponentContainer;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.ui.Link;
 import com.vaadin.flow.component.textfield.TextField;
 
 /**
@@ -51,7 +51,7 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
 
     private final TextField filterNameInput;
     private final AutoCompleteTextFieldComponent autoCompleteComponent;
-    private final Link helpLink;
+    private final Anchor helpLink;
     private final Button searchButton;
     private final Button saveButton;
     private final TargetFilterDetailsLayoutUiState uiState;
@@ -97,14 +97,15 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
     }
 
     @Override
-    public ComponentContainer getRootComponent() {
+    public Component getRootComponent() {
         final FormLayout formLayout = new FormLayout();
-        formLayout.setSpacing(true);
-        formLayout.setPadding(false);
+        // Vaadin 8 FormLayout: one column, spacing on, no margin (Flow's
+        // FormLayout has no spacing/margin switches)
+        formLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
         formLayout.setWidthFull();
 
         formLayout.add(filterNameInput);
-        autoCompleteComponent.setCaption(i18n.getMessage(FILTER_QUERY_CAPTION));
+        autoCompleteComponent.setLabel(i18n.getMessage(FILTER_QUERY_CAPTION));
         autoCompleteComponent.setRequiredIndicatorVisible(true);
         autoCompleteComponent.focus();
         formLayout.add(autoCompleteComponent);
@@ -131,7 +132,7 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
         filterQueryLayout.setFlexGrow(1.0F, formLayout);
 
         filterQueryLayout.add(actionsLayout);
-        filterQueryLayout.setComponentAlignment(actionsLayout, Alignment.BOTTOM_LEFT);
+        filterQueryLayout.setVerticalComponentAlignment(Alignment.END, actionsLayout);
 
         return filterQueryLayout;
     }
@@ -140,16 +141,9 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
         searchButton.addClickListener(event -> onSearchIconClick());
         autoCompleteComponent.addValidationListener((valid, message) -> searchButton.setEnabled(valid));
         autoCompleteComponent.addTextfieldChangedListener(this::onFilterQueryTextfieldChanged);
-        autoCompleteComponent
-                .addShortcutListener(
-                        new ShortcutListener("List Filtered Targets", ShortcutAction.KeyCode.ENTER, (int[]) null) {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public void handleAction(final Object sender, final Object target) {
-                        onSearchIconClick();
-                    }
-                });
+        // "List Filtered Targets": Enter while the focus is in the query field
+        Shortcuts.addShortcutListener(autoCompleteComponent, this::onSearchIconClick, Key.ENTER)
+                .listenOn(autoCompleteComponent);
         filterNameInput.addValueChangeListener(this::onFilterNameChanged);
 
         if (permChecker.hasUpdateTargetPermission()) {
