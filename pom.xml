@@ -428,6 +428,9 @@
                      <exclude>docs/*.toml</exclude>
                      <exclude>**/spring.factories</exclude>
                      <exclude>**/LICENSE*</exclude>
+                     <!-- Vaadin4Spring event bus source copied into hawkbit-ui (Apache-2.0, own headers; licence in licenses/APACHE-2.0.txt) -->
+                     <exclude>**/org/vaadin/spring/**</exclude>
+                     <exclude>licenses/APACHE-2.0.txt</exclude>
                   </excludes>
                   <mapping>
                      <scss>JAVADOC_STYLE</scss>
