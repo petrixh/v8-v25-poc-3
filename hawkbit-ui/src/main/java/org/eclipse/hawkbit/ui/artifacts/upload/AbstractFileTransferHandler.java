@@ -15,6 +15,8 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
+import java.util.function.BooleanSupplier;
+import java.util.function.LongConsumer;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.RegexCharacterCollection;
@@ -70,6 +72,10 @@ public abstract class AbstractFileTransferHandler implements Serializable {
     private final VaadinMessageSource i18n;
 
     private final transient Lock uploadLock;
+
+    // Vaadin 8 upload buffer size and progress event interval
+    private static final int UPLOAD_BUFFER_SIZE = 4 * 1024;
+    private static final long PROGRESS_EVENT_INTERVAL_MS = 500;
 
     protected static final RegexCharacterCollection ILLEGAL_FILENAME_CHARACTERS = new RegexCharacterCollection(
             RegexChar.GREATER_THAN, RegexChar.LESS_THAN, RegexChar.SLASHES);
@@ -231,6 +237,62 @@ public abstract class AbstractFileTransferHandler implements Serializable {
             } catch (final IOException e1) {
                 LOG.warn("Closing input stream caused by", e1);
             }
+        }
+    }
+
+    /**
+     * Copies the browser's file stream to the receiver's output stream: the
+     * part the Vaadin 8 upload did itself before it called the listeners. As
+     * there, progress is reported at most every
+     * {@value #PROGRESS_EVENT_INTERVAL_MS} ms while progress is listened to, and
+     * the copy stops with an {@link UploadInterruptedException} as soon as the
+     * upload is interrupted.
+     *
+     * @param inputStream
+     *            the file stream of the upload request
+     * @param outputStream
+     *            the stream the receiver returned
+     * @param listenProgress
+     *            whether progress is reported (asked once when the stream
+     *            starts, as Vaadin 8 did)
+     * @param progressListener
+     *            gets the bytes received so far
+     * @param interrupted
+     *            whether the upload is interrupted
+     * @throws IOException
+     *             if reading or writing fails, or the upload is interrupted
+     */
+    protected static void streamToReceiver(final InputStream inputStream, final OutputStream outputStream,
+            final boolean listenProgress, final LongConsumer progressListener,
+            final BooleanSupplier interrupted) throws IOException {
+        final byte[] buffer = new byte[UPLOAD_BUFFER_SIZE];
+        long bytesReceived = 0;
+        long lastProgressEvent = 0;
+        int bytesRead;
+        while ((bytesRead = inputStream.read(buffer)) > 0) {
+            outputStream.write(buffer, 0, bytesRead);
+            bytesReceived += bytesRead;
+
+            final long now = System.currentTimeMillis();
+            if (listenProgress && lastProgressEvent + PROGRESS_EVENT_INTERVAL_MS < now) {
+                lastProgressEvent = now;
+                progressListener.accept(bytesReceived);
+            }
+            if (interrupted.getAsBoolean()) {
+                throw new UploadInterruptedException();
+            }
+        }
+    }
+
+    /**
+     * Thrown by {@link #streamToReceiver} when the upload was interrupted (as
+     * Vaadin 8's exception of the same name).
+     */
+    protected static final class UploadInterruptedException extends IOException {
+        private static final long serialVersionUID = 1L;
+
+        UploadInterruptedException() {
+            super("Upload interrupted");
         }
     }
 

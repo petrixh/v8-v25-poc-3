@@ -19,7 +19,7 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.ui.renderers.ProgressBarRenderer;
+import com.vaadin.flow.component.progressbar.ProgressBar;
 
 /**
  * Grid for Upload Progress pop up info window.
@@ -64,23 +64,30 @@ public class UploadProgressGrid extends Grid<ProxyUploadProgress> {
         GridComponentBuilder.addIconColumn(this, progressStatusIconSupplier::getLabel, UPLOAD_PROGRESS_STATUS_ID,
                 i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_STATUS));
 
-        addColumn(ProxyUploadProgress::getProgress, new ProgressBarRenderer()).setId(UPLOAD_PROGRESS_BAR_ID)
-                .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_PROGRESS)).setExpandRatio(1);
+        // Vaadin 8 ProgressBarRenderer: a progress bar component per row
+        addComponentColumn(UploadProgressGrid::buildProgressBar).setKey(UPLOAD_PROGRESS_BAR_ID)
+                .setHeader(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_PROGRESS)).setFlexGrow(1);
 
         GridComponentBuilder.addColumn(this, uploadProgress -> uploadProgress.getFileUploadId().getFilename())
-                .setId(UPLOAD_PROGRESS_FILENAME_ID)
-                .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_FILENAME));
+                .setKey(UPLOAD_PROGRESS_FILENAME_ID)
+                .setHeader(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_FILENAME));
 
         GridComponentBuilder
                 .addColumn(this,
                         uploadProgress -> HawkbitCommonUtil.getFormattedNameVersion(
                                 uploadProgress.getFileUploadId().getSoftwareModuleName(),
                                 uploadProgress.getFileUploadId().getSoftwareModuleVersion()))
-                .setId(UPLOAD_PROGRESS_SM_ID).setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_SOFTWARE_MODULE));
+                .setKey(UPLOAD_PROGRESS_SM_ID).setHeader(i18n.getMessage(UIMessageIdProvider.CAPTION_SOFTWARE_MODULE));
 
-        GridComponentBuilder.addColumn(this, ProxyUploadProgress::getReason).setId(UPLOAD_PROGRESS_REASON_ID)
-                .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_REASON));
+        GridComponentBuilder.addColumn(this, ProxyUploadProgress::getReason).setKey(UPLOAD_PROGRESS_REASON_ID)
+                .setHeader(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_REASON));
 
         getColumns().forEach(col -> col.setSortable(false));
+    }
+
+    private static ProgressBar buildProgressBar(final ProxyUploadProgress uploadProgress) {
+        final ProgressBar progressBar = new ProgressBar();
+        progressBar.setValue(uploadProgress.getProgress());
+        return progressBar;
     }
 }

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
@@ -25,28 +26,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
-import com.vaadin.ui.Upload;
-import com.vaadin.ui.Upload.FailedEvent;
-import com.vaadin.ui.Upload.FailedListener;
-import com.vaadin.ui.Upload.FinishedEvent;
-import com.vaadin.ui.Upload.FinishedListener;
-import com.vaadin.ui.Upload.ProgressListener;
-import com.vaadin.ui.Upload.Receiver;
-import com.vaadin.ui.Upload.StartedEvent;
-import com.vaadin.ui.Upload.StartedListener;
-import com.vaadin.ui.Upload.SucceededEvent;
-import com.vaadin.ui.Upload.SucceededListener;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.server.streams.UploadEvent;
+import com.vaadin.flow.server.streams.UploadHandler;
 
 /**
- * Vaadin Upload implementation to read and upload a file. One instance is used
- * to handle all the uploads.
+ * Upload handler of the upload button to read and upload a file. One instance
+ * is used to handle all the uploads.
  *
  * The handler manages the output to the user and at the same time ensures that
  * the upload does not exceed the configured max file size.
  *
+ * Vaadin 8: a Receiver and the started, progress, succeeded, failed and
+ * finished listeners of the {@link UploadFixed} upload. Flow: one
+ * {@link UploadHandler} that calls the same methods in the same order, each
+ * with the session lock held as Vaadin 8 did (the upload request itself runs
+ * outside the lock).
+ *
  */
-public class FileTransferHandlerVaadinUpload extends AbstractFileTransferHandler
-        implements Receiver, SucceededListener, FailedListener, FinishedListener, ProgressListener, StartedListener {
+public class FileTransferHandlerVaadinUpload extends AbstractFileTransferHandler implements UploadHandler {
 
     private static final long serialVersionUID = 1L;
 
@@ -54,15 +52,18 @@ public class FileTransferHandlerVaadinUpload extends AbstractFileTransferHandler
 
     private final transient SoftwareModuleManagement softwareModuleManagement;
     private final long maxSize;
+    private final UploadFixed upload;
 
     private FileUploadId fileUploadId;
 
     FileTransferHandlerVaadinUpload(final long maxSize, final SoftwareModuleManagement softwareManagement,
-            final ArtifactManagement artifactManagement, final VaadinMessageSource i18n, final Lock uploadLock) {
+            final ArtifactManagement artifactManagement, final VaadinMessageSource i18n, final Lock uploadLock,
+            final UploadFixed upload) {
         super(artifactManagement, i18n, uploadLock);
 
         this.maxSize = maxSize;
         this.softwareModuleManagement = softwareManagement;
+        this.upload = upload;
     }
 
     private synchronized FileUploadId setFileUploadId(final String fileName, final SoftwareModule softwareModule) {
@@ -71,35 +72,76 @@ public class FileTransferHandlerVaadinUpload extends AbstractFileTransferHandler
     }
 
     /**
-     * Upload started for {@link Upload} variant.
+     * Runs the Vaadin 8 upload lifecycle for one file: started, receive,
+     * progress, then succeeded or failed, then finished.
      *
-     * @see com.vaadin.ui.Upload.StartedListener#uploadStarted(com.vaadin.ui.Upload.StartedEvent)
+     * @param event
+     *            the upload event
+     * @throws IOException
+     *             never: stream failures end as a failed upload
      */
     @Override
-    public void uploadStarted(final StartedEvent event) {
+    public void handleUploadRequest(final UploadEvent event) throws IOException {
+        final UI ui = event.getUI();
+        final String fileName = event.getFileName();
+        final long contentLength = event.getFileSize();
+
+        ui.accessSynchronously(() -> uploadStarted(fileName));
+
+        final AtomicReference<OutputStream> receiverStream = new AtomicReference<>();
+        ui.accessSynchronously(() -> receiverStream.set(receiveUpload(fileName, event.getContentType())));
+
+        Exception failure = null;
+        try (OutputStream outputStream = receiverStream.get()) {
+            // Vaadin 8 UploadFixed: no progress once the upload is interrupted
+            streamToReceiver(event.getInputStream(), outputStream, !upload.isInterrupted(),
+                    bytesReceived -> ui.accessSynchronously(() -> updateProgress(bytesReceived, contentLength)),
+                    upload::isInterrupted);
+        } catch (final IOException | RuntimeException e) {
+            failure = e;
+        }
+
+        if (failure == null) {
+            ui.accessSynchronously(() -> uploadSucceeded(fileName));
+        } else {
+            final Exception reason = failure;
+            ui.accessSynchronously(() -> uploadFailed(fileName, reason));
+            upload.streamingFailed();
+            event.reject();
+        }
+        ui.accessSynchronously(() -> uploadFinished(fileName));
+    }
+
+    /**
+     * Upload started.
+     *
+     * @param fileName
+     *            name of the uploaded file
+     */
+    public void uploadStarted(final String fileName) {
         // reset internal state here because instance is reused for next upload!
         resetState();
 
         final SoftwareModule softwareModule = getSelectedSoftwareModule();
-        final FileUploadId fupId = setFileUploadId(event.getFilename(), softwareModule);
+        final FileUploadId fupId = setFileUploadId(fileName, softwareModule);
 
         if (getUploadState().isFileInUploadState(this.fileUploadId)) {
             // actual interrupt will happen a bit late so setting the below
             // flag
             interruptUploadDueToDuplicateFile();
-            event.getUpload().interruptUpload();
+            upload.interruptUpload();
         } else {
             publishUploadStarted(fupId);
 
-            if (RegexCharacterCollection.stringContainsCharacter(event.getFilename(), ILLEGAL_FILENAME_CHARACTERS)) {
+            if (RegexCharacterCollection.stringContainsCharacter(fileName, ILLEGAL_FILENAME_CHARACTERS)) {
                 LOG.debug("Filename contains illegal characters {} for upload {}", fupId.getFilename(), fupId);
                 interruptUploadDueToIllegalFilename();
-                event.getUpload().interruptUpload();
+                upload.interruptUpload();
             } else if (isFileAlreadyContainedInSoftwareModule(fupId, softwareModule)) {
                 LOG.debug("File {} already contained in Software Module {}", fupId.getFilename(),
                         softwareModule);
                 interruptUploadDueToDuplicateFile();
-                event.getUpload().interruptUpload();
+                upload.interruptUpload();
             }
         }
     }
@@ -112,12 +154,14 @@ public class FileTransferHandlerVaadinUpload extends AbstractFileTransferHandler
     }
 
     /**
-     * Create stream for {@link Upload} variant.
+     * Create the stream the upload is written to.
      *
-     * @see com.vaadin.ui.Upload.Receiver#receiveUpload(java.lang.String,
-     *      java.lang.String)
+     * @param fileName
+     *            name of the uploaded file
+     * @param mimeType
+     *            MIME type of the uploaded file
+     * @return the stream
      */
-    @Override
     public OutputStream receiveUpload(final String fileName, final String mimeType) {
         if (isUploadInterrupted()) {
             return ByteStreams.nullOutputStream();
@@ -142,11 +186,13 @@ public class FileTransferHandlerVaadinUpload extends AbstractFileTransferHandler
     }
 
     /**
-     * Reports progress in {@link Upload} variant.
+     * Reports progress.
      *
-     * @see com.vaadin.ui.Upload.ProgressListener#updateProgress(long, long)
+     * @param readBytes
+     *            bytes received so far
+     * @param contentLength
+     *            size of the file
      */
-    @Override
     public void updateProgress(final long readBytes, final long contentLength) {
         if (isUploadInterrupted()) {
             publishUploadFailedAndFinishedEvent(fileUploadId);
@@ -162,45 +208,45 @@ public class FileTransferHandlerVaadinUpload extends AbstractFileTransferHandler
     }
 
     /**
+     * Upload successful.
      *
-     * Upload sucessfull for {@link Upload} variant.
-     *
-     * @see com.vaadin.ui.Upload.SucceededListener#uploadSucceeded(com.vaadin.ui.Upload.SucceededEvent)
+     * @param fileName
+     *            name of the uploaded file
      */
-    @Override
-    public void uploadSucceeded(final SucceededEvent event) {
+    public void uploadSucceeded(final String fileName) {
         if (isUploadInterrupted()) {
             // Upload interruption is delayed maybe another event is fired
             // before
             return;
         }
-        assertStateConsistency(fileUploadId, event.getFilename());
+        assertStateConsistency(fileUploadId, fileName);
     }
 
     /**
-     * Upload finished for {@link Upload} variant. Both for good and error
-     * variant.
+     * Upload finished. Both for good and error variant.
      *
-     * @see com.vaadin.ui.Upload.FinishedListener#uploadFinished(com.vaadin.ui.Upload.FinishedEvent)
+     * @param fileName
+     *            name of the uploaded file
      */
-    @Override
-    public void uploadFinished(final FinishedEvent event) {
+    public void uploadFinished(final String fileName) {
         // ignore this event
     }
 
     /**
-     * Upload failed for {@link Upload} variant.
+     * Upload failed.
      *
-     * @see com.vaadin.ui.Upload.FailedListener#uploadFailed(com.vaadin.ui.Upload.FailedEvent)
+     * @param fileName
+     *            name of the uploaded file
+     * @param reason
+     *            the exception that ended the upload
      */
-    @Override
-    public void uploadFailed(final FailedEvent event) {
-        assertStateConsistency(fileUploadId, event.getFilename());
+    public void uploadFailed(final String fileName, final Exception reason) {
+        assertStateConsistency(fileUploadId, fileName);
 
         if (!isUploadInterrupted()) {
             interruptUploadDueToUploadFailed();
         }
-        LOG.debug("Upload of file {} failed due to following exception: {}", fileUploadId, event.getReason());
+        LOG.debug("Upload of file {} failed due to following exception: {}", fileUploadId, reason);
         publishUploadFailedAndFinishedEvent(fileUploadId);
     }
 

@@ -24,10 +24,10 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.UI;
-import com.vaadin.ui.Upload;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.upload.UploadManager;
 
 /**
  * Container for upload and progress button.
@@ -43,7 +43,8 @@ public class UploadProgressButtonLayout extends VerticalLayout {
     private final transient SoftwareModuleManagement softwareModuleManagement;
 
     private final transient MultipartConfigElement multipartConfigElement;
-    private final Upload upload;
+    private final UploadManager uploadManager;
+    private final UploadFixed upload;
     private final transient Lock uploadLock;
 
     private final UploadProgressInfoWindow uploadInfoWindow;
@@ -78,17 +79,21 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         this.artifactUploadState = artifactUploadState;
         this.artifactManagement = artifactManagement;
         this.uploadInfoWindow = new UploadProgressInfoWindow(i18n, artifactUploadState);
-        this.uploadInfoWindow.addCloseListener(event -> {
+        this.uploadInfoWindow.addOpenedChangeListener(event -> {
             // ensure that the progress button is hidden when the progress
             // window is closed and no more uploads running
-            if (artifactUploadState.areAllUploadsFinished()) {
+            if (!event.isOpened() && artifactUploadState.areAllUploadsFinished()) {
                 hideUploadProgressButton();
             }
         });
         this.i18n = i18n;
         this.multipartConfigElement = multipartConfigElement;
         this.softwareModuleManagement = softwareManagement;
-        this.upload = new UploadFixed();
+        // Vaadin 8 Upload: one file per click, uploaded at once, no file list
+        this.uploadManager = new UploadManager(this);
+        this.uploadManager.setMaxFiles(1);
+        this.uploadManager.addAllFinishedListener(event -> uploadManager.clearFileList());
+        this.upload = new UploadFixed(i18n.getMessage("upload.file"), uploadManager);
         this.uploadLock = uploadLock;
 
         createComponents();
@@ -148,14 +153,10 @@ public class UploadProgressButtonLayout extends VerticalLayout {
     private void buildLayout() {
         final FileTransferHandlerVaadinUpload uploadHandler = new FileTransferHandlerVaadinUpload(
                 multipartConfigElement.getMaxFileSize(), softwareModuleManagement, artifactManagement, i18n,
-                uploadLock);
-        upload.setButtonCaption(i18n.getMessage("upload.file"));
-        upload.setReceiver(uploadHandler);
-        upload.addSucceededListener(uploadHandler);
-        upload.addFailedListener(uploadHandler);
-        upload.addFinishedListener(uploadHandler);
-        upload.addProgressListener(uploadHandler);
-        upload.addStartedListener(uploadHandler);
+                uploadLock, upload);
+        // the handler calls the receiver and the listeners of the Vaadin 8
+        // upload in their order
+        uploadManager.setUploadHandler(uploadHandler);
         upload.setId(UIComponentIdProvider.UPLOAD_BUTTON);
 
         add(upload);

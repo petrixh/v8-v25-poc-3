@@ -24,14 +24,13 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.shared.ui.window.WindowMode;
+import com.vaadin.flow.component.ModalityMode;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Dialog that shows the progress of all uploads.
@@ -69,7 +68,7 @@ public class UploadProgressInfoWindow extends Dialog {
 
         mainLayout.add(getCaptionLayout(), uploadProgressGrid);
         mainLayout.setFlexGrow(1.0F, uploadProgressGrid);
-        setContent(mainLayout);
+        add(mainLayout);
     }
 
     /**
@@ -144,7 +143,7 @@ public class UploadProgressInfoWindow extends Dialog {
     }
 
     private boolean isWindowNotAlreadyAttached() {
-        return !UI.getCurrent().getWindows().contains(this);
+        return !isOpened();
     }
 
     private void restoreState() {
@@ -161,8 +160,10 @@ public class UploadProgressInfoWindow extends Dialog {
 
         setResizable(false);
         setDraggable(true);
-        setClosable(false);
-        setModal(true);
+        // Vaadin 8 setClosable(false): only the own close button closes it
+        setCloseOnEsc(false);
+        setCloseOnOutsideClick(false);
+        setModality(ModalityMode.STRICT);
     }
 
     private HorizontalLayout getCaptionLayout() {
@@ -181,8 +182,8 @@ public class UploadProgressInfoWindow extends Dialog {
     }
 
     private void openWindow() {
+        // Flow dialogs open centred
         this.open();
-        center();
     }
 
     protected void maximizeWindow() {
@@ -243,7 +244,8 @@ public class UploadProgressInfoWindow extends Dialog {
     }
 
     private void closeWindow() {
-        setWindowMode(WindowMode.NORMAL);
+        // Vaadin 8 setWindowMode(NORMAL): a dialog that is not resizable has
+        // no maximized mode
         setPopupSizeInMinMode();
         close();
     }
