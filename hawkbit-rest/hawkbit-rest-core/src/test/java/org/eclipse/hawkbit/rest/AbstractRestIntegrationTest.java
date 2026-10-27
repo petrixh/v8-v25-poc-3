@@ -23,6 +23,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.web.filter.UrlHandlerFilter;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
@@ -44,6 +46,9 @@ public abstract class AbstractRestIntegrationTest extends AbstractIntegrationTes
     private CharacterEncodingFilter characterEncodingFilter;
 
     @Autowired
+    private FilterRegistrationBean<UrlHandlerFilter> trailingSlashFilter;
+
+    @Autowired
     protected WebApplicationContext webApplicationContext;
 
     @BeforeEach
@@ -54,6 +59,7 @@ public abstract class AbstractRestIntegrationTest extends AbstractIntegrationTes
     protected DefaultMockMvcBuilder createMvcWebAppContext(final WebApplicationContext context) {
         final DefaultMockMvcBuilder createMvcWebAppContext = MockMvcBuilders.webAppContextSetup(context);
 
+        createMvcWebAppContext.addFilter(trailingSlashFilter.getFilter());
         // CharacterEncodingFilter is needed for the encoding properties to be imported properly
         createMvcWebAppContext.addFilter(characterEncodingFilter);
         createMvcWebAppContext.addFilter(
