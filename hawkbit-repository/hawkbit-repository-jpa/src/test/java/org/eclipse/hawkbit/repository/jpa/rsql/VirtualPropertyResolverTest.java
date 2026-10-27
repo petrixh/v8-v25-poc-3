@@ -29,7 +29,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -46,10 +46,10 @@ public class VirtualPropertyResolverTest {
     @Spy
     private final VirtualPropertyResolver resolverUnderTest = new VirtualPropertyResolver();
 
-    @MockBean
+    @MockitoBean
     private TenantConfigurationManagement confMgmt;
 
-    @MockBean
+    @MockitoBean
     private SystemSecurityContext securityContext;
 
     private StrSubstitutor substitutor;
