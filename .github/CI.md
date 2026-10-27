@@ -5,8 +5,11 @@ One GitHub Actions workflow, `.github/workflows/ci.yml`, with one job on a GitHu
 ## When it runs
 
 - Push to `main`, `mig-dev`, `stage/**`, `stabilise/**`, `fix/**`.
-- Pull requests to `main` and `mig-dev`.
 - Manually: Actions, CI, "Run workflow" (`workflow_dispatch`).
+
+There is no `pull_request` trigger: the checks of a push are attached to the commit, so they show on a pull request of that branch, and a second run for the same commit would only repeat the first.
+
+CI runs once per commit. The first job, `already-green`, asks the GitHub API (with the job's own token, permission `actions: read`, no other) whether this commit already has a successful run of this workflow. If it has, the job `build-test-smoke` is skipped and the run ends as a success within a minute: a branch moved to a commit that already passed (a fast-forward merge, a copy of a branch) is not built again. A failed or cancelled earlier run does not count, so that commit runs again. To run a green commit again, start the workflow by hand with `force` ticked. Two runs of one commit started at the same moment (before either has finished) both run: the check only sees finished successes.
 
 No schedule. A newer run on the same ref cancels the one still running. Time limits: 20 minutes for build and start, 5 for the Playwright install, 10 for the smoke, 20 for the tests, 60 for the job. A step over its limit fails, so its diagnostics are uploaded.
 
@@ -14,6 +17,7 @@ No schedule. A newer run on the same ref cancels the one still running. Time lim
 
 | Step | Does | Fails when |
 |---|---|---|
+| (job `already-green`) | See "When it runs": sets `skip` when the commit has a successful run; `build-test-smoke` then does not run | the API call fails (the run then fails rather than guessing) |
 | Restore Maven repository, Playwright browser | `actions/cache` of `~/.m2/repository` (key: hash of every `pom.xml`) and `~/.cache/ms-playwright` (key: Playwright version) | never |
 | Test users | `.github/ci/test-users.sh`: four throw-away users with new random passwords (see "Test users") | |
 | Build and start | `env/up.sh`. Builds the app image from the commit: Maven 3.9.16 / JDK 17.0.20.1 in Docker (the image `env/lib.sh` pins by digest), `-pl hawkbit-runtime/hawkbit-vv8-ui,hawkbit-runtime/hawkbit-mgmt-server -am -DskipTests package` with `env/maven-settings.xml` and `-DskipNexusStaging`. Then starts copy `ci` on an internal Docker network with MySQL 8.0 and RabbitMQ 3, seeds it, and serves the UI on `127.0.0.1:18081` | the build fails; Maven downloaded from a host other than `repo.maven.apache.org` and `maven.vaadin.com` (the check is in `env/up.sh`); the app does not start |
