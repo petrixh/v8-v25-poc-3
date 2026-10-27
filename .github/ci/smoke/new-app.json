@@ -13,6 +13,11 @@
   "ignoreScrollSelectors": [
     "vaadin-grid"
   ],
+  "errorTexts": [
+    "There was an exception while trying to navigate to",
+    "No such view: ",
+    "No access to view: "
+  ],
   "users": [
     {
       "name": "admin",
