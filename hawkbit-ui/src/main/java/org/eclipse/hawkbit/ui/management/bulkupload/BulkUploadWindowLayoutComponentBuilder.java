@@ -23,9 +23,9 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTypeInfo;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.TextArea;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.textfield.TextArea;
 
 /**
  * Builder for bulk upload window components.

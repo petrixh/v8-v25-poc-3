@@ -13,10 +13,9 @@ import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.RadioButtonGroup;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 
 /**
  * Action type option group abstract layout.
@@ -54,18 +53,18 @@ public abstract class AbstractActionTypeOptionGroupLayout extends HorizontalLayo
         actionTypeOptionGroup = new RadioButtonGroup<>();
         actionTypeOptionGroup.setId(actionTypeOptionGroupId);
         actionTypeOptionGroup.setSizeFull();
-        actionTypeOptionGroup.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
+        actionTypeOptionGroup.addClassNames("horizontal");
 
         actionTypeOptionGroup.setItemIconGenerator(item -> {
             switch (item) {
             case FORCED:
-                return VaadinIcons.BOLT;
+                return VaadinIcon.BOLT;
             case SOFT:
-                return VaadinIcons.USER_CHECK;
+                return VaadinIcon.USER_CHECK;
             case TIMEFORCED:
-                return VaadinIcons.USER_CLOCK;
+                return VaadinIcon.USER_CLOCK;
             case DOWNLOAD_ONLY:
-                return VaadinIcons.DOWNLOAD;
+                return VaadinIcon.DOWNLOAD;
             default:
                 return null;
             }

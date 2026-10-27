@@ -9,9 +9,9 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
-import com.vaadin.data.Binder;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.UI;
 import org.eclipse.hawkbit.repository.ConfirmationManagement;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
@@ -22,9 +22,9 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetConfirmationOptions
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 
 import java.util.function.Consumer;
 
@@ -67,11 +67,11 @@ public class TargetAutoConfActivationLayout extends AbstractEntityWindowLayout<P
         final FormLayout autoConfirmationLayout = new FormLayout();
 
         autoConfirmationLayout.setSpacing(true);
-        autoConfirmationLayout.setMargin(true);
+        autoConfirmationLayout.setPadding(true);
         autoConfirmationLayout.setSizeUndefined();
 
-        autoConfirmationLayout.addComponent(initiator);
-        autoConfirmationLayout.addComponent(remarkArea);
+        autoConfirmationLayout.add(initiator);
+        autoConfirmationLayout.add(remarkArea);
         remarkArea.focus();
         return autoConfirmationLayout;
     }
@@ -122,9 +122,9 @@ public class TargetAutoConfActivationLayout extends AbstractEntityWindowLayout<P
                                         .getMessage("caption.target.auto.confirmation.activate.consequences.caption"))
                                 .question(i18n.getMessage(
                                         "caption.target.auto.confirmation.activate.consequences.question", count))
-                                .icon(VaadinIcons.WARNING).onSaveOrUpdate(() -> activateAutoConfirmation(newOptions))
+                                .icon(VaadinIcon.WARNING).onSaveOrUpdate(() -> activateAutoConfirmation(newOptions))
                                 .build();
-                        UI.getCurrent().addWindow(confirmationDialog.getWindow());
+                        confirmationDialog.getWindow().open();
                         confirmationDialog.getWindow().bringToFront();
                     } else {
                         activateAutoConfirmation(newOptions);

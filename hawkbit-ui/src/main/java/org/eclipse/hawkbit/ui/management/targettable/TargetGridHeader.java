@@ -26,9 +26,9 @@ import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutU
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Target table header layout.
@@ -82,7 +82,7 @@ public class TargetGridHeader extends AbstractEntityGridHeader {
      */
     public void addDsDropArea() {
         final Component distributionSetFilterDropArea = distributionSetFilterDropAreaSupport.getHeaderComponent();
-        addComponent(distributionSetFilterDropArea);
+        add(distributionSetFilterDropArea);
         setComponentAlignment(distributionSetFilterDropArea, Alignment.TOP_CENTER);
     }
 
@@ -181,8 +181,8 @@ public class TargetGridHeader extends AbstractEntityGridHeader {
     }
 
     private void showBulkUploadWindow() {
-        final Window bulkUploadTargetWindow = bulkUploadWindowBuilder.getWindowForTargetBulkUpload();
-        UI.getCurrent().addWindow(bulkUploadTargetWindow);
+        final Dialog bulkUploadTargetWindow = bulkUploadWindowBuilder.getWindowForTargetBulkUpload();
+        bulkUploadTargetWindow.open();
         bulkUploadTargetWindow.setVisible(true);
     }
 

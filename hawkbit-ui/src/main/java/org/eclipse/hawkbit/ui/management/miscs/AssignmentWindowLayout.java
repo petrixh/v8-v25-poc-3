@@ -18,13 +18,13 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAssignmentWindow;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.ui.Link;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Layout for target to distribution set assignment
@@ -82,26 +82,26 @@ public class AssignmentWindowLayout extends VerticalLayout {
 
     private void initLayout() {
         setSizeFull();
-        setMargin(false);
+        setPadding(false);
         setSpacing(false);
     }
 
     private void buildLayout() {
-        addComponent(actionTypeLayout.getComponent());
+        add(actionTypeLayout.getComponent());
 
         final HorizontalLayout maintenanceWindowToggleLayout = new HorizontalLayout();
-        maintenanceWindowToggleLayout.addComponent(maintenanceWindowToggle);
-        maintenanceWindowToggleLayout.addComponent(maintenanceHelpLink);
-        addComponent(maintenanceWindowToggleLayout);
+        maintenanceWindowToggleLayout.add(maintenanceWindowToggle);
+        maintenanceWindowToggleLayout.add(maintenanceHelpLink);
+        add(maintenanceWindowToggleLayout);
 
         maintenanceWindowLayout.setVisible(false);
         maintenanceWindowLayout.setEnabled(false);
-        addComponent(maintenanceWindowLayout);
+        add(maintenanceWindowLayout);
 
         final HorizontalLayout confirmationOptionsLayout = new HorizontalLayout();
-        confirmationOptionsLayout.addComponent(confirmationRequiredToggle);
-        confirmationOptionsLayout.addComponent(confirmationHelpLink);
-        addComponent(confirmationOptionsLayout);
+        confirmationOptionsLayout.add(confirmationRequiredToggle);
+        confirmationOptionsLayout.add(confirmationHelpLink);
+        add(confirmationOptionsLayout);
         refreshConfirmCheckBoxState(false);
     }
 

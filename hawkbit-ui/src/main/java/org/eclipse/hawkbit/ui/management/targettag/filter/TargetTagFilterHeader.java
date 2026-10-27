@@ -23,7 +23,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Target Tag filter by Tag Header.
@@ -89,7 +89,7 @@ public class TargetTagFilterHeader extends AbstractFilterHeader {
     }
 
     @Override
-    protected Window getWindowForAdd() {
+    protected Dialog getWindowForAdd() {
         if (targetTagFilterLayoutUiState.isTargetTypeFilterTabSelected()) {
             return targetTypeWindowBuilder.getWindowForAdd();
         }

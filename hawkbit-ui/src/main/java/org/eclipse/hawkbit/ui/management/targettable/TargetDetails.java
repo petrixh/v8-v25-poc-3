@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.Component;
 import org.eclipse.hawkbit.repository.ConfirmationManagement;
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
@@ -40,8 +40,8 @@ import org.eclipse.hawkbit.ui.common.tagdetails.TargetTagToken;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dialog.Dialog;
 import org.eclipse.hawkbit.utils.TenantConfigHelper;
 
 /**
@@ -235,10 +235,10 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
             return;
         }
 
-        final Window metaDataWindow = targetMetaDataWindowBuilder.getWindowForShowTargetMetaData(
+        final Dialog metaDataWindow = targetMetaDataWindowBuilder.getWindowForShowTargetMetaData(
                 binder.getBean().getControllerId(), binder.getBean().getName(), metadata);
 
-        UI.getCurrent().addWindow(metaDataWindow);
+        metaDataWindow.open();
         metaDataWindow.setVisible(Boolean.TRUE);
     }
 

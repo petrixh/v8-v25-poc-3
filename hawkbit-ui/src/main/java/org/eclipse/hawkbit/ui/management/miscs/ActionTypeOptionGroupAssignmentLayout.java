@@ -19,7 +19,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.DateTimeField;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Action type option group layout for manual assignment.
@@ -42,7 +41,7 @@ public class ActionTypeOptionGroupAssignmentLayout extends AbstractActionTypeOpt
     public ActionTypeOptionGroupAssignmentLayout(final VaadinMessageSource i18n, final String actionTypeOptionGroupId) {
         super(i18n, actionTypeOptionGroupId);
 
-        actionTypeOptionGroup.addStyleName(ValoTheme.OPTIONGROUP_SMALL);
+        actionTypeOptionGroup.addClassNames("small");
         addValueChangeListener();
     }
 
@@ -55,22 +54,22 @@ public class ActionTypeOptionGroupAssignmentLayout extends AbstractActionTypeOpt
     protected void addOptionGroup() {
         actionTypeOptionGroup.setItems(ActionType.FORCED, ActionType.SOFT, ActionType.DOWNLOAD_ONLY,
                 ActionType.TIMEFORCED);
-        addComponent(actionTypeOptionGroup);
+        add(actionTypeOptionGroup);
         addTimeforcedDateTimeField();
     }
 
     private void addTimeforcedDateTimeField() {
         forcedTimeDateField = new DateTimeField();
         forcedTimeDateField.setEnabled(false);
-        forcedTimeDateField.setStyleName(STYLE_DIST_WINDOW_FORCEDTIME);
+        forcedTimeDateField.setClassName(STYLE_DIST_WINDOW_FORCEDTIME);
 
         final TimeZone tz = SPDateTimeUtil.getBrowserTimeZone();
         forcedTimeDateField.setZoneId(SPDateTimeUtil.getTimeZoneId(tz));
         forcedTimeDateField.setLocale(HawkbitCommonUtil.getCurrentLocale());
         forcedTimeDateField.setResolution(DateTimeResolution.MINUTE);
-        forcedTimeDateField.addStyleName(ValoTheme.DATEFIELD_TINY);
+        forcedTimeDateField.addClassNames("tiny");
         forcedTimeDateField.setWidth("14em");
-        addComponent(forcedTimeDateField);
+        add(forcedTimeDateField);
         setComponentAlignment(forcedTimeDateField, Alignment.MIDDLE_LEFT);
     }
 

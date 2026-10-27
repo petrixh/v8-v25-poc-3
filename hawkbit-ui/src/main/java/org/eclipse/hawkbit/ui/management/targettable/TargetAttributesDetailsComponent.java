@@ -20,14 +20,13 @@ import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * target attributes detail component
@@ -54,7 +53,7 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
 
         this.targetAttributesDetailsLayout = new VerticalLayout();
         this.targetAttributesDetailsLayout.setSpacing(true);
-        this.targetAttributesDetailsLayout.setMargin(false);
+        this.targetAttributesDetailsLayout.setPadding(false);
         this.targetAttributesDetailsLayout.setSizeFull();
 
         setReadOnly(true);
@@ -74,7 +73,7 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
 
     @Override
     protected void doSetValue(final ProxyTargetAttributesDetails targetAttributesDetails) {
-        targetAttributesDetailsLayout.removeAllComponents();
+        targetAttributesDetailsLayout.removeAll();
 
         if (targetAttributesDetails == null) {
             return;
@@ -87,39 +86,39 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
         final Button requestAttributesButton = buildRequestAttributesUpdateButton(controllerId, isRequestAttributes);
         final HorizontalLayout topRow = new HorizontalLayout(requestAttributesButton);
         if (isRequestAttributes) {
-            topRow.addComponent(buildAttributesUpdateLabel());
+            topRow.add(buildAttributesUpdateLabel());
         }
-        targetAttributesDetailsLayout.addComponent(topRow);
+        targetAttributesDetailsLayout.add(topRow);
 
         final VerticalLayout attributesLayout = buildAttributesLayout(targetAttributes);
-        targetAttributesDetailsLayout.addComponent(attributesLayout);
-        targetAttributesDetailsLayout.setExpandRatio(attributesLayout, 1.0F);
+        targetAttributesDetailsLayout.add(attributesLayout);
+        targetAttributesDetailsLayout.setFlexGrow(1.0F, attributesLayout);
 
     }
 
     private VerticalLayout buildAttributesLayout(final List<ProxyKeyValueDetails> targetAttributes) {
         final VerticalLayout attributesLayout = new VerticalLayout();
-        attributesLayout.setMargin(false);
+        attributesLayout.setPadding(false);
         attributesLayout.setSpacing(false);
 
         final KeyValueDetailsComponent attributes = new KeyValueDetailsComponent();
         attributes.disableSpacing();
         attributes.setValue(targetAttributes);
-        attributesLayout.addComponent(attributes);
+        attributesLayout.add(attributes);
 
         return attributesLayout;
     }
 
-    private Label buildAttributesUpdateLabel() {
-        final Label updateLabel = new Label(i18n.getMessage("label.target.attributes.update.pending"));
-        updateLabel.setStyleName(ValoTheme.LABEL_SMALL);
+    private Span buildAttributesUpdateLabel() {
+        final Span updateLabel = new Span(i18n.getMessage("label.target.attributes.update.pending"));
+        updateLabel.setClassName("small");
 
         return updateLabel;
     }
 
     private Button buildRequestAttributesUpdateButton(final String controllerId, final boolean isRequestAttributes) {
         final Button requestAttributesButton = SPUIComponentProvider.getButton(
-                UIComponentIdProvider.TARGET_ATTRIBUTES_UPDATE, "", "", "", false, VaadinIcons.REFRESH,
+                UIComponentIdProvider.TARGET_ATTRIBUTES_UPDATE, "", "", "", false, VaadinIcon.REFRESH,
                 SPUIButtonStyleNoBorder.class);
 
         requestAttributesButton.addClickListener(e -> {

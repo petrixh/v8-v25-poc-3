@@ -57,8 +57,8 @@ import org.vaadin.spring.events.EventScope;
 
 import com.google.common.base.Splitter;
 import com.google.common.io.ByteStreams;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.component.UI;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.FailedListener;
 import com.vaadin.ui.Upload.Receiver;

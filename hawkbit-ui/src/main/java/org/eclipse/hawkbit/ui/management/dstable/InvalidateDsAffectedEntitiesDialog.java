@@ -28,9 +28,9 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Showing the affected entities for invalidating a distribution set.
@@ -65,29 +65,29 @@ public class InvalidateDsAffectedEntitiesDialog {
 
         final VerticalLayout content = new VerticalLayout();
         content.setSpacing(true);
-        content.setMargin(true);
+        content.setPadding(true);
 
-        final Label consequencesLabel = new Label(createConsequencesText(allDistributionSetsForInvalidation));
+        final Span consequencesLabel = new Span(createConsequencesText(allDistributionSetsForInvalidation));
         consequencesLabel.setWidthFull();
-        content.addComponent(consequencesLabel);
+        content.add(consequencesLabel);
 
-        final Label stoppedSingleAssignmentsLabel = new Label(
+        final Span stoppedSingleAssignmentsLabel = new Span(
                 i18n.getMessage(UIMessageIdProvider.MESSAGE_INVALIDATE_DISTRIBUTIONSET_AFFECTED_ENTITIES_ACTIONS,
                         affectedEntities.getActionCount()));
         stoppedSingleAssignmentsLabel.setId(UIComponentIdProvider.INVALIDATE_DS_AFFECTED_ENTITIES_ACTIONS);
-        content.addComponent(stoppedSingleAssignmentsLabel);
+        content.add(stoppedSingleAssignmentsLabel);
 
-        final Label stoppedRolloutsLabel = new Label(
+        final Span stoppedRolloutsLabel = new Span(
                 i18n.getMessage(UIMessageIdProvider.MESSAGE_INVALIDATE_DISTRIBUTIONSET_AFFECTED_ENTITIES_ROLLOUTS,
                         affectedEntities.getRolloutsCount()));
         stoppedRolloutsLabel.setId(UIComponentIdProvider.INVALIDATE_DS_AFFECTED_ENTITIES_ROLLOUTS);
-        content.addComponent(stoppedRolloutsLabel);
+        content.add(stoppedRolloutsLabel);
 
-        final Label stoppedAutoAssignmentsLabel = new Label(i18n.getMessage(
+        final Span stoppedAutoAssignmentsLabel = new Span(i18n.getMessage(
                 UIMessageIdProvider.MESSAGE_INVALIDATE_DISTRIBUTIONSET_AFFECTED_ENTITIES_AUTOASSIGNMENTS,
                 affectedEntities.getAutoAssignmentCount()));
         stoppedAutoAssignmentsLabel.setId(UIComponentIdProvider.INVALIDATE_DS_AFFECTED_ENTITIES_AUTOASSIGNMENTS);
-        content.addComponent(stoppedAutoAssignmentsLabel);
+        content.add(stoppedAutoAssignmentsLabel);
 
         final WindowBuilder windowBuilder = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW)
                 .id(UIComponentIdProvider.INVALIDATE_DS_AFFECTED_ENTITIES)
@@ -98,7 +98,7 @@ public class InvalidateDsAffectedEntitiesDialog {
 
         this.window = windowBuilder.buildCommonDialogWindow();
         window.setSaveButtonEnabled(true);
-        window.addStyleName(SPUIStyleDefinitions.CONFIRMBOX_WINDOW_STYLE);
+        window.addClassNames(SPUIStyleDefinitions.CONFIRMBOX_WINDOW_STYLE);
         this.callback = callback;
 
     }
@@ -136,7 +136,7 @@ public class InvalidateDsAffectedEntitiesDialog {
     /**
      * @return confirmation window
      */
-    public Window getWindow() {
+    public Dialog getWindow() {
         return window;
     }
 }

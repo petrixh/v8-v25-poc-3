@@ -46,7 +46,7 @@ public class TargetTypeWindowLayout extends TagWindowLayout<ProxyTargetType> {
     public ComponentContainer getRootComponent() {
         final ComponentContainer rootLayout = super.getRootComponent();
 
-        rootLayout.addComponent(targetTypeDsTypeSelectLayout);
+        rootLayout.add(targetTypeDsTypeSelectLayout);
 
         return rootLayout;
     }

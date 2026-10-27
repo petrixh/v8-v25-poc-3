@@ -63,10 +63,10 @@ import org.eclipse.hawkbit.utils.TenantConfigHelper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.vaadin.data.ValueProvider;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Span;
 
 /**
  * Concrete implementation of Target grid which is displayed on the Deployment
@@ -191,7 +191,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     public void init() {
         super.init();
 
-        addStyleName("grid-row-border");
+        addClassNames("grid-row-border");
     }
 
     /**
@@ -339,18 +339,18 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         return GridComponentBuilder.addNameColumn(this, i18n, TARGET_NAME_ID);
     }
 
-    private Column<ProxyTarget, Label> addTargetPollingStatusColumn() {
+    private Column<ProxyTarget, Span> addTargetPollingStatusColumn() {
         return GridComponentBuilder.addIconColumn(this, targetPollingStatusIconSupplier::getLabel,
                 TARGET_POLLING_STATUS_ID, null);
     }
 
-    private Column<ProxyTarget, Label> addTargetStatusColumn() {
+    private Column<ProxyTarget, Span> addTargetStatusColumn() {
         return GridComponentBuilder.addIconColumn(this, targetStatusIconSupplier::getLabel, TARGET_STATUS_ID, null);
     }
 
     private Column<ProxyTarget, Button> addPinColumn() {
         final ValueProvider<ProxyTarget, Button> buttonProvider = target -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> pinSupport.changeItemPinning(target), VaadinIcons.PIN,
+                clickEvent -> pinSupport.changeItemPinning(target), VaadinIcon.PIN,
                 UIMessageIdProvider.TOOLTIP_TARGET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.TARGET_PIN_ICON + "." + target.getId(), true);
         return GridComponentBuilder.addIconColumn(this, buttonProvider, TARGET_PIN_BUTTON_ID, null,
@@ -364,10 +364,10 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     @Override
     protected void addMaxColumns() {
-        addNameColumn().setExpandRatio(2);
-        addControllerIdColumn().setExpandRatio(2);
+        addNameColumn().setFlexGrow((int) 2);
+        addControllerIdColumn().setFlexGrow((int) 2);
 
-        GridComponentBuilder.addDescriptionColumn(this, i18n, TARGET_DESC_ID).setExpandRatio(2);
+        GridComponentBuilder.addDescriptionColumn(this, i18n, TARGET_DESC_ID).setFlexGrow((int) 2);
         GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n);
 
         addDeleteColumn();

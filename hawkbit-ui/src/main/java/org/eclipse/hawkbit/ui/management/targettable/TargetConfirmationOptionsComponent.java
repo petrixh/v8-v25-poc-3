@@ -36,15 +36,14 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * target auto confirmation detail component
@@ -82,7 +81,7 @@ public class TargetConfirmationOptionsComponent extends CustomField<ProxyTargetC
 
         this.targetConfirmationOptionsLayout = new HorizontalLayout();
         this.targetConfirmationOptionsLayout.setSpacing(true);
-        this.targetConfirmationOptionsLayout.setMargin(false);
+        this.targetConfirmationOptionsLayout.setPadding(false);
         this.targetConfirmationOptionsLayout.setSizeFull();
     }
 
@@ -100,7 +99,7 @@ public class TargetConfirmationOptionsComponent extends CustomField<ProxyTargetC
 
     @Override
     protected void doSetValue(final ProxyTargetConfirmationOptions targetConfirmationOptions) {
-        targetConfirmationOptionsLayout.removeAllComponents();
+        targetConfirmationOptionsLayout.removeAll();
 
         if (targetConfirmationOptions == null) {
             return;
@@ -111,22 +110,22 @@ public class TargetConfirmationOptionsComponent extends CustomField<ProxyTargetC
         if (isAutoConfirmationEnabled) {
             final KeyValueDetailsComponent detailsLayout = buildAutoConfirmationDetailsLayout(
                     targetConfirmationOptions);
-            targetConfirmationOptionsLayout.addComponent(detailsLayout);
-            targetConfirmationOptionsLayout.setExpandRatio(detailsLayout, 1.0F);
+            targetConfirmationOptionsLayout.add(detailsLayout);
+            targetConfirmationOptionsLayout.setFlexGrow(1.0F, detailsLayout);
         } else {
             final KeyValueDetailsComponent component = toKeyValueDetailsComponent(
                     Collections.singletonList(new ProxyKeyValueDetails(AUTO_CONFIRMATION_DETAILS_STATE,
                             i18n.getMessage("label.target.auto.confirmation.state"),
                             i18n.getMessage("label.target.auto.confirmation.deactivated"))));
 
-            targetConfirmationOptionsLayout.addComponent(component);
-            targetConfirmationOptionsLayout.setExpandRatio(component, 1.0F);
+            targetConfirmationOptionsLayout.add(component);
+            targetConfirmationOptionsLayout.setFlexGrow(1.0F, component);
         }
 
         // do only provide toggle button when having permission for that
         if (permissionChecker.hasUpdateTargetPermission()) {
             final Button button = buildAutoConfirmationToggleButton(targetConfirmationOptions);
-            targetConfirmationOptionsLayout.addComponent(button);
+            targetConfirmationOptionsLayout.add(button);
         }
     }
 
@@ -166,31 +165,31 @@ public class TargetConfirmationOptionsComponent extends CustomField<ProxyTargetC
         if (options.isAutoConfirmationEnabled()) {
             toggleAutoConfirmationButton = SPUIComponentProvider.getButton(
                     UIComponentIdProvider.AUTO_CONFIRMATION_DETAILS_TOGGLE, "",
-                    i18n.getMessage("button.target.auto.confirmation.disable"), ValoTheme.BUTTON_HUGE, true,
+                    i18n.getMessage("button.target.auto.confirmation.disable"), "huge", true,
                     FontAwesome.TOGGLE_ON, SPUIButtonStyleNoBorder.class);
         } else {
             toggleAutoConfirmationButton = SPUIComponentProvider.getButton(
                     UIComponentIdProvider.AUTO_CONFIRMATION_DETAILS_TOGGLE, "",
-                    i18n.getMessage("button.target.auto.confirmation.activate"), ValoTheme.BUTTON_HUGE, true,
+                    i18n.getMessage("button.target.auto.confirmation.activate"), "huge", true,
                     FontAwesome.TOGGLE_OFF, SPUIButtonStyleNoBorder.class);
         }
 
         toggleAutoConfirmationButton.addClickListener(e -> {
             if (options.isAutoConfirmationEnabled()) {
                 final ConfirmationDialog dialog = ConfirmationDialog
-                        .newBuilder(i18n, AUTO_CONFIRMATION_TOGGLE_DIALOG).icon(VaadinIcons.WARNING)
+                        .newBuilder(i18n, AUTO_CONFIRMATION_TOGGLE_DIALOG).icon(VaadinIcon.WARNING)
                         .caption(i18n.getMessage("caption.target.auto.confirmation.disable"))
                         .question(i18n.getMessage("message.target.auto.confirmation.disable")).onSaveOrUpdate(() -> {
                             confirmationManagement.deactivateAutoConfirmation(options.getControllerId());
                             doSetValue(ProxyTargetConfirmationOptions.disabled(options.getControllerId()));
                         }).build();
 
-                UI.getCurrent().addWindow(dialog.getWindow());
+                dialog.getWindow().open();
 
                 dialog.getWindow().bringToFront();
             } else {
-                final Window window = windowBuilder.getWindowForUpdate(options);
-                UI.getCurrent().addWindow(window);
+                final Dialog window = windowBuilder.getWindowForUpdate(options);
+                window.open();
                 window.setVisible(Boolean.TRUE);
             }
         });

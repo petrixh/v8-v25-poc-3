@@ -18,7 +18,7 @@ import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
 import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetConfirmationOptions;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 import org.springframework.util.StringUtils;
 
 import static org.eclipse.hawkbit.ui.utils.UIComponentIdProvider.AUTO_CONFIRMATION_TOGGLE_DIALOG;
@@ -53,12 +53,12 @@ public class TargetAutoConfActivationWindowBuilder extends AbstractEntityWindowB
     }
 
     @Override
-    public Window getWindowForAdd() {
+    public Dialog getWindowForAdd() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Window getWindowForUpdate(final ProxyTargetConfirmationOptions entity) {
+    public Dialog getWindowForUpdate(final ProxyTargetConfirmationOptions entity) {
         final TargetAutoConfActivationLayout layout = new TargetAutoConfActivationLayout(uiDependencies.getI18n(),
                 confirmationManagement);
         if (StringUtils.isEmpty(entity.getInitiator())) {

@@ -32,23 +32,22 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.shared.Registration;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.shared.Registration;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.ComboBox;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.ui.Link;
-import com.vaadin.ui.ProgressBar;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.Upload;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.progressbar.ProgressBar;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Bulk target upload layout.
@@ -67,11 +66,11 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     private final transient TargetBulkTokenTags tagsComponent;
     private final TextArea descTextArea;
     private final ProgressBar progressBar;
-    private final Label targetsCountLabel;
+    private final Span targetsCountLabel;
     private final Upload uploadButton;
     private final Link linkToSystemConfigHelp;
 
-    private final Label windowCaption;
+    private final Span windowCaption;
     private final Button closeButton;
     private Registration closeRegistration;
 
@@ -126,7 +125,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         this.linkToSystemConfigHelp = SPUIComponentProvider.getHelpLink(i18n,
                 uiproperties.getLinks().getDocumentation().getDeploymentView());
 
-        this.windowCaption = new Label(i18n.getMessage("caption.bulk.upload.targets"));
+        this.windowCaption = new Span(i18n.getMessage("caption.bulk.upload.targets"));
         this.closeButton = getCloseButton();
 
         buildLayout();
@@ -141,8 +140,8 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         return progressBarIndicator;
     }
 
-    private static Label getStatusCountLabel() {
-        final Label countLabel = new Label("", ContentMode.HTML);
+    private static Span getStatusCountLabel() {
+        final Span countLabel = new Span("", ContentMode.HTML);
         countLabel.setId(UIComponentIdProvider.BULK_UPLOAD_COUNT);
 
         return countLabel;
@@ -177,8 +176,8 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     private static Button getCloseButton() {
         final Button closeBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.BULK_UPLOAD_CLOSE_BUTTON_ID, "",
-                "", "", true, VaadinIcons.CLOSE, SPUIButtonStyleNoBorder.class);
-        closeBtn.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+                "", "", true, VaadinIcon.CLOSE, SPUIButtonStyleNoBorder.class);
+        closeBtn.addClassNames("borderless");
 
         return closeBtn;
     }
@@ -214,48 +213,48 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     private void buildLayout() {
         final HorizontalLayout captionLayout = new HorizontalLayout();
-        captionLayout.setMargin(false);
+        captionLayout.setPadding(false);
         captionLayout.setSpacing(false);
         captionLayout.setSizeFull();
-        captionLayout.addStyleName("v-window-header");
+        captionLayout.addClassNames("v-window-header");
 
-        captionLayout.addComponents(windowCaption, closeButton);
-        captionLayout.setExpandRatio(windowCaption, 1.0F);
+        captionLayout.add(windowCaption, closeButton);
+        captionLayout.setFlexGrow(1.0F, windowCaption);
 
         final VerticalLayout tagsLayout = new VerticalLayout();
         tagsLayout.setId(UIComponentIdProvider.BULK_UPLOAD_TAG);
         tagsLayout.setCaption(i18n.getMessage("caption.tags.tab"));
         tagsLayout.setSpacing(false);
-        tagsLayout.setMargin(false);
+        tagsLayout.setPadding(false);
         tagsLayout.setSizeFull();
         tagsLayout.setHeight("100px");
-        tagsLayout.addStyleName("bulk-target-tags-layout");
+        tagsLayout.addClassNames("bulk-target-tags-layout");
 
-        tagsLayout.addComponent(tagsComponent.getTagPanel());
+        tagsLayout.add(tagsComponent.getTagPanel());
 
         final HorizontalLayout uploaderLayout = new HorizontalLayout();
-        uploaderLayout.setMargin(false);
+        uploaderLayout.setPadding(false);
         uploaderLayout.setSpacing(false);
         uploaderLayout.setSizeFull();
 
-        uploaderLayout.addComponent(uploadButton);
-        uploaderLayout.addComponent(linkToSystemConfigHelp);
+        uploaderLayout.add(uploadButton);
+        uploaderLayout.add(linkToSystemConfigHelp);
         uploaderLayout.setComponentAlignment(linkToSystemConfigHelp, Alignment.BOTTOM_RIGHT);
-        uploaderLayout.setExpandRatio(uploadButton, 1.0F);
+        uploaderLayout.setFlexGrow(1.0F, uploadButton);
 
         final FormLayout inputsLayout = new FormLayout();
-        inputsLayout.setMargin(true);
+        inputsLayout.setPadding(true);
         inputsLayout.setSpacing(true);
         inputsLayout.setWidth("400px");
 
-        inputsLayout.addComponents(dsCombo, targetTypeCombo, tagsLayout, descTextArea, progressBar, targetsCountLabel, uploaderLayout);
+        inputsLayout.add(dsCombo, targetTypeCombo, tagsLayout, descTextArea, progressBar, targetsCountLabel, uploaderLayout);
 
         final VerticalLayout mainLayout = new VerticalLayout();
-        mainLayout.setMargin(false);
+        mainLayout.setPadding(false);
         mainLayout.setSpacing(true);
         mainLayout.setId(UIComponentIdProvider.BULK_UPLOAD_MAIN_LAYOUT);
 
-        mainLayout.addComponents(captionLayout, inputsLayout);
+        mainLayout.add(captionLayout, inputsLayout);
 
         setCompositionRoot(mainLayout);
     }

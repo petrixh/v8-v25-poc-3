@@ -46,11 +46,11 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.data.ValueProvider;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.UI;
 
 /**
  * This grid presents the action history for a selected target.
@@ -175,7 +175,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 Arrays.asList(addCancelColumn(), addForceColumn(), addForceQuitColumn()));
     }
 
-    private Column<ProxyAction, Label> addActiveStatusColumn() {
+    private Column<ProxyAction, Span> addActiveStatusColumn() {
         return GridComponentBuilder.addIconColumn(this, activeStatusIconSupplier::getLabel, ACTIVE_STATUS_ID,
                 i18n.getMessage("label.active"));
     }
@@ -194,7 +194,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 .setDescriptionGenerator(action -> SPDateTimeUtil.getFormattedDate(action.getLastModifiedAt()));
     }
 
-    private Column<ProxyAction, Label> addStatusColumn() {
+    private Column<ProxyAction, Span> addStatusColumn() {
         return GridComponentBuilder.addIconColumn(this, actionStatusIconSupplier::getLabel, STATUS_ID,
                 i18n.getMessage("header.status"));
     }
@@ -215,17 +215,17 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 SPDateTimeUtil.getFormattedDate(nextAtMilli, SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT));
     }
 
-    private Column<ProxyAction, Label> addTypeColumn() {
+    private Column<ProxyAction, Span> addTypeColumn() {
         return GridComponentBuilder.addIconColumn(this, actionTypeIconSupplier::getLabel, TYPE_ID, null);
     }
 
-    private Column<ProxyAction, Label> addTimeforcedColumn() {
+    private Column<ProxyAction, Span> addTimeforcedColumn() {
         return GridComponentBuilder.addIconColumn(this, timeforcedIconSupplier::getLabel, TIME_FORCED_ID, null);
     }
 
     private Column<ProxyAction, Button> addCancelColumn() {
         final ValueProvider<ProxyAction, Button> buttonProvider = action -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> confirmAndCancelAction(action.getId()), VaadinIcons.CLOSE_SMALL, "message.cancel.action",
+                clickEvent -> confirmAndCancelAction(action.getId()), VaadinIcon.CLOSE_SMALL, "message.cancel.action",
                 SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_CANCEL_ID + "." + action.getId(),
                 action.isActive() && !action.isCancelingOrCanceled() && permissionChecker.hasUpdateTargetPermission());
@@ -244,7 +244,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 .caption(i18n.getMessage("caption.cancel.action.confirmbox"))
                 .question(i18n.getMessage("message.cancel.action.confirm"))
                 .onSaveOrUpdate(() -> cancelActiveAction(actionId)).build();
-        UI.getCurrent().addWindow(confirmDialog.getWindow());
+        confirmDialog.getWindow().open();
         confirmDialog.getWindow().bringToFront();
     }
 
@@ -270,7 +270,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
     private Column<ProxyAction, Button> addForceColumn() {
         final ValueProvider<ProxyAction, Button> buttonProvider = action -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> confirmAndForceAction(action.getId()), VaadinIcons.BOLT, "message.force.action",
+                clickEvent -> confirmAndForceAction(action.getId()), VaadinIcon.BOLT, "message.force.action",
                 SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_ID + "." + action.getId(),
                 action.isActive() && !action.isForce() && !action.isCancelingOrCanceled()
@@ -290,7 +290,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 .caption(i18n.getMessage("caption.force.action.confirmbox"))
                 .question(i18n.getMessage("message.force.action.confirm"))
                 .onSaveOrUpdate(() -> forceActiveAction(actionId)).build();
-        UI.getCurrent().addWindow(confirmDialog.getWindow());
+        confirmDialog.getWindow().open();
 
         confirmDialog.getWindow().bringToFront();
     }
@@ -309,7 +309,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
     private Column<ProxyAction, Button> addForceQuitColumn() {
         final ValueProvider<ProxyAction, Button> buttonProvider = action -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> confirmAndForceQuitAction(action.getId()), VaadinIcons.CLOSE_SMALL,
+                clickEvent -> confirmAndForceQuitAction(action.getId()), VaadinIcon.CLOSE_SMALL,
                 "message.forcequit.action", SPUIStyleDefinitions.STATUS_ICON_RED,
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_QUIT_ID + "." + action.getId(),
                 action.isActive() && action.isCancelingOrCanceled() && permissionChecker.hasUpdateTargetPermission());
@@ -326,9 +326,9 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         final ConfirmationDialog confirmDialog = ConfirmationDialog
                 .newBuilder(i18n, UIComponentIdProvider.CONFIRMATION_POPUP_ID)
                 .caption(i18n.getMessage("caption.forcequit.action.confirmbox"))
-                .question(i18n.getMessage("message.forcequit.action.confirm")).icon(VaadinIcons.WARNING)
+                .question(i18n.getMessage("message.forcequit.action.confirm")).icon(VaadinIcon.WARNING)
                 .onSaveOrUpdate(() -> forceQuitActiveAction(actionId)).build();
-        UI.getCurrent().addWindow(confirmDialog.getWindow());
+        confirmDialog.getWindow().open();
 
         confirmDialog.getWindow().bringToFront();
     }
@@ -349,7 +349,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     protected void addMaxColumns() {
         addActiveStatusColumn().setHidable(true);
 
-        addActionIdColumn().setExpandRatio(0).setHidable(true);
+        addActionIdColumn().setFlexGrow((int) 0).setHidable(true);
 
         addDsColumn().setHidable(true);
 

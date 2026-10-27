@@ -56,12 +56,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.server.Page;
+import com.vaadin.flow.component.page.Page;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.Page.BrowserWindowResizeListener;
 import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.flow.spring.annotation.UIScope;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.ui.Layout;
 
 /**
@@ -188,24 +188,24 @@ public class DeploymentView extends AbstractEventListenersAwareView implements B
 
     @Override
     protected void buildLayout() {
-        setMargin(false);
+        setPadding(false);
         setSpacing(false);
         setSizeFull();
 
         createMainLayout();
 
-        addComponent(mainLayout);
-        setExpandRatio(mainLayout, 1.0F);
+        add(mainLayout);
+        setFlexGrow(1.0F, mainLayout);
 
         if (targetCountLayout != null) {
-            addComponent(targetCountLayout);
+            add(targetCountLayout);
         }
     }
 
     private void createMainLayout() {
         mainLayout = new HorizontalLayout();
         mainLayout.setSizeFull();
-        mainLayout.setMargin(false);
+        mainLayout.setPadding(false);
         mainLayout.setSpacing(true);
 
         if (permChecker.hasReadRepositoryPermission() && permChecker.hasTargetReadPermission()) {
@@ -218,47 +218,47 @@ public class DeploymentView extends AbstractEventListenersAwareView implements B
     }
 
     private void addAllWidgets() {
-        mainLayout.addComponent(targetTagFilterLayout);
-        mainLayout.addComponent(targetGridLayout);
-        mainLayout.addComponent(distributionGridLayout);
-        mainLayout.addComponent(distributionTagLayout);
-        mainLayout.addComponent(actionHistoryLayout);
+        mainLayout.add(targetTagFilterLayout);
+        mainLayout.add(targetGridLayout);
+        mainLayout.add(distributionGridLayout);
+        mainLayout.add(distributionTagLayout);
+        mainLayout.add(actionHistoryLayout);
 
         adaptAllWidgetsRatios();
     }
 
     private void adaptAllWidgetsRatios() {
-        mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
-        mainLayout.setExpandRatio(targetGridLayout, 0.275F);
-        mainLayout.setExpandRatio(distributionGridLayout, 0.275F);
-        mainLayout.setExpandRatio(distributionTagLayout, 0F);
-        mainLayout.setExpandRatio(actionHistoryLayout, 0.45F);
+        mainLayout.setFlexGrow(0F, targetTagFilterLayout);
+        mainLayout.setFlexGrow(0.275F, targetGridLayout);
+        mainLayout.setFlexGrow(0.275F, distributionGridLayout);
+        mainLayout.setFlexGrow(0F, distributionTagLayout);
+        mainLayout.setFlexGrow(0.45F, actionHistoryLayout);
     }
 
     private void addDistributionWidgetsOnly() {
-        mainLayout.addComponent(distributionGridLayout);
-        mainLayout.addComponent(distributionTagLayout);
+        mainLayout.add(distributionGridLayout);
+        mainLayout.add(distributionTagLayout);
 
         adaptDsWidgetsRatios();
     }
 
     private void adaptDsWidgetsRatios() {
-        mainLayout.setExpandRatio(distributionGridLayout, 1F);
-        mainLayout.setExpandRatio(distributionTagLayout, 0F);
+        mainLayout.setFlexGrow(1F, distributionGridLayout);
+        mainLayout.setFlexGrow(0F, distributionTagLayout);
     }
 
     private void addTargetWidgetsOnly() {
-        mainLayout.addComponent(targetTagFilterLayout);
-        mainLayout.addComponent(targetGridLayout);
-        mainLayout.addComponent(actionHistoryLayout);
+        mainLayout.add(targetTagFilterLayout);
+        mainLayout.add(targetGridLayout);
+        mainLayout.add(actionHistoryLayout);
 
         adaptTargetWidgetsRatios();
     }
 
     private void adaptTargetWidgetsRatios() {
-        mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
-        mainLayout.setExpandRatio(targetGridLayout, 0.4F);
-        mainLayout.setExpandRatio(actionHistoryLayout, 0.6F);
+        mainLayout.setFlexGrow(0F, targetTagFilterLayout);
+        mainLayout.setFlexGrow(0.4F, targetGridLayout);
+        mainLayout.setFlexGrow(0.6F, actionHistoryLayout);
     }
 
     @Override
@@ -333,7 +333,7 @@ public class DeploymentView extends AbstractEventListenersAwareView implements B
         actionHistoryLayout.setVisible(false);
 
         clearAllWidgetsRatios();
-        mainLayout.setExpandRatio(targetGridLayout, 1F);
+        mainLayout.setFlexGrow(1F, targetGridLayout);
 
         targetGridLayout.maximize();
     }
@@ -348,14 +348,14 @@ public class DeploymentView extends AbstractEventListenersAwareView implements B
         actionHistoryLayout.setVisible(false);
 
         clearAllWidgetsRatios();
-        mainLayout.setExpandRatio(targetTagFilterLayout, 1F);
-        mainLayout.setExpandRatio(targetGridLayout, 0.5F);
+        mainLayout.setFlexGrow(1F, targetTagFilterLayout);
+        mainLayout.setFlexGrow(0.5F, targetGridLayout);
 
         targetTagFilterLayout.maximize();
     }
 
     private void clearAllWidgetsRatios() {
-        mainLayout.iterator().forEachRemaining(layout -> mainLayout.setExpandRatio(layout, 0F));
+        mainLayout.iterator().forEachRemaining(layout -> mainLayout.setFlexGrow(0F, layout));
     }
 
     private void minimizeTargetGridLayout() {
@@ -407,7 +407,7 @@ public class DeploymentView extends AbstractEventListenersAwareView implements B
         }
 
         clearAllWidgetsRatios();
-        mainLayout.setExpandRatio(distributionGridLayout, 1F);
+        mainLayout.setFlexGrow(1F, distributionGridLayout);
 
         distributionGridLayout.maximize();
     }
@@ -455,7 +455,7 @@ public class DeploymentView extends AbstractEventListenersAwareView implements B
         }
 
         clearAllWidgetsRatios();
-        mainLayout.setExpandRatio(actionHistoryLayout, 1F);
+        mainLayout.setFlexGrow(1F, actionHistoryLayout);
 
         actionHistoryLayout.maximize();
     }

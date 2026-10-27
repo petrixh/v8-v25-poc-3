@@ -9,9 +9,9 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
-import com.vaadin.ui.Button;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.ui.dnd.DropTargetExtension;
 import com.vaadin.ui.dnd.event.DropEvent;
 import org.eclipse.hawkbit.repository.TargetManagement;
@@ -124,10 +124,10 @@ public class TargetTypeFilterButtons extends AbstractTargetTypeFilterButtons {
 
     @Override
     protected void editButtonClickListener(ProxyTargetType clickedFilter) {
-        final Window updateWindow = targetTypeWindowBuilder.getWindowForUpdate(clickedFilter);
+        final Dialog updateWindow = targetTypeWindowBuilder.getWindowForUpdate(clickedFilter);
 
         updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.type")));
-        UI.getCurrent().addWindow(updateWindow);
+        updateWindow.open();
         updateWindow.setVisible(Boolean.TRUE);
     }
 

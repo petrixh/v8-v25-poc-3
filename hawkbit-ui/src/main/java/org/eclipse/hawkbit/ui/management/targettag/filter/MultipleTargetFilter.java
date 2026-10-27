@@ -40,8 +40,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Target filter tabsheet with 'simple' and 'complex' filter options.
@@ -112,26 +111,26 @@ public class MultipleTargetFilter extends Accordion {
     private VerticalLayout buildSimpleFilterTab() {
         final VerticalLayout simpleTab = new VerticalLayout();
         simpleTab.setSpacing(false);
-        simpleTab.setMargin(false);
+        simpleTab.setPadding(false);
         simpleTab.setSizeFull();
         simpleTab.setCaption(i18n.getMessage("caption.filter.simple"));
-        simpleTab.addStyleName(SPUIStyleDefinitions.SIMPLE_FILTER_HEADER);
+        simpleTab.addClassNames(SPUIStyleDefinitions.SIMPLE_FILTER_HEADER);
 
         final VerticalLayout targetTagGridLayout = new VerticalLayout();
         targetTagGridLayout.setSpacing(false);
-        targetTagGridLayout.setMargin(false);
+        targetTagGridLayout.setPadding(false);
         targetTagGridLayout.setSizeFull();
         targetTagGridLayout.setId(UIComponentIdProvider.TARGET_TAG_DROP_AREA_ID);
 
-        targetTagGridLayout.addComponent(filterByButtons.getNoTagButton());
-        targetTagGridLayout.addComponent(filterByButtons);
+        targetTagGridLayout.add(filterByButtons.getNoTagButton());
+        targetTagGridLayout.add(filterByButtons);
         targetTagGridLayout.setComponentAlignment(filterByButtons, Alignment.MIDDLE_CENTER);
-        targetTagGridLayout.setExpandRatio(filterByButtons, 1.0F);
+        targetTagGridLayout.setFlexGrow(1.0F, filterByButtons);
 
-        simpleTab.addComponent(targetTagGridLayout);
-        simpleTab.setExpandRatio(targetTagGridLayout, 1.0F);
+        simpleTab.add(targetTagGridLayout);
+        simpleTab.setFlexGrow(1.0F, targetTagGridLayout);
 
-        simpleTab.addComponent(filterByStatusFooter);
+        simpleTab.add(filterByStatusFooter);
         simpleTab.setComponentAlignment(filterByStatusFooter, Alignment.MIDDLE_CENTER);
 
         return simpleTab;
@@ -140,23 +139,23 @@ public class MultipleTargetFilter extends Accordion {
     private VerticalLayout buildTargetTypeFilterTab() {
         final VerticalLayout targetTypeTab = new VerticalLayout();
         targetTypeTab.setSpacing(false);
-        targetTypeTab.setMargin(false);
+        targetTypeTab.setPadding(false);
         targetTypeTab.setSizeFull();
         targetTypeTab.setCaption(i18n.getMessage("caption.filter.type"));
-        targetTypeTab.addStyleName(SPUIStyleDefinitions.TARGET_TYPE_FILTER_HEADER);
+        targetTypeTab.addClassNames(SPUIStyleDefinitions.TARGET_TYPE_FILTER_HEADER);
 
         final VerticalLayout targetTypeGridLayout = new VerticalLayout();
         targetTypeGridLayout.setSpacing(false);
-        targetTypeGridLayout.setMargin(false);
+        targetTypeGridLayout.setPadding(false);
         targetTypeGridLayout.setSizeFull();
         targetTypeGridLayout.setId(UIComponentIdProvider.TARGET_TYPE_DROP_AREA_ID);
-        targetTypeGridLayout.addComponent(targetTypeFilterButtons.getNoTargetTypeButton());
-        targetTypeGridLayout.addComponent(targetTypeFilterButtons);
+        targetTypeGridLayout.add(targetTypeFilterButtons.getNoTargetTypeButton());
+        targetTypeGridLayout.add(targetTypeFilterButtons);
         targetTypeGridLayout.setComponentAlignment(targetTypeFilterButtons, Alignment.MIDDLE_CENTER);
-        targetTypeGridLayout.setExpandRatio(targetTypeFilterButtons, 1.0F);
+        targetTypeGridLayout.setFlexGrow(1.0F, targetTypeFilterButtons);
 
-        targetTypeTab.addComponent(targetTypeGridLayout);
-        targetTypeTab.setExpandRatio(targetTypeGridLayout, 1.0F);
+        targetTypeTab.add(targetTypeGridLayout);
+        targetTypeTab.setFlexGrow(1.0F, targetTypeGridLayout);
 
         return targetTypeTab;
     }
@@ -180,7 +179,7 @@ public class MultipleTargetFilter extends Accordion {
 
     private void init() {
         setSizeFull();
-        addStyleName(ValoTheme.ACCORDION_BORDERLESS);
+        addClassNames("borderless");
     }
 
     private void addTabs() {

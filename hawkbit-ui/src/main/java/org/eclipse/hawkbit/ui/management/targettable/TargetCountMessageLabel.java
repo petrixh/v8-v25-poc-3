@@ -24,7 +24,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.data.provider.Query;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.shared.ui.ContentMode;
 
 /**

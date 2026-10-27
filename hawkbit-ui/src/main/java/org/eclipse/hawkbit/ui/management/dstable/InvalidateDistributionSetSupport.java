@@ -30,7 +30,7 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Lists;
 import com.vaadin.server.Sizeable;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
 
 /**
  * Support for invalidate a distribution set in the ds grid.
@@ -91,7 +91,7 @@ public class InvalidateDistributionSetSupport {
                 });
         consequencesDialog.getWindow().setWidth(40.0F, Sizeable.Unit.PERCENTAGE);
 
-        UI.getCurrent().addWindow(consequencesDialog.getWindow());
+        consequencesDialog.getWindow().open();
         consequencesDialog.getWindow().bringToFront();
     }
 
@@ -112,7 +112,7 @@ public class InvalidateDistributionSetSupport {
                 }, entitiesForInvalidationCount);
         affectedEntitiesDialog.getWindow().setWidth(40.0F, Sizeable.Unit.PERCENTAGE);
 
-        UI.getCurrent().addWindow(affectedEntitiesDialog.getWindow());
+        affectedEntitiesDialog.getWindow().open();
         affectedEntitiesDialog.getWindow().bringToFront();
     }
 

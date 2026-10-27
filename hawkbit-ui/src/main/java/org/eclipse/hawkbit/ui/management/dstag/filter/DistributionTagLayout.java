@@ -30,9 +30,9 @@ import org.eclipse.hawkbit.ui.common.state.TagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
 
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Layout for Distribution Tags

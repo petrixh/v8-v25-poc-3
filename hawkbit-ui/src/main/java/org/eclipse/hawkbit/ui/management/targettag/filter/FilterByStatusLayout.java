@@ -29,12 +29,12 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * layout of filter by status
@@ -103,18 +103,18 @@ public class FilterByStatusLayout extends VerticalLayout {
 
     private Button buildFilterButton(final String id, final String descriptionMsgKey, final String statusStyleName) {
         final Button filterButton = SPUIComponentProvider.getButton(id, "", i18n.getMessage(descriptionMsgKey),
-                SPUIDefinitions.SP_BUTTON_STATUS_STYLE, false, VaadinIcons.THIN_SQUARE, SPUIButtonStyleSmall.class);
-        filterButton.addStyleName(statusStyleName);
+                SPUIDefinitions.SP_BUTTON_STATUS_STYLE, false, VaadinIcon.THIN_SQUARE, SPUIButtonStyleSmall.class);
+        filterButton.addClassNames(statusStyleName);
 
         return filterButton;
     }
 
     private void processClickedStatusButton(final TargetUpdateStatus status, final Button clickedButton) {
         if (activeStatusFilters.contains(status)) {
-            clickedButton.removeStyleName(BTN_CLICKED_STYLE);
+            clickedButton.removeClassNames(BTN_CLICKED_STYLE);
             activeStatusFilters.remove(status);
         } else {
-            clickedButton.addStyleName(BTN_CLICKED_STYLE);
+            clickedButton.addClassNames(BTN_CLICKED_STYLE);
             activeStatusFilters.add(status);
         }
 
@@ -139,9 +139,9 @@ public class FilterByStatusLayout extends VerticalLayout {
         isOverdueFilterActive = !isOverdueFilterActive;
 
         if (isOverdueFilterActive) {
-            clickedButton.addStyleName(BTN_CLICKED_STYLE);
+            clickedButton.addClassNames(BTN_CLICKED_STYLE);
         } else {
-            clickedButton.removeStyleName(BTN_CLICKED_STYLE);
+            clickedButton.removeClassNames(BTN_CLICKED_STYLE);
         }
 
         publishOverdueFilterChangedEvent();
@@ -158,45 +158,45 @@ public class FilterByStatusLayout extends VerticalLayout {
      * Initialize the Status Layout Component.
      */
     private void init() {
-        setMargin(false);
+        setPadding(false);
         setSpacing(false);
 
-        addStyleName("target-status-filters");
+        addClassNames("target-status-filters");
     }
 
     private void buildLayout() {
-        final Label targetFilterStatusLabel = SPUIComponentProvider.generateLabel(i18n, "label.filter.by.status");
-        targetFilterStatusLabel.addStyleName("target-status-filters-title");
+        final Span targetFilterStatusLabel = SPUIComponentProvider.generateLabel(i18n, "label.filter.by.status");
+        targetFilterStatusLabel.addClassNames("target-status-filters-title");
 
-        addComponent(targetFilterStatusLabel);
+        add(targetFilterStatusLabel);
         setComponentAlignment(targetFilterStatusLabel, Alignment.MIDDLE_LEFT);
 
         final HorizontalLayout fiterByStatusLayout = buildFilterByStatusLayout();
 
-        addComponent(fiterByStatusLayout);
+        add(fiterByStatusLayout);
         setComponentAlignment(fiterByStatusLayout, Alignment.MIDDLE_LEFT);
 
         final HorizontalLayout filterByOverdueLayout = buildFilterByOverdueLayout();
 
-        addComponent(filterByOverdueLayout);
+        add(filterByOverdueLayout);
         setComponentAlignment(filterByOverdueLayout, Alignment.MIDDLE_LEFT);
     }
 
     private HorizontalLayout buildFilterByStatusLayout() {
         final HorizontalLayout buttonLayout = new HorizontalLayout();
-        buttonLayout.setMargin(false);
+        buttonLayout.setPadding(false);
         buttonLayout.setSpacing(false);
-        buttonLayout.setStyleName("status-button-layout");
+        buttonLayout.setClassName("status-button-layout");
 
-        buttonLayout.addComponent(unknown);
+        buttonLayout.add(unknown);
         buttonLayout.setComponentAlignment(unknown, Alignment.MIDDLE_CENTER);
-        buttonLayout.addComponent(inSync);
+        buttonLayout.add(inSync);
         buttonLayout.setComponentAlignment(inSync, Alignment.MIDDLE_CENTER);
-        buttonLayout.addComponent(pending);
+        buttonLayout.add(pending);
         buttonLayout.setComponentAlignment(pending, Alignment.MIDDLE_CENTER);
-        buttonLayout.addComponent(error);
+        buttonLayout.add(error);
         buttonLayout.setComponentAlignment(error, Alignment.MIDDLE_CENTER);
-        buttonLayout.addComponent(registered);
+        buttonLayout.add(registered);
         buttonLayout.setComponentAlignment(registered, Alignment.MIDDLE_CENTER);
 
         return buttonLayout;
@@ -204,16 +204,16 @@ public class FilterByStatusLayout extends VerticalLayout {
 
     private HorizontalLayout buildFilterByOverdueLayout() {
         final HorizontalLayout overdueLayout = new HorizontalLayout();
-        overdueLayout.setMargin(false);
+        overdueLayout.setPadding(false);
         overdueLayout.setSpacing(false);
-        overdueLayout.setStyleName("overdue-button-layout");
+        overdueLayout.setClassName("overdue-button-layout");
 
-        overdueLayout.addComponent(overdue);
+        overdueLayout.add(overdue);
         overdueLayout.setComponentAlignment(overdue, Alignment.MIDDLE_LEFT);
 
-        final Label overdueLabel = SPUIComponentProvider.generateLabel(i18n, "label.filter.by.overdue");
+        final Span overdueLabel = SPUIComponentProvider.generateLabel(i18n, "label.filter.by.overdue");
 
-        overdueLayout.addComponent(overdueLabel);
+        overdueLayout.add(overdueLabel);
         overdueLayout.setComponentAlignment(overdueLabel, Alignment.MIDDLE_LEFT);
 
         return overdueLayout;
@@ -230,14 +230,14 @@ public class FilterByStatusLayout extends VerticalLayout {
         }
 
         if (isOverdueFilterActive) {
-            overdue.removeStyleName(BTN_CLICKED_STYLE);
+            overdue.removeClassNames(BTN_CLICKED_STYLE);
             isOverdueFilterActive = false;
             targetTagFilterLayoutUiState.setOverdueFilterClicked(false);
         }
     }
 
     private void removeActiveStatusStyles() {
-        activeStatusFilters.forEach(status -> statusToButtonMap.get(status).removeStyleName(BTN_CLICKED_STYLE));
+        activeStatusFilters.forEach(status -> statusToButtonMap.get(status).removeClassNames(BTN_CLICKED_STYLE));
     }
 
     /**
@@ -255,11 +255,11 @@ public class FilterByStatusLayout extends VerticalLayout {
 
         if (targetTagFilterLayoutUiState.isOverdueFilterClicked()) {
             isOverdueFilterActive = true;
-            overdue.addStyleName(BTN_CLICKED_STYLE);
+            overdue.addClassNames(BTN_CLICKED_STYLE);
         }
     }
 
     private void addActiveStatusStyles() {
-        activeStatusFilters.forEach(status -> statusToButtonMap.get(status).addStyleName(BTN_CLICKED_STYLE));
+        activeStatusFilters.forEach(status -> statusToButtonMap.get(status).addClassNames(BTN_CLICKED_STYLE));
     }
 }

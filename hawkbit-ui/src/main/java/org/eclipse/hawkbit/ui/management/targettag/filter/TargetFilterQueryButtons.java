@@ -33,9 +33,8 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Button;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.ui.StyleGenerator;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Target filter query{#link {@link TargetFilterQuery} buttons layout.
@@ -73,12 +72,12 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
     public void init() {
         super.init();
 
-        setStyleName("type-button-layout");
-        addStyleName(ValoTheme.TABLE_NO_STRIPES);
-        addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-        addStyleName(ValoTheme.TABLE_BORDERLESS);
-        addStyleName(ValoTheme.TABLE_COMPACT);
+        setClassName("type-button-layout");
+        addClassNames("no-stripes");
+        addClassNames("no-horizontal-lines");
+        addClassNames("no-vertical-lines");
+        addClassNames("borderless");
+        addClassNames("compact");
 
         removeHeaderRow(0);
         setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_FILTER_CUSTOM));

@@ -25,17 +25,16 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.Binder.Binding;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.Binder.Binding;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.ui.Link;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.textfield.TextField;
 
 import static org.eclipse.hawkbit.ui.utils.UIMessageIdProvider.CAPTION_ACTION_CONFIRMATION_REQUIRED;
 
@@ -70,7 +69,7 @@ public class AssignmentWindowLayoutComponentBuilder {
                 .createActionTypeOptionGroupLayout(binder, i18n,
                         UIComponentIdProvider.DEPLOYMENT_ASSIGNMENT_ACTION_TYPE_OPTIONS_ID);
         actionTypeGroupBounded.setRequired(false);
-        actionTypeGroupBounded.getComponent().addStyleName("margin-small");
+        actionTypeGroupBounded.getComponent().addClassNames("margin-small");
 
         return actionTypeGroupBounded;
     }
@@ -88,8 +87,8 @@ public class AssignmentWindowLayoutComponentBuilder {
                 i18n.getMessage("caption.maintenancewindow.enabled"),
                 UIComponentIdProvider.MAINTENANCE_WINDOW_ENABLED_ID, binder,
                 ProxyAssignmentWindow::isMaintenanceWindowEnabled, ProxyAssignmentWindow::setMaintenanceWindowEnabled);
-        maintenanceWindowToggle.addStyleName(ValoTheme.CHECKBOX_SMALL);
-        maintenanceWindowToggle.addStyleName("dist-window-maintenance-window-enable");
+        maintenanceWindowToggle.addClassNames("small");
+        maintenanceWindowToggle.addClassNames("dist-window-maintenance-window-enable");
 
         return maintenanceWindowToggle;
     }
@@ -99,8 +98,8 @@ public class AssignmentWindowLayoutComponentBuilder {
                 i18n.getMessage(CAPTION_ACTION_CONFIRMATION_REQUIRED),
                 UIComponentIdProvider.ASSIGNMENT_CONFIRMATION_REQUIRED, binder,
                 ProxyAssignmentWindow::isConfirmationRequired, ProxyAssignmentWindow::setConfirmationRequired);
-        confirmationToggle.addStyleName(ValoTheme.CHECKBOX_SMALL);
-        confirmationToggle.addStyleName("dist-window-maintenance-window-enable");
+        confirmationToggle.addClassNames("small");
+        confirmationToggle.addClassNames("dist-window-maintenance-window-enable");
 
         return confirmationToggle;
     }
@@ -177,7 +176,7 @@ public class AssignmentWindowLayoutComponentBuilder {
 
         maintenanceTimeZoneCombo.setId(UIComponentIdProvider.MAINTENANCE_WINDOW_TIME_ZONE_ID);
         maintenanceTimeZoneCombo.setCaption(i18n.getMessage("caption.maintenancewindow.timezone"));
-        maintenanceTimeZoneCombo.addStyleName(ValoTheme.COMBOBOX_SMALL);
+        maintenanceTimeZoneCombo.addClassNames("small");
 
         maintenanceTimeZoneCombo.setTextInputAllowed(false);
         maintenanceTimeZoneCombo.setEmptySelectionAllowed(false);
@@ -195,11 +194,11 @@ public class AssignmentWindowLayoutComponentBuilder {
      *
      * @return maintenance schedule translator
      */
-    public Label createMaintenanceScheduleTranslator() {
-        final Label maintenanceScheduleTranslator = new LabelBuilder()
+    public Span createMaintenanceScheduleTranslator() {
+        final Span maintenanceScheduleTranslator = new LabelBuilder()
                 .id(UIComponentIdProvider.MAINTENANCE_WINDOW_SCHEDULE_TRANSLATOR_ID)
                 .name(i18n.getMessage(UIMessageIdProvider.CRON_VALIDATION_ERROR)).buildLabel();
-        maintenanceScheduleTranslator.addStyleName(ValoTheme.LABEL_TINY);
+        maintenanceScheduleTranslator.addClassNames("tiny");
 
         return maintenanceScheduleTranslator;
     }
@@ -217,7 +216,7 @@ public class AssignmentWindowLayoutComponentBuilder {
         final Link maintenanceHelpLink = new Link("", new ExternalResource(maintenanceWindowHelpUrl));
 
         maintenanceHelpLink.setTargetName("_blank");
-        maintenanceHelpLink.setIcon(VaadinIcons.QUESTION_CIRCLE);
+        maintenanceHelpLink.setIcon(VaadinIcon.QUESTION_CIRCLE);
         maintenanceHelpLink.setDescription(i18n.getMessage("tooltip.documentation.link"));
 
         return maintenanceHelpLink;
@@ -228,7 +227,7 @@ public class AssignmentWindowLayoutComponentBuilder {
         final Link confirmationHelpLink = new Link("", new ExternalResource(confirmationFlowHelpUrl));
 
         confirmationHelpLink.setTargetName("_blank");
-        confirmationHelpLink.setIcon(VaadinIcons.QUESTION_CIRCLE);
+        confirmationHelpLink.setIcon(VaadinIcon.QUESTION_CIRCLE);
         confirmationHelpLink.setDescription(i18n.getMessage("tooltip.documentation.link"));
 
         return confirmationHelpLink;

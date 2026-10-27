@@ -26,11 +26,10 @@ import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 
-import com.vaadin.data.provider.Query;
-import com.vaadin.shared.Registration;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.textfield.TextArea;
 
 /**
  * This grid presents the messages for a selected action-status.
@@ -52,7 +51,7 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
         setSelectionSupport(new SelectionSupport<>(this));
         getSelectionSupport().enableSingleSelection();
 
-        addStyleName(SPUIStyleDefinitions.ACTION_HISTORY_MESSAGE_GRID);
+        addClassNames(SPUIStyleDefinitions.ACTION_HISTORY_MESSAGE_GRID);
 
         setDetailsGenerator(ActionStatusMsgGrid::generateDetails);
 
@@ -83,12 +82,12 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
     private static Component generateDetails(final ProxyMessage msg) {
         final TextArea textArea = new TextArea();
 
-        textArea.addStyleName(ValoTheme.TEXTAREA_BORDERLESS);
-        textArea.addStyleName(ValoTheme.TEXTAREA_TINY);
-        textArea.addStyleName("inline-icon");
+        textArea.addClassNames("borderless");
+        textArea.addClassNames("tiny");
+        textArea.addClassNames("inline-icon");
 
-        textArea.setHeight(120, Unit.PIXELS);
-        textArea.setWidth(100, Unit.PERCENTAGE);
+        textArea.setHeight("120px");
+        textArea.setWidth("100%");
 
         textArea.setValue(msg.getMessage());
         textArea.setReadOnly(Boolean.TRUE);
@@ -103,7 +102,7 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
 
     @Override
     public void addColumns() {
-        GridComponentBuilder.addColumn(this, ProxyMessage::getId).setId(MSG_ID).setCaption("##").setExpandRatio(0)
+        GridComponentBuilder.addColumn(this, ProxyMessage::getId).setId(MSG_ID).setCaption("##").setFlexGrow((int) 0)
                 .setHidable(false).setHidden(false).setMinimumWidthFromContent(true);
 
         GridComponentBuilder.addColumn(this, ProxyMessage::getMessage).setId(VALUE_ID)

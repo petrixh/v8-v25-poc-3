@@ -123,6 +123,6 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
     }
 
     public void minimize() {
-        setWidth(SPUIDefinitions.FILTER_BY_TYPE_WIDTH, Unit.PIXELS);
+        setWidth(SPUIDefinitions.FILTER_BY_TYPE_WIDTH + "px");
     }
 }

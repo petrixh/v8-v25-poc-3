@@ -17,10 +17,10 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.cronutils.utils.StringUtils;
-import com.vaadin.data.Binder;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.shared.ui.colorpicker.Color;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.ui.components.colorpicker.ColorUtil;
 
 /**

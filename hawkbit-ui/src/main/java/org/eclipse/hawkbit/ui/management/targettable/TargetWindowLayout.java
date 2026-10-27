@@ -9,11 +9,11 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
-import com.vaadin.ui.ComboBox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 import org.eclipse.hawkbit.repository.TargetTypeManagement;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
@@ -60,14 +60,14 @@ public class TargetWindowLayout extends AbstractEntityWindowLayout<ProxyTarget> 
         final FormLayout targetWindowLayout = new FormLayout();
 
         targetWindowLayout.setSpacing(true);
-        targetWindowLayout.setMargin(true);
+        targetWindowLayout.setPadding(true);
         targetWindowLayout.setSizeUndefined();
 
-        targetWindowLayout.addComponent(targetControllerId);
+        targetWindowLayout.add(targetControllerId);
         targetControllerId.focus();
-        targetWindowLayout.addComponent(targetName.getComponent());
-        targetWindowLayout.addComponent(targetTypeCombo.getComponent());
-        targetWindowLayout.addComponent(targetDescription);
+        targetWindowLayout.add(targetName.getComponent());
+        targetWindowLayout.add(targetTypeCombo.getComponent());
+        targetWindowLayout.add(targetDescription);
         return targetWindowLayout;
     }
 

@@ -16,10 +16,10 @@ import org.eclipse.hawkbit.ui.components.ColorPickerComponent;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Abstract class for tag add/update window layout.
@@ -59,11 +59,11 @@ public class TagWindowLayout<T extends ProxyFilterButton> extends AbstractEntity
         final HorizontalLayout tagWindowLayout = new HorizontalLayout();
 
         tagWindowLayout.setSpacing(true);
-        tagWindowLayout.setMargin(false);
+        tagWindowLayout.setPadding(false);
         tagWindowLayout.setSizeUndefined();
 
-        tagWindowLayout.addComponent(buildFormLayout());
-        tagWindowLayout.addComponent(colorPickerComponent);
+        tagWindowLayout.add(buildFormLayout());
+        tagWindowLayout.add(colorPickerComponent);
 
         return tagWindowLayout;
     }
@@ -71,11 +71,11 @@ public class TagWindowLayout<T extends ProxyFilterButton> extends AbstractEntity
     protected FormLayout buildFormLayout() {
         final FormLayout formLayout = new FormLayout();
 
-        formLayout.addComponent(tagName);
+        formLayout.add(tagName);
         tagName.focus();
 
-        formLayout.addComponent(tagDescription);
-        formLayout.addComponent(colorPickerComponent.getColorPickerBtn());
+        formLayout.add(tagDescription);
+        formLayout.add(colorPickerComponent.getColorPickerBtn());
 
         return formLayout;
     }
