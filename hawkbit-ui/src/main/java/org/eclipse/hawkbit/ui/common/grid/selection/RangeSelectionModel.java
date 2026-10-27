@@ -88,8 +88,13 @@ public class RangeSelectionModel<T> implements Serializable {
         remove();
         this.grid = grid;
 
-        final GridMultiSelectionModel<T> model = (GridMultiSelectionModel<T>) grid
-                .setSelectionMode(SelectionMode.MULTI);
+        // AbstractGrid sets multi-selection before it calls this
+        final GridMultiSelectionModel<T> model;
+        if (grid.getSelectionModel() instanceof final GridMultiSelectionModel<T> multi) {
+            model = multi;
+        } else {
+            model = (GridMultiSelectionModel<T>) grid.setSelectionMode(SelectionMode.MULTI);
+        }
 
         registrations.add(grid.getElement().addEventListener("cell-focus", this::onCellFocus)
                 .addEventData(ROW_INDEX).addEventData(ROW_SECTION));

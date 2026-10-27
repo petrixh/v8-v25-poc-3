@@ -91,7 +91,9 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
         }
 
         if (mode == SelectionMode.MULTI) {
-            // A4: Flow multi-selection plus the same clicks and keys
+            // A4: Flow multi-selection plus the same clicks and keys. Set the mode here: extend() calling this
+            // override again would recurse without end
+            super.setSelectionMode(mode);
             rangeSelectionModel = new RangeSelectionModel<>(i18n);
 
             // used to deactivate cell text selection by user
