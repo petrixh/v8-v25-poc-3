@@ -17,9 +17,9 @@ import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.CollectionUtils;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Displays a legend for the Groups of a Rollout with the count of targets in
@@ -34,9 +34,9 @@ public class GroupsLegendLayout extends VerticalLayout {
 
     private final VaadinMessageSource i18n;
 
-    private Label totalTargetsLabel;
-    private Label loadingLabel;
-    private Label unassignedTargetsLabel;
+    private Span totalTargetsLabel;
+    private Span loadingLabel;
+    private Span unassignedTargetsLabel;
 
     private VerticalLayout groupsLegend;
 
@@ -60,20 +60,20 @@ public class GroupsLegendLayout extends VerticalLayout {
         loadingLabel.setVisible(false);
 
         groupsLegend = new VerticalLayout();
-        groupsLegend.setMargin(false);
+        groupsLegend.setPadding(false);
         groupsLegend.setSpacing(false);
-        groupsLegend.setStyleName("groups-legend");
+        groupsLegend.setClassName("groups-legend");
 
-        addComponent(totalTargetsLabel);
-        addComponent(loadingLabel);
-        addComponent(unassignedTargetsLabel);
-        addComponent(groupsLegend);
+        add(totalTargetsLabel);
+        add(loadingLabel);
+        add(unassignedTargetsLabel);
+        add(groupsLegend);
 
         for (int i = 0; i < MAX_GROUPS_TO_BE_DISPLAYED; i++) {
-            groupsLegend.addComponent(createGroupTargetsLabel());
+            groupsLegend.add(createGroupTargetsLabel());
         }
 
-        groupsLegend.addComponent(createToBeContinuedLabel());
+        groupsLegend.add(createToBeContinuedLabel());
     }
 
     /**
@@ -83,40 +83,40 @@ public class GroupsLegendLayout extends VerticalLayout {
         totalTargetsLabel.setVisible(false);
         populateGroupsLegend(Collections.emptyList());
         if (groupsLegend.getComponentCount() > MAX_GROUPS_TO_BE_DISPLAYED) {
-            groupsLegend.getComponent(MAX_GROUPS_TO_BE_DISPLAYED).setVisible(false);
+            groupsLegend.getComponentAt(MAX_GROUPS_TO_BE_DISPLAYED).setVisible(false);
         }
     }
 
-    private static Label createTotalTargetsLabel() {
-        final Label label = new LabelBuilder().visible(false).name("").buildLabel();
-        label.addStyleName("rollout-target-count-title");
+    private static Span createTotalTargetsLabel() {
+        final Span label = new LabelBuilder().visible(false).name("").buildLabel();
+        label.addClassNames("rollout-target-count-title");
         label.setSizeUndefined();
         return label;
     }
 
-    private Label createLoadingLabel() {
-        final Label label = new LabelBuilder().visible(false).name("").buildLabel();
-        label.addStyleName("rollout-target-count-loading");
+    private Span createLoadingLabel() {
+        final Span label = new LabelBuilder().visible(false).name("").buildLabel();
+        label.addClassNames("rollout-target-count-loading");
         label.setSizeUndefined();
-        label.setValue(i18n.getMessage("label.rollout.calculating"));
+        label.setText(i18n.getMessage("label.rollout.calculating"));
         return label;
     }
 
-    private static Label createUnassignedTargetsLabel() {
-        final Label label = new LabelBuilder().visible(false).name("").buildLabel();
-        label.addStyleName("rollout-group-unassigned");
-        label.setSizeUndefined();
-        return label;
-    }
-
-    private static Label createGroupTargetsLabel() {
-        final Label label = new LabelBuilder().visible(false).name("").buildLabel();
-        label.addStyleName("rollout-group-count");
+    private static Span createUnassignedTargetsLabel() {
+        final Span label = new LabelBuilder().visible(false).name("").buildLabel();
+        label.addClassNames("rollout-group-unassigned");
         label.setSizeUndefined();
         return label;
     }
 
-    private static Label createToBeContinuedLabel() {
+    private static Span createGroupTargetsLabel() {
+        final Span label = new LabelBuilder().visible(false).name("").buildLabel();
+        label.addClassNames("rollout-group-count");
+        label.setSizeUndefined();
+        return label;
+    }
+
+    private static Span createToBeContinuedLabel() {
         return new LabelBuilder().caption("...").visible(false).buildLabel();
     }
 
@@ -145,7 +145,7 @@ public class GroupsLegendLayout extends VerticalLayout {
             totalTargetsLabel.setVisible(false);
         } else {
             totalTargetsLabel.setVisible(true);
-            totalTargetsLabel.setValue(getTotalTargetMessage(totalTargets));
+            totalTargetsLabel.setText(getTotalTargetMessage(totalTargets));
         }
     }
 
@@ -160,30 +160,30 @@ public class GroupsLegendLayout extends VerticalLayout {
         loadingLabel.setVisible(false);
 
         for (int i = 0; i < getGroupsWithoutToBeContinuedLabel(listOfTargetCountPerGroup.size()); i++) {
-            final Component component = groupsLegend.getComponent(i);
-            final Label label = (Label) component;
+            final Component component = groupsLegend.getComponentAt(i);
+            final Span label = (Span) component;
             if (listOfTargetCountPerGroup.size() > i) {
                 final Long targetCount = listOfTargetCountPerGroup.get(i);
-                label.setValue(getTargetsInGroupMessage(targetCount,
+                label.setText(getTargetsInGroupMessage(targetCount,
                         i18n.getMessage("textfield.rollout.group.default.name", i + 1)));
                 label.setVisible(true);
             } else {
-                label.setValue("");
+                label.setText("");
                 label.setVisible(false);
             }
         }
 
         showOrHideToBeContinueLabel(listOfTargetCountPerGroup);
 
-        unassignedTargetsLabel.setValue("");
+        unassignedTargetsLabel.setText("");
         unassignedTargetsLabel.setVisible(false);
     }
 
     private void showOrHideToBeContinueLabel(final List<?> listOfTargetCountPerGroup) {
         if (hasMoreGroupsToShowAsLimit(listOfTargetCountPerGroup)) {
-            groupsLegend.getComponent(MAX_GROUPS_TO_BE_DISPLAYED).setVisible(true);
+            groupsLegend.getComponentAt(MAX_GROUPS_TO_BE_DISPLAYED).setVisible(true);
         } else if (hasLessGroupsToShowAsLimit(listOfTargetCountPerGroup)) {
-            groupsLegend.getComponent(groupsLegend.getComponentCount() - 1).setVisible(false);
+            groupsLegend.getComponentAt(groupsLegend.getComponentCount() - 1).setVisible(false);
         }
     }
 
@@ -232,16 +232,16 @@ public class GroupsLegendLayout extends VerticalLayout {
                 : groupsLegend.getComponentCount();
 
         for (int i = 0; i < getGroupsWithoutToBeContinuedLabel(targetsPerGroup.size()); i++) {
-            final Component component = groupsLegend.getComponent(i);
-            final Label label = (Label) component;
+            final Component component = groupsLegend.getComponentAt(i);
+            final Span label = (Span) component;
             if (targetsPerGroup.size() > i && labelsToUpdate > i) {
                 final Long targetCount = targetsPerGroup.get(i);
                 final String groupName = groupNames.get(i);
 
-                label.setValue(getTargetsInGroupMessage(targetCount, groupName));
+                label.setText(getTargetsInGroupMessage(targetCount, groupName));
                 label.setVisible(true);
             } else {
-                label.setValue("");
+                label.setText("");
                 label.setVisible(false);
             }
         }
@@ -249,11 +249,11 @@ public class GroupsLegendLayout extends VerticalLayout {
         showOrHideToBeContinueLabel(targetsPerGroup);
 
         if (remainingTargets > 0) {
-            unassignedTargetsLabel.setValue(
+            unassignedTargetsLabel.setText(
                     getTargetsInGroupMessage(remainingTargets, i18n.getMessage("message.rollout.target.unassigned")));
             unassignedTargetsLabel.setVisible(true);
         } else {
-            unassignedTargetsLabel.setValue("");
+            unassignedTargetsLabel.setText("");
             unassignedTargetsLabel.setVisible(false);
         }
 

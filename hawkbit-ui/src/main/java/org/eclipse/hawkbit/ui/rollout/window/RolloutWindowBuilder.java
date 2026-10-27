@@ -20,7 +20,7 @@ import org.eclipse.hawkbit.ui.rollout.window.layouts.ApproveRolloutWindowLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.UpdateRolloutWindowLayout;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Builder for Add/Approve/Update/Copy Rollout windows.
@@ -52,7 +52,7 @@ public final class RolloutWindowBuilder extends AbstractEntityWindowBuilder<Prox
     }
 
     @Override
-    public Window getWindowForAdd() {
+    public Dialog getWindowForAdd() {
         return getWindowForNewEntity(
                 new AddRolloutWindowController(dependencies, new AddRolloutWindowLayout(dependencies)));
     }
@@ -65,13 +65,13 @@ public final class RolloutWindowBuilder extends AbstractEntityWindowBuilder<Prox
      *
      * @return Common dialog window to copy rollout
      */
-    public Window getWindowForCopyRollout(final ProxyRollout proxyRollout) {
+    public Dialog getWindowForCopyRollout(final ProxyRollout proxyRollout) {
         return getWindowForEntity(proxyRollout,
                 new CopyRolloutWindowController(dependencies, new AddRolloutWindowLayout(dependencies)));
     }
 
     @Override
-    public Window getWindowForUpdate(final ProxyRollout proxyRollout) {
+    public Dialog getWindowForUpdate(final ProxyRollout proxyRollout) {
         return getWindowForEntity(proxyRollout,
                 new UpdateRolloutWindowController(dependencies, new UpdateRolloutWindowLayout(dependencies)));
     }
@@ -84,7 +84,7 @@ public final class RolloutWindowBuilder extends AbstractEntityWindowBuilder<Prox
      *
      * @return Common dialog window to approve rollout
      */
-    public Window getWindowForApproveRollout(final ProxyRollout proxyRollout) {
+    public Dialog getWindowForApproveRollout(final ProxyRollout proxyRollout) {
         return getWindowForEntity(proxyRollout,
                 new ApproveRolloutWindowController(dependencies, new ApproveRolloutWindowLayout(dependencies)));
     }

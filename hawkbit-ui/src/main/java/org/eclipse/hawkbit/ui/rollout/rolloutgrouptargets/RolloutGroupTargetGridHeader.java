@@ -86,7 +86,7 @@ public class RolloutGroupTargetGridHeader extends AbstractBreadcrumbGridHeader
 
     @Override
     public void masterEntityChanged(final ProxyRolloutGroup masterEntity) {
-        headerCaptionDetails.setValue(masterEntity != null ? masterEntity.getName() : "");
+        headerCaptionDetails.setText(masterEntity != null ? masterEntity.getName() : "");
     }
 
     @Override
@@ -94,6 +94,6 @@ public class RolloutGroupTargetGridHeader extends AbstractBreadcrumbGridHeader
         if (setRolloutNameCallback != null) {
             setRolloutNameCallback.accept(rolloutManagementUIState.getSelectedRolloutName());
         }
-        headerCaptionDetails.setValue(rolloutManagementUIState.getSelectedRolloutGroupName());
+        headerCaptionDetails.setText(rolloutManagementUIState.getSelectedRolloutGroupName());
     }
 }

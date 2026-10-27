@@ -19,15 +19,15 @@ import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.shared.ui.ValueChangeMode;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.shared.Tooltip;
+import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * An textfield with the {@link TextFieldSuggestionBox} extension which shows
@@ -40,7 +40,8 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
 
     private final transient List<ValidationListener> listeners = new LinkedList<>();
 
-    private final Label validationIcon;
+    private final Span validationIcon;
+    private final Tooltip validationIconTooltip;
     private final TextField queryTextField;
     private final HorizontalLayout autoCompleteLayout;
 
@@ -57,6 +58,7 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
         this.rsqlValidationOracle = rsqlValidationOracle;
 
         this.validationIcon = createStatusIcon();
+        this.validationIconTooltip = Tooltip.forComponent(validationIcon);
         this.queryTextField = createSearchField();
         this.autoCompleteLayout = new HorizontalLayout();
 
@@ -69,27 +71,25 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
     private void init() {
         autoCompleteLayout.setSizeFull();
         autoCompleteLayout.setSpacing(false);
-        autoCompleteLayout.setMargin(false);
-        autoCompleteLayout.addStyleName("custom-search-layout");
+        autoCompleteLayout.setPadding(false);
+        autoCompleteLayout.addClassNames("custom-search-layout");
 
-        autoCompleteLayout.addComponent(validationIcon);
-        autoCompleteLayout.setComponentAlignment(validationIcon, Alignment.MIDDLE_CENTER);
+        autoCompleteLayout.add(validationIcon);
+        autoCompleteLayout.setVerticalComponentAlignment(Alignment.CENTER, validationIcon);
 
-        autoCompleteLayout.addComponent(queryTextField);
-        autoCompleteLayout.setExpandRatio(queryTextField, 1.0F);
+        autoCompleteLayout.add(queryTextField);
+        autoCompleteLayout.setFlexGrow(1.0F, queryTextField);
 
         queryTextField.addValueChangeListener(event -> onQueryFilterChange(event.getValue()));
 
         new TextFieldSuggestionBox(rsqlValidationOracle).extend(queryTextField);
+
+        // Vaadin 8 initContent(): Flow's CustomField holds its content directly
+        add(autoCompleteLayout);
     }
 
     @Override
-    protected Component initContent() {
-        return autoCompleteLayout;
-    }
-
-    @Override
-    protected void doSetValue(final String value) {
+    protected void setPresentationValue(final String value) {
         if (value == null) {
             queryTextField.setValue("");
             hideValidationIcon();
@@ -102,7 +102,7 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
     }
 
     @Override
-    public String getValue() {
+    protected String generateModelValue() {
         return targetFilterQuery;
     }
 
@@ -112,12 +112,14 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
      * @param listener
      *            Value change listener
      */
-    public void addTextfieldChangedListener(final ValueChangeListener<String> listener) {
+    public void addTextfieldChangedListener(
+            final ValueChangeListener<ComponentValueChangeEvent<TextField, String>> listener) {
         queryTextField.addValueChangeListener(listener);
     }
 
-    private static Label createStatusIcon() {
-        final Label statusIcon = new Label(VaadinIcons.CHECK_CIRCLE.getHtml(), ContentMode.HTML);
+    private static Span createStatusIcon() {
+        // Vaadin 8: a Label with the icon's HTML; here a span holding the icon
+        final Span statusIcon = new Span(VaadinIcon.CHECK_CIRCLE.create());
         statusIcon.setId(UIComponentIdProvider.VALIDATION_STATUS_ICON_ID);
         statusIcon.setVisible(false);
 
@@ -128,7 +130,7 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
         final TextField textField = new TextFieldBuilder(TargetFilterQuery.QUERY_MAX_SIZE)
                 .id(UIComponentIdProvider.CUSTOM_FILTER_QUERY).buildTextComponent();
         textField.setWidthFull();
-        textField.addStyleName("target-filter-textfield");
+        textField.addClassNames("target-filter-textfield");
 
         textField.setValueChangeMode(ValueChangeMode.EAGER);
 
@@ -173,7 +175,8 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
             showValidationFailureIcon(message);
         }
 
-        fireEvent(createValueChange(newQuery, false));
+        // Flow: the field's value is read from generateModelValue()
+        updateValue();
         listeners.forEach(listener -> listener.validationChanged(valid, message));
     }
 
@@ -183,16 +186,18 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
 
     private void showValidationSuccesIcon() {
         validationIcon.setVisible(true);
-        validationIcon.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
-        validationIcon.setStyleName(SPUIStyleDefinitions.SUCCESS_ICON);
-        validationIcon.setDescription(null);
+        validationIcon.removeAll();
+        validationIcon.add(VaadinIcon.CHECK_CIRCLE.create());
+        validationIcon.setClassName(SPUIStyleDefinitions.SUCCESS_ICON);
+        validationIconTooltip.setText(null);
     }
 
     private void showValidationFailureIcon(final String validationMessage) {
         validationIcon.setVisible(true);
-        validationIcon.setValue(VaadinIcons.CLOSE_CIRCLE.getHtml());
-        validationIcon.setStyleName(SPUIStyleDefinitions.ERROR_ICON);
-        validationIcon.setDescription(validationMessage);
+        validationIcon.removeAll();
+        validationIcon.add(VaadinIcon.CLOSE_CIRCLE.create());
+        validationIcon.setClassName(SPUIStyleDefinitions.ERROR_ICON);
+        validationIconTooltip.setText(validationMessage);
     }
 
     /**

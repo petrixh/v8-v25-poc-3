@@ -184,6 +184,12 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
         return super.addComponentColumn(componentProvider).setSortable(false);
     }
 
+    /**
+     * Gets the FilterSupport implementation describing the data provider with
+     * filter.
+     *
+     * @return filterSupport that encapsulates the data provider with filter.
+     */
     public FilterSupport<T, F> getFilterSupport() {
         return filterSupport;
     }

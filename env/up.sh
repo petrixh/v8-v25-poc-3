@@ -37,12 +37,12 @@ build_image() {
   b="$(mktemp -d "$STATE_ROOT/build/$short.XXXXXX")" || die "build dir"; BUILD_DIR="$b"   # own dir per build, removed on exit
   log="$LOG_ROOT/build-$short-$(date -u +%Y%m%dT%H%M%SZ).log"
   settings="${APP_ENV_MAVEN_SETTINGS:-$ENV_DIR/maven-settings.xml}"; m2="${APP_ENV_MAVEN_REPO:-$HOME/.m2/repository}"
-  hosts="${APP_ENV_MAVEN_HOSTS:-repo.maven.apache.org maven.vaadin.com}"
+  hosts="${APP_ENV_MAVEN_HOSTS:-$MAVEN_HOSTS_DEFAULT}"
   [ -r "$settings" ] || die "Maven settings $settings not readable"
-  mkdir -p "$b/src" "$b/ctx" "$m2" || die "build dir $b"
+  mkdir -p "$b/src" "$b/ctx" "$m2" "$BUILD_HOME" || die "build dir $b"
   git -C "$REPO" archive "$commit" | tar -x -C "$b/src" || die "git archive $short"
   say "building $tag: Maven in $MAVEN_IMG, -pl hawkbit-vv8-ui,hawkbit-mgmt-server -am -DskipTests package (log $log)"
-  local t0=$SECONDS mvn=(docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e MAVEN_CONFIG=/tmp/.m2
+  local t0=$SECONDS mvn=(docker run --rm --user "$(id -u):$(id -g)" "${BUILD_HOME_ARGS[@]}" -e MAVEN_CONFIG=/tmp/.m2
     -v "$b/src:/src" -v "$m2:/m2" -v "$(cd "$(dirname "$settings")" && pwd)/$(basename "$settings"):/settings.xml:ro"
     "$MAVEN_IMG" mvn -B -s /settings.xml -Dmaven.repo.local=/m2 -DskipNexusStaging)
   if ! { "${mvn[@]}" -f /src/pom.xml -pl hawkbit-runtime/hawkbit-vv8-ui,hawkbit-runtime/hawkbit-mgmt-server -am -DskipTests package \
@@ -52,7 +52,7 @@ build_image() {
   fi
   # Maven may have downloaded only from the allowed hosts. This checks the log after the build; what prevents other
   # hosts is the settings file, which mirrors every repository to the allowed ones.
-  bad="$(grep -oE 'Download(ing|ed) from [^:]+: https?://[^/]+' "$log" | sed -E 's#.*https?://##' | sort -u \
+  bad="$(grep -oE 'Download(ing|ed) from [^:]+: https?://[^/]+|Downloading https?://[^/]+' "$log" | sed -E 's#.*https?://##' | sort -u \
          | grep -vxF -f <(tr ' ' '\n' <<<"$hosts" | grep .) || true)"
   [ -z "$bad" ] || die "Maven downloaded from hosts outside APP_ENV_MAVEN_HOSTS: ${bad//$'\n'/ } (log $log)"
   local vv8="" mgmt="" f

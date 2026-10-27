@@ -18,16 +18,15 @@ import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder;
+import org.eclipse.hawkbit.ui.rollout.window.components.CssGridLayout;
 import org.eclipse.hawkbit.ui.rollout.window.components.ValidatableLayout;
 import org.eclipse.hawkbit.ui.rollout.window.components.ValidatableLayout.ValidationStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.data.ValidationException;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.GridLayout;
+import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.component.Component;
 
 /**
  * Abstract Grid Rollout window layout.
@@ -47,15 +46,15 @@ public abstract class AbstractRolloutWindowLayout implements EntityWindowLayout<
     }
 
     @Override
-    public ComponentContainer getRootComponent() {
-        final GridLayout rootLayout = new GridLayout();
+    public Component getRootComponent() {
+        final CssGridLayout rootLayout = new CssGridLayout();
 
         rootLayout.setSpacing(true);
         rootLayout.setSizeUndefined();
         rootLayout.setColumns(4);
-        rootLayout.setStyleName("marginTop");
+        rootLayout.setClassName("marginTop");
         rootLayout.setColumnExpandRatio(3, 1);
-        rootLayout.setWidth(900, Unit.PIXELS);
+        rootLayout.setWidth("900px");
 
         addComponents(rootLayout);
 
@@ -126,5 +125,5 @@ public abstract class AbstractRolloutWindowLayout implements EntityWindowLayout<
 
     protected abstract ProxyRolloutWindow getValidatableEntity() throws ValidationException;
 
-    protected abstract void addComponents(final GridLayout rootLayout);
+    protected abstract void addComponents(final CssGridLayout rootLayout);
 }

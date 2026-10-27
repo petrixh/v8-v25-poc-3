@@ -23,7 +23,6 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.TenantAware;
-import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.AbstractEventListenersAwareView;
@@ -42,15 +41,20 @@ import org.eclipse.hawkbit.utils.TenantConfigHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.ui.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
+
+import jakarta.annotation.security.PermitAll;
 
 /**
  * Rollout management view.
  */
 @UIScope
-@SpringView(name = RolloutView.VIEW_NAME, ui = AbstractHawkbitUI.class)
+@SpringComponent
+@Route(RolloutView.VIEW_NAME)
+@PermitAll
 public class RolloutView extends AbstractEventListenersAwareView {
     private static final long serialVersionUID = 1L;
 
@@ -102,22 +106,22 @@ public class RolloutView extends AbstractEventListenersAwareView {
     @Override
     protected void buildLayout() {
         setSpacing(false);
-        setMargin(false);
+        setPadding(false);
         setSizeFull();
 
-        addComponent(rolloutsLayout);
-        setComponentAlignment(rolloutsLayout, Alignment.TOP_CENTER);
-        setExpandRatio(rolloutsLayout, 1.0F);
+        add(rolloutsLayout);
+        setHorizontalComponentAlignment(Alignment.CENTER, rolloutsLayout);
+        setFlexGrow(1.0F, rolloutsLayout);
 
         rolloutGroupsLayout.setVisible(false);
-        addComponent(rolloutGroupsLayout);
-        setComponentAlignment(rolloutGroupsLayout, Alignment.TOP_CENTER);
-        setExpandRatio(rolloutGroupsLayout, 1.0F);
+        add(rolloutGroupsLayout);
+        setHorizontalComponentAlignment(Alignment.CENTER, rolloutGroupsLayout);
+        setFlexGrow(1.0F, rolloutGroupsLayout);
 
         rolloutGroupTargetsLayout.setVisible(false);
-        addComponent(rolloutGroupTargetsLayout);
-        setComponentAlignment(rolloutGroupTargetsLayout, Alignment.TOP_CENTER);
-        setExpandRatio(rolloutGroupTargetsLayout, 1.0F);
+        add(rolloutGroupTargetsLayout);
+        setHorizontalComponentAlignment(Alignment.CENTER, rolloutGroupTargetsLayout);
+        setFlexGrow(1.0F, rolloutGroupTargetsLayout);
     }
 
     private void showRolloutListLayout() {
