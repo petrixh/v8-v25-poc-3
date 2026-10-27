@@ -30,6 +30,7 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModi
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.ColumnToggleMenu;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
@@ -248,8 +249,7 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
         GridComponentBuilder.joinToActionColumn(i18n, getHeaderRows().get(0),
                 Arrays.asList(addDownloadColumn(), addDeleteColumn()));
 
-        // Vaadin 8: setHidable(true) on every column (the user could hide
-        // columns); Flow grids have no column hiding menu
+        ColumnToggleMenu.setAllHidable(this);
     }
 
     private Column<ProxyArtifact> addSha1Column() {

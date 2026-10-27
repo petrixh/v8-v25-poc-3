@@ -35,6 +35,7 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.ColumnToggleMenu;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
@@ -292,8 +293,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n);
         addDeleteColumn();
 
-        // Vaadin 8: setHidable(true) on every column (the user could hide
-        // columns); Flow grids have no column hiding menu
+        ColumnToggleMenu.setAllHidable(this);
     }
 
     private Column<ProxySoftwareModule> addDescriptionColumn() {
