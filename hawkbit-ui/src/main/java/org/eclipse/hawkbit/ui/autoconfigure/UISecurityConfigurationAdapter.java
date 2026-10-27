@@ -37,6 +37,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -141,6 +142,21 @@ public class UISecurityConfigurationAdapter {
     public VaadinLoginSupport vaadinLoginSupport(final AuthenticationManager authenticationManager,
             final VaadinLoginSupport.VaadinAuthenticationSuccessHandler successHandler) {
         return new VaadinLoginSupport(authenticationManager, successHandler);
+    }
+
+    /**
+     * The security context holder strategy that vaadin-spring installs
+     * globally (its own bean backs off, or this one is primary): a context set
+     * on the thread, e.g. by
+     * {@link SystemSecurityContext#runAsSystem(java.util.concurrent.Callable)},
+     * wins over the Vaadin session's user, as before Vaadin 25.
+     *
+     * @return the strategy
+     */
+    @Primary
+    @Bean
+    public SecurityContextHolderStrategy threadFirstSecurityContextHolderStrategy() {
+        return new ThreadFirstSecurityContextHolderStrategy();
     }
 
     /**
