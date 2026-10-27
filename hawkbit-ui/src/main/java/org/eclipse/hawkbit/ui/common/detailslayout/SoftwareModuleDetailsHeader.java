@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGrid;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
 import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractDetailsHeader;
@@ -162,8 +163,8 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
         final Dialog artifactDtlsWindow = new Dialog();
         artifactDtlsWindow.setId(UIComponentIdProvider.SHOW_ARTIFACT_DETAILS_POPUP_ID);
 
-        // Vaadin 8 setClosable(true): Esc closes (Flow dialogs have no close
-        // button); a click outside does not, as with a Vaadin 8 modal window
+        // Vaadin 8 setClosable(true): close button and Esc; a click outside
+        // does not close, as with a Vaadin 8 modal window
         artifactDtlsWindow.setCloseOnEsc(true);
         artifactDtlsWindow.setCloseOnOutsideClick(false);
         artifactDtlsWindow.setResizable(true);
@@ -194,6 +195,7 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
             }
         });
         artifactDtlsWindow.getHeader().add(maximizeButton);
+        CommonDialogWindow.addCloseButton(artifactDtlsWindow);
 
         artifactDtlsWindow.addOpenedChangeListener(event -> {
             if (!event.isOpened()) {

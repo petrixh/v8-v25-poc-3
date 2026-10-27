@@ -24,6 +24,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Span;
@@ -153,7 +154,22 @@ public class CommonDialogWindow extends Dialog {
         // Vaadin 8 modal windows closed on Esc but not on a click outside
         setCloseOnEsc(true);
         setCloseOnOutsideClick(false);
+        addCloseButton(this);
         addClassNames("fontsize");
+    }
+
+    /**
+     * Adds the close (X) button of a closable Vaadin 8 window to the dialog
+     * header: Flow dialogs have none.
+     *
+     * @param dialog
+     *            the dialog
+     */
+    public static void addCloseButton(final Dialog dialog) {
+        final Button closeButton = new Button(VaadinIcon.CLOSE.create(), event -> dialog.close());
+        closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
+        closeButton.addClassName("v-window-closebox");
+        dialog.getHeader().add(closeButton);
     }
 
     protected void addCloseListenerForSaveButton() {

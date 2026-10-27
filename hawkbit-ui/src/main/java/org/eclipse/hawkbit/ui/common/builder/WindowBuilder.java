@@ -189,7 +189,8 @@ public class WindowBuilder {
     }
 
     // Vaadin 8 setClosable(true|false): the window's close (X) button and
-    // Esc; Flow dialogs have no close button, Esc stays as set by the dialog
+    // Esc; Flow dialogs have no close button: CommonDialogWindow adds one,
+    // buildWindow adds one unless the window was not closable
     private void decorateWindow(final Dialog window) {
         if (id != null) {
             window.setId(id);
@@ -223,6 +224,8 @@ public class WindowBuilder {
         if (SPUIDefinitions.CREATE_UPDATE_WINDOW.equals(type)) {
             // Vaadin 8: setClosable(false), no close button and no Esc
             window.setCloseOnEsc(false);
+        } else {
+            CommonDialogWindow.addCloseButton(window);
         }
 
         return window;
