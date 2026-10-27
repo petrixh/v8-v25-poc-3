@@ -25,14 +25,14 @@ import org.eclipse.hawkbit.rest.AbstractRestIntegrationTest;
 import org.eclipse.hawkbit.rest.RestConfiguration;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.cloud.stream.test.binder.TestSupportBinderAutoConfiguration;
+import org.springframework.cloud.stream.binder.test.TestChannelBinderConfiguration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.ResultMatcher;
 
 @ContextConfiguration(classes = { MgmtApiConfiguration.class, RestConfiguration.class,
         RepositoryApplicationConfiguration.class, TestConfiguration.class,
-        TestSupportBinderAutoConfiguration.class })
+        TestChannelBinderConfiguration.class })
 @TestPropertySource(locations = "classpath:/mgmt-test.properties")
 public abstract class AbstractManagementApiIntegrationTest extends AbstractRestIntegrationTest {
 

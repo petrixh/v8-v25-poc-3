@@ -21,11 +21,13 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.Ordered;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.filter.UrlHandlerFilter;
 
 /**
  * Configuration for Rest api.
@@ -87,6 +89,25 @@ public class RestConfiguration {
                 "/{tenant}/controller/v1/{controllerId}/softwaremodules/{softwareModuleId}/artifacts/**",
                 "/api/v1/downloadserver/**"));
 
+        return filterRegBean;
+    }
+
+    /**
+     * Filter registration bean that lets the REST APIs answer URLs with a
+     * trailing slash (e.g. {@code /rest/v1/targets/}) as they did before Spring
+     * Framework 6 removed trailing slash matching from Spring MVC. The request
+     * is passed on without the trailing slash. Ordered before the security
+     * filters, so they see the same path as the handler mappings.
+     *
+     * @return the spring filter registration bean for the trailing slash
+     *         filter
+     */
+    @Bean
+    FilterRegistrationBean<UrlHandlerFilter> trailingSlashFilter() {
+        final FilterRegistrationBean<UrlHandlerFilter> filterRegBean = new FilterRegistrationBean<>(
+                UrlHandlerFilter.trailingSlashHandler("/rest/**", "/system/admin/**", "/api/v1/downloadserver/**",
+                        "/*/controller/v1/**").wrapRequest().build());
+        filterRegBean.setOrder(Ordered.HIGHEST_PRECEDENCE + 1);
         return filterRegBean;
     }
 }

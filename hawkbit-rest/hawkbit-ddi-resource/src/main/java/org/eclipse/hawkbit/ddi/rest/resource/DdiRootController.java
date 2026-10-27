@@ -18,7 +18,6 @@ import java.util.Optional;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 
 import org.eclipse.hawkbit.api.ArtifactUrlHandler;
 import org.eclipse.hawkbit.artifact.repository.model.DbArtifact;
@@ -331,7 +330,7 @@ public class DdiRootController implements DdiRootControllerRestApi {
     @Override
     public ResponseEntity<Void> postBasedeploymentActionFeedback(@Valid @RequestBody final DdiActionFeedback feedback,
             @PathVariable("tenant") final String tenant, @PathVariable("controllerId") final String controllerId,
-            @PathVariable("actionId") @NotEmpty final Long actionId) {
+            @PathVariable("actionId") final Long actionId) {
         LOG.debug("provideBasedeploymentActionFeedback for target [{},{}]: {}", controllerId, actionId, feedback);
 
         final Target target = findTarget(controllerId);
@@ -448,8 +447,8 @@ public class DdiRootController implements DdiRootControllerRestApi {
 
     @Override
     public ResponseEntity<DdiCancel> getControllerCancelAction(@PathVariable("tenant") final String tenant,
-            @PathVariable("controllerId") @NotEmpty final String controllerId,
-            @PathVariable("actionId") @NotEmpty final Long actionId) {
+            @PathVariable("controllerId") final String controllerId,
+            @PathVariable("actionId") final Long actionId) {
         LOG.debug("getControllerCancelAction({})", controllerId);
 
         final Target target = findTarget(controllerId);
@@ -473,8 +472,8 @@ public class DdiRootController implements DdiRootControllerRestApi {
     @Override
     public ResponseEntity<Void> postCancelActionFeedback(@Valid @RequestBody final DdiActionFeedback feedback,
             @PathVariable("tenant") final String tenant,
-            @PathVariable("controllerId") @NotEmpty final String controllerId,
-            @PathVariable("actionId") @NotEmpty final Long actionId) {
+            @PathVariable("controllerId") final String controllerId,
+            @PathVariable("actionId") final Long actionId) {
         LOG.debug("provideCancelActionFeedback for target [{}]: {}", controllerId, feedback);
 
         final Target target = findTarget(controllerId);
@@ -680,7 +679,7 @@ public class DdiRootController implements DdiRootControllerRestApi {
     public ResponseEntity<Void> postConfirmationActionFeedback(
             @Valid @RequestBody final DdiConfirmationFeedback feedback, @PathVariable("tenant") final String tenant,
             @PathVariable("controllerId") final String controllerId,
-            @PathVariable("actionId") @NotEmpty final Long actionId) {
+            @PathVariable("actionId") final Long actionId) {
         LOG.debug("provideConfirmationActionFeedback with feedback [controllerId={}, actionId={}]: {}", controllerId,
                 actionId, feedback);
 

@@ -10,6 +10,7 @@
 package org.eclipse.hawkbit.ui.error;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -21,6 +22,7 @@ import java.util.Set;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Path;
 
 import org.eclipse.hawkbit.ui.error.extractors.ConstraintViolationErrorExtractor;
 import org.eclipse.hawkbit.ui.error.extractors.UiErrorDetailsExtractor;
@@ -31,9 +33,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.google.gwt.validation.client.impl.ConstraintViolationImpl;
-import com.google.gwt.validation.client.impl.PathImpl;
-import com.vaadin.server.UploadException;
+import com.vaadin.flow.server.UploadException;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
@@ -123,13 +123,19 @@ class UiErrorDetailsExtractorsTest {
         assertThat(errorDetails).hasSize(1).first().isEqualTo(UiErrorDetails.empty());
     }
 
-    private Set<ConstraintViolation<Object>> buildConstraintViolations() {
-        final ConstraintViolationImpl<Object> violation1 = ConstraintViolationImpl.builder()
-                .setPropertyPath(new PathImpl().append("firstProperty")).setMessage("invalid").build();
-        final ConstraintViolationImpl<Object> violation2 = ConstraintViolationImpl.builder()
-                .setPropertyPath(new PathImpl().append("secondProperty")).setMessage("invalid").build();
+    private Set<ConstraintViolation<?>> buildConstraintViolations() {
+        // the GWT ConstraintViolationImpl of Vaadin 8 is gone: plain violations with a property path and a message
+        return new HashSet<>(Arrays.asList(buildConstraintViolation("firstProperty", "invalid"),
+                buildConstraintViolation("secondProperty", "invalid")));
+    }
 
-        return new HashSet<>(Arrays.asList(violation1, violation2));
+    private ConstraintViolation<?> buildConstraintViolation(final String property, final String message) {
+        final Path propertyPath = mock(Path.class);
+        when(propertyPath.toString()).thenReturn(property);
+        final ConstraintViolation<?> violation = mock(ConstraintViolation.class);
+        when(violation.getPropertyPath()).thenReturn(propertyPath);
+        when(violation.getMessage()).thenReturn(message);
+        return violation;
     }
 
     private static class ParentMatchingException extends Exception {

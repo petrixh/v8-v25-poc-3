@@ -87,7 +87,7 @@ public class AmqpControllerAuthenticationTest {
     private AmqpMessageHandlerService amqpMessageHandlerService;
     private AmqpAuthenticationMessageHandler amqpAuthenticationMessageHandlerService;
 
-    private final MessageConverter messageConverter = new Jackson2JsonMessageConverter();
+    private final MessageConverter messageConverter = new Jackson2JsonMessageConverter("*");
 
     private AmqpControllerAuthentication authenticationManager;
 

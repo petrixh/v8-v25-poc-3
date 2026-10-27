@@ -29,10 +29,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.vaadin.server.ErrorEvent;
-import com.vaadin.server.Page;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.server.ErrorEvent;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
@@ -44,6 +43,8 @@ import io.qameta.allure.Story;
 @ExtendWith(MockitoExtension.class)
 class HawkbitUIErrorHandlerTest {
 
+    private final static String CAPTION_CLASS = "v-Notification-caption";
+    private final static String DESCRIPTION_CLASS = "v-Notification-description";
     private final static String DEFAULT_CAPTION_CODE = "caption.error";
     private final static String DEFAULT_CAPTION = "defaultCaption";
     private final static String DEFAULT_DESCRIPTION_CODE = "message.error";
@@ -58,9 +59,6 @@ class HawkbitUIErrorHandlerTest {
 
     @Mock
     private UI ui;
-
-    @Mock
-    private Page page;
 
     private HawkbitUIErrorHandler errorHandler;
 
@@ -98,7 +96,7 @@ class HawkbitUIErrorHandlerTest {
     @Step
     private ArgumentCaptor<Notification> captureShownNotifications(final int count) {
         final ArgumentCaptor<Notification> notificationCaptor = ArgumentCaptor.forClass(Notification.class);
-        verify(errorHandler, times(count)).showErrorNotification(eq(page), notificationCaptor.capture());
+        verify(errorHandler, times(count)).showErrorNotification(eq(ui), notificationCaptor.capture());
 
         return notificationCaptor;
     }
@@ -106,8 +104,9 @@ class HawkbitUIErrorHandlerTest {
     @Step
     private void verifyNotificationContent(final Notification notification, final String caption,
             final String description) {
-        assertThat(notification.getCaption()).isEqualTo(caption);
-        assertThat(notification.getDescription()).isEqualTo(description);
+        // Flow notifications have no caption/description properties: ParallelNotification puts them in two spans
+        assertThat(textOf(notification, CAPTION_CLASS)).isEqualTo(caption);
+        assertThat(textOf(notification, DESCRIPTION_CLASS)).isEqualTo(description);
     }
 
     @Test
@@ -131,7 +130,7 @@ class HawkbitUIErrorHandlerTest {
         final UiErrorDetailsExtractor ignoreMatchingExtractor = getMatchingIgnoreErrorDetailsExtractor();
         handleErrorWithExtractors(new MatchingException(), Collections.singletonList(ignoreMatchingExtractor));
 
-        verify(errorHandler, times(0)).showErrorNotification(eq(page), any());
+        verify(errorHandler, times(0)).showErrorNotification(eq(ui), any());
     }
 
     @Test
@@ -193,9 +192,12 @@ class HawkbitUIErrorHandlerTest {
         verifyNotificationContent(shownNotifications.get(1), "anotherMatchingCaption", "anotherMatchingDescription");
     }
 
+    private static String textOf(final Notification notification, final String className) {
+        return notification.getChildren().filter(child -> child.getElement().getClassList().contains(className))
+                .map(child -> child.getElement().getText()).findFirst().orElse(null);
+    }
+
     private void initUi() {
-        when(ui.getPage()).thenReturn(page);
-        when(page.getUI()).thenReturn(ui);
         UI.setCurrent(ui);
     }
 
