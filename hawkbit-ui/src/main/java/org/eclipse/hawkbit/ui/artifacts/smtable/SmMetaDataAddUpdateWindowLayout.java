@@ -14,14 +14,14 @@ import java.util.function.BooleanSupplier;
 import org.eclipse.hawkbit.ui.common.detailslayout.MetaDataAddUpdateWindowLayout;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Class for sm metadata add/update window layout.
  */
 public class SmMetaDataAddUpdateWindowLayout extends MetaDataAddUpdateWindowLayout {
-    protected final CheckBox isVisibleForTarget;
+    protected final Checkbox isVisibleForTarget;
 
     /**
      * Constructor for AbstractTagWindowLayout
@@ -41,7 +41,7 @@ public class SmMetaDataAddUpdateWindowLayout extends MetaDataAddUpdateWindowLayo
     @Override
     protected VerticalLayout getMetadataAddUpdateLayout() {
         final VerticalLayout addUpdateLayout = super.getMetadataAddUpdateLayout();
-        addUpdateLayout.addComponent(isVisibleForTarget);
+        addUpdateLayout.add(isVisibleForTarget);
 
         return addUpdateLayout;
     }

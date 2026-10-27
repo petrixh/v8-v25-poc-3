@@ -9,7 +9,9 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.upload;
 
-import java.util.Collection;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -27,20 +29,24 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Html5File;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.dnd.FileDropHandler;
-import com.vaadin.ui.dnd.FileDropTarget;
-import com.vaadin.ui.dnd.event.FileDropEvent;
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.upload.UploadDropZone;
+import com.vaadin.flow.component.upload.UploadManager;
+import com.vaadin.flow.server.streams.UploadEvent;
+import com.vaadin.flow.server.streams.UploadHandler;
 
 /**
  * Container for drag and drop area in the upload view.
+ *
+ * Vaadin 8: a {@code FileDropTarget} on the layout. Flow: the layout inside an
+ * {@link UploadDropZone}, whose upload manager sends each dropped file to
+ * {@link UploadFileDropHandler}.
  */
-public class UploadDropAreaLayout extends CustomComponent implements MasterEntityAwareComponent<ProxySoftwareModule> {
+public class UploadDropAreaLayout extends Composite<UploadDropZone>
+        implements MasterEntityAwareComponent<ProxySoftwareModule> {
     private static final long serialVersionUID = 1L;
 
     private final VaadinMessageSource i18n;
@@ -56,6 +62,7 @@ public class UploadDropAreaLayout extends CustomComponent implements MasterEntit
 
     private final UploadProgressButtonLayout uploadButtonLayout;
     private VerticalLayout dropAreaLayout;
+    private UploadDropZone dropZone;
 
     /**
      * Creates a new {@link UploadDropAreaLayout} instance.
@@ -92,28 +99,35 @@ public class UploadDropAreaLayout extends CustomComponent implements MasterEntit
     private void buildLayout() {
         dropAreaLayout = new VerticalLayout();
         dropAreaLayout.setId(UIComponentIdProvider.UPLOAD_ARTIFACT_FILE_DROP_LAYOUT);
-        dropAreaLayout.setMargin(false);
+        dropAreaLayout.setPadding(false);
         dropAreaLayout.setSpacing(false);
-        dropAreaLayout.addStyleName("upload-drop-area-layout-info");
+        dropAreaLayout.addClassNames("upload-drop-area-layout-info");
         dropAreaLayout.setEnabled(false);
-        dropAreaLayout.setHeightUndefined();
+        dropAreaLayout.setHeight(null);
 
-        final Label dropIcon = new Label(VaadinIcons.ARROW_DOWN.getHtml(), ContentMode.HTML);
-        dropIcon.addStyleName("drop-icon");
+        final Span dropIcon = new Span(VaadinIcon.ARROW_DOWN.create());
+        dropIcon.addClassNames("drop-icon");
         dropIcon.setWidth(null);
-        dropAreaLayout.addComponent(dropIcon);
+        dropAreaLayout.add(dropIcon);
 
-        final Label dropHereLabel = new Label(i18n.getMessage(UIMessageIdProvider.LABEL_DROP_AREA_UPLOAD));
+        final Span dropHereLabel = new Span(i18n.getMessage(UIMessageIdProvider.LABEL_DROP_AREA_UPLOAD));
         dropHereLabel.setWidth(null);
-        dropAreaLayout.addComponent(dropHereLabel);
+        dropAreaLayout.add(dropHereLabel);
 
         uploadButtonLayout.setWidth(null);
-        uploadButtonLayout.addStyleName("upload-button");
-        dropAreaLayout.addComponent(uploadButtonLayout);
+        uploadButtonLayout.addClassNames("upload-button");
+        dropAreaLayout.add(uploadButtonLayout);
 
-        new FileDropTarget<>(dropAreaLayout, new UploadFileDropHandler());
+        final UploadManager dropUploadManager = new UploadManager(dropAreaLayout, new UploadFileDropHandler());
+        // the progress window shows the files; the drop zone keeps no list
+        dropUploadManager.addAllFinishedListener(event -> dropUploadManager.clearFileList());
+        dropZone = new UploadDropZone(dropAreaLayout, dropUploadManager);
+        dropZone.setEnabled(false);
+    }
 
-        setCompositionRoot(dropAreaLayout);
+    @Override
+    protected UploadDropZone initContent() {
+        return dropZone;
     }
 
     /**
@@ -126,6 +140,7 @@ public class UploadDropAreaLayout extends CustomComponent implements MasterEntit
     public void masterEntityChanged(final ProxySoftwareModule masterEntity) {
         final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
 
+        dropZone.setEnabled(masterEntityId != null);
         dropAreaLayout.setEnabled(masterEntityId != null);
         uploadButtonLayout.updateMasterEntityFilter(masterEntityId);
     }
@@ -165,59 +180,106 @@ public class UploadDropAreaLayout extends CustomComponent implements MasterEntit
         return uploadButtonLayout;
     }
 
-    private class UploadFileDropHandler implements FileDropHandler<VerticalLayout> {
+    private class UploadFileDropHandler implements UploadHandler {
 
         private static final long serialVersionUID = 1L;
 
         /**
-         * Validates the file drop events and triggers the upload
+         * Validates the dropped file and uploads it. Vaadin 8 got all dropped
+         * files in one drop event and then streamed each through its stream
+         * variable; Flow sends one upload request per file, so the checks run
+         * per file. Each step runs with the session lock held, as in Vaadin 8.
          *
          * @param event
-         *            FileDropEvent
+         *            UploadEvent of one dropped file
+         * @throws IOException
+         *             never: stream failures end as a failed upload
          */
         @Override
-        public void drop(final FileDropEvent<VerticalLayout> event) {
-            if (validate(event)) {
+        public void handleUploadRequest(final UploadEvent event) throws IOException {
+            final AtomicReference<FileTransferHandlerStreamVariable> streamVariable = new AtomicReference<>();
+            AbstractFileTransferHandler.accessLocked(event,
+                    () -> streamVariable.set(drop(event.getFileName(), event.getFileSize(), event.getContentType())));
+
+            if (streamVariable.get() == null) {
+                event.reject();
+                return;
+            }
+            streamFile(event, streamVariable.get());
+        }
+
+        private FileTransferHandlerStreamVariable drop(final String fileName, final long fileSize,
+                final String mimeType) {
+            if (validate()) {
                 // selected software module at the time of file drop is
                 // considered for upload
                 final Long lastSelectedSmId = artifactUploadState.getSmGridLayoutUiState().getSelectedEntityId();
                 if (lastSelectedSmId != null) {
-                    uploadFilesForSoftwareModule(event.getFiles(), lastSelectedSmId);
+                    return uploadFileForSoftwareModule(fileName, fileSize, mimeType, lastSelectedSmId);
                 }
             }
+            return null;
         }
 
-        private void uploadFilesForSoftwareModule(final Collection<Html5File> files, final Long softwareModuleId) {
+        private FileTransferHandlerStreamVariable uploadFileForSoftwareModule(final String fileName,
+                final long fileSize, final String mimeType, final Long softwareModuleId) {
             final SoftwareModule softwareModule = softwareManagement.get(softwareModuleId).orElse(null);
 
-            boolean duplicateFound = false;
-
-            for (final Html5File file : files) {
-                if (artifactUploadState.isFileInUploadState(file.getFileName(), softwareModule)) {
-                    duplicateFound = true;
-                } else {
-                    file.setStreamVariable(new FileTransferHandlerStreamVariable(file.getFileName(), file.getFileSize(),
-                            multipartConfigElement.getMaxFileSize(), file.getType(), softwareModule, artifactManagement,
-                            i18n, uploadLock));
-                }
-            }
-            if (duplicateFound) {
+            if (artifactUploadState.isFileInUploadState(fileName, softwareModule)) {
                 uiNotification.displayValidationError(i18n.getMessage("message.no.duplicateFiles"));
+                return null;
+            }
+            return new FileTransferHandlerStreamVariable(fileName, fileSize, multipartConfigElement.getMaxFileSize(),
+                    mimeType, softwareModule, artifactManagement, i18n, uploadLock);
+        }
+
+        /**
+         * What the Vaadin 8 framework did with the stream variable of a
+         * dropped file: started, output stream, progress, then finished or
+         * failed.
+         */
+        private void streamFile(final UploadEvent event, final FileTransferHandlerStreamVariable streamVariable) {
+            final String fileName = event.getFileName();
+            final long contentLength = event.getFileSize();
+
+            final AtomicReference<OutputStream> receiverStream = new AtomicReference<>();
+            AbstractFileTransferHandler.accessLocked(event, () -> {
+                streamVariable.streamingStarted(fileName);
+                receiverStream.set(streamVariable.getOutputStream());
+            });
+
+            final OutputStream outputStream = receiverStream.get();
+            Exception failure = null;
+            try {
+                AbstractFileTransferHandler.streamToReceiver(event.getInputStream(), outputStream,
+                        streamVariable.listenProgress(),
+                        bytesReceived -> AbstractFileTransferHandler.accessLocked(event,
+                                () -> streamVariable.onProgress(fileName, bytesReceived, contentLength)),
+                        streamVariable::isInterrupted);
+            } catch (final IOException | RuntimeException e) {
+                failure = e;
+                // before the stream ends: the repository thread must not keep
+                // a truncated artifact
+                streamVariable.interruptUploadBeforeStreamEnd();
+            } finally {
+                AbstractFileTransferHandler.tryToCloseIOStream(outputStream);
+            }
+
+            if (failure == null) {
+                AbstractFileTransferHandler.accessLocked(event, () -> streamVariable.streamingFinished(fileName));
+            } else {
+                final Exception reason = failure;
+                AbstractFileTransferHandler.accessLocked(event,
+                        () -> streamVariable.streamingFailed(fileName, reason));
+                event.reject();
             }
         }
 
-        private boolean validate(final FileDropEvent<VerticalLayout> event) {
-            // check if drop is valid.If valid ,check if software module is
-            // selected.
-            if (!isFilesDropped(event)) {
-                uiNotification.displayValidationError(i18n.getMessage("message.drop.onlyFiles"));
-                return false;
-            }
+        private boolean validate() {
+            // Vaadin 8 also refused drops without files ("message.drop.onlyFiles");
+            // an upload drop zone only ever sends files. Check if software
+            // module is selected.
             return validateSoftwareModuleSelection();
-        }
-
-        private boolean isFilesDropped(final FileDropEvent<VerticalLayout> event) {
-            return event.getFiles() != null;
         }
 
         private boolean validateSoftwareModuleSelection() {

@@ -18,7 +18,7 @@ import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Distribution Set Type filter buttons header.
@@ -63,7 +63,7 @@ public class DSTypeFilterHeader extends AbstractFilterHeader {
     }
 
     @Override
-    protected Window getWindowForAdd() {
+    protected Dialog getWindowForAdd() {
         return dsTypeWindowBuilder.getWindowForAdd();
     }
 

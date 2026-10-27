@@ -14,10 +14,8 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTypeInfo;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.data.Binder;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.component.combobox.ComboBox;
 
 /**
  * Builder for system config window layout component
@@ -48,9 +46,9 @@ public class SystemConfigWindowLayoutComponentBuilder {
                 UIComponentIdProvider.SYSTEM_CONFIGURATION_DEFAULTDIS_COMBOBOX, null,
                 dependencies.getI18n().getMessage("caption.type"), null, false, ProxyTypeInfo::getKeyAndName,
                 dependencies.getDistributionSetTypeDataProvider());
-        dsTypeCombo.removeStyleName(ValoTheme.COMBOBOX_SMALL);
-        dsTypeCombo.addStyleName(ValoTheme.COMBOBOX_TINY);
-        dsTypeCombo.setWidth(330.0F, Unit.PIXELS);
+        dsTypeCombo.removeClassNames("small");
+        dsTypeCombo.addClassNames("tiny");
+        dsTypeCombo.setWidth("330px");
 
         binder.forField(dsTypeCombo).bind(ProxySystemConfigDsType::getDsTypeInfo,
                 ProxySystemConfigDsType::setDsTypeInfo);

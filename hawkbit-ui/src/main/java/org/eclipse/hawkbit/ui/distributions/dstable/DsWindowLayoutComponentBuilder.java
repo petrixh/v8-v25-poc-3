@@ -16,12 +16,11 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTypeInfo;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 
 import static org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions.DIST_CHECKBOX_STYLE;
 
@@ -106,14 +105,14 @@ public class DsWindowLayoutComponentBuilder {
      *
      * @return Migration step required checkbox
      */
-    public CheckBox createMigrationStepField(final Binder<ProxyDistributionSet> binder) {
-        final CheckBox migrationRequired = FormComponentBuilder.createCheckBox(i18n.getMessage(MIGRATION_STEP),
+    public Checkbox createMigrationStepField(final Binder<ProxyDistributionSet> binder) {
+        final Checkbox migrationRequired = FormComponentBuilder.createCheckbox(i18n.getMessage(MIGRATION_STEP),
                 UIComponentIdProvider.DIST_ADD_MIGRATION_CHECK, binder, ProxyDistributionSet::isRequiredMigrationStep,
                 ProxyDistributionSet::setRequiredMigrationStep);
 
-        migrationRequired.setDescription(i18n.getMessage(MIGRATION_STEP));
-        migrationRequired.addStyleName(DIST_CHECKBOX_STYLE);
-        migrationRequired.addStyleName(ValoTheme.CHECKBOX_SMALL);
+        migrationRequired.setTooltipText(i18n.getMessage(MIGRATION_STEP));
+        migrationRequired.addClassNames(DIST_CHECKBOX_STYLE);
+        migrationRequired.addClassNames("small");
 
         return migrationRequired;
     }

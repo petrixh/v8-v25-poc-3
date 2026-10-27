@@ -12,7 +12,7 @@ package org.eclipse.hawkbit.ui.tenantconfiguration.rollout;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 /**
  * This class represents the UI item for the target security token section in
@@ -30,8 +30,8 @@ public class ApprovalConfigurationItem extends HorizontalLayout {
      */
     public ApprovalConfigurationItem(final VaadinMessageSource i18n) {
         setSpacing(false);
-        setMargin(false);
-        addComponent(SPUIComponentProvider.generateLabel(i18n, "configuration.rollout.approval.label"));
+        setPadding(false);
+        add(SPUIComponentProvider.generateLabel(i18n, "configuration.rollout.approval.label"));
     }
 
 }

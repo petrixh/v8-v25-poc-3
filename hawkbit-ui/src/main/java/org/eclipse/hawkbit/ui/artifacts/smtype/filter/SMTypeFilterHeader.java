@@ -18,7 +18,7 @@ import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Software module type filter buttons header.
@@ -66,7 +66,7 @@ public class SMTypeFilterHeader extends AbstractFilterHeader {
     }
 
     @Override
-    protected Window getWindowForAdd() {
+    protected Dialog getWindowForAdd() {
         return smTypeWindowBuilder.getWindowForAdd();
     }
 

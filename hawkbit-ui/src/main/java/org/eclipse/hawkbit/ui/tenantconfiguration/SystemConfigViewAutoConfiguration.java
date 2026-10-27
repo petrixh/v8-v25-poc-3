@@ -9,7 +9,6 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
-import com.vaadin.spring.annotation.ViewScope;
 import org.eclipse.hawkbit.ControllerPollProperties;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
@@ -20,15 +19,20 @@ import org.eclipse.hawkbit.ui.MgmtUiConfiguration;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.annotation.Order;
 import org.vaadin.spring.events.EventBus;
 
 /**
- * Enables UI components for the Tenant Configuration view
+ * Enables UI components for the Tenant Configuration view. The Vaadin 8
+ * {@code @ViewScope} of the configuration sections becomes the prototype
+ * scope: Flow has no view scope, and the view creates a new set of sections
+ * each time it is created, as the view scope did.
  */
 @Configuration
 @ConditionalOnClass(MgmtUiConfiguration.class)
@@ -51,7 +55,7 @@ public class SystemConfigViewAutoConfiguration {
      *         Configuration Page
      */
     @Bean
-    @ViewScope
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     @Order(value = 1)
     DefaultDistributionSetTypeView defaultDistributionSetTypeLayout(final VaadinMessageSource i18n,
             final TenantConfigurationManagement tenantConfigurationManagement, final SystemManagement systemManagement,
@@ -80,7 +84,7 @@ public class SystemConfigViewAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    @ViewScope
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     @Order(value = 2)
     RepositoryConfigurationView repositoryConfigurationView(final VaadinMessageSource i18n,
             final UiProperties uiProperties, final TenantConfigurationManagement tenantConfigurationManagement,
@@ -102,7 +106,7 @@ public class SystemConfigViewAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    @ViewScope
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     @Order(value = 3)
     RolloutConfigurationView rolloutConfigurationView(final VaadinMessageSource i18n, final UiProperties uiProperties,
             final TenantConfigurationManagement tenantConfigurationManagement) {
@@ -126,7 +130,7 @@ public class SystemConfigViewAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    @ViewScope
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     @Order(value = 4)
     AuthenticationConfigurationView authConfigurationView(final VaadinMessageSource i18n,
             final UiProperties uiProperties, final TenantConfigurationManagement tenantConfigurationManagement,
@@ -148,7 +152,7 @@ public class SystemConfigViewAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    @ViewScope
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     @Order(value = 5)
     PollingConfigurationView pollingConfigurationView(final VaadinMessageSource i18n,
             final ControllerPollProperties uiProperties,

@@ -9,8 +9,11 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.details;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.artifact.repository.model.DbArtifact;
@@ -27,6 +30,7 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModi
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.ColumnToggleMenu;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
@@ -37,11 +41,13 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.FileDownloader;
-import com.vaadin.server.StreamResource;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.AttachmentType;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.server.HttpStatusCode;
+import com.vaadin.flow.server.streams.DownloadHandler;
 
 /**
  * Artifact Details grid which is shown on the Upload View.
@@ -108,7 +114,7 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     public void init() {
         super.init();
 
-        addStyleName("grid-row-border");
+        addClassNames("grid-row-border");
     }
 
     private boolean artifactsDeletionCallback(final Collection<ProxyArtifact> artifactsToBeDeleted) {
@@ -135,76 +141,102 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
      */
     @Override
     public void addColumns() {
-        addFilenameColumn().setExpandRatio(2);
+        addFilenameColumn().setFlexGrow(2);
 
         addSizeColumn();
 
         addModifiedDateColumn();
 
-        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
+        GridComponentBuilder.joinToActionColumn(i18n, getHeaderRows().get(0),
                 Arrays.asList(addDownloadColumn(), addDeleteColumn()));
     }
 
-    private Column<ProxyArtifact, String> addFilenameColumn() {
-        return GridComponentBuilder.addColumn(this, ProxyArtifact::getFilename).setId(ARTIFACT_NAME_ID)
-                .setCaption(i18n.getMessage("artifact.filename.caption"));
+    private Column<ProxyArtifact> addFilenameColumn() {
+        return GridComponentBuilder.addColumn(this, ProxyArtifact::getFilename).setKey(ARTIFACT_NAME_ID)
+                .setHeader(i18n.getMessage("artifact.filename.caption"));
     }
 
-    private Column<ProxyArtifact, Long> addSizeColumn() {
-        return GridComponentBuilder.addColumn(this, ProxyArtifact::getSize).setId(ARTIFACT_SIZE_ID)
-                .setCaption(i18n.getMessage("artifact.filesize.bytes.caption"));
+    private Column<ProxyArtifact> addSizeColumn() {
+        return GridComponentBuilder.addColumn(this, ProxyArtifact::getSize).setKey(ARTIFACT_SIZE_ID)
+                .setHeader(i18n.getMessage("artifact.filesize.bytes.caption"));
     }
 
-    protected Column<ProxyArtifact, String> addModifiedDateColumn() {
-        return GridComponentBuilder.addColumn(this, ProxyArtifact::getModifiedDate).setId(ARTIFACT_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("upload.last.modified.date"));
+    protected Column<ProxyArtifact> addModifiedDateColumn() {
+        return GridComponentBuilder.addColumn(this, ProxyArtifact::getModifiedDate).setKey(ARTIFACT_MODIFIED_DATE_ID)
+                .setHeader(i18n.getMessage("upload.last.modified.date"));
     }
 
-    private Column<ProxyArtifact, Button> addDownloadColumn() {
+    private Column<ProxyArtifact> addDownloadColumn() {
         return GridComponentBuilder.addIconColumn(this, this::buildDownloadButton, ARTIFACT_DOWNLOAD_BUTTON_ID,
                 i18n.getMessage("header.action.download"));
     }
 
-    private Button buildDownloadButton(final ProxyArtifact artifact) {
+    private Anchor buildDownloadButton(final ProxyArtifact artifact) {
         final Button downloadButton = GridComponentBuilder.buildActionButton(i18n, clickEvent -> {
-        }, VaadinIcons.DOWNLOAD, UIMessageIdProvider.TOOLTIP_ARTIFACT_DOWNLOAD,
+        }, VaadinIcon.DOWNLOAD, UIMessageIdProvider.TOOLTIP_ARTIFACT_DOWNLOAD,
                 SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.ARTIFACT_FILE_DOWNLOAD_ICON + "." + artifact.getId(),
                 permissionChecker.hasDownloadRepositoryPermission());
 
-        attachFileDownloader(artifact, downloadButton);
-
-        return downloadButton;
+        return attachFileDownloader(artifact, downloadButton);
     }
 
-    private void attachFileDownloader(final ProxyArtifact artifact, final Button downloadButton) {
-        final StreamResource artifactStreamResource = new StreamResource(() -> artifactManagement
-                .loadArtifactBinary(artifact.getSha1Hash(), masterEntitySupport.getMasterId(), artifactsEncrypted)
-                .map(DbArtifact::getFileInputStream).orElse(null), artifact.getFilename());
+    // Vaadin 8 FileDownloader(StreamResource) extended the button; Flow: the
+    // button sits in an anchor whose href is a DownloadHandler (attachment)
+    private Anchor attachFileDownloader(final ProxyArtifact artifact, final Button downloadButton) {
+        final DownloadHandler artifactDownloadHandler = event -> {
+            try {
+                final Optional<DbArtifact> artifactBinary = artifactManagement.loadArtifactBinary(
+                        artifact.getSha1Hash(), masterEntitySupport.getMasterId(), artifactsEncrypted);
+                if (artifactBinary.isEmpty()) {
+                    // Vaadin 8: a StreamResource without a stream gave no
+                    // download
+                    event.getResponse().setStatus(HttpStatusCode.NOT_FOUND.getCode());
+                    return;
+                }
 
-        final FileDownloader fileDownloader = new FileDownloader(artifactStreamResource);
-        fileDownloader.setErrorHandler(event -> {
-            LOG.error("Download failed for artifact with id {}, filename {}", artifact.getId(), artifact.getFilename(),
-                    event.getThrowable());
+                event.setFileName(artifact.getFilename());
+                event.setContentType(event.getSession().getService().getMimeType(artifact.getFilename()));
+                try (InputStream artifactStream = artifactBinary.get().getFileInputStream()) {
+                    artifactStream.transferTo(event.getOutputStream());
+                }
+            } catch (final IOException | RuntimeException e) {
+                onDownloadFailure(event.getUI(), artifact, e);
+            }
+        };
+
+        final Anchor downloadAnchor = new Anchor();
+        downloadAnchor.setHref(artifactDownloadHandler, AttachmentType.DOWNLOAD);
+        downloadAnchor.add(downloadButton);
+        // a disabled Vaadin 8 button did not start the download
+        downloadAnchor.setEnabled(downloadButton.isEnabled());
+
+        return downloadAnchor;
+    }
+
+    private void onDownloadFailure(final UI ui, final ProxyArtifact artifact, final Exception failure) {
+        LOG.error("Download failed for artifact with id {}, filename {}", artifact.getId(), artifact.getFilename(),
+                failure);
+        if (ui == null) {
+            return;
+        }
+        // the download runs outside the session lock
+        ui.access(() -> {
             notification.displayValidationError(i18n.getMessage(UIMessageIdProvider.ARTIFACT_DOWNLOAD_FAILURE_MSG));
-            UI.getCurrent().access(() -> {
-                // give error details extractors a chance to process specific
-                // error
-                throw new DownloadException(event.getThrowable());
-            });
+            // give error details extractors a chance to process specific
+            // error
+            throw new DownloadException(failure);
         });
-
-        fileDownloader.extend(downloadButton);
     }
 
-    private Column<ProxyArtifact, Button> addDeleteColumn() {
+    private Column<ProxyArtifact> addDeleteColumn() {
         return GridComponentBuilder.addDeleteColumn(this, i18n, ARTIFACT_DELETE_BUTTON_ID, artifactDeleteSupport,
                 UIComponentIdProvider.ARTIFACT_DELET_ICON, e -> permissionChecker.hasDeleteRepositoryPermission());
     }
 
     @Override
     protected void addMaxColumns() {
-        addFilenameColumn().setExpandRatio(2);
+        addFilenameColumn().setFlexGrow(2);
 
         addSizeColumn();
 
@@ -214,25 +246,25 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
 
         addModifiedDateColumn();
 
-        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
+        GridComponentBuilder.joinToActionColumn(i18n, getHeaderRows().get(0),
                 Arrays.asList(addDownloadColumn(), addDeleteColumn()));
 
-        getColumns().forEach(column -> column.setHidable(true));
+        ColumnToggleMenu.setAllHidable(this);
     }
 
-    private Column<ProxyArtifact, String> addSha1Column() {
-        return GridComponentBuilder.addColumn(this, ProxyArtifact::getSha1Hash).setId(ARTIFACT_SHA1_ID)
-                .setCaption(i18n.getMessage("upload.sha1"));
+    private Column<ProxyArtifact> addSha1Column() {
+        return GridComponentBuilder.addColumn(this, ProxyArtifact::getSha1Hash).setKey(ARTIFACT_SHA1_ID)
+                .setHeader(i18n.getMessage("upload.sha1"));
     }
 
-    private Column<ProxyArtifact, String> addMd5Column() {
-        return GridComponentBuilder.addColumn(this, ProxyArtifact::getMd5Hash).setId(ARTIFACT_MD5_ID)
-                .setCaption(i18n.getMessage("upload.md5"));
+    private Column<ProxyArtifact> addMd5Column() {
+        return GridComponentBuilder.addColumn(this, ProxyArtifact::getMd5Hash).setKey(ARTIFACT_MD5_ID)
+                .setHeader(i18n.getMessage("upload.md5"));
     }
 
-    private Column<ProxyArtifact, String> addSha256Column() {
-        return GridComponentBuilder.addColumn(this, ProxyArtifact::getSha256Hash).setId(ARTIFACT_SHA256_ID)
-                .setCaption(i18n.getMessage("upload.sha256"));
+    private Column<ProxyArtifact> addSha256Column() {
+        return GridComponentBuilder.addColumn(this, ProxyArtifact::getSha256Hash).setKey(ARTIFACT_SHA256_ID)
+                .setHeader(i18n.getMessage("upload.sha256"));
     }
 
     /**

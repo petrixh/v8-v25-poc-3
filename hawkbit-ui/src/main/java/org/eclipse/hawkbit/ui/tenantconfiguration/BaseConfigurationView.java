@@ -18,16 +18,19 @@ import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.vaadin.data.Binder;
-import com.vaadin.ui.CustomComponent;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.data.binder.Binder;
 
 /**
  * Base class for all configuration views. This class implements the logic for
  * the handling of the configurations in a consistent way.
  * 
  */
-public abstract class BaseConfigurationView<B extends ProxySystemConfigWindow> extends CustomComponent
-        implements ConfigurationGroup, InitializingBean {
+public abstract class BaseConfigurationView<B extends ProxySystemConfigWindow> extends Composite<Div>
+        implements ConfigurationGroup, InitializingBean, HasSize {
 
     private static final long serialVersionUID = 1L;
 
@@ -85,6 +88,49 @@ public abstract class BaseConfigurationView<B extends ProxySystemConfigWindow> e
 
     protected B getBinderBean() {
         return getBinder().getBean();
+    }
+
+    /**
+     * Vaadin 8 {@code GridLayout(3, rows)} with an expanding middle column
+     * ({@code setColumnExpandRatio(1, 1.0F)}): a {@link Div} laid out as a CSS
+     * grid. Spacing and look are left to the theme.
+     *
+     * @return the grid container
+     */
+    protected static Div createGridLayout() {
+        final Div gridLayout = new Div();
+        gridLayout.getStyle().set("display", "grid").set("grid-template-columns", "auto 1fr auto");
+        return gridLayout;
+    }
+
+    /**
+     * Vaadin 8 {@code GridLayout.addComponent(component, column, row)}.
+     *
+     * @param gridLayout
+     *            container created by {@link #createGridLayout()}
+     * @param component
+     *            component to add
+     * @param column
+     *            zero-based column
+     * @param row
+     *            zero-based row
+     */
+    protected static void addToGridLayout(final Div gridLayout, final Component component, final int column,
+            final int row) {
+        component.getElement().getStyle().set("grid-column", String.valueOf(column + 1)).set("grid-row",
+                String.valueOf(row + 1));
+        gridLayout.add(component);
+    }
+
+    /**
+     * Vaadin 8 {@code GridLayout.setComponentAlignment(component,
+     * Alignment.BOTTOM_RIGHT)}.
+     *
+     * @param component
+     *            component in a grid created by {@link #createGridLayout()}
+     */
+    protected static void alignBottomRight(final Component component) {
+        component.getElement().getStyle().set("justify-self", "end").set("align-self", "end");
     }
 
 }

@@ -12,7 +12,7 @@ package org.eclipse.hawkbit.ui.tenantconfiguration.repository;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 /**
  * This class represents the UI item for the target security token section in
@@ -29,7 +29,7 @@ public class ActionAutoCloseConfigurationItem extends HorizontalLayout {
      */
     public ActionAutoCloseConfigurationItem(final VaadinMessageSource i18n) {
         this.setSpacing(false);
-        this.setMargin(false);
-        addComponent(SPUIComponentProvider.generateLabel(i18n, "label.configuration.repository.autoclose.action"));
+        this.setPadding(false);
+        add(SPUIComponentProvider.generateLabel(i18n, "label.configuration.repository.autoclose.action"));
     }
 }

@@ -12,7 +12,7 @@ package org.eclipse.hawkbit.ui.tenantconfiguration.authentication;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 /**
  * This class represents the UI item for the anonymous download by in the
@@ -30,7 +30,7 @@ public class AnonymousDownloadAuthenticationConfigurationItem extends Horizontal
      */
     public AnonymousDownloadAuthenticationConfigurationItem(final VaadinMessageSource i18n) {
         setSpacing(false);
-        setMargin(false);
-        addComponent(SPUIComponentProvider.generateLabel(i18n, "label.configuration.anonymous.download"));
+        setPadding(false);
+        add(SPUIComponentProvider.generateLabel(i18n, "label.configuration.anonymous.download"));
     }
 }

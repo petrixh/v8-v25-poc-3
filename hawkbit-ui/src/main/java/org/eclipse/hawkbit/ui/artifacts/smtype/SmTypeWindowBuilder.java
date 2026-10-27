@@ -15,7 +15,7 @@ import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Builder for software module type window
@@ -45,10 +45,10 @@ public class SmTypeWindowBuilder extends AbstractEntityWindowBuilder<ProxyType> 
     /**
      * Add window for software module type
      *
-     * @return Window of Software module type
+     * @return Dialog of Software module type
      */
     @Override
-    public Window getWindowForAdd() {
+    public Dialog getWindowForAdd() {
         return getWindowForNewEntity(
                 new AddSmTypeWindowController(uiDependencies, smTypeManagement, new SmTypeWindowLayout(uiDependencies)));
 
@@ -60,10 +60,10 @@ public class SmTypeWindowBuilder extends AbstractEntityWindowBuilder<ProxyType> 
      * @param proxyType
      *            ProxyType
      *
-     * @return Window of Software module type
+     * @return Dialog of Software module type
      */
     @Override
-    public Window getWindowForUpdate(final ProxyType proxyType) {
+    public Dialog getWindowForUpdate(final ProxyType proxyType) {
         return getWindowForEntity(proxyType,
                 new UpdateSmTypeWindowController(uiDependencies, smTypeManagement, new SmTypeWindowLayout(uiDependencies)));
     }

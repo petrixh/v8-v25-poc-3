@@ -15,9 +15,9 @@ import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
 
-import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Distribution set window layout
@@ -45,23 +45,24 @@ public class DsTypeWindowLayout extends TagWindowLayout<ProxyType> {
         this.typeKey = FormComponentBuilder.createTypeKeyField(binder, i18n);
         this.dsTypeSmSelectLayout = dsTypeComponentBuilder.createDsTypeSmSelectLayout(binder);
 
-        this.colorPickerComponent.getColorPickerBtn().setCaption(i18n.getMessage("label.choose.type.color"));
+        this.colorPickerComponent.getColorPickerBtn().setLabel(i18n.getMessage("label.choose.type.color"));
     }
 
     @Override
     protected FormLayout buildFormLayout() {
         final FormLayout formLayout = super.buildFormLayout();
 
-        formLayout.addComponent(typeKey, formLayout.getComponentCount() - 1);
+        formLayout.addComponentAtIndex(formLayout.getComponentCount() - 1, typeKey);
 
         return formLayout;
     }
 
     @Override
-    public ComponentContainer getRootComponent() {
-        final ComponentContainer rootLayout = super.getRootComponent();
+    public HorizontalLayout getRootComponent() {
+        // the tag window's root is a horizontal layout (TagWindowLayout)
+        final HorizontalLayout rootLayout = (HorizontalLayout) super.getRootComponent();
 
-        rootLayout.addComponent(dsTypeSmSelectLayout);
+        rootLayout.add(dsTypeSmSelectLayout);
 
         return rootLayout;
     }

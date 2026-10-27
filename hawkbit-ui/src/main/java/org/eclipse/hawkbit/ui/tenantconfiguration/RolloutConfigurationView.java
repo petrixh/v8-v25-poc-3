@@ -19,13 +19,11 @@ import org.eclipse.hawkbit.ui.tenantconfiguration.rollout.ApprovalConfigurationI
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Link;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Provides configuration of the RolloutManagement including enabling/disabling
@@ -54,38 +52,36 @@ public class RolloutConfigurationView extends BaseConfigurationView<ProxySystemC
     }
 
     private void init() {
-        final Panel rootPanel = new Panel();
+        final Div rootPanel = new Div();
         rootPanel.setSizeFull();
-        rootPanel.addStyleName("config-panel");
+        rootPanel.addClassNames("config-panel");
 
         final VerticalLayout vLayout = new VerticalLayout();
         vLayout.setSpacing(false);
-        vLayout.setMargin(true);
+        vLayout.setPadding(true);
         vLayout.setSizeFull();
 
-        final Label header = new Label(i18n.getMessage("configuration.rollout.title"));
-        header.addStyleName("config-panel-header");
-        vLayout.addComponent(header);
+        final Span header = new Span(i18n.getMessage("configuration.rollout.title"));
+        header.addClassNames("config-panel-header");
+        vLayout.add(header);
 
-        final GridLayout gridLayout = new GridLayout(3, 1);
-        gridLayout.setSpacing(true);
-        gridLayout.setColumnExpandRatio(1, 1.0F);
+        final Div gridLayout = createGridLayout();
         gridLayout.setSizeFull();
 
-        final CheckBox approvalCheckbox = FormComponentBuilder.createCheckBox(
+        final Checkbox approvalCheckbox = FormComponentBuilder.createCheckbox(
                 UIComponentIdProvider.ROLLOUT_APPROVAL_ENABLED_CHECKBOX, getBinder(),
                 ProxySystemConfigRollout::isRolloutApproval, ProxySystemConfigRollout::setRolloutApproval);
 
-        gridLayout.addComponent(approvalCheckbox, 0, 0);
-        gridLayout.addComponent(approvalConfigurationItem, 1, 0);
-        final Link linkToApprovalHelp = SPUIComponentProvider.getHelpLink(i18n,
+        addToGridLayout(gridLayout, approvalCheckbox, 0, 0);
+        addToGridLayout(gridLayout, approvalConfigurationItem, 1, 0);
+        final Anchor linkToApprovalHelp = SPUIComponentProvider.getHelpLink(i18n,
                 uiProperties.getLinks().getDocumentation().getRollout());
-        gridLayout.addComponent(linkToApprovalHelp, 2, 0);
-        gridLayout.setComponentAlignment(linkToApprovalHelp, Alignment.BOTTOM_RIGHT);
+        addToGridLayout(gridLayout, linkToApprovalHelp, 2, 0);
+        alignBottomRight(linkToApprovalHelp);
 
-        vLayout.addComponent(gridLayout);
-        rootPanel.setContent(vLayout);
-        setCompositionRoot(rootPanel);
+        vLayout.add(gridLayout);
+        rootPanel.add(vLayout);
+        getContent().add(rootPanel);
     }
 
     @Override

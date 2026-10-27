@@ -13,9 +13,9 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigRepository;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * This class represents the UI item for enabling /disabling the
@@ -43,12 +43,12 @@ public class MultiAssignmentsConfigurationItem extends VerticalLayout {
             final Binder<ProxySystemConfigRepository> binder) {
         this.i18n = i18n;
         this.setSpacing(false);
-        this.setMargin(false);
-        addComponent(SPUIComponentProvider.generateLabel(i18n, MSG_KEY_CHECKBOX));
+        this.setPadding(false);
+        add(SPUIComponentProvider.generateLabel(i18n, MSG_KEY_CHECKBOX));
         container = new VerticalLayout();
         container.setSpacing(false);
-        container.setMargin(false);
-        container.addComponent(newLabel(MSG_KEY_NOTICE));
+        container.setPadding(false);
+        container.add(newLabel(MSG_KEY_NOTICE));
         if (binder.getBean().isMultiAssignments()) {
             showSettings();
         }
@@ -58,19 +58,19 @@ public class MultiAssignmentsConfigurationItem extends VerticalLayout {
      * Show multi assignment settings
      */
     public void showSettings() {
-        addComponent(container);
+        add(container);
     }
 
     /**
      * Hide multi assignment settings
      */
     public void hideSettings() {
-        removeComponent(container);
+        remove(container);
     }
 
-    private Label newLabel(final String msgKey) {
-        final Label label = SPUIComponentProvider.generateLabel(i18n, msgKey);
-        label.setWidthUndefined();
+    private Span newLabel(final String msgKey) {
+        final Span label = SPUIComponentProvider.generateLabel(i18n, msgKey);
+        label.setWidth(null);
         return label;
     }
 
