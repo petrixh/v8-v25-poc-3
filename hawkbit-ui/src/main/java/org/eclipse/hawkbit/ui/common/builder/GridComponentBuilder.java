@@ -504,8 +504,10 @@ public final class GridComponentBuilder {
             column.setFlexGrow(0);
             column.setResizable(false);
         });
-        final Column<?>[] columnArray = columns.toArray(new Column<?>[columns.size()]);
-        headerRow.join(columnArray).setText(headerCaption);
+        // Flow cannot join cells in the first header row (Vaadin 8's default row, the one with the column
+        // captions; HeaderRow.join throws): the caption goes into the first column's cell, the others stay empty
+        headerRow.getCell(columns.get(0)).setText(headerCaption);
+        columns.stream().skip(1).forEach(column -> headerRow.getCell(column).setText(""));
     }
 
     /**
