@@ -75,9 +75,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
@@ -86,9 +86,11 @@ import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.session.SessionManagementFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -197,7 +199,7 @@ public class SecurityManagedConfiguration {
             final AuthenticationManager authenticationManager = setAuthenticationManager(http, ddiSecurityConfiguration);
 
             http
-                    .requestMatchers(requestMatchers -> requestMatchers.antMatchers(DDI_ANT_MATCHERS))
+                    .securityMatcher(DDI_ANT_MATCHERS)
                     .csrf(AbstractHttpConfigurer::disable);
 
             if (securityProperties.isRequireSsl()) {
@@ -315,7 +317,7 @@ public class SecurityManagedConfiguration {
             final AuthenticationManager authenticationManager = setAuthenticationManager(http, ddiSecurityConfiguration);
 
             http
-                    .requestMatcher(new AntPathRequestMatcher(DDI_DL_ANT_MATCHER))
+                    .securityMatcher(DDI_DL_ANT_MATCHER)
                     .csrf(AbstractHttpConfigurer::disable);
 
             if (securityProperties.isRequireSsl()) {
@@ -436,11 +438,11 @@ public class SecurityManagedConfiguration {
             downloadIdAuthenticationFilter.setAuthenticationManager(authenticationManager);
 
             http
-                    .requestMatcher(new AntPathRequestMatcher("/**/downloadId/**"))
+                    .securityMatcher(antPathRequestMatcher("/**/downloadId/**"))
                     .authorizeHttpRequests(armrRepository -> armrRepository.anyRequest().authenticated())
                     .csrf(AbstractHttpConfigurer::disable)
                     .anonymous(AbstractHttpConfigurer::disable)
-                    .addFilterBefore(downloadIdAuthenticationFilter, FilterSecurityInterceptor.class)
+                    .addFilterBefore(downloadIdAuthenticationFilter, AuthorizationFilter.class)
                     .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
             return http.build();
@@ -495,11 +497,11 @@ public class SecurityManagedConfiguration {
                 final SystemSecurityContext systemSecurityContext)
                 throws Exception {
             http
-                    .requestMatchers(requestMatchers -> requestMatchers.antMatchers("/rest/**", MgmtRestConstants.BASE_SYSTEM_MAPPING + "/admin/**"))
+                    .securityMatcher("/rest/**", MgmtRestConstants.BASE_SYSTEM_MAPPING + "/admin/**")
                     .csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(amrmRegistry ->
                             amrmRegistry
-                                    .antMatchers(MgmtRestConstants.BASE_SYSTEM_MAPPING + "/admin/**")
+                                    .requestMatchers(MgmtRestConstants.BASE_SYSTEM_MAPPING + "/admin/**")
                                         .hasAnyAuthority(SpPermission.SYSTEM_ADMIN)
                                     .anyRequest()
                                         .authenticated())
@@ -534,7 +536,8 @@ public class SecurityManagedConfiguration {
                                 : null;
 
                 Assert.notNull(clientRegistration, "There must be a valid client registration");
-                http.oauth2ResourceServer(configurer -> configurer.jwt().jwkSetUri(clientRegistration.getProviderDetails().getJwkSetUri()));
+                http.oauth2ResourceServer(configurer -> configurer
+                        .jwt(jwt -> jwt.jwkSetUri(clientRegistration.getProviderDetails().getJwkSetUri())));
 
                 oidcBearerTokenAuthenticationFilter.setClientRegistration(clientRegistration);
 
@@ -631,6 +634,23 @@ public class SecurityManagedConfiguration {
             }
             return super.getFirewalledRequest(request);
         }
+    }
+
+    /**
+     * Matches like Spring Security 5's AntPathRequestMatcher (removed in Spring Security 7) did: Ant pattern against
+     * the servlet path plus path info. Used where the pattern is not a valid PathPattern ('**' before the end).
+     */
+    private static RequestMatcher antPathRequestMatcher(final String pattern) {
+        final AntPathMatcher antPathMatcher = new AntPathMatcher();
+        antPathMatcher.setTrimTokens(false);
+        return request -> {
+            String url = request.getServletPath();
+            final String pathInfo = request.getPathInfo();
+            if (pathInfo != null) {
+                url = StringUtils.hasLength(url) ? url + pathInfo : pathInfo;
+            }
+            return antPathMatcher.match(pattern, url);
+        };
     }
 
     private static AuthenticationManager setAuthenticationManager(final HttpSecurity http, final DdiSecurityProperties ddiSecurityConfiguration) throws Exception {
