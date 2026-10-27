@@ -9,14 +9,12 @@
  */
 package org.eclipse.hawkbit.app.mgmt;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import io.qameta.allure.Description;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.web.firewall.RequestRejectedException;
 
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
@@ -29,10 +27,11 @@ import org.springframework.test.context.TestPropertySource;
 public class AllowedHostNamesTest extends AbstractSecurityTest {
 
     @Test
-    @Description("Tests whether a RequestRejectedException is thrown when not allowed host is used")
-    public void allowedHostNameWithNotAllowedHost() {
-        assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(
-                () -> mvc.perform(get("/").header(HttpHeaders.HOST, "www.google.com")));
+    @Description("Tests whether the request is rejected when not allowed host is used")
+    public void allowedHostNameWithNotAllowedHost() throws Exception {
+        // Spring Security 7's FilterChainProxy handles the RequestRejectedException itself (HttpStatusRequestRejectedHandler):
+        // the request is still rejected by the firewall, now as 400 instead of the exception reaching the caller
+        mvc.perform(get("/").header(HttpHeaders.HOST, "www.google.com")).andExpect(status().isBadRequest());
     }
 
     @Test

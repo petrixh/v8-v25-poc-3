@@ -50,11 +50,11 @@ public abstract class AbstractAccessControllerTest extends AbstractJpaIntegratio
 
     protected void permitAllOperations(final AccessController.Operation operation) {
         testAccessControlManger.defineAccessRule(
-                JpaTarget.class, operation, Specification.where(null), type -> true);
+                JpaTarget.class, operation, Specification.unrestricted(), type -> true);
         testAccessControlManger.defineAccessRule(
-                JpaTargetType.class, operation, Specification.where(null), type -> true);
+                JpaTargetType.class, operation, Specification.unrestricted(), type -> true);
         testAccessControlManger.defineAccessRule(
-                JpaDistributionSet.class, operation, Specification.where(null), type -> true);
+                JpaDistributionSet.class, operation, Specification.unrestricted(), type -> true);
     }
 
     public static class AccessControlTestConfig {

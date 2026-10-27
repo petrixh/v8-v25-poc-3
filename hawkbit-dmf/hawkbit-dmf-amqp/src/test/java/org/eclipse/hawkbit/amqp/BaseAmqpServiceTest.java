@@ -52,7 +52,7 @@ public class BaseAmqpServiceTest {
     @Description("Verify that the message conversion works")
     public void convertMessageTest() {
         final DmfActionUpdateStatus actionUpdateStatus = createActionStatus();
-        when(rabbitTemplate.getMessageConverter()).thenReturn(new Jackson2JsonMessageConverter());
+        when(rabbitTemplate.getMessageConverter()).thenReturn(new Jackson2JsonMessageConverter("*"));
 
         final Message message = rabbitTemplate.getMessageConverter().toMessage(actionUpdateStatus,
                 createJsonProperties());
@@ -87,7 +87,7 @@ public class BaseAmqpServiceTest {
     @ExpectEvents({ @Expect(type = TargetCreatedEvent.class, count = 0) })
     public void updateActionStatusWithInvalidJsonContent() {
         final Message message = createMessage("Invalid Json".getBytes());
-        when(rabbitTemplate.getMessageConverter()).thenReturn(new Jackson2JsonMessageConverter());
+        when(rabbitTemplate.getMessageConverter()).thenReturn(new Jackson2JsonMessageConverter("*"));
 
         assertThatExceptionOfType(MessageConversionException.class)
                 .as("Expected MessageConversionException for invalid JSON")
