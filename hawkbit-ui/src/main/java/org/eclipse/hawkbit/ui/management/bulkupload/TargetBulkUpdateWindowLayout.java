@@ -175,6 +175,8 @@ public class TargetBulkUpdateWindowLayout extends Composite<VerticalLayout> {
         // Vaadin 8: a button-only upload of one file (Receiver and listeners
         // are one UploadHandler in Flow). Flow's Upload also lists the file and
         // accepts drops: no drop, one file at a time, list cleared when done
+        // (here for a refused file, which leaves the upload enabled; else in
+        // changeInputsState when the inputs are enabled again)
         final Upload upload = new Upload(uploadHandler);
 
         upload.setUploadButton(new Button(i18n.getMessage("caption.bulk.upload")));
@@ -387,6 +389,13 @@ public class TargetBulkUpdateWindowLayout extends Composite<VerticalLayout> {
         tagsComponent.getTagPanel().setEnabled(enabled);
         descTextArea.setEnabled(enabled);
         uploadButton.setEnabled(enabled);
+        if (enabled) {
+            // The upload's own all-finished event is a client event and is
+            // dropped while the upload is disabled (from upload start to the
+            // end of provisioning): clear the finished file here, so the button
+            // takes the next file as in Vaadin 8
+            uploadButton.clearFileList();
+        }
     }
 
     private void enableInputs() {
