@@ -42,15 +42,15 @@ public class SmTypeWindowLayout extends TagWindowLayout<ProxyType> {
         this.typeKey = FormComponentBuilder.createTypeKeyField(binder, i18n);
         this.smTypeAssignOptionGroup = smTypeComponentBuilder.createSmTypeAssignOptionGroup(binder);
 
-        this.colorPickerComponent.getColorPickerBtn().setCaption(i18n.getMessage("label.choose.type.color"));
+        this.colorPickerComponent.getColorPickerBtn().setLabel(i18n.getMessage("label.choose.type.color"));
     }
 
     @Override
     protected FormLayout buildFormLayout() {
         final FormLayout formLayout = super.buildFormLayout();
 
-        formLayout.addComponent(typeKey, formLayout.getComponentCount() - 1);
-        formLayout.addComponent(smTypeAssignOptionGroup, formLayout.getComponentCount() - 1);
+        formLayout.addComponentAtIndex(formLayout.getComponentCount() - 1, typeKey);
+        formLayout.addComponentAtIndex(formLayout.getComponentCount() - 1, smTypeAssignOptionGroup);
 
         return formLayout;
     }

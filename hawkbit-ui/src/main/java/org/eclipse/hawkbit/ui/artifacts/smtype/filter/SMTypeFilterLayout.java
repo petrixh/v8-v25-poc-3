@@ -28,7 +28,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGener
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 
-import com.vaadin.ui.ComponentContainer;
+import com.vaadin.flow.component.Component;
 
 /**
  * Software module type filter buttons layout.
@@ -92,7 +92,7 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
     }
 
     @Override
-    protected ComponentContainer getFilterContent() {
+    protected Component getFilterContent() {
         return wrapFilterContent(smTypeFilterButtons);
     }
 

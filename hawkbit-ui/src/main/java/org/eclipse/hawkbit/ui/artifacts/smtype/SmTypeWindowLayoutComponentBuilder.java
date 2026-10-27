@@ -14,8 +14,12 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType.SmTypeAssign;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.shared.Tooltip;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.function.SerializableFunction;
 
 /**
  * Builder for software module type window layout component
@@ -48,7 +52,7 @@ public class SmTypeWindowLayoutComponentBuilder {
         final RadioButtonGroup<SmTypeAssign> smTypeAssignOptionGroup = new RadioButtonGroup<>();
         smTypeAssignOptionGroup.setId(UIComponentIdProvider.ASSIGN_OPTION_GROUP_SOFTWARE_MODULE_TYPE_ID);
 
-        smTypeAssignOptionGroup.setItemCaptionGenerator(item -> {
+        final SerializableFunction<SmTypeAssign, String> captionGenerator = item -> {
             switch (item) {
             case SINGLE:
                 return i18n.getMessage("label.singleAssign.type");
@@ -57,8 +61,8 @@ public class SmTypeWindowLayoutComponentBuilder {
             default:
                 return null;
             }
-        });
-        smTypeAssignOptionGroup.setItemDescriptionGenerator(item -> {
+        };
+        final SerializableFunction<SmTypeAssign, String> descriptionGenerator = item -> {
             switch (item) {
             case SINGLE:
                 return i18n.getMessage("label.singleAssign.type.desc");
@@ -67,7 +71,15 @@ public class SmTypeWindowLayoutComponentBuilder {
             default:
                 return null;
             }
-        });
+        };
+        smTypeAssignOptionGroup.setItemLabelGenerator(captionGenerator::apply);
+        // Flow radio buttons have no item description: the label carries it
+        // as a tooltip
+        smTypeAssignOptionGroup.setRenderer(new ComponentRenderer<>(item -> {
+            final Span itemLabel = new Span(captionGenerator.apply(item));
+            Tooltip.forComponent(itemLabel).setText(descriptionGenerator.apply(item));
+            return itemLabel;
+        }));
 
         binder.forField(smTypeAssignOptionGroup).bind(ProxyType::getSmTypeAssign, ProxyType::setSmTypeAssign);
         smTypeAssignOptionGroup.setItems(SmTypeAssign.values());

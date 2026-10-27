@@ -129,7 +129,7 @@ public class SmWindowLayoutComponentBuilder {
      * @return input component
      */
     public Checkbox createArtifactEncryptionCheck(final Binder<ProxySoftwareModule> binder) {
-        return FormComponentBuilder.createCheckBox(i18n.getMessage(ARTIFACT_ENCRYPTION),
+        return FormComponentBuilder.createCheckbox(i18n.getMessage(ARTIFACT_ENCRYPTION),
                 UIComponentIdProvider.ARTIFACT_ENCRYPTION_ID, binder, ProxySoftwareModule::isEncrypted,
                 ProxySoftwareModule::setEncrypted);
     }

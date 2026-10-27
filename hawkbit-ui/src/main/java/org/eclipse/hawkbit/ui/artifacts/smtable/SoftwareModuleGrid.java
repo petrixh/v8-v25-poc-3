@@ -45,7 +45,6 @@ import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 
-import com.vaadin.flow.component.button.Button;
 
 /**
  * Software Module grid.
@@ -242,7 +241,8 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     }
 
     private void initMasterDsStyleGenerator() {
-        setStyleGenerator(sm -> {
+        // A9: the row part name is the module type's colour class
+        setPartNameGenerator(sm -> {
             if (masterEntitySupport.getMasterId() == null || !sm.isAssigned()) {
                 return null;
             }
@@ -265,43 +265,44 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
      */
     @Override
     public void addColumns() {
-        addNameColumn().setExpandRatio(2);
+        addNameColumn().setFlexGrow(2);
         addVersionColumn();
         addDeleteColumn();
     }
 
-    private Column<ProxySoftwareModule, String> addNameColumn() {
+    private Column<ProxySoftwareModule> addNameColumn() {
         return GridComponentBuilder.addNameColumn(this, i18n, SM_NAME_ID);
     }
 
-    private Column<ProxySoftwareModule, String> addVersionColumn() {
+    private Column<ProxySoftwareModule> addVersionColumn() {
         return GridComponentBuilder.addVersionColumn(this, i18n, ProxySoftwareModule::getVersion, SM_VERSION_ID);
     }
 
-    private Column<ProxySoftwareModule, Button> addDeleteColumn() {
+    private Column<ProxySoftwareModule> addDeleteColumn() {
         return GridComponentBuilder.addDeleteColumn(this, i18n, SM_DELETE_BUTTON_ID, swModuleDeleteSupport,
                 UIComponentIdProvider.SM_DELET_ICON, e -> permissionChecker.hasDeleteRepositoryPermission());
     }
 
     @Override
     protected void addMaxColumns() {
-        addNameColumn().setExpandRatio(7);
+        addNameColumn().setFlexGrow(7);
         addVersionColumn();
-        addDescriptionColumn().setExpandRatio(5);
+        addDescriptionColumn().setFlexGrow(5);
         addVendorColumn();
         GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n);
         addDeleteColumn();
 
-        getColumns().forEach(column -> column.setHidable(true));
+        // Vaadin 8: setHidable(true) on every column (the user could hide
+        // columns); Flow grids have no column hiding menu
     }
 
-    private Column<ProxySoftwareModule, String> addDescriptionColumn() {
+    private Column<ProxySoftwareModule> addDescriptionColumn() {
         return GridComponentBuilder.addDescriptionColumn(this, i18n, SM_DESC_ID);
     }
 
-    private Column<ProxySoftwareModule, String> addVendorColumn() {
-        return GridComponentBuilder.addColumn(this, ProxySoftwareModule::getVendor).setId(SM_VENDOR_ID)
-                .setCaption(i18n.getMessage("header.vendor"));
+    private Column<ProxySoftwareModule> addVendorColumn() {
+        return GridComponentBuilder.addColumn(this, ProxySoftwareModule::getVendor).setKey(SM_VENDOR_ID)
+                .setHeader(i18n.getMessage("header.vendor"));
     }
 
     /**
