@@ -29,8 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Lists;
-import com.vaadin.server.Sizeable;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
 
 /**
  * Support for invalidate a distribution set in the ds grid.
@@ -89,10 +88,10 @@ public class InvalidateDistributionSetSupport {
                         openAffectedEntitiesWindowOnInvalidateAction(allDistributionSetsForInvalidation);
                     }
                 });
-        consequencesDialog.getWindow().setWidth(40.0F, Sizeable.Unit.PERCENTAGE);
+        consequencesDialog.getWindow().setWidth("40%");
 
-        UI.getCurrent().addWindow(consequencesDialog.getWindow());
-        consequencesDialog.getWindow().bringToFront();
+        consequencesDialog.getWindow().open();
+        // Flow: the dialog opened last is on top (no bringToFront)
     }
 
     private void openAffectedEntitiesWindowOnInvalidateAction(
@@ -110,10 +109,10 @@ public class InvalidateDistributionSetSupport {
                         handleOkForInvalidateDistributionSet(allDistributionSetsForInvalidation);
                     }
                 }, entitiesForInvalidationCount);
-        affectedEntitiesDialog.getWindow().setWidth(40.0F, Sizeable.Unit.PERCENTAGE);
+        affectedEntitiesDialog.getWindow().setWidth("40%");
 
-        UI.getCurrent().addWindow(affectedEntitiesDialog.getWindow());
-        affectedEntitiesDialog.getWindow().bringToFront();
+        affectedEntitiesDialog.getWindow().open();
+        // Flow: the dialog opened last is on top (no bringToFront)
     }
 
     private void handleOkForInvalidateDistributionSet(

@@ -32,28 +32,28 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.shared.Registration;
-import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Link;
-import com.vaadin.ui.ProgressBar;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.Upload;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.progressbar.ProgressBar;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Bulk target upload layout.
  */
-public class TargetBulkUpdateWindowLayout extends CustomComponent {
+public class TargetBulkUpdateWindowLayout extends Composite<VerticalLayout> {
     private static final long serialVersionUID = 1L;
 
     private final VaadinMessageSource i18n;
@@ -67,13 +67,16 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     private final transient TargetBulkTokenTags tagsComponent;
     private final TextArea descTextArea;
     private final ProgressBar progressBar;
-    private final Label targetsCountLabel;
+    private final NativeLabel progressBarCaption;
+    private final Span targetsCountLabel;
     private final Upload uploadButton;
-    private final Link linkToSystemConfigHelp;
+    private final Anchor linkToSystemConfigHelp;
 
-    private final Label windowCaption;
+    private final Span windowCaption;
     private final Button closeButton;
     private Registration closeRegistration;
+
+    private VerticalLayout mainLayout;
 
     private final Binder<ProxyBulkUploadWindow> binder;
 
@@ -117,6 +120,8 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
         this.descTextArea = componentBuilder.createDescriptionField(binder);
         this.progressBar = createProgressBar();
+        this.progressBarCaption = new NativeLabel(i18n.getMessage("artifact.upload.progress.caption"));
+        this.progressBarCaption.setFor(progressBar);
         this.targetsCountLabel = getStatusCountLabel();
 
         final BulkUploadHandler bulkUploadHandler = new BulkUploadHandler(uiDependencies, uiExecutor, targetManagement,
@@ -126,7 +131,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         this.linkToSystemConfigHelp = SPUIComponentProvider.getHelpLink(i18n,
                 uiproperties.getLinks().getDocumentation().getDeploymentView());
 
-        this.windowCaption = new Label(i18n.getMessage("caption.bulk.upload.targets"));
+        this.windowCaption = new Span(i18n.getMessage("caption.bulk.upload.targets"));
         this.closeButton = getCloseButton();
 
         buildLayout();
@@ -134,15 +139,18 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     }
 
     private ProgressBar createProgressBar() {
-        final ProgressBar progressBarIndicator = new ProgressBar(0F);
-        progressBarIndicator.setCaption(i18n.getMessage("artifact.upload.progress.caption"));
+        // Vaadin 8 caption: progressBarCaption, a label next to the bar
+        final ProgressBar progressBarIndicator = new ProgressBar();
+        progressBarIndicator.setValue(0F);
         progressBarIndicator.setSizeFull();
 
         return progressBarIndicator;
     }
 
-    private static Label getStatusCountLabel() {
-        final Label countLabel = new Label("", ContentMode.HTML);
+    private static Span getStatusCountLabel() {
+        // Vaadin 8 Label with ContentMode.HTML: the value is the span's inner
+        // HTML (setTargetsCountLabelHtml)
+        final Span countLabel = new Span();
         countLabel.setId(UIComponentIdProvider.BULK_UPLOAD_COUNT);
 
         return countLabel;
@@ -164,21 +172,25 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     }
 
     private Upload createUploadButton(final BulkUploadHandler uploadHandler) {
-        final Upload upload = new Upload();
+        // Vaadin 8: a button-only upload of one file (Receiver and listeners
+        // are one UploadHandler in Flow). Flow's Upload also lists the file and
+        // accepts drops: no drop, one file at a time, list cleared when done
+        // (here for a refused file, which leaves the upload enabled; else in
+        // changeInputsState when the inputs are enabled again)
+        final Upload upload = new Upload(uploadHandler);
 
-        upload.setButtonCaption(i18n.getMessage("caption.bulk.upload"));
-        upload.setReceiver(uploadHandler);
-        upload.addSucceededListener(uploadHandler);
-        upload.addFailedListener(uploadHandler);
-        upload.addStartedListener(uploadHandler);
+        upload.setUploadButton(new Button(i18n.getMessage("caption.bulk.upload")));
+        upload.setDropAllowed(false);
+        upload.setMaxFiles(1);
+        upload.addAllFinishedListener(event -> upload.clearFileList());
 
         return upload;
     }
 
     private static Button getCloseButton() {
         final Button closeBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.BULK_UPLOAD_CLOSE_BUTTON_ID, "",
-                "", "", true, VaadinIcons.CLOSE, SPUIButtonStyleNoBorder.class);
-        closeBtn.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+                "", "", true, VaadinIcon.CLOSE, SPUIButtonStyleNoBorder.class);
+        closeBtn.addClassNames("borderless");
 
         return closeBtn;
     }
@@ -207,57 +219,69 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
         progressBar.setValue(0F);
         progressBar.setVisible(false);
+        progressBarCaption.setVisible(false);
 
-        targetsCountLabel.setValue("");
+        setTargetsCountLabelHtml("");
         targetsCountLabel.setVisible(false);
     }
 
     private void buildLayout() {
         final HorizontalLayout captionLayout = new HorizontalLayout();
-        captionLayout.setMargin(false);
+        captionLayout.setPadding(false);
         captionLayout.setSpacing(false);
         captionLayout.setSizeFull();
-        captionLayout.addStyleName("v-window-header");
+        captionLayout.addClassNames("v-window-header");
 
-        captionLayout.addComponents(windowCaption, closeButton);
-        captionLayout.setExpandRatio(windowCaption, 1.0F);
+        captionLayout.add(windowCaption, closeButton);
+        captionLayout.setFlexGrow(1.0F, windowCaption);
 
         final VerticalLayout tagsLayout = new VerticalLayout();
         tagsLayout.setId(UIComponentIdProvider.BULK_UPLOAD_TAG);
-        tagsLayout.setCaption(i18n.getMessage("caption.tags.tab"));
         tagsLayout.setSpacing(false);
-        tagsLayout.setMargin(false);
+        tagsLayout.setPadding(false);
         tagsLayout.setSizeFull();
         tagsLayout.setHeight("100px");
-        tagsLayout.addStyleName("bulk-target-tags-layout");
+        tagsLayout.addClassNames("bulk-target-tags-layout");
 
-        tagsLayout.addComponent(tagsComponent.getTagPanel());
+        // Vaadin 8: tagsLayout.setCaption(...), shown by the form layout
+        tagsLayout.add(new NativeLabel(i18n.getMessage("caption.tags.tab")));
+        tagsLayout.add(tagsComponent.getTagPanel());
 
         final HorizontalLayout uploaderLayout = new HorizontalLayout();
-        uploaderLayout.setMargin(false);
+        uploaderLayout.setPadding(false);
         uploaderLayout.setSpacing(false);
         uploaderLayout.setSizeFull();
 
-        uploaderLayout.addComponent(uploadButton);
-        uploaderLayout.addComponent(linkToSystemConfigHelp);
-        uploaderLayout.setComponentAlignment(linkToSystemConfigHelp, Alignment.BOTTOM_RIGHT);
-        uploaderLayout.setExpandRatio(uploadButton, 1.0F);
+        uploaderLayout.add(uploadButton);
+        uploaderLayout.add(linkToSystemConfigHelp);
+        uploaderLayout.setVerticalComponentAlignment(Alignment.END, linkToSystemConfigHelp);
+        uploaderLayout.setFlexGrow(1.0F, uploadButton);
 
         final FormLayout inputsLayout = new FormLayout();
-        inputsLayout.setMargin(true);
-        inputsLayout.setSpacing(true);
+        // Vaadin 8 FormLayout: one column; Flow has no spacing/margin here
+        inputsLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
         inputsLayout.setWidth("400px");
 
-        inputsLayout.addComponents(dsCombo, targetTypeCombo, tagsLayout, descTextArea, progressBar, targetsCountLabel, uploaderLayout);
+        inputsLayout.add(dsCombo, targetTypeCombo, tagsLayout, descTextArea, progressBarCaption, progressBar,
+                targetsCountLabel, uploaderLayout);
 
-        final VerticalLayout mainLayout = new VerticalLayout();
-        mainLayout.setMargin(false);
+        mainLayout = new VerticalLayout();
+        mainLayout.setPadding(false);
         mainLayout.setSpacing(true);
         mainLayout.setId(UIComponentIdProvider.BULK_UPLOAD_MAIN_LAYOUT);
 
-        mainLayout.addComponents(captionLayout, inputsLayout);
+        mainLayout.add(captionLayout, inputsLayout);
+    }
 
-        setCompositionRoot(mainLayout);
+    @Override
+    protected VerticalLayout initContent() {
+        // Vaadin 8: setCompositionRoot(mainLayout)
+        return mainLayout;
+    }
+
+    // Vaadin 8 Label with ContentMode.HTML: same HTML as inner HTML of a span
+    private void setTargetsCountLabelHtml(final String html) {
+        targetsCountLabel.getElement().setProperty("innerHTML", html);
     }
 
     /**
@@ -270,7 +294,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         targetBulkUploadUiState.setDescription(binder.getBean().getDescription());
 
         targetsCountLabel.setVisible(true);
-        targetsCountLabel.setValue(i18n.getMessage("message.bulk.upload.upload.started"));
+        setTargetsCountLabelHtml(i18n.getMessage("message.bulk.upload.upload.started"));
 
         disableInputs();
     }
@@ -280,7 +304,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
      */
     public void onStartOfProvisioning() {
         targetsCountLabel.setVisible(true);
-        targetsCountLabel.setValue(i18n.getMessage("message.bulk.upload.provisioning.started"));
+        setTargetsCountLabelHtml(i18n.getMessage("message.bulk.upload.provisioning.started"));
     }
 
     /**
@@ -291,6 +315,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
      */
     public void setProgressBarValue(final float value) {
         progressBar.setVisible(true);
+        progressBarCaption.setVisible(true);
         progressBar.setValue(value);
     }
 
@@ -299,7 +324,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
      */
     public void onStartOfAssignment() {
         targetsCountLabel.setVisible(true);
-        targetsCountLabel.setValue(i18n.getMessage("message.bulk.upload.assignment.started"));
+        setTargetsCountLabelHtml(i18n.getMessage("message.bulk.upload.assignment.started"));
     }
 
     /**
@@ -313,7 +338,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     public void onUploadCompletion(final int successCount, final int failCount) {
         final String targetCountLabel = getFormattedCountLabelValue(successCount, failCount);
         targetsCountLabel.setVisible(true);
-        targetsCountLabel.setValue(targetCountLabel);
+        setTargetsCountLabelHtml(targetCountLabel);
 
         enableInputs();
     }
@@ -337,7 +362,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
      */
     public void onUploadFailure(final String failureReason) {
         targetsCountLabel.setVisible(true);
-        targetsCountLabel.setValue(
+        setTargetsCountLabelHtml(
                 new StringBuilder().append("<font color=RED>").append(failureReason).append("</font>").toString());
 
         uinotification.displayValidationError(failureReason);
@@ -364,6 +389,13 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         tagsComponent.getTagPanel().setEnabled(enabled);
         descTextArea.setEnabled(enabled);
         uploadButton.setEnabled(enabled);
+        if (enabled) {
+            // The upload's own all-finished event is a client event and is
+            // dropped while the upload is disabled (from upload start to the
+            // end of provisioning): clear the finished file here, so the button
+            // takes the next file as in Vaadin 8
+            uploadButton.clearFileList();
+        }
     }
 
     private void enableInputs() {

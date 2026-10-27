@@ -10,6 +10,7 @@
 package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
@@ -20,14 +21,12 @@ import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * target attributes detail component
@@ -54,10 +53,24 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
 
         this.targetAttributesDetailsLayout = new VerticalLayout();
         this.targetAttributesDetailsLayout.setSpacing(true);
-        this.targetAttributesDetailsLayout.setMargin(false);
+        this.targetAttributesDetailsLayout.setPadding(false);
         this.targetAttributesDetailsLayout.setSizeFull();
+        // Vaadin 8: initContent()
+        add(targetAttributesDetailsLayout);
 
         setReadOnly(true);
+    }
+
+    @Override
+    public void setValue(final ProxyTargetAttributesDetails value) {
+        // Vaadin 8 compared the new value with the overridden getValue() (a
+        // new object each time), so every setValue rendered again; Flow
+        // compares with its own buffered value and skips an equal one
+        if (Objects.equals(value, super.getValue())) {
+            setPresentationValue(value);
+        } else {
+            super.setValue(value);
+        }
     }
 
     @Override
@@ -68,13 +81,13 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
     }
 
     @Override
-    protected Component initContent() {
-        return targetAttributesDetailsLayout;
+    protected ProxyTargetAttributesDetails generateModelValue() {
+        return new ProxyTargetAttributesDetails();
     }
 
     @Override
-    protected void doSetValue(final ProxyTargetAttributesDetails targetAttributesDetails) {
-        targetAttributesDetailsLayout.removeAllComponents();
+    protected void setPresentationValue(final ProxyTargetAttributesDetails targetAttributesDetails) {
+        targetAttributesDetailsLayout.removeAll();
 
         if (targetAttributesDetails == null) {
             return;
@@ -87,43 +100,43 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
         final Button requestAttributesButton = buildRequestAttributesUpdateButton(controllerId, isRequestAttributes);
         final HorizontalLayout topRow = new HorizontalLayout(requestAttributesButton);
         if (isRequestAttributes) {
-            topRow.addComponent(buildAttributesUpdateLabel());
+            topRow.add(buildAttributesUpdateLabel());
         }
-        targetAttributesDetailsLayout.addComponent(topRow);
+        targetAttributesDetailsLayout.add(topRow);
 
         final VerticalLayout attributesLayout = buildAttributesLayout(targetAttributes);
-        targetAttributesDetailsLayout.addComponent(attributesLayout);
-        targetAttributesDetailsLayout.setExpandRatio(attributesLayout, 1.0F);
+        targetAttributesDetailsLayout.add(attributesLayout);
+        targetAttributesDetailsLayout.setFlexGrow(1.0F, attributesLayout);
 
     }
 
     private VerticalLayout buildAttributesLayout(final List<ProxyKeyValueDetails> targetAttributes) {
         final VerticalLayout attributesLayout = new VerticalLayout();
-        attributesLayout.setMargin(false);
+        attributesLayout.setPadding(false);
         attributesLayout.setSpacing(false);
 
         final KeyValueDetailsComponent attributes = new KeyValueDetailsComponent();
         attributes.disableSpacing();
         attributes.setValue(targetAttributes);
-        attributesLayout.addComponent(attributes);
+        attributesLayout.add(attributes);
 
         return attributesLayout;
     }
 
-    private Label buildAttributesUpdateLabel() {
-        final Label updateLabel = new Label(i18n.getMessage("label.target.attributes.update.pending"));
-        updateLabel.setStyleName(ValoTheme.LABEL_SMALL);
+    private Span buildAttributesUpdateLabel() {
+        final Span updateLabel = new Span(i18n.getMessage("label.target.attributes.update.pending"));
+        updateLabel.setClassName("small");
 
         return updateLabel;
     }
 
     private Button buildRequestAttributesUpdateButton(final String controllerId, final boolean isRequestAttributes) {
         final Button requestAttributesButton = SPUIComponentProvider.getButton(
-                UIComponentIdProvider.TARGET_ATTRIBUTES_UPDATE, "", "", "", false, VaadinIcons.REFRESH,
+                UIComponentIdProvider.TARGET_ATTRIBUTES_UPDATE, "", "", "", false, VaadinIcon.REFRESH,
                 SPUIButtonStyleNoBorder.class);
 
         requestAttributesButton.addClickListener(e -> {
-            toggleRequestAttributesUpdateButton(e.getButton(), true);
+            toggleRequestAttributesUpdateButton(e.getSource(), true);
             targetManagement.requestControllerAttributes(controllerId);
         });
 
@@ -135,7 +148,7 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
     private void toggleRequestAttributesUpdateButton(final Button requestAttributesButton,
             final boolean isRequestAttributes) {
         requestAttributesButton
-                .setDescription(isRequestAttributes ? i18n.getMessage("tooltip.target.attributes.update.requested")
+                .setTooltipText(isRequestAttributes ? i18n.getMessage("tooltip.target.attributes.update.requested")
                         : i18n.getMessage("tooltip.target.attributes.update.request"));
         requestAttributesButton.setEnabled(!isRequestAttributes);
     }

@@ -18,10 +18,9 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.Resource;
-import com.vaadin.spring.annotation.SpringComponent;
-import com.vaadin.spring.annotation.UIScope;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 
 /**
  * Menu item for deployment.
@@ -43,8 +42,8 @@ public class DeploymentViewMenuItem extends AbstractDashboardMenuItemNotificatio
     }
 
     @Override
-    public Resource getDashboardIcon() {
-        return VaadinIcons.HOME;
+    public VaadinIcon getDashboardIcon() {
+        return VaadinIcon.HOME;
     }
 
     @Override

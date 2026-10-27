@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -57,20 +58,15 @@ import org.vaadin.spring.events.EventScope;
 
 import com.google.common.base.Splitter;
 import com.google.common.io.ByteStreams;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Upload.FailedEvent;
-import com.vaadin.ui.Upload.FailedListener;
-import com.vaadin.ui.Upload.Receiver;
-import com.vaadin.ui.Upload.StartedEvent;
-import com.vaadin.ui.Upload.StartedListener;
-import com.vaadin.ui.Upload.SucceededEvent;
-import com.vaadin.ui.Upload.SucceededListener;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.server.streams.UploadEvent;
+import com.vaadin.flow.server.streams.UploadHandler;
 
 /**
  * Bulk target upload handler.
  */
-public class BulkUploadHandler implements SucceededListener, FailedListener, Receiver, StartedListener {
+public class BulkUploadHandler implements UploadHandler {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(BulkUploadHandler.class);
@@ -107,27 +103,60 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
         this.bulkUploadInputsProvider = bulkUploadInputsProvider;
     }
 
+    /**
+     * Vaadin 8: Receiver plus started, succeeded and failed listeners of the
+     * Upload, called in this order. Flow hands the whole upload to one call,
+     * outside the session lock: the same steps run in the same order, and the
+     * events for the UI are published through {@link UI#access}.
+     */
     @Override
-    public OutputStream receiveUpload(final String filename, final String mimeType) {
+    public void handleUploadRequest(final UploadEvent event) {
+        final UI ui = event.getUI();
+        final String filename = event.getFileName();
+
+        if (!uploadStarted(filename, ui)) {
+            // Vaadin 8: interruptUpload() ended the upload as failed
+            event.reject(i18n.getMessage("bulkupload.wrong.file.format"));
+            uploadFailed(filename, null, ui);
+            return;
+        }
+
+        // Vaadin 8 called the failed listener for any interruption: runtime
+        // errors too (UploadEvent wraps read errors in UncheckedIOException)
+        try (InputStream in = event.getInputStream(); OutputStream out = receiveUpload(filename, ui)) {
+            ByteStreams.copy(in, out);
+        } catch (final IOException | RuntimeException e) {
+            uploadFailed(filename, e, ui);
+            return;
+        }
+
+        try {
+            uploadSucceeded(event.getSession(), ui);
+        } catch (final RuntimeException e) {
+            uploadFailed(filename, e, ui);
+        }
+    }
+
+    private OutputStream receiveUpload(final String filename, final UI ui) {
         try {
             tempFile = Files.createTempFile("temp", ".csv").toFile();
 
             return new FileOutputStream(tempFile);
         } catch (final FileNotFoundException e) {
             LOG.warn("File was not found with file name '{}': ", filename, e);
-            publishUploadFailed();
+            ui.access(this::publishUploadFailed);
         } catch (final IOException e) {
             LOG.warn("Error while reading file '{}': ", filename, e);
-            publishUploadFailed();
+            ui.access(this::publishUploadFailed);
         }
 
         return ByteStreams.nullOutputStream();
     }
 
-    @Override
-    public void uploadFailed(final FailedEvent event) {
-        LOG.warn("Upload failed for file '{}' due to '{}'", event.getFilename(), event.getReason().getMessage());
-        publishUploadFailed();
+    private void uploadFailed(final String filename, final Exception reason, final UI ui) {
+        LOG.warn("Upload failed for file '{}' due to '{}'", filename,
+                reason != null ? reason.getMessage() : "upload interrupted");
+        ui.access(this::publishUploadFailed);
     }
 
     private void publishUploadFailed() {
@@ -139,9 +168,14 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
                 BulkUploadEventPayload.buildUploadFailed(failureReason));
     }
 
-    @Override
-    public void uploadSucceeded(final SucceededEvent event) {
-        uiExecutor.execute(new UploadAsync(VaadinSession.getCurrent(), UI.getCurrent()));
+    private void uploadSucceeded(final VaadinSession session, final UI ui) {
+        // Vaadin 8 ran this listener in the request thread with the session
+        // locked: the task reads the window inputs under the lock, and is
+        // handed to the executor from this request thread, whose security
+        // context (tenant, user) the executor carries into the task
+        final AtomicReference<UploadAsync> uploadAsync = new AtomicReference<>();
+        ui.accessSynchronously(() -> uploadAsync.set(new UploadAsync(session, ui)));
+        uiExecutor.execute(uploadAsync.get());
     }
 
     private class UploadAsync implements Runnable {
@@ -372,14 +406,14 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
         }
     }
 
-    @Override
-    public void uploadStarted(final StartedEvent event) {
-        if (!event.getFilename().endsWith(".csv")) {
-            publishUploadFailed(i18n.getMessage("bulkupload.wrong.file.format"));
-            event.getUpload().interruptUpload();
+    private boolean uploadStarted(final String filename, final UI ui) {
+        if (!filename.endsWith(".csv")) {
+            ui.access(() -> publishUploadFailed(i18n.getMessage("bulkupload.wrong.file.format")));
+            return false;
         } else {
-            eventBus.publish(EventScope.SESSION, EventTopics.BULK_UPLOAD_CHANGED, this,
-                    BulkUploadEventPayload.buildUploadStarted());
+            ui.access(() -> eventBus.publish(EventScope.SESSION, EventTopics.BULK_UPLOAD_CHANGED, this,
+                    BulkUploadEventPayload.buildUploadStarted()));
+            return true;
         }
     }
 

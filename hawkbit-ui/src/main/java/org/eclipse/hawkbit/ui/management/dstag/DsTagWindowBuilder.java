@@ -16,7 +16,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Builder for distribution set tag window
@@ -45,14 +45,14 @@ public class DsTagWindowBuilder extends AbstractEntityWindowBuilder<ProxyTag> {
     }
 
     @Override
-    public Window getWindowForAdd() {
+    public Dialog getWindowForAdd() {
         return getWindowForNewEntity(
                 new AddDsTagWindowController(uiDependencies, dsTagManagement, new TagWindowLayout<ProxyTag>(uiDependencies)));
 
     }
 
     @Override
-    public Window getWindowForUpdate(final ProxyTag proxyTag) {
+    public Dialog getWindowForUpdate(final ProxyTag proxyTag) {
         return getWindowForEntity(proxyTag,
                 new UpdateDsTagWindowController(uiDependencies, dsTagManagement, new TagWindowLayout<ProxyTag>(uiDependencies)));
     }

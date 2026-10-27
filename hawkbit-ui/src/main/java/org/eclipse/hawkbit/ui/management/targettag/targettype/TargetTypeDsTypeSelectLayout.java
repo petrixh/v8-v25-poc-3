@@ -10,13 +10,12 @@
 package org.eclipse.hawkbit.ui.management.targettag.targettype;
 
 import com.google.common.collect.Sets;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
@@ -75,43 +74,42 @@ public class TargetTypeDsTypeSelectLayout extends CustomField<Set<ProxyType>> {
 
         this.layout = new HorizontalLayout();
         this.layout.setSpacing(false);
-        this.layout.setMargin(false);
+        this.layout.setPadding(false);
         this.layout.setSizeFull();
         this.layout.setWidth("400px");
 
         buildLayout();
+        // Vaadin 8 initContent(): Flow's CustomField takes its content here
+        add(layout);
     }
 
     private void buildLayout() {
         final VerticalLayout selectButtonLayout = new VerticalLayout();
         selectButtonLayout.setSpacing(false);
-        selectButtonLayout.setMargin(false);
+        selectButtonLayout.setPadding(false);
 
         final Button selectButton = SPUIComponentProvider.getButton(UIComponentIdProvider.SELECT_DIST_TYPE, "", "",
-                "arrow-button", true, VaadinIcons.FORWARD, SPUIButtonStyleNoBorder.class);
+                "arrow-button", true, VaadinIcon.FORWARD, SPUIButtonStyleNoBorder.class);
         selectButton.addClickListener(event -> addDsTypeToSelectedGrid());
 
         final Button unSelectButton = SPUIComponentProvider.getButton(UIComponentIdProvider.UNSELECT_DIST_TYPE, "", "", "arrow-button",
-                true, VaadinIcons.BACKWARDS, SPUIButtonStyleNoBorder.class);
+                true, VaadinIcon.BACKWARDS, SPUIButtonStyleNoBorder.class);
         unSelectButton.addClickListener(event -> removeDsTypeFromSelectedGrid());
 
-        selectButtonLayout.addComponent(selectButton);
-        selectButtonLayout.addComponent(unSelectButton);
-        selectButtonLayout.setComponentAlignment(selectButton, Alignment.MIDDLE_CENTER);
-        selectButtonLayout.setComponentAlignment(unSelectButton, Alignment.MIDDLE_CENTER);
+        selectButtonLayout.add(selectButton);
+        selectButtonLayout.add(unSelectButton);
+        selectButtonLayout.setHorizontalComponentAlignment(Alignment.CENTER, selectButton, unSelectButton);
 
         sourceGrid = buildSourceGrid();
         selectedGrid = buildSelectedGrid();
 
-        layout.addComponent(sourceGrid);
-        layout.addComponent(selectButtonLayout);
-        layout.addComponent(selectedGrid);
-        layout.setComponentAlignment(sourceGrid, Alignment.MIDDLE_LEFT);
-        layout.setComponentAlignment(selectButtonLayout, Alignment.MIDDLE_CENTER);
-        layout.setComponentAlignment(selectedGrid, Alignment.MIDDLE_RIGHT);
-        layout.setExpandRatio(sourceGrid, 0.45F);
-        layout.setExpandRatio(selectButtonLayout, 0.07F);
-        layout.setExpandRatio(selectedGrid, 0.48F);
+        layout.add(sourceGrid);
+        layout.add(selectButtonLayout);
+        layout.add(selectedGrid);
+        layout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+        layout.setFlexGrow(0.45F, sourceGrid);
+        layout.setFlexGrow(0.07F, selectButtonLayout);
+        layout.setFlexGrow(0.48F, selectedGrid);
     }
 
     private void addDsTypeToSelectedGrid() {
@@ -155,12 +153,12 @@ public class TargetTypeDsTypeSelectLayout extends CustomField<Set<ProxyType>> {
     }
 
     @Override
-    protected Component initContent() {
-        return layout;
+    protected Set<ProxyType> generateModelValue() {
+        return selectedDsTypes;
     }
 
     @Override
-    protected void doSetValue(final Set<ProxyType> value) {
+    protected void setPresentationValue(final Set<ProxyType> value) {
         if (value == null) {
             return;
         }

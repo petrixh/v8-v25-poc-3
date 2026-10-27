@@ -13,7 +13,7 @@ import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.EventListenersAwareLayout;
 
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 /**
  * Layout responsible for action-history-grid and the corresponding header.
@@ -51,21 +51,21 @@ public class ActionHistoryLayout extends HorizontalLayout implements EventListen
 
     private void init() {
         setSizeFull();
-        setMargin(false);
+        setPadding(false);
         setSpacing(true);
     }
 
     private void buildLayout() {
-        addComponent(actionHistoryGridLayout);
-        setExpandRatio(actionHistoryGridLayout, 0.55F);
+        add(actionHistoryGridLayout);
+        setFlexGrow(0.55F, actionHistoryGridLayout);
 
         actionStatusLayout.setVisible(false);
-        addComponent(actionStatusLayout);
-        setExpandRatio(actionStatusLayout, 0.18F);
+        add(actionStatusLayout);
+        setFlexGrow(0.18F, actionStatusLayout);
 
         actionStatusMsgLayout.setVisible(false);
-        addComponent(actionStatusMsgLayout);
-        setExpandRatio(actionStatusMsgLayout, 0.27F);
+        add(actionStatusMsgLayout);
+        setFlexGrow(0.27F, actionStatusMsgLayout);
     }
 
     /**

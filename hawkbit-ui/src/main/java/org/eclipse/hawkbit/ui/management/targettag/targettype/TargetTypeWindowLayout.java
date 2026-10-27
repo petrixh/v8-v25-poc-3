@@ -9,7 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag.targettype;
 
-import com.vaadin.ui.ComponentContainer;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetType;
@@ -39,14 +39,14 @@ public class TargetTypeWindowLayout extends TagWindowLayout<ProxyTargetType> {
 
         this.targetTypeDsTypeSelectLayout = targetTypeWindowLayoutComponentBuilder.createTargetTypeDsSelectLayout(binder);
 
-        this.colorPickerComponent.getColorPickerBtn().setCaption(i18n.getMessage("label.choose.type.color"));
+        this.colorPickerComponent.getColorPickerBtn().setLabel(i18n.getMessage("label.choose.type.color"));
     }
 
     @Override
-    public ComponentContainer getRootComponent() {
-        final ComponentContainer rootLayout = super.getRootComponent();
+    public HorizontalLayout getRootComponent() {
+        final HorizontalLayout rootLayout = super.getRootComponent();
 
-        rootLayout.addComponent(targetTypeDsTypeSelectLayout);
+        rootLayout.add(targetTypeDsTypeSelectLayout);
 
         return rootLayout;
     }

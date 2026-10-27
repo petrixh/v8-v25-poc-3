@@ -34,6 +34,6 @@ public class ActionTypeOptionGroupAutoAssignmentLayout extends AbstractActionTyp
     @Override
     protected void addOptionGroup() {
         actionTypeOptionGroup.setItems(ActionType.FORCED, ActionType.SOFT, ActionType.DOWNLOAD_ONLY);
-        addComponent(actionTypeOptionGroup);
+        add(actionTypeOptionGroup);
     }
 }
