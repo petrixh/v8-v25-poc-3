@@ -1,6 +1,6 @@
 # CI
 
-One GitHub Actions workflow, `.github/workflows/ci.yml`, with one job on a GitHub-hosted `ubuntu-24.04` runner. It builds the Vaadin 8 UI path, starts one isolated copy of the app with the env scripts (`env/README.md`), logs in every test user and opens their views, and runs the test suite.
+One GitHub Actions workflow, `.github/workflows/ci.yml`, with one job on a GitHub-hosted `ubuntu-24.04` runner. It builds the UI path (Java 21, Vaadin 25), starts one isolated copy of the app with the env scripts (`env/README.md`), logs in every test user and opens their views, and runs the test suite.
 
 ## When it runs
 
@@ -14,9 +14,9 @@ No schedule. A newer run on the same ref cancels the one still running. Time lim
 
 | Step | Does | Fails when |
 |---|---|---|
-| Restore Maven repository, Playwright browser | `actions/cache` of `~/.m2/repository` (key: hash of every `pom.xml`) and `~/.cache/ms-playwright` (key: Playwright version) | never |
+| Restore Maven repository, Node and npm cache, Playwright browser | `actions/cache` of `~/.m2/repository` and `~/.cache/mig-env-build-home` (Vaadin's Node and the npm cache; keys: hash of every `pom.xml`) and `~/.cache/ms-playwright` (key: Playwright version) | never |
 | Test users | `.github/ci/test-users.sh`: four throw-away users with new random passwords (see "Test users") | |
-| Build and start | `env/up.sh`. Builds the app image from the commit: Maven 3.9.16 / JDK 17.0.20.1 in Docker (the image `env/lib.sh` pins by digest), `-pl hawkbit-runtime/hawkbit-vv8-ui,hawkbit-runtime/hawkbit-mgmt-server -am -DskipTests package` with `env/maven-settings.xml` and `-DskipNexusStaging`. Then starts copy `ci` on an internal Docker network with MySQL 8.0 and RabbitMQ 3, seeds it, and serves the UI on `127.0.0.1:18081` | the build fails; Maven downloaded from a host other than `repo.maven.apache.org` and `maven.vaadin.com` (the check is in `env/up.sh`); the app does not start |
+| Build and start | `env/up.sh`. Builds the app image from the commit: Maven 3.9.16 / JDK 21.0.12.1 in Docker (the image `env/lib.sh` pins by digest), `-pl hawkbit-runtime/hawkbit-vv8-ui,hawkbit-runtime/hawkbit-mgmt-server -am -DskipTests package` with `env/maven-settings.xml` and `-DskipNexusStaging`. Then starts copy `ci` on an internal Docker network with MySQL 8.0 and RabbitMQ 3, seeds it, and serves the UI on `127.0.0.1:18081` | the build fails; Maven or the frontend build downloaded from a host other than `repo.maven.apache.org`, `nodejs.org` and `registry.npmjs.org` (the check is in `env/up.sh`; it sees Maven's transfers and the Node download, not npm's); the app does not start |
 | Install Playwright | `npm install playwright@1.63.0` outside the checkout, then the Chromium headless shell | |
 | Smoke | `.github/ci/smoke/smoke.cjs` with `.github/ci/smoke/old-app.json`: each test user logs in and opens each view the user's permissions show (16 view checks). The browser may reach only the app's host; every other request is refused and listed | a login fails, a view has a console error, an HTTP status of 400 or more, a collapsed layout, or leaves the app |
 | Tests | `.github/ci/run-tests.sh`. First a fetch (online, mirrors only) of the surefire JUnit provider, by running one unit test of `hawkbit-core` (`Base62UtilTest`), then `-pl hawkbit-runtime/hawkbit-vv8-ui -am -fae verify` offline in Docker on the copy's internal network, in the same pinned Maven image (taken from `env/lib.sh`), with its RabbitMQ (`RABBITMQ_TEST_HOSTNAME=rabbitmq`, `RABBITMQ_SERVER_REQUIRED=true`), test classes in alphabetical order (`-Dsurefire.runOrder=alphabetical`): the default order follows the file system and changes between runners, and some tests depend on it. Runs even when the smoke failed | a test fails; Maven downloaded from another host; no test ran; the broker is unreachable (the 89 DMF integration tests would otherwise skip silently) |
@@ -24,7 +24,14 @@ No schedule. A newer run on the same ref cancels the one still running. Time lim
 | Summary | `.github/ci/summary.sh`: writes the job summary (and the same lines to the log): Maven download hosts, build and start times, smoke result and blocked hosts, test counts, the DNS names the copy looked up. A row whose input is missing says "not run" or is left out | never (the script always exits 0; the step also has `continue-on-error`) |
 | Upload diagnostics | Only when a step failed or ran over its time limit (not when a newer push cancelled the run): `~/ci-out/` (step output, Maven build log, app and DNS logs, smoke screenshots and results, test logs), surefire and failsafe `*.txt` reports. Retention 3 days, `continue-on-error` | never |
 
-The step "Build and start" is the deployable artefact per commit: the image `mig-old-hawkbit:<commit>` with both jars, built and run in the same job. It is not kept after the run.
+The step "Build and start" is the deployable artefact per commit: the image `mig-new-hawkbit:<commit>` with both jars, built and run in the same job. It is not kept after the run.
+
+## State on the new app
+
+Stage 1a ticket 1a-05 moved the build and run images to Java 21. Not yet run: the UI did not compile when the ticket was written, so the first full run is the green-build ticket's. Known to adapt there:
+
+- The smoke config `.github/ci/smoke/old-app.json` still lists the Vaadin 8 views and checks; it needs the new UI's views once they render.
+- The step "Tests" runs `verify` of the UI runtime offline. If its frontend build needs Node or npm packages that the image build did not leave in the shared `~/.cache/mig-env-build-home`, the offline run fails: fetch them online first, as the step does for the surefire provider.
 
 ## Storage
 
@@ -32,7 +39,7 @@ GitHub's artifact storage is small and shared across the account. The job theref
 
 ## What it downloads
 
-Maven Central (`repo.maven.apache.org`) and `maven.vaadin.com` only, enforced by `env/maven-settings.xml` and the host check; official Docker Hub images, each pinned by digest in `env/lib.sh` (`maven:3.9-eclipse-temurin-17`, `eclipse-temurin:17-jre`, `mysql:8.0`, `rabbitmq:3-management-alpine`, `python:3.9.6-slim`; versions in `env/README.md`); the npm registry for Playwright and the Playwright browser download; the pinned actions `checkout`, `cache`, `upload-artifact`. The app and the tests run on an internal network with no route out, and the copy's DNS answers only its own container names. The smoke browser reaches only `127.0.0.1:18081`.
+Maven Central (`repo.maven.apache.org`) for Maven, enforced by `env/maven-settings.xml` and the host check; `nodejs.org` (Node 24 for Vaadin's frontend build, once per Node version, then cached) and `registry.npmjs.org` (the frontend build's npm packages, and Playwright); official Docker Hub images, each pinned by digest in `env/lib.sh` (`maven:3.9-eclipse-temurin-21`, `eclipse-temurin:21-jre`, `mysql:8.0`, `rabbitmq:3-management-alpine`, `python:3.9.6-slim`; versions in `env/README.md`); the Playwright browser download; the pinned actions `checkout`, `cache`, `upload-artifact`. The app and the tests run on an internal network with no route out, and the copy's DNS answers only its own container names. The smoke browser reaches only `127.0.0.1:18081`.
 
 ## Test users
 
