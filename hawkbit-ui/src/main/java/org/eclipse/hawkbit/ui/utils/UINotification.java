@@ -13,12 +13,10 @@ import java.io.Serializable;
 
 import org.eclipse.hawkbit.ui.common.notification.ParallelNotification;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.Page;
-import com.vaadin.server.Resource;
-import com.vaadin.shared.Position;
-import com.vaadin.spring.annotation.SpringComponent;
-import com.vaadin.spring.annotation.UIScope;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 
 /**
  * Show success, warning and error messages.
@@ -36,7 +34,7 @@ public class UINotification implements Serializable {
      *            is the message to displayed as success.
      */
     public void displaySuccess(final String message) {
-        showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_SUCCESS_MESSAGE_STYLE, message, VaadinIcons.CHECK_CIRCLE);
+        showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_SUCCESS_MESSAGE_STYLE, message, VaadinIcon.CHECK_CIRCLE);
     }
 
     /**
@@ -46,7 +44,7 @@ public class UINotification implements Serializable {
      *            is the message to displayed as warning.
      */
     public void displayWarning(final String message) {
-        showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_WARNING_MESSAGE_STYLE, message, VaadinIcons.WARNING);
+        showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_WARNING_MESSAGE_STYLE, message, VaadinIcon.WARNING);
     }
 
     /**
@@ -57,7 +55,7 @@ public class UINotification implements Serializable {
      */
     public void displayValidationError(final String message) {
         showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_ERROR_MESSAGE_STYLE, message,
-                VaadinIcons.EXCLAMATION_CIRCLE);
+                VaadinIcon.EXCLAMATION_CIRCLE);
     }
 
     /**
@@ -70,7 +68,7 @@ public class UINotification implements Serializable {
      * @param icon
      *            Icon of the message
      */
-    public static void showNotification(final String styleName, final String description, final Resource icon) {
+    public static void showNotification(final String styleName, final String description, final VaadinIcon icon) {
         showNotification(styleName, null, description, icon, true);
     }
 
@@ -89,8 +87,8 @@ public class UINotification implements Serializable {
      *            Should notification be automatically closed
      */
     public static void showNotification(final String styleName, final String caption, final String description,
-            final Resource icon, final Boolean autoClose) {
-        buildNotification(styleName, caption, description, icon, autoClose).show(Page.getCurrent());
+            final VaadinIcon icon, final Boolean autoClose) {
+        buildNotification(styleName, caption, description, icon, autoClose).open();
     }
 
     /**
@@ -109,18 +107,23 @@ public class UINotification implements Serializable {
      * @return UI notification to be shown
      */
     public static ParallelNotification buildNotification(final String styleName, final String caption,
-            final String description, final Resource icon, final Boolean autoClose) {
+            final String description, final VaadinIcon icon, final Boolean autoClose) {
         final ParallelNotification notification = new ParallelNotification(caption, description);
 
-        notification.setIcon(icon);
-        notification.setStyleName(styleName);
-        notification.setHtmlContentAllowed(false);
-        notification.setPosition(Position.BOTTOM_RIGHT);
+        if (icon != null) {
+            // Flow notifications have no icon property: the icon goes first
+            // in the content, before caption and description
+            notification.addComponentAtIndex(0, icon.create());
+        }
+        // space-separated style names, as before; text content is never HTML
+        notification.setClassName(styleName);
+        notification.setPosition(Position.BOTTOM_END);
 
         if (autoClose) {
-            notification.setDelayMsec(SPUILabelDefinitions.SP_DELAY);
+            notification.setDuration(SPUILabelDefinitions.SP_DELAY);
         } else {
-            notification.setDelayMsec(-1);
+            // 0: stays open until closed (Vaadin 8: -1)
+            notification.setDuration(0);
         }
 
         return notification;

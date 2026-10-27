@@ -9,8 +9,8 @@
  */
 package org.eclipse.hawkbit.ui.utils;
 
-import com.vaadin.event.ShortcutAction;
-import com.vaadin.flow.component.page.Page;
+import com.vaadin.flow.component.KeyModifier;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WebBrowser;
 
 /**
@@ -27,16 +27,16 @@ public final class ShortCutModifierUtils {
      * Returns the ctrl or meta modifier depending on the platform.
      * 
      * @return on mac return
-     *         {@link com.vaadin.event.ShortcutAction.ModifierKey#META} other
+     *         {@link KeyModifier#META} other
      *         platform return
-     *         {@link com.vaadin.event.ShortcutAction.ModifierKey#CTRL}
+     *         {@link KeyModifier#CONTROL}
      */
-    public static int getCtrlOrMetaModifier() {
-        final WebBrowser webBrowser = Page.getCurrent().getWebBrowser();
+    public static KeyModifier getCtrlOrMetaModifier() {
+        final WebBrowser webBrowser = VaadinSession.getCurrent().getBrowser();
         if (webBrowser.isMacOSX()) {
-            return ShortcutAction.ModifierKey.META;
+            return KeyModifier.META;
         }
 
-        return ShortcutAction.ModifierKey.CTRL;
+        return KeyModifier.CONTROL;
     }
 }

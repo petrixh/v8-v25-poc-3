@@ -24,7 +24,8 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Maps;
-import com.vaadin.flow.server.WebBrowser;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.page.ExtendedClientDetails;
 
 /**
  * Common Util to get date/time related information.
@@ -70,7 +71,8 @@ public final class SPDateTimeUtil {
             return TimeZone.getTimeZone(fixedTimeZoneProperty);
         }
 
-        final WebBrowser webBrowser = com.vaadin.server.Page.getCurrent().getWebBrowser();
+        // Flow: the browser's time zone offset is in the extended client details
+        final ExtendedClientDetails webBrowser = UI.getCurrent().getPage().getExtendedClientDetails();
         final String[] timeZones = TimeZone.getAvailableIDs(webBrowser.getRawTimezoneOffset());
         TimeZone tz = TimeZone.getDefault();
         for (final String string : timeZones) {
