@@ -13,8 +13,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.vaadin.server.Resource;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.html.Span;
 
 /**
  * Describe a menu entry for the Dashboard.
@@ -33,7 +33,7 @@ public interface DashboardMenuItem extends Serializable {
      * 
      * @return vaadin resource
      */
-    Resource getDashboardIcon();
+    VaadinIcon getDashboardIcon();
 
     /**
      * Return the dashboard caption.
@@ -69,5 +69,5 @@ public interface DashboardMenuItem extends Serializable {
      * 
      * @return return the notification
      */
-    Label getNotificationUnreadLabel();
+    Span getNotificationUnreadLabel();
 }

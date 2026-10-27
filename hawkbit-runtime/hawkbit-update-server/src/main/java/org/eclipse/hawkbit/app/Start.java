@@ -13,6 +13,11 @@ import org.eclipse.hawkbit.autoconfigure.security.EnableHawkbitManagedSecurityCo
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.shared.communication.PushMode;
+import com.vaadin.flow.shared.ui.Transport;
+
 /**
  * A {@link SpringBootApplication} annotated class with a main method to start.
  * The minimal configuration for the stand alone hawkBit server.
@@ -20,9 +25,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 @EnableHawkbitManagedSecurityConfiguration
+// Vaadin 25: the app shell carries the push settings that Vaadin 8 had on MyUI.
+// WEBSOCKET_XHR transport is used instead of WEBSOCKET in order to preserve
+// the Spring Security context of the HTTP session.
+@Push(value = PushMode.AUTOMATIC, transport = Transport.WEBSOCKET_XHR)
 // Exception squid:S1118 - Spring boot standard behavior
 @SuppressWarnings({ "squid:S1118" })
-public class Start {
+public class Start implements AppShellConfigurator {
 
     /**
      * Main method to start the spring-boot application.

@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.html.Span;
 
 /**
  * Contains the menu items' Label for the notification display.
@@ -22,7 +22,7 @@ public abstract class AbstractDashboardMenuItemNotification implements Dashboard
 
     private static final long serialVersionUID = 1L;
 
-    private final Label notificationsLabel = new Label();
+    private final Span notificationsLabel = new Span();
 
     protected final VaadinMessageSource i18n;
 
@@ -32,12 +32,12 @@ public abstract class AbstractDashboardMenuItemNotification implements Dashboard
 
     @Override
     public void setNotificationUnreadValue(final AtomicInteger notificationUnread) {
-        notificationsLabel.setValue(String.valueOf(notificationUnread.get()));
+        notificationsLabel.setText(String.valueOf(notificationUnread.get()));
         notificationsLabel.setVisible(notificationUnread.get() > 0);
     }
 
     @Override
-    public Label getNotificationUnreadLabel() {
+    public Span getNotificationUnreadLabel() {
         return notificationsLabel;
     }
 }
