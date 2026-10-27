@@ -11,8 +11,8 @@ package org.eclipse.hawkbit.ui.common.builder;
 
 import java.io.Serializable;
 
-import com.vaadin.data.Binder.Binding;
-import com.vaadin.ui.Component;
+import com.vaadin.flow.data.binder.Binder.Binding;
+import com.vaadin.flow.component.Component;
 
 /**
  * Holds a {@link Component} and its {@link Binding}

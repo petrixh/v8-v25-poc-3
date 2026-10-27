@@ -45,9 +45,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.grid.HeightMode;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.themes.ValoTheme;
 

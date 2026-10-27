@@ -14,7 +14,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractDetailsHeader;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
 import com.vaadin.ui.Window;
 
 /**

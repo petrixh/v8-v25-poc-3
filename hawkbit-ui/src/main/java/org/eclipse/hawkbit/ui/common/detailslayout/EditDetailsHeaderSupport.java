@@ -16,8 +16,8 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.Component;
 
 /**
  * Edit Detail header support

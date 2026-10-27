@@ -17,7 +17,7 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.Component;
 
 /**
  * Target table header layout.

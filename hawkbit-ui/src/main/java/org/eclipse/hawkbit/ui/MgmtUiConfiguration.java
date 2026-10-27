@@ -38,10 +38,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.vaadin.spring.servlet.Vaadin4SpringServlet;
 
-import com.vaadin.server.ErrorHandler;
-import com.vaadin.server.SystemMessagesProvider;
-import com.vaadin.server.VaadinServlet;
-import com.vaadin.spring.annotation.UIScope;
+import com.vaadin.flow.server.ErrorHandler;
+import com.vaadin.flow.server.SystemMessagesProvider;
+import com.vaadin.flow.server.VaadinServlet;
+import com.vaadin.flow.spring.annotation.UIScope;
 
 /**
  * Enables UI components for the Management UI.

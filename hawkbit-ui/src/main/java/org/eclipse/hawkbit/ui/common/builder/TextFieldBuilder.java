@@ -9,8 +9,8 @@
  */
 package org.eclipse.hawkbit.ui.common.builder;
 
-import com.vaadin.shared.ui.ValueChangeMode;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**

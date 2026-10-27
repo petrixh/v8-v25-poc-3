@@ -22,10 +22,10 @@ import org.springframework.util.StringUtils;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Header support for search functionality

@@ -9,7 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.common.filterlayout;
 
-import com.vaadin.ui.Button;
+import com.vaadin.flow.component.button.Button;
 import org.eclipse.hawkbit.repository.TargetTypeManagement;
 import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;

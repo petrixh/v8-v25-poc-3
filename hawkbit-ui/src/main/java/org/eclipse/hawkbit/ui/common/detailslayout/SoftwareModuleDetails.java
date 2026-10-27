@@ -26,7 +26,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
 import com.vaadin.ui.Window;
 
 /**

@@ -19,7 +19,7 @@ import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.Component;
 import com.vaadin.ui.Window;
 
 /**

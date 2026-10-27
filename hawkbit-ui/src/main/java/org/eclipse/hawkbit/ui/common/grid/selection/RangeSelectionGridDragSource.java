@@ -13,7 +13,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.selection.client.RangeDragSourceSelectionState;
 
-import com.vaadin.shared.Registration;
+import com.vaadin.flow.shared.Registration;
 import com.vaadin.ui.components.grid.GridDragSource;
 
 /**

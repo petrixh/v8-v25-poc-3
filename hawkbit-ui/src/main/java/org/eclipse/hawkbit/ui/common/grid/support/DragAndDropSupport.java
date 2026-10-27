@@ -36,7 +36,7 @@ import com.cronutils.utils.StringUtils;
 import com.vaadin.server.AbstractExtension;
 import com.vaadin.shared.ui.grid.DropMode;
 import com.vaadin.ui.components.grid.GridDragSource;
-import com.vaadin.ui.components.grid.GridDragStartEvent;
+import com.vaadin.flow.component.grid.dnd.GridDragStartEvent;
 import com.vaadin.ui.components.grid.GridDropTarget;
 
 /**

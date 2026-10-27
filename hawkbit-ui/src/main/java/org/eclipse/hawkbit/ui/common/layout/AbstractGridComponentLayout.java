@@ -17,9 +17,9 @@ import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.Component;
 import com.vaadin.ui.Layout;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Abstract grid layout class which builds layout with grid header

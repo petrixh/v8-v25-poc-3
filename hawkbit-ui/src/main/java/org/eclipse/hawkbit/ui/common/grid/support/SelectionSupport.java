@@ -28,9 +28,9 @@ import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.Selectio
 import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.shared.Registration;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.ui.components.grid.MultiSelectionModel;
 import com.vaadin.ui.components.grid.MultiSelectionModel.SelectAllCheckBoxVisibility;
 import com.vaadin.ui.components.grid.NoSelectionModel;

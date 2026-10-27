@@ -14,7 +14,7 @@ import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.Component;
 import com.vaadin.ui.Window;
 
 /**

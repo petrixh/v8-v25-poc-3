@@ -39,16 +39,16 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.Binder.Binding;
-import com.vaadin.data.Binder.BindingBuilder;
-import com.vaadin.data.Validator;
-import com.vaadin.data.ValueProvider;
-import com.vaadin.server.Setter;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.Binder.Binding;
+import com.vaadin.flow.data.binder.Binder.BindingBuilder;
+import com.vaadin.flow.data.binder.Validator;
+import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Builder class for from components

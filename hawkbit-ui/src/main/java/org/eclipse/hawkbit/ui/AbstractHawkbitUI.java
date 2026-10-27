@@ -37,18 +37,18 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.navigator.ViewProvider;
 import com.vaadin.server.ClientConnector.DetachListener;
-import com.vaadin.server.ErrorHandler;
+import com.vaadin.flow.server.ErrorHandler;
 import com.vaadin.server.Responsive;
-import com.vaadin.server.VaadinRequest;
+import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.spring.navigator.SpringViewProvider;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.Component;
 import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**

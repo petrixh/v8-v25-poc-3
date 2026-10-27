@@ -9,7 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.common.notification;
 
-import com.vaadin.ui.Notification;
+import com.vaadin.flow.component.notification.Notification;
 
 /**
  * Creates {@link Notification} that do not hide each other

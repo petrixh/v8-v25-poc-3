@@ -18,7 +18,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.Lists;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * A layout that shows a combobox with available tags that can be assigned to a

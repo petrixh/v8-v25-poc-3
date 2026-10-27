@@ -20,14 +20,14 @@ import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.ValueProvider;
-import com.vaadin.data.provider.DataCommunicator;
-import com.vaadin.data.provider.DataProviderListener;
-import com.vaadin.data.provider.Query;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Grid;
+import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.data.provider.DataCommunicator;
+import com.vaadin.flow.data.provider.DataProviderListener;
+import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.ui.Grid.Column.NestedNullBehavior;
-import com.vaadin.ui.components.grid.GridSelectionModel;
+import com.vaadin.flow.component.grid.GridSelectionModel;
 import com.vaadin.ui.renderers.AbstractRenderer;
 
 /**

@@ -24,10 +24,10 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
 
 /**
  * If footer support is enabled, the footer is placed below the component

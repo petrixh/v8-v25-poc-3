@@ -33,7 +33,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 
-import com.vaadin.ui.Button;
+import com.vaadin.flow.component.button.Button;
 
 /**
  * Abstract class of distribution set grid

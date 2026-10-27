@@ -32,8 +32,8 @@ import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
 import org.eclipse.hawkbit.ui.common.state.HidableLayoutUiState;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.ui.Window;
 
 /**

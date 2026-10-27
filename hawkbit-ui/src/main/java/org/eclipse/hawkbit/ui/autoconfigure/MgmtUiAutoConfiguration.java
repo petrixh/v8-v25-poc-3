@@ -32,7 +32,7 @@ import org.vaadin.spring.annotation.EnableVaadinExtensions;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.annotation.EnableEventBus;
 
-import com.vaadin.spring.annotation.UIScope;
+import com.vaadin.flow.spring.annotation.UIScope;
 
 /**
  * The Management UI auto configuration.

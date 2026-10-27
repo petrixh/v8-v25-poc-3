@@ -18,10 +18,10 @@ import org.eclipse.hawkbit.ui.utils.TrimmingStringConverter;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Builder for add/update window layout component

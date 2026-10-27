@@ -21,7 +21,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 
 import com.vaadin.shared.ui.window.WindowMode;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
 import com.vaadin.ui.Window;
 
 /**

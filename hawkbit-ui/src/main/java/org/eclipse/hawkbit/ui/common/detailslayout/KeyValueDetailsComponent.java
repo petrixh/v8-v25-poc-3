@@ -15,11 +15,11 @@ import java.util.List;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * key value detail to component layout

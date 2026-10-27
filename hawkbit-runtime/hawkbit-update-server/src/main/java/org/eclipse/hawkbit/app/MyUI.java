@@ -22,7 +22,7 @@ import org.springframework.context.ApplicationContext;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.annotations.Push;
-import com.vaadin.server.ErrorHandler;
+import com.vaadin.flow.server.ErrorHandler;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.shared.ui.ui.Transport;
 import com.vaadin.spring.annotation.SpringUI;

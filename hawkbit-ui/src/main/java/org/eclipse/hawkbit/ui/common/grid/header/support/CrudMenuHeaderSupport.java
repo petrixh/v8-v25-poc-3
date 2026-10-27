@@ -14,9 +14,9 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.CollectionUtils;
 
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**

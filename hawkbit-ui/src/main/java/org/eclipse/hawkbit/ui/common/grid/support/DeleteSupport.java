@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.UI;
 
 /**
  * Support for deleting the items in grid.

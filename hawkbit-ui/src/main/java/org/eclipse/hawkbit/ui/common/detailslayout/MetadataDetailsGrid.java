@@ -23,7 +23,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.shared.ui.grid.HeightMode;
-import com.vaadin.ui.Button;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**

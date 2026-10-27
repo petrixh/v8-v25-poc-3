@@ -24,7 +24,7 @@ import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehav
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
 import com.vaadin.ui.Window;
 
 /**

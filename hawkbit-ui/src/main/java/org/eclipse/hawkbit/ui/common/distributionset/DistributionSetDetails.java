@@ -35,7 +35,7 @@ import org.eclipse.hawkbit.ui.common.detailslayout.TargetFilterQueryDetailsGrid;
 import org.eclipse.hawkbit.ui.common.tagdetails.DistributionTagToken;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
 import com.vaadin.ui.Window;
 
 /**

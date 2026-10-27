@@ -9,8 +9,8 @@
  */
 package org.eclipse.hawkbit.ui.common.filterlayout;
 
-import com.vaadin.ui.Button;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.UI;
 import com.vaadin.ui.Window;
 import java.util.Collection;
 import java.util.Collections;

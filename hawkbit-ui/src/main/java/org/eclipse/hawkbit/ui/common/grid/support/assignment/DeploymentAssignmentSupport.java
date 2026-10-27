@@ -18,8 +18,8 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 
 /**
  * Support for assigning the {@link ProxyNamedEntity} items between two grids

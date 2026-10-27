@@ -27,7 +27,7 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.navigator.View;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
 
 /**
  * Event listener for entity modified
