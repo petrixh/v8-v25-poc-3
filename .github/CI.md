@@ -18,7 +18,7 @@ No schedule. A newer run on the same ref cancels the one still running. Time lim
 | Test users | `.github/ci/test-users.sh`: four throw-away users with new random passwords (see "Test users") | |
 | Build and start | `env/up.sh`. Builds the app image from the commit: Maven 3.9.16 / JDK 21.0.12.1 in Docker (the image `env/lib.sh` pins by digest), `-pl hawkbit-runtime/hawkbit-vv8-ui,hawkbit-runtime/hawkbit-mgmt-server -am -DskipTests package` with `env/maven-settings.xml` and `-DskipNexusStaging`. Then starts copy `ci` on an internal Docker network with MySQL 8.0 and RabbitMQ 3, seeds it, and serves the UI on `127.0.0.1:18081` | the build fails; Maven or the frontend build downloaded from a host other than `repo.maven.apache.org`, `nodejs.org` and `registry.npmjs.org` (the check is in `env/up.sh`; it sees Maven's transfers and the Node download, not npm's); the app does not start |
 | Install Playwright | `npm install playwright@1.63.0` outside the checkout, then the Chromium headless shell | |
-| Smoke | `.github/ci/smoke/smoke.cjs` with `.github/ci/smoke/old-app.json`: each test user logs in and opens each view the user's permissions show (16 view checks). The browser may reach only the app's host; every other request is refused and listed | a login fails, a view has a console error, an HTTP status of 400 or more, a collapsed layout, or leaves the app |
+| Smoke | `.github/ci/smoke/smoke.cjs` with `.github/ci/smoke/new-app.json`: each test user logs in, opens `/UI/` and each view the user's permissions show by its route (e.g. `/UI/deployment`), then each of them from the menu (36 view checks). The browser may reach only the app's host; every other request is refused and listed | a login fails, a view has a console error, an HTTP status of 400 or more, a collapsed layout, or leaves the app |
 | Tests | `.github/ci/run-tests.sh`. First a fetch (online, mirrors only) of the surefire JUnit provider, by running one unit test of `hawkbit-core` (`Base62UtilTest`), then `-pl hawkbit-runtime/hawkbit-vv8-ui -am -fae verify` offline in Docker on the copy's internal network, in the same pinned Maven image (taken from `env/lib.sh`), with its RabbitMQ (`RABBITMQ_TEST_HOSTNAME=rabbitmq`, `RABBITMQ_SERVER_REQUIRED=true`), test classes in alphabetical order (`-Dsurefire.runOrder=alphabetical`): the default order follows the file system and changes between runners, and some tests depend on it. Runs even when the smoke failed | a test fails; Maven downloaded from another host; no test ran; the broker is unreachable (the 89 DMF integration tests would otherwise skip silently) |
 | Stop | `env/down.sh`, always. Saves the app and DNS logs to `~/ci-out/env-logs/` (`APP_ENV_LOG_DIR`), removes the copy | never |
 | Summary | `.github/ci/summary.sh`: writes the job summary (and the same lines to the log): Maven download hosts, build and start times, smoke result and blocked hosts, test counts, the DNS names the copy looked up. A row whose input is missing says "not run" or is left out | never (the script always exits 0; the step also has `continue-on-error`) |
@@ -28,9 +28,10 @@ The step "Build and start" is the deployable artefact per commit: the image `mig
 
 ## State on the new app
 
-Stage 1a ticket 1a-05 moved the build and run images to Java 21. Not yet run: the UI did not compile when the ticket was written, so the first full run is the green-build ticket's. Known to adapt there:
+Stage 1a ticket 1a-05 moved the build and run images to Java 21; ticket 1a-06 (green build) switched the smoke to the new UI's selectors and routes (`.github/ci/smoke/new-app.json`). Not yet run on GitHub (remote writes are off). Known state, from the same checks run locally on the stage branch with the test-sources tickets merged:
 
-- The smoke config `.github/ci/smoke/old-app.json` still lists the Vaadin 8 views and checks; it needs the new UI's views once they render.
+- The build needs the ported test sources: `-DskipTests` still compiles them, so "Build and start" stays red until the test tickets are merged.
+- Smoke: `admin` passes all 13 checks; `readonly`, `targets` and `repository` fail on Deployment, Rollout and Distributions (access denied inside the view), so the step is red until stage 1b fixes that.
 - The step "Tests" runs `verify` of the UI runtime offline. If its frontend build needs Node or npm packages that the image build did not leave in the shared `~/.cache/mig-env-build-home`, the offline run fails: fetch them online first, as the step does for the surefire provider.
 
 ## Storage
@@ -62,7 +63,7 @@ Needs bash 4.4+, git, curl, GNU coreutils (`timeout`, `sha256sum`), Docker and N
 export APP_ENV_PROJECT=ci APP_ENV_PORT=18081 \
   APP_ENV_USERS_PROPERTIES=$HOME/.config/mig-ci/test-users.properties APP_ENV_USERS_ENV=$HOME/.config/mig-ci/test-users.env
 env/up.sh
-node .github/ci/smoke/smoke.cjs .github/ci/smoke/old-app.json http://127.0.0.1:18081 /tmp/ci-smoke
+node .github/ci/smoke/smoke.cjs .github/ci/smoke/new-app.json http://127.0.0.1:18081 /tmp/ci-smoke
 .github/ci/run-tests.sh /tmp/ci-tests
 env/down.sh
 ```

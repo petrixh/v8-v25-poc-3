@@ -1,28 +1,40 @@
 {
   "loginPath": "/UI/login",
   "login": {
-    "user": "#login-username",
-    "password": "#login-password",
+    "user": "#login-username input",
+    "password": "#login-password input",
     "submit": "#login-signin"
   },
-  "loggedInSelector": ".valo-menu-item",
-  "navSelector": ".valo-menu-item:not(.v-csslayout)",
+  "loggedInSelector": "#dashboard-menu",
+  "navSelector": "#dashboard-menu vaadin-button.valo-menu-item",
   "settleMs": 3000,
   "maxScrollFactor": 4,
   "exactNav": false,
+  "ignoreScrollSelectors": [
+    "vaadin-grid"
+  ],
   "users": [
     {
       "name": "admin",
       "username": "admin",
       "passwordFile": "~/.config/mig-ci/test-users.env",
       "passwordKey": "MIG_TU_ADMIN_PW",
+      "routes": [
+        "/UI/",
+        "/UI/deployment",
+        "/UI/rollout",
+        "/UI/targetFilters",
+        "/UI/distributions",
+        "/UI/spUpload",
+        "/UI/spSystemConfig"
+      ],
       "views": [
+        "Deployment",
         "Rollout",
         "Target Filters",
         "Distributions",
         "Upload",
-        "System Config",
-        "Deployment"
+        "System Config"
       ]
     },
     {
@@ -30,12 +42,20 @@
       "username": "readonly",
       "passwordFile": "~/.config/mig-ci/test-users.env",
       "passwordKey": "MIG_TU_READONLY_PW",
+      "routes": [
+        "/UI/",
+        "/UI/deployment",
+        "/UI/rollout",
+        "/UI/targetFilters",
+        "/UI/distributions",
+        "/UI/spUpload"
+      ],
       "views": [
+        "Deployment",
         "Rollout",
         "Target Filters",
         "Distributions",
-        "Upload",
-        "Deployment"
+        "Upload"
       ]
     },
     {
@@ -43,9 +63,14 @@
       "username": "targets",
       "passwordFile": "~/.config/mig-ci/test-users.env",
       "passwordKey": "MIG_TU_TARGETS_PW",
+      "routes": [
+        "/UI/",
+        "/UI/deployment",
+        "/UI/targetFilters"
+      ],
       "views": [
-        "Target Filters",
-        "Deployment"
+        "Deployment",
+        "Target Filters"
       ]
     },
     {
@@ -53,10 +78,16 @@
       "username": "repository",
       "passwordFile": "~/.config/mig-ci/test-users.env",
       "passwordKey": "MIG_TU_REPOSITORY_PW",
+      "routes": [
+        "/UI/",
+        "/UI/deployment",
+        "/UI/distributions",
+        "/UI/spUpload"
+      ],
       "views": [
+        "Deployment",
         "Distributions",
-        "Upload",
-        "Deployment"
+        "Upload"
       ]
     }
   ]

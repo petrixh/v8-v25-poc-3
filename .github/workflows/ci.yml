@@ -99,7 +99,7 @@ jobs:
         timeout-minutes: 10
         env:
           PW: /home/runner/pw/node_modules/playwright
-        run: node .github/ci/smoke/smoke.cjs .github/ci/smoke/old-app.json "http://127.0.0.1:$APP_ENV_PORT" "$CI_OUT/smoke"
+        run: node .github/ci/smoke/smoke.cjs .github/ci/smoke/new-app.json "http://127.0.0.1:$APP_ENV_PORT" "$CI_OUT/smoke"
 
       - name: Tests (vv8-ui path, offline, with RabbitMQ)
         if: ${{ !cancelled() && steps.up.outcome == 'success' }}
