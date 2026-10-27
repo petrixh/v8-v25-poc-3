@@ -31,6 +31,7 @@ import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload.FormType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.ColumnToggleMenu;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterGridLayoutUiState;
@@ -45,7 +46,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
 
 import static org.eclipse.hawkbit.ui.utils.UIComponentIdProvider.TARGET_FILTER_TABLE_CONFIRMATION_LABEL_ID;
@@ -156,8 +156,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         GridComponentBuilder.addDeleteColumn(this, i18n, FILTER_DELETE_BUTTON_ID, targetFilterDeleteSupport,
                 UIComponentIdProvider.CUSTOM_FILTER_DELETE_ICON, e -> permissionChecker.hasDeleteTargetPermission());
 
-        // Vaadin 8: setHidable(true) on every column (the user could hide
-        // columns); Flow grids have no column hiding menu
+        ColumnToggleMenu.setAllHidable(this);
     }
 
     private void addAutoAssignmentColumns() {

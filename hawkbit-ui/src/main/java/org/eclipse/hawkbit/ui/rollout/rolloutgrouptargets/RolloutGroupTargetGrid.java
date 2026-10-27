@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.ColumnToggleMenu;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
 import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
@@ -101,8 +102,7 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long> {
 
         GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n);
 
-        // Vaadin 8: setHidable(true) on every column (the user could hide
-        // columns); Flow grids have no column hiding menu
+        ColumnToggleMenu.setAllHidable(this);
     }
 
     @Override
