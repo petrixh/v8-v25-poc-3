@@ -9,6 +9,9 @@
  */
 package org.eclipse.hawkbit.ui;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
 import org.eclipse.hawkbit.ui.menu.DashboardEvent.PostViewChangeEvent;
 import org.eclipse.hawkbit.ui.menu.DashboardMenu;
@@ -41,6 +44,7 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.HasErrorParameter;
+import com.vaadin.flow.router.InvalidLocationException;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
@@ -287,11 +291,26 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
             ui.getPage().fetchCurrentURL(url -> {
                 final String fragment = url.getRef();
                 if (fragment != null && fragment.startsWith(OLD_FRAGMENT_PREFIX)) {
-                    ui.navigate(fragment.substring(OLD_FRAGMENT_PREFIX.length()));
+                    forwardOldAddress(ui, fragment.substring(OLD_FRAGMENT_PREFIX.length()));
                 } else if (!dashboardMenu.isAccessibleViewsEmpty()) {
                     ui.navigate(dashboardMenu.getInitialViewName());
                 }
             });
+        }
+
+        /**
+         * An old address the router does not accept as a path (for example
+         * {@code #!//host} or {@code #!../x}) goes to the error view, as
+         * Vaadin 8 showed it for an unknown view name: the whole old state
+         * becomes one encoded path segment that matches no route.
+         */
+        private static void forwardOldAddress(final UI ui, final String oldState) {
+            try {
+                ui.navigate(oldState);
+            } catch (final InvalidLocationException e) {
+                LOG.debug("Old address {} is not a valid path, showing the error view", oldState, e);
+                ui.navigate(URLEncoder.encode(oldState, StandardCharsets.UTF_8));
+            }
         }
     }
 }
