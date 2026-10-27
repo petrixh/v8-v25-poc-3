@@ -47,6 +47,8 @@ import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.server.Command;
+import com.vaadin.flow.server.streams.UploadEvent;
 
 /**
  * Abstract base class for transferring files from the browser to the
@@ -111,6 +113,17 @@ public abstract class AbstractFileTransferHandler implements Serializable {
         SpringContextHolder.getInstance().getBean("uiExecutor", Executor.class)
                 .execute(new TransferArtifactToRepositoryRunnable(inputStream, fileUploadId, mimeType, UI.getCurrent(),
                         uploadLock));
+    }
+
+    /**
+     * Marks the upload as failed before the receiver's stream is closed, so the
+     * repository thread, which reads that stream, deletes the artifact instead
+     * of keeping a truncated one. Sets the flag only: the failed listener sets
+     * the reason afterwards; without one the generic "upload failed" message is
+     * published, as before.
+     */
+    protected void interruptUploadBeforeStreamEnd() {
+        uploadInterrupted = true;
     }
 
     private void interruptUploadAndSetReason(final String failureReason) {
@@ -238,6 +251,30 @@ public abstract class AbstractFileTransferHandler implements Serializable {
                 LOG.warn("Closing input stream caused by", e1);
             }
         }
+    }
+
+    /**
+     * Runs one step of the upload lifecycle as Vaadin 8 did: under the session
+     * lock, with the upload's UI as the current UI, also when that UI has been
+     * detached meanwhile (Flow's {@code UI.accessSynchronously} would throw
+     * then and skip the step).
+     *
+     * @param event
+     *            the upload event
+     * @param command
+     *            the lifecycle step
+     */
+    protected static void accessLocked(final UploadEvent event, final Command command) {
+        final UI ui = event.getUI();
+        event.getSession().accessSynchronously(() -> {
+            final UI previousUi = UI.getCurrent();
+            UI.setCurrent(ui);
+            try {
+                command.execute();
+            } finally {
+                UI.setCurrent(previousUi);
+            }
+        });
     }
 
     /**

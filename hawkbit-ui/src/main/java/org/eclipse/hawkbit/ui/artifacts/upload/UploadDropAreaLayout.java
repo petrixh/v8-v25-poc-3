@@ -30,7 +30,6 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -198,16 +197,15 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
          */
         @Override
         public void handleUploadRequest(final UploadEvent event) throws IOException {
-            final UI ui = event.getUI();
             final AtomicReference<FileTransferHandlerStreamVariable> streamVariable = new AtomicReference<>();
-            ui.accessSynchronously(
+            AbstractFileTransferHandler.accessLocked(event,
                     () -> streamVariable.set(drop(event.getFileName(), event.getFileSize(), event.getContentType())));
 
             if (streamVariable.get() == null) {
                 event.reject();
                 return;
             }
-            streamFile(ui, event, streamVariable.get());
+            streamFile(event, streamVariable.get());
         }
 
         private FileTransferHandlerStreamVariable drop(final String fileName, final long fileSize,
@@ -240,33 +238,39 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
          * dropped file: started, output stream, progress, then finished or
          * failed.
          */
-        private void streamFile(final UI ui, final UploadEvent event,
-                final FileTransferHandlerStreamVariable streamVariable) {
+        private void streamFile(final UploadEvent event, final FileTransferHandlerStreamVariable streamVariable) {
             final String fileName = event.getFileName();
             final long contentLength = event.getFileSize();
 
             final AtomicReference<OutputStream> receiverStream = new AtomicReference<>();
-            ui.accessSynchronously(() -> {
+            AbstractFileTransferHandler.accessLocked(event, () -> {
                 streamVariable.streamingStarted(fileName);
                 receiverStream.set(streamVariable.getOutputStream());
             });
 
+            final OutputStream outputStream = receiverStream.get();
             Exception failure = null;
-            try (OutputStream outputStream = receiverStream.get()) {
+            try {
                 AbstractFileTransferHandler.streamToReceiver(event.getInputStream(), outputStream,
                         streamVariable.listenProgress(),
-                        bytesReceived -> ui.accessSynchronously(
+                        bytesReceived -> AbstractFileTransferHandler.accessLocked(event,
                                 () -> streamVariable.onProgress(fileName, bytesReceived, contentLength)),
                         streamVariable::isInterrupted);
             } catch (final IOException | RuntimeException e) {
                 failure = e;
+                // before the stream ends: the repository thread must not keep
+                // a truncated artifact
+                streamVariable.interruptUploadBeforeStreamEnd();
+            } finally {
+                AbstractFileTransferHandler.tryToCloseIOStream(outputStream);
             }
 
             if (failure == null) {
-                ui.accessSynchronously(() -> streamVariable.streamingFinished(fileName));
+                AbstractFileTransferHandler.accessLocked(event, () -> streamVariable.streamingFinished(fileName));
             } else {
                 final Exception reason = failure;
-                ui.accessSynchronously(() -> streamVariable.streamingFailed(fileName, reason));
+                AbstractFileTransferHandler.accessLocked(event,
+                        () -> streamVariable.streamingFailed(fileName, reason));
                 event.reject();
             }
         }

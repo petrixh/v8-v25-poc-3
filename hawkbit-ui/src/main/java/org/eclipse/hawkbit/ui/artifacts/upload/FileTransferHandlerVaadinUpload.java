@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.streams.UploadEvent;
 import com.vaadin.flow.server.streams.UploadHandler;
 
@@ -82,34 +81,39 @@ public class FileTransferHandlerVaadinUpload extends AbstractFileTransferHandler
      */
     @Override
     public void handleUploadRequest(final UploadEvent event) throws IOException {
-        final UI ui = event.getUI();
         final String fileName = event.getFileName();
         final long contentLength = event.getFileSize();
 
-        ui.accessSynchronously(() -> uploadStarted(fileName));
+        accessLocked(event, () -> uploadStarted(fileName));
 
         final AtomicReference<OutputStream> receiverStream = new AtomicReference<>();
-        ui.accessSynchronously(() -> receiverStream.set(receiveUpload(fileName, event.getContentType())));
+        accessLocked(event, () -> receiverStream.set(receiveUpload(fileName, event.getContentType())));
 
+        final OutputStream outputStream = receiverStream.get();
         Exception failure = null;
-        try (OutputStream outputStream = receiverStream.get()) {
+        try {
             // Vaadin 8 UploadFixed: no progress once the upload is interrupted
             streamToReceiver(event.getInputStream(), outputStream, !upload.isInterrupted(),
-                    bytesReceived -> ui.accessSynchronously(() -> updateProgress(bytesReceived, contentLength)),
+                    bytesReceived -> accessLocked(event, () -> updateProgress(bytesReceived, contentLength)),
                     upload::isInterrupted);
         } catch (final IOException | RuntimeException e) {
             failure = e;
+            // before the stream ends: the repository thread must not keep a
+            // truncated artifact
+            interruptUploadBeforeStreamEnd();
+        } finally {
+            tryToCloseIOStream(outputStream);
         }
 
         if (failure == null) {
-            ui.accessSynchronously(() -> uploadSucceeded(fileName));
+            accessLocked(event, () -> uploadSucceeded(fileName));
         } else {
             final Exception reason = failure;
-            ui.accessSynchronously(() -> uploadFailed(fileName, reason));
+            accessLocked(event, () -> uploadFailed(fileName, reason));
             upload.streamingFailed();
             event.reject();
         }
-        ui.accessSynchronously(() -> uploadFinished(fileName));
+        accessLocked(event, () -> uploadFinished(fileName));
     }
 
     /**
