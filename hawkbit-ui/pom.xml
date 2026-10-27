@@ -20,65 +20,6 @@
    <name>hawkBit :: Mgmt UI</name>
    <description>Bosch IoT Software Provisioning server web application</description>
    <build>
-      <plugins>
-         <plugin>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-maven-plugin</artifactId>
-            <version>${vaadin.plugin.version}</version>
-            <configuration>
-               <extraJvmArgs>-Xmx2g -Xss1024k</extraJvmArgs>
-               <!-- We are doing "inplace" gwt compilation but into subdir VAADIN/widgetsets -->
-               <webappDirectory>src/main/resources/VAADIN/widgetsets</webappDirectory>
-               <hostedWebapp>src/main/resources/VAADIN/widgetsets</hostedWebapp>
-               <warSourceDirectory>src/main/resources</warSourceDirectory>
-               <noServer>true</noServer>
-               <!-- Remove draftCompile when project is ready -->
-               <draftCompile>false</draftCompile>
-               <persistentunitcachedir>${project.build.directory}/gwtdirt</persistentunitcachedir>
-               <compileReport>true</compileReport>
-               <style>OBF</style>
-               <strict>true</strict>
-               <!-- Symbol maps etc, not needed in vaadin app, just target them outside war -->
-               <deploy>${project.build.directory}/gwt-deploy</deploy>
-            </configuration>
-            <executions>
-               <execution>
-               <phase>process-classes</phase>
-                  <configuration>
-                     <!-- if you don't specify any modules, the plugin will find them -->
-                  </configuration>
-                  <goals>
-                     <goal>resources</goal>
-                     <goal>update-theme</goal>
-                     <goal>update-widgetset</goal>
-                     <goal>compile-theme</goal>
-                     <goal>compile</goal>
-                  </goals>
-               </execution>
-            </executions>
-         </plugin>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-               <execution>
-                  <phase>process-classes</phase>
-                  <configuration>
-                     <target>
-                        <copy todir="${project.build.directory}/classes/VAADIN/widgetsets">
-                           <fileset dir="${basedir}/src/main/resources/VAADIN/widgetsets" includes="**/*" />
-                        </copy>
-                        <copy file="${basedir}/src/main/resources/VAADIN/themes/hawkbit/styles.css" 
-                           tofile="${project.build.directory}/classes/VAADIN/themes/hawkbit/styles.css" />
-                     </target>
-                  </configuration>
-                  <goals>
-                     <goal>run</goal>
-                  </goals>
-               </execution>
-            </executions>
-         </plugin>
-      </plugins>
       <pluginManagement>
          <plugins>
             <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
@@ -164,46 +105,14 @@
          <groupId>commons-io</groupId>
          <artifactId>commons-io</artifactId>
       </dependency>
-      <!-- Vaadin -->
+      <!-- Vaadin: free core components only -->
       <dependency>
          <groupId>com.vaadin</groupId>
-         <artifactId>vaadin-spring-boot</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.vaadin.spring.addons</groupId>
-         <artifactId>vaadin-spring-addon-eventbus</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.vaadin.spring.extensions</groupId>
-         <artifactId>vaadin-spring-ext-security</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>com.vaadin</groupId>
-         <artifactId>vaadin-server</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>com.vaadin</groupId>
-         <artifactId>vaadin-client</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>com.vaadin</groupId>
-         <artifactId>vaadin-push</artifactId>
+         <artifactId>vaadin-spring-boot-starter</artifactId>
       </dependency>
       <dependency>
          <groupId>org.springframework.security</groupId>
          <artifactId>spring-security-web</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>com.vaadin</groupId>
-         <artifactId>vaadin-themes</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.vaadin.alump.distributionbar</groupId>
-         <artifactId>dbar-addon</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>com.github.gwtd3</groupId>
-         <artifactId>gwt-d3-api</artifactId>
       </dependency>
       <dependency>
          <groupId>com.google.guava</groupId>
