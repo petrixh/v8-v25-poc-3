@@ -25,7 +25,7 @@ The UI is at `http://127.0.0.1:$APP_ENV_PORT/UI/`. `up.sh --no-build` starts fro
 
 | Script | Does | Exit |
 |---|---|---|
-| `up.sh [--no-build]` | Builds the app image for `HEAD` if it does not exist yet (`--no-build`: it must exist). Starts the copy, runs the seed hook, takes the seed dump, starts the UI; about 40-55 s with the image in place. Refuses to start when the copy already exists (any container, network or volume with its label, or a volume with one of its names). On failure it leaves what it started, for `down.sh` | 0 once `/UI/login` answers 200 |
+| `up.sh [--no-build]` | Builds the app image for `HEAD` if it does not exist yet (`--no-build`: it must exist). Starts the copy, runs the seed hook, takes the seed dump, gives mgmt-server the test users (if any), starts the UI; about 40-55 s with the image in place. Refuses to start when the copy already exists (any container, network or volume with its label, or a volume with one of its names). On failure it leaves what it started, for `down.sh` | 0 once `/UI/login` answers 200 |
 | `reset.sh` | Returns the running copy to the seed state (see Reset) | 0 once the UI answers again |
 | `down.sh` | Saves the DNS log and app logs, then removes every container, network and volume of the copy and its state dir. Safe after a half-finished or killed `up.sh` and when the copy is gone | always 0 |
 
@@ -36,8 +36,8 @@ The UI is at `http://127.0.0.1:$APP_ENV_PORT/UI/`. `up.sh --no-build` starts fro
 | `APP_ENV_PROJECT` | `hawkbit-env` | Copy name (`^[a-z0-9][a-z0-9_.-]*$`). Prefix of every container, network and volume of the copy, and the value of their label `mig.env.project` |
 | `APP_ENV_PORT` | `18081` | Host port of the UI, bound to 127.0.0.1 only |
 | `APP_ENV_CONTAINER` | `<project>-app` | Name of the vv8-ui container (the one whose log a test runner reads) |
-| `APP_ENV_USERS_PROPERTIES` | none | Properties file with extra users (`hawkbit.server.im.users[N].*`), mounted read-only into vv8-ui and loaded with `--spring.config.additional-location`. Without it only the app's default admin exists |
-| `APP_ENV_USERS_ENV` | none | `KEY=value` file (e.g. the passwords the properties file references as `${KEY}`), mounted read-only into vv8-ui and loaded as a second properties file, not as environment variables. Lines are `KEY=value` or comments; a value may not contain `\` or start with a blank (`up.sh` refuses the file and names the line, never the value) |
+| `APP_ENV_USERS_PROPERTIES` | none | Properties file with extra users (`hawkbit.server.im.users[N].*`), mounted read-only into vv8-ui and mgmt-server and loaded with `--spring.config.additional-location` (mgmt-server: after the seed, see "mgmt-server's admin"). Without it only the app's default admin exists (on mgmt-server: admin with the copy's random password) |
+| `APP_ENV_USERS_ENV` | none | `KEY=value` file (e.g. the passwords the properties file references as `${KEY}`), mounted read-only into vv8-ui and mgmt-server and loaded as a second properties file, not as environment variables. Lines are `KEY=value` or comments; a value may not contain `\` or start with a blank (`up.sh` refuses the file and names the line, never the value) |
 | `APP_ENV_SEED` | `env/seed/seed.sh` | Seed hook; `none` for an empty seed (fresh schema) |
 | `APP_ENV_STATE_DIR` | `env/.state` | Per-copy state, build scratch, saved logs (git-ignored) |
 | `APP_ENV_LOG_DIR` | `<state dir>/logs` | Build logs and the logs `down.sh` saves |
@@ -75,7 +75,9 @@ Both JVMs run with the settings the migration's pre-check proved: Spring profile
 
 **Runtime mode: production.** `hawkbit-ui/src/main/resources/hawkbit-ui-defaults.properties` sets `vaadin.servlet.productionMode=true` and the scripts do not override it; the vv8-ui log shows `Set servlet init parameter [productionMode] = [true]` at start.
 
-**mgmt-server's admin** gets a new random password per copy, never printed. It is in `mgmt-admin.properties` in the copy's state dir (the dir has mode 700, the file mode 644 so the container's uid 1000 can read it), mounted read-only and loaded with `--spring.config.additional-location`. Only the seed uses it; mgmt-server has no port on the host. The users of vv8-ui are unchanged.
+**mgmt-server's admin** gets a new random password per copy, never printed. It is in `mgmt-admin.properties` in the copy's state dir (the dir has mode 700, the file mode 644 so the container's uid 1000 can read it), mounted read-only and loaded with `--spring.config.additional-location`. Only the seed uses it; mgmt-server has no port on the host.
+
+**Test users on mgmt-server.** mgmt-server runs the rollout scheduler, which loads a rollout's creator as a user; a user it does not know ("No such user") leaves the rollout in Creating. So mgmt-server gets the same test-user files as vv8-ui, mounted the same way. It gets them only after the seed: configuring `hawkbit.server.im.users` replaces the default admin, and the seed logs in as admin with the copy's password. `up.sh` runs the seed against mgmt-server without the test users, takes the seed dump, then recreates the mgmt-server container with the files (the admin file is loaded last). From then on, its users are those of the file, as on vv8-ui; admin's password is whatever the file gives it (a file that declares admin with `${spring.security.user.password}` keeps the copy's random password there). Without `APP_ENV_USERS_*` mgmt-server is not recreated and has only its admin.
 
 ## The image
 
