@@ -1,6 +1,7 @@
-// CI copy of tools/playwright/smoke.cjs from the migration workspace (commit de0920c); unchanged below this line. See .github/CI.md.
+// CI copy of tools/playwright/smoke.cjs from the migration workspace (commit c47508e); unchanged below this line. See .github/CI.md.
 // Smoke check: log in, open each route by URL and each view from the menu, fail on console/page errors, HTTP >= 400,
-// collapsed layouts or a visit that left the app (ended on a blocked host).
+// collapsed layouts, a visit that left the app (ended on a blocked host) or the app's own error/not-found page
+// (config errorSelectors / errorTexts). A failed login fails that user's checks; the next user still runs.
 // Usage: node tools/playwright/smoke.cjs <config.json> <baseUrl> <outDir>
 // Writes <outDir>/<user>-<view>.png, <outDir>/<user>-route-<path>.png (full page), <outDir>/smoke.json and
 // <outDir>/blocked-requests.json. Exit 1 on any failure.
@@ -67,11 +68,25 @@ function passwordOf(user, cfgDir) {
     // A main-frame navigation to a blocked host (a redirect out, refused as a failed https tunnel): the visit left the app.
     let blockedNav = null;
     page.on('requestfailed', r => { if (r.isNavigationRequest() && r.frame() === page.mainFrame() && isBlockedUrl(r.url())) blockedNav = r.url(); });
-    await page.goto(base + (cfg.loginPath || '/'));
-    await page.fill(cfg.login.user, user.username);
-    await page.fill(cfg.login.password, passwords[ui]);
-    await page.click(cfg.login.submit);
-    await page.waitForSelector(cfg.loggedInSelector, { state: 'attached', timeout: 30000 });
+    // The password never reaches smoke.json or the log: it is replaced by *** in every reason, error and bad response.
+    const pw = passwords[ui];
+    const mask = s => pw ? String(s).split(pw).join('***') : String(s);
+    try {
+      await page.goto(base + (cfg.loginPath || '/'));
+      await page.fill(cfg.login.user, user.username);
+      await page.fill(cfg.login.password, pw);
+      await page.click(cfg.login.submit);
+      await page.waitForSelector(cfg.loggedInSelector, { state: 'attached', timeout: cfg.loginTimeoutMs || 30000 });
+    } catch (e) {
+      // One user's failed login fails that user only; the run goes on with the next user.
+      const reason = mask('login failed: ' + e.message.split('\n')[0]);
+      let file;
+      try { file = path.join(out, `${slug(user.name)}-login.png`); await page.screenshot({ path: file, fullPage: true }); } catch (_) { file = undefined; }
+      results.push({ user: user.name, login: true, screenshot: file, errors: errors.map(mask), badResponses: badResponses.map(mask), reasons: [reason], pass: false });
+      console.log(`FAIL ${user.name} login ${reason}`);
+      await context.close().catch(() => {});
+      continue;
+    }
     // Routes first, opened by URL: an app whose router has no routes fails here even if the menu works.
     const visits = (user.routes || cfg.routes || []).map(route => ({ route }))
       .concat((user.views || []).map(view => ({ view })));
@@ -98,15 +113,25 @@ function passwordOf(user, cfgDir) {
       const viewportHeight = page.viewportSize().height;
       const file = path.join(out, `${slug(user.name)}-${route !== undefined ? 'route-' + slug(route) : slug(view)}.png`);
       await page.screenshot({ path: file, fullPage: true });
+      // Error / not-found pages often answer HTTP 200 without a console error: fail on the configured selectors and texts.
+      const reasons = [];
+      for (const sel of cfg.errorSelectors || []) {
+        if (await page.locator(sel).count() > 0) reasons.push(`error page: selector ${sel} present`);
+      }
+      if ((cfg.errorTexts || []).length) {
+        const text = await page.evaluate(() => document.body ? document.body.innerText : '');
+        for (const t of cfg.errorTexts) if (text.includes(t)) reasons.push(`error page: text "${t}" present`);
+      }
       const r = {
         user: user.name, ...(route !== undefined ? { route } : { view }), screenshot: file, maxScrollHeight: maxScroll,
-        errors: errors.slice(before), badResponses: badResponses.slice(beforeBad), blocked: blocked.length - beforeBlocked,
+        errors: errors.slice(before).map(mask), badResponses: badResponses.slice(beforeBad).map(mask), reasons: reasons.map(mask),
+        blocked: blocked.length - beforeBlocked,
         // The URL outside the allow-list the visit ended on (redirected or navigated out), else null. Fails the visit.
         leftApp: isBlockedUrl(page.url()) ? page.url() : blockedNav,
       };
-      r.pass = r.errors.length === 0 && r.badResponses.length === 0 && !r.leftApp && maxScroll <= (cfg.maxScrollFactor || 4) * viewportHeight;
+      r.pass = r.errors.length === 0 && r.badResponses.length === 0 && r.reasons.length === 0 && !r.leftApp && maxScroll <= (cfg.maxScrollFactor || 4) * viewportHeight;
       results.push(r);
-      console.log(`${r.pass ? 'PASS' : 'FAIL'} ${user.name} ${route !== undefined ? 'route ' + route : view} scroll=${maxScroll} errors=${r.errors.length} http>=400=${r.badResponses.length} blocked=${r.blocked}${r.leftApp ? ` LEFT THE APP to ${r.leftApp}` : ''}`);
+      console.log(`${r.pass ? 'PASS' : 'FAIL'} ${user.name} ${route !== undefined ? 'route ' + route : view} scroll=${maxScroll} errors=${r.errors.length} http>=400=${r.badResponses.length} blocked=${r.blocked}${r.leftApp ? ` LEFT THE APP to ${r.leftApp}` : ''}${r.reasons.length ? ' ' + r.reasons.join('; ') : ''}`);
     }
     await page.close();
     await context.close();

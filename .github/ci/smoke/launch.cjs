@@ -1,4 +1,4 @@
-// CI copy of tools/playwright/launch.cjs from the migration workspace (commit de0920c); unchanged below this line. See .github/CI.md.
+// CI copy of tools/playwright/launch.cjs from the migration workspace (commit c47508e); unchanged below this line. See .github/CI.md.
 // Shared Playwright launcher for all browser-driven agents.
 // Vaadin 7/8 pick client bundles from the user agent; the default "HeadlessChrome" UA gets the
 // ES5 bundle and breaks Polymer add-ons (migration-playbook/quirks/vaadin8.md). Always launch through here.
