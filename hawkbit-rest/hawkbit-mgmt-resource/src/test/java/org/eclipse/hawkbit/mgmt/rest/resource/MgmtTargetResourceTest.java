@@ -43,7 +43,7 @@ import java.util.stream.Stream;
 
 import jakarta.validation.ConstraintViolationException;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.awaitility.Awaitility;

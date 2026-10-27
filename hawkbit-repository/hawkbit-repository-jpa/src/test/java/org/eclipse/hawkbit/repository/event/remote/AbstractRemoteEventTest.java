@@ -40,6 +40,9 @@ import com.google.common.collect.Maps;
  */
 public abstract class AbstractRemoteEventTest extends AbstractJpaIntegrationTest {
 
+    // the mapper as Boot 4 builds it with spring.jackson.use-jackson2-defaults=true (set by every runtime)
+    private static final JsonMapper JSON_MAPPER = JsonMapper.builder().configureForJackson2().build();
+
     @Autowired
     private BusProtoStuffMessageConverter busProtoStuffMessageConverter;
 
@@ -48,7 +51,7 @@ public abstract class AbstractRemoteEventTest extends AbstractJpaIntegrationTest
     @BeforeEach
     public void setup() throws Exception {
         final BusJacksonAutoConfiguration autoConfiguration = new BusJacksonAutoConfiguration();
-        this.jacksonMessageConverter = autoConfiguration.busJsonConverter(null);
+        this.jacksonMessageConverter = autoConfiguration.busJsonConverter(JSON_MAPPER);
         ReflectionTestUtils.setField(jacksonMessageConverter, "packagesToScan",
                 new String[] { "org.eclipse.hawkbit.repository.event.remote",
                         ClassUtils.getPackageName(RemoteApplicationEvent.class) });
@@ -66,7 +69,7 @@ public abstract class AbstractRemoteEventTest extends AbstractJpaIntegrationTest
         final Map<String, MimeType> headers = Maps.newLinkedHashMap();
         headers.put(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON);
         try {
-            final String json = JsonMapper.builder().build().writeValueAsString(event);
+            final String json = JSON_MAPPER.writeValueAsString(event);
             final Message<String> message = MessageBuilder.withPayload(json).copyHeaders(headers).build();
             return message;
         } catch (final JacksonException e) {
