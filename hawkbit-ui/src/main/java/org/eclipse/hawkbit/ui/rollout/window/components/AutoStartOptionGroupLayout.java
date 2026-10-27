@@ -9,19 +9,18 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.components;
 
-import java.util.TimeZone;
-
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.shared.ui.datefield.DateTimeResolution;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.DateTimeField;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.RadioButtonGroup;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.datetimepicker.DateTimePicker;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.shared.Tooltip;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.function.SerializableFunction;
 
 /**
  * Rollout start types options layout
@@ -34,7 +33,7 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
 
     private RadioButtonGroup<AutoStartOption> autoStartOptionGroup;
 
-    private DateTimeField startAtDateField;
+    private DateTimePicker startAtDateField;
 
     private final String autoStartOptionGroupId;
 
@@ -59,21 +58,21 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
     private void createOptionGroup() {
         autoStartOptionGroup = new RadioButtonGroup<>();
         autoStartOptionGroup.setId(autoStartOptionGroupId);
-        autoStartOptionGroup.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
-        autoStartOptionGroup.addStyleName(ValoTheme.OPTIONGROUP_SMALL);
-        autoStartOptionGroup.setItemIconGenerator(item -> {
+        autoStartOptionGroup.addClassNames("horizontal");
+        autoStartOptionGroup.addClassNames("small");
+        final SerializableFunction<AutoStartOption, VaadinIcon> itemIconGenerator = item -> {
             switch (item) {
             case MANUAL:
-                return VaadinIcons.HAND;
+                return VaadinIcon.HAND;
             case AUTO_START:
-                return VaadinIcons.PLAY;
+                return VaadinIcon.PLAY;
             case SCHEDULED:
-                return VaadinIcons.CLOCK;
+                return VaadinIcon.CLOCK;
             default:
                 return null;
             }
-        });
-        autoStartOptionGroup.setItemCaptionGenerator(item -> {
+        };
+        final SerializableFunction<AutoStartOption, String> itemCaptionGenerator = item -> {
             switch (item) {
             case MANUAL:
                 return i18n.getMessage("caption.rollout.start.manual");
@@ -84,8 +83,8 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
             default:
                 return null;
             }
-        });
-        autoStartOptionGroup.setItemDescriptionGenerator(item -> {
+        };
+        final SerializableFunction<AutoStartOption, String> itemDescriptionGenerator = item -> {
             switch (item) {
             case MANUAL:
                 return i18n.getMessage("caption.rollout.start.manual.desc");
@@ -96,23 +95,32 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
             default:
                 return null;
             }
-        });
+        };
+        // Flow's RadioButtonGroup has no item icon or item description
+        // generator: each item is rendered as icon + caption, with the
+        // description as the item's tooltip
+        autoStartOptionGroup.setRenderer(new ComponentRenderer<>(item -> {
+            final Span itemContent = new Span(itemIconGenerator.apply(item).create(),
+                    new Text(itemCaptionGenerator.apply(item)));
+            Tooltip.forComponent(itemContent).setText(itemDescriptionGenerator.apply(item));
+            return itemContent;
+        }));
 
         autoStartOptionGroup.setItems(AutoStartOption.values());
-        addComponent(autoStartOptionGroup);
+        add(autoStartOptionGroup);
 
-        startAtDateField = new DateTimeField();
+        startAtDateField = new DateTimePicker();
         startAtDateField.setEnabled(false);
-        startAtDateField.setStyleName("dist-window-forcedtime");
+        startAtDateField.setClassName("dist-window-forcedtime");
 
-        final TimeZone tz = SPDateTimeUtil.getBrowserTimeZone();
-        startAtDateField.setZoneId(SPDateTimeUtil.getTimeZoneId(tz));
+        // Vaadin 8 setZoneId only affected a "z" in the date format (none is
+        // set here); the value is a LocalDateTime in both. Minute resolution:
+        // Flow's default time step shows hours and minutes
         startAtDateField.setLocale(HawkbitCommonUtil.getCurrentLocale());
-        startAtDateField.setResolution(DateTimeResolution.MINUTE);
-        startAtDateField.addStyleName(ValoTheme.DATEFIELD_TINY);
+        startAtDateField.addClassNames("tiny");
         startAtDateField.setWidth("14em");
-        addComponent(startAtDateField);
-        setComponentAlignment(startAtDateField, Alignment.MIDDLE_LEFT);
+        add(startAtDateField);
+        setVerticalComponentAlignment(Alignment.CENTER, startAtDateField);
     }
 
     private void addValueChangeListener() {
@@ -138,7 +146,7 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
     /**
      * @return Rollout start date time field
      */
-    public DateTimeField getStartAtDateField() {
+    public DateTimePicker getStartAtDateField() {
         return startAtDateField;
     }
 

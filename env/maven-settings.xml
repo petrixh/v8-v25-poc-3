@@ -12,21 +12,19 @@
 -->
 <!--
   Maven settings for the env image build (env/up.sh), passed with -s unless APP_ENV_MAVEN_SETTINGS names another
-  file. Sends every repository, including ones declared in the project's or in transitive POMs, to Maven Central,
-  except the Vaadin add-ons repository. up.sh fails the build if Maven downloaded from any other host.
+  file. Sends every repository, including ones declared in the project's or in transitive POMs, to Maven Central.
+  The Vaadin add-ons repository (maven.vaadin.com) is not exempt any more: the add-ons that needed it are gone, and
+  Vaadin's own POMs declare it only for pre-release and add-on lookups, which Central answers with a harmless 404.
+  up.sh fails the build if Maven downloaded from any other host than the allowed ones (APP_ENV_MAVEN_HOSTS).
+  The frontend build's Node (nodejs.org) and npm packages (registry.npmjs.org) do not go through Maven's repositories.
 -->
 <settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
   <mirrors>
     <mirror>
-      <id>vaadin-addons-direct</id>
-      <mirrorOf>vaadin-addons</mirrorOf>
-      <url>https://maven.vaadin.com/vaadin-addons</url>
-    </mirror>
-    <mirror>
       <id>central-only</id>
-      <mirrorOf>*,!vaadin-addons</mirrorOf>
+      <mirrorOf>*</mirrorOf>
       <url>https://repo.maven.apache.org/maven2</url>
     </mirror>
   </mirrors>

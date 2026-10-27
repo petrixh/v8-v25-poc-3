@@ -18,7 +18,7 @@ import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 import org.eclipse.hawkbit.utils.TenantConfigHelper;
 
 /**
@@ -70,7 +70,7 @@ public class AutoAssignmentWindowBuilder extends AbstractEntityWindowBuilder<Pro
      *
      * @return Common dialog window
      */
-    public Window getWindowForAutoAssignment(final ProxyTargetFilterQuery proxyTargetFilter) {
+    public Dialog getWindowForAutoAssignment(final ProxyTargetFilterQuery proxyTargetFilter) {
         return getWindowForEntity(proxyTargetFilter,
                 new AutoAssignmentWindowController(uiDependencies, targetManagement, targetFilterQueryManagement,
                         tenantConfigHelper, tenantAware,
@@ -78,12 +78,12 @@ public class AutoAssignmentWindowBuilder extends AbstractEntityWindowBuilder<Pro
     }
 
     @Override
-    public Window getWindowForAdd() {
+    public Dialog getWindowForAdd() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Window getWindowForUpdate(final ProxyTargetFilterQuery entity) {
+    public Dialog getWindowForUpdate(final ProxyTargetFilterQuery entity) {
         throw new UnsupportedOperationException();
     }
 }

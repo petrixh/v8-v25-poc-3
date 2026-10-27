@@ -62,11 +62,11 @@ public class RolloutGroupGridHeader extends AbstractBreadcrumbGridHeader
 
     @Override
     public void masterEntityChanged(final ProxyRollout masterEntity) {
-        headerCaptionDetails.setValue(masterEntity != null ? masterEntity.getName() : "");
+        headerCaptionDetails.setText(masterEntity != null ? masterEntity.getName() : "");
     }
 
     @Override
     protected void restoreCaption() {
-        headerCaptionDetails.setValue(rolloutManagementUIState.getSelectedRolloutName());
+        headerCaptionDetails.setText(rolloutManagementUIState.getSelectedRolloutName());
     }
 }

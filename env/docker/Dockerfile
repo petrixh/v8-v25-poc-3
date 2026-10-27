@@ -1,5 +1,5 @@
 # App image for the env scripts (env/README.md): the hawkbit-vv8-ui and hawkbit-mgmt-server jars built from one
-# commit, plus the MariaDB JDBC driver, on the official Docker Hub JRE 17 image. Built by env/up.sh; the build
+# commit, plus the MariaDB JDBC driver, on the official Docker Hub JRE 21 image. Built by env/up.sh; the build
 # context holds only these three jars. Not the project's own hawkbit-runtime/docker images.
 ARG JRE_IMAGE
 FROM ${JRE_IMAGE}

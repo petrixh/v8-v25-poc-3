@@ -17,21 +17,22 @@ import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.model.TotalTargetCountStatus.Status;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.alump.distributionbar.gwt.client.GwtDistributionBar;
 
 /**
  * Distribution bar helper to render distribution bar in grid.
  *
  */
 public final class DistributionBarHelper {
+    // A1: the dbar add-on is dropped; its class name (GwtDistributionBar.CLASSNAME) stays for the theme
+    private static final String DISTRIBUTION_BAR_CLASSNAME = "alump-dbar";
     private static final String HTML_DIV_CLASS_START = "<div class=\"";
     private static final String HTML_DIV_END = "</div>";
     private static final int PARENT_SIZE_IN_PCT = 100;
     private static final double MINIMUM_PART_SIZE = 10;
-    private static final String DISTRIBUTION_BAR_PART_MAIN_STYLE = GwtDistributionBar.CLASSNAME + "-part";
-    private static final String DISTRIBUTION_BAR_PART_CLASSNAME_PREFIX = GwtDistributionBar.CLASSNAME + "-part-";
-    private static final String DISTRIBUTION_BAR_PART_VALUE_CLASSNAME = GwtDistributionBar.CLASSNAME + "-value";
-    private static final String UNINITIALIZED_VALUE_CLASSNAME = GwtDistributionBar.CLASSNAME + "-uninitizalized";
+    private static final String DISTRIBUTION_BAR_PART_MAIN_STYLE = DISTRIBUTION_BAR_CLASSNAME + "-part";
+    private static final String DISTRIBUTION_BAR_PART_CLASSNAME_PREFIX = DISTRIBUTION_BAR_CLASSNAME + "-part-";
+    private static final String DISTRIBUTION_BAR_PART_VALUE_CLASSNAME = DISTRIBUTION_BAR_CLASSNAME + "-value";
+    private static final String UNINITIALIZED_VALUE_CLASSNAME = DISTRIBUTION_BAR_CLASSNAME + "-uninitizalized";
     private static final String TARGET_STATUS_TOOLTIP_MSG_KEY_PREFIX = "tooltip.rollout.target.status.";
 
     private DistributionBarHelper() {
@@ -104,7 +105,7 @@ public final class DistributionBarHelper {
 
     private static String getPartStyle(final int partIndex, final int noOfParts, final Status status) {
         final StringBuilder mainStyle = new StringBuilder();
-        final StringBuilder styleName = new StringBuilder(GwtDistributionBar.CLASSNAME);
+        final StringBuilder styleName = new StringBuilder(DISTRIBUTION_BAR_CLASSNAME);
         if (noOfParts == 1) {
             styleName.append("-only");
         } else if (partIndex == 1) {
@@ -151,7 +152,7 @@ public final class DistributionBarHelper {
     }
 
     private static String getParentDivStart() {
-        return HTML_DIV_CLASS_START + GwtDistributionBar.CLASSNAME
+        return HTML_DIV_CLASS_START + DISTRIBUTION_BAR_CLASSNAME
                 + "\" style=\"width: 100%; height: 95%;\" id=\"rollout.status.progress.bar.id\">";
     }
 }

@@ -31,6 +31,7 @@ import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload.FormType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.ColumnToggleMenu;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterGridLayoutUiState;
@@ -40,14 +41,12 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.utils.TenantConfigHelper;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.data.ValueProvider;
-import com.vaadin.server.Sizeable;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.dialog.Dialog;
 
 import static org.eclipse.hawkbit.ui.utils.UIComponentIdProvider.TARGET_FILTER_TABLE_CONFIRMATION_LABEL_ID;
 
@@ -144,9 +143,9 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
 
     @Override
     public void addColumns() {
-        final Column<ProxyTargetFilterQuery, Button> nameColumn = GridComponentBuilder
-                .addComponentColumn(this, this::buildFilterLink).setId(FILTER_NAME_ID)
-                .setCaption(i18n.getMessage("header.name"));
+        final Column<ProxyTargetFilterQuery> nameColumn = GridComponentBuilder
+                .addComponentColumn(this, this::buildFilterLink).setKey(FILTER_NAME_ID)
+                .setHeader(i18n.getMessage("header.name"));
         GridComponentBuilder.setColumnSortable(nameColumn, "name");
 
 
@@ -157,30 +156,30 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         GridComponentBuilder.addDeleteColumn(this, i18n, FILTER_DELETE_BUTTON_ID, targetFilterDeleteSupport,
                 UIComponentIdProvider.CUSTOM_FILTER_DELETE_ICON, e -> permissionChecker.hasDeleteTargetPermission());
 
-        getColumns().forEach(column -> column.setHidable(true));
+        ColumnToggleMenu.setAllHidable(this);
     }
 
     private void addAutoAssignmentColumns() {
         final ValueProvider<ProxyTargetFilterQuery, HorizontalLayout> autoAssignmentProvider = filter -> {
             final HorizontalLayout horizontalLayout = new HorizontalLayout();
-            horizontalLayout.setWidthUndefined();
-            horizontalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
+            horizontalLayout.setWidth(null);
+            horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
 
-            final Label icon = actionTypeIconSupplier.getLabel(filter);
-            horizontalLayout.addComponent(icon);
+            final Span icon = actionTypeIconSupplier.getLabel(filter);
+            horizontalLayout.add(icon);
 
             if (tenantConfigHelper.isConfirmationFlowEnabled()) {
-                final Label confirmationIcon = confirmationIconSupplier.getLabel(filter);
-                horizontalLayout.addComponent(confirmationIcon);
+                final Span confirmationIcon = confirmationIconSupplier.getLabel(filter);
+                horizontalLayout.add(confirmationIcon);
             }
 
             final Button link = buildAutoAssignmentLink(filter);
-            horizontalLayout.addComponent(link);
+            horizontalLayout.add(link);
 
             return horizontalLayout;
         };
         GridComponentBuilder.addComponentColumn(this, autoAssignmentProvider)
-                .setCaption(i18n.getMessage("header.auto.assignment.ds")).setWidthUndefined();
+                .setHeader(i18n.getMessage("header.auto.assignment.ds")).setAutoWidth(true);
     }
 
     private Button buildFilterLink(final ProxyTargetFilterQuery targetFilter) {
@@ -189,7 +188,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         final Button link = GridComponentBuilder.buildLink(targetFilter,
                 UIComponentIdProvider.CUSTOM_FILTER_DETAIL_LINK, caption, true,
                 clickEvent -> onClickOfFilterName(targetFilter));
-        link.setDescription(description);
+        link.setTooltipText(description);
         return link;
     }
 
@@ -211,19 +210,19 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
                 clickEvent -> onClickOfAutoAssignmentLink(targetFilter));
 
         final String description = i18n.getMessage(UIMessageIdProvider.BUTTON_AUTO_ASSIGNMENT_DESCRIPTION);
-        link.setDescription(description);
+        link.setTooltipText(description);
 
         return link;
     }
 
     private void onClickOfAutoAssignmentLink(final ProxyTargetFilterQuery targetFilter) {
         if (permissionChecker.hasReadRepositoryPermission()) {
-            final Window autoAssignmentWindow = autoAssignmentWindowBuilder.getWindowForAutoAssignment(targetFilter);
+            final Dialog autoAssignmentWindow = autoAssignmentWindowBuilder.getWindowForAutoAssignment(targetFilter);
 
-            autoAssignmentWindow.setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_SELECT_AUTO_ASSIGN_DS));
-            autoAssignmentWindow.setWidth(40.0F, Sizeable.Unit.PERCENTAGE);
+            autoAssignmentWindow.setHeaderTitle(i18n.getMessage(UIMessageIdProvider.CAPTION_SELECT_AUTO_ASSIGN_DS));
+            autoAssignmentWindow.setWidth("40%");
 
-            UI.getCurrent().addWindow(autoAssignmentWindow);
+            autoAssignmentWindow.open();
             autoAssignmentWindow.setVisible(Boolean.TRUE);
         } else {
             notification.displayValidationError(i18n.getMessage(

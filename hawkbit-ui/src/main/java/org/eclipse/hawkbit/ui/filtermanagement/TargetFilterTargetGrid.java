@@ -16,11 +16,10 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.data.suppliers.TargetFilterStateDataSupplier;
 import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.ColumnToggleMenu;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-
-import com.vaadin.ui.Label;
 
 /**
  * Shows the targets as a result of the executed filter query.
@@ -50,8 +49,8 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     public TargetFilterTargetGrid(final CommonUiDependencies uiDependencies,
             final TargetFilterStateDataSupplier targetFilterStateDataSupplier,
             final TargetFilterDetailsLayoutUiState uiState) {
-        super(uiDependencies.getI18n(), uiDependencies.getEventBus(), null,
-                targetFilterStateDataSupplier.dataCommunicator());
+        // Vaadin 25: the Flow grid creates its own data communicator
+        super(uiDependencies.getI18n(), uiDependencies.getEventBus(), null);
 
         this.uiState = uiState;
 
@@ -75,7 +74,7 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     public void init() {
         super.init();
 
-        addStyleName("grid-row-border");
+        addClassNames("grid-row-border");
     }
 
     @Override
@@ -91,14 +90,14 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
 
         GridComponentBuilder.addDescriptionColumn(this, i18n, TARGET_DESCRIPTION_ID);
 
-        final Column<ProxyTarget, Label> statusColumn = GridComponentBuilder.addIconColumn(this,
+        final Column<ProxyTarget> statusColumn = GridComponentBuilder.addIconColumn(this,
                 targetStatusIconSupplier::getLabel, TARGET_STATUS_ID,
                 i18n.getMessage("header.status"));
         GridComponentBuilder.setColumnSortable(statusColumn, "updateStatus");
 
         GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n);
 
-        getColumns().forEach(column -> column.setHidable(true));
+        ColumnToggleMenu.setAllHidable(this);
     }
 
 }
