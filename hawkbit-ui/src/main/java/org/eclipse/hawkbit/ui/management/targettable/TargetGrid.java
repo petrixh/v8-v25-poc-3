@@ -42,6 +42,7 @@ import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload.PinningChangedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.ColumnToggleMenu;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
@@ -373,8 +374,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         addDeleteColumn();
 
-        // Vaadin 8: setHidable(true) on every column (the user could hide
-        // columns); Flow grids have no column hiding menu
+        // Vaadin 8: setHidable(true) on every column (UI-1b column toggle menu)
+        ColumnToggleMenu.setAllHidable(this);
     }
 
     @Override

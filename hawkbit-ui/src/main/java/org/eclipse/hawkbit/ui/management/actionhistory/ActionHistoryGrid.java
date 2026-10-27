@@ -34,6 +34,7 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.ColumnToggleMenu;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
@@ -158,18 +159,18 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
     @Override
     public void addColumns() {
-        // Vaadin 8: setHidable(true) on these columns (the user could hide
-        // them, and show the maintenance window column); Flow grids have no
-        // column hiding menu
-        addActiveStatusColumn();
+        // Vaadin 8: setHidable(true) on these columns (UI-1b column toggle
+        // menu); the maintenance window column starts hidden, the user can
+        // show it
+        ColumnToggleMenu.setHidable(addActiveStatusColumn());
 
-        addDsColumn();
+        ColumnToggleMenu.setHidable(addDsColumn());
 
-        addDateAndTimeColumn();
+        ColumnToggleMenu.setHidable(addDateAndTimeColumn());
 
-        addStatusColumn();
+        ColumnToggleMenu.setHidable(addStatusColumn());
 
-        addMaintenanceWindowColumn().setVisible(false);
+        ColumnToggleMenu.setHidable(addMaintenanceWindowColumn()).setVisible(false);
 
         GridComponentBuilder.joinToIconColumn(getHeaderRows().get(0), i18n.getMessage("label.action.type"),
                 Arrays.asList(addTypeColumn(), addTimeforcedColumn()));
@@ -350,22 +351,22 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
     @Override
     protected void addMaxColumns() {
-        // Vaadin 8: setHidable(true) on these columns (the user could hide
-        // them, and show the maintenance window column); Flow grids have no
-        // column hiding menu
-        addActiveStatusColumn();
+        // Vaadin 8: setHidable(true) on these columns (UI-1b column toggle
+        // menu); the maintenance window column starts hidden, the user can
+        // show it
+        ColumnToggleMenu.setHidable(addActiveStatusColumn());
 
-        addActionIdColumn().setFlexGrow((int) 0);
+        ColumnToggleMenu.setHidable(addActionIdColumn()).setFlexGrow((int) 0);
 
-        addDsColumn();
+        ColumnToggleMenu.setHidable(addDsColumn());
 
-        addDateAndTimeColumn();
+        ColumnToggleMenu.setHidable(addDateAndTimeColumn());
 
-        addStatusColumn();
+        ColumnToggleMenu.setHidable(addStatusColumn());
 
-        addMaintenanceWindowColumn().setVisible(false);
+        ColumnToggleMenu.setHidable(addMaintenanceWindowColumn()).setVisible(false);
 
-        addRolloutNameColumn();
+        ColumnToggleMenu.setHidable(addRolloutNameColumn());
 
         GridComponentBuilder.joinToIconColumn(getHeaderRows().get(0), i18n.getMessage("label.action.type"),
                 Arrays.asList(addTypeColumn(), addTimeforcedColumn()));
