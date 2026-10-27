@@ -16,27 +16,33 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vaadin.navigator.Navigator;
-import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.ErrorParameter;
+import com.vaadin.flow.router.HasErrorParameter;
+import com.vaadin.flow.router.NotFoundException;
+import com.vaadin.flow.server.HttpStatusCode;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import com.vaadin.ui.Label;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
+import jakarta.annotation.security.PermitAll;
 
 /**
  * View class that is instantiated when no other view matches the navigation
  * state.
  *
- * @see Navigator#setErrorView(Class)
+ * Vaadin Flow: the error target for {@link NotFoundException} (Vaadin 8:
+ * {@code Navigator#setErrorView}). The shell reroutes denied views here too.
  */
 @SpringComponent
 @UIScope
-public class ErrorView extends VerticalLayout implements View {
+@PermitAll
+public class ErrorView extends VerticalLayout implements HasErrorParameter<NotFoundException> {
 
     private static final long serialVersionUID = 1L;
 
-    private final Label message;
+    private final Span message;
 
     private final VaadinMessageSource i18n;
 
@@ -46,26 +52,29 @@ public class ErrorView extends VerticalLayout implements View {
     ErrorView(final VaadinMessageSource i18n, final DashboardMenu dashboardMenu) {
         this.i18n = i18n;
         this.dashboardMenu = dashboardMenu;
-        setMargin(true);
+        setPadding(true);
         setSpacing(false);
 
-        message = new Label();
-        addComponent(message);
+        message = new Span();
+        add(message);
     }
 
     @Override
-    public void enter(final ViewChangeListener.ViewChangeEvent event) {
-        final DashboardMenuItem view = dashboardMenu.getByViewName(event.getViewName());
+    public int setErrorParameter(final BeforeEnterEvent event, final ErrorParameter<NotFoundException> parameter) {
+        // Vaadin 8: ViewChangeEvent#getViewName(); Flow: the first path segment
+        final String viewName = event.getLocation().getFirstSegment();
+        final DashboardMenuItem view = dashboardMenu.getByViewName(viewName);
         if (view == null) {
-            message.setValue(i18n.getMessage("message.error.view", event.getViewName()));
-            return;
+            message.setText(i18n.getMessage("message.error.view", viewName));
+            return HttpStatusCode.NOT_FOUND.getCode();
         }
-        if (dashboardMenu.isAccessDenied(event.getViewName())) {
+        if (dashboardMenu.isAccessDenied(viewName)) {
             UINotification.showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_ERROR_MESSAGE_STYLE,
                     i18n.getMessage("message.accessdenied"),
-                    i18n.getMessage("message.accessdenied.view", event.getViewName()), null, true);
-            message.setValue(i18n.getMessage("message.accessdenied.view", event.getViewName()));
+                    i18n.getMessage("message.accessdenied.view", viewName), null, true);
+            message.setText(i18n.getMessage("message.accessdenied.view", viewName));
         }
+        return HttpStatusCode.NOT_FOUND.getCode();
     }
 
 }

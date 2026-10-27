@@ -23,16 +23,12 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.ClientConnector.ConnectorErrorEvent;
-import com.vaadin.flow.server.DefaultErrorHandler;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.server.ErrorEvent;
 import com.vaadin.flow.server.ErrorHandler;
-import com.vaadin.flow.component.page.Page;
-import com.vaadin.shared.Connector;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.UI;
 
 /**
  * Default handler for Hawkbit UI.
@@ -64,7 +60,7 @@ public class HawkbitUIErrorHandler implements ErrorHandler {
             LOG.debug("Ui error received. Trying to extract details...", event.getThrowable());
         }
 
-        final Page currentPage = getPageFrom(event);
+        final UI currentPage = getPageFrom(event);
         final List<UiErrorDetails> errorDetails = extractErrorDetails(event);
 
         if (errorDetails.isEmpty()) {
@@ -77,37 +73,27 @@ public class HawkbitUIErrorHandler implements ErrorHandler {
     }
 
     /**
-     * Method to find the {@link Page} to show notification on.
+     * Method to find the {@link UI} to show notification on. In Vaadin Flow a
+     * {@link com.vaadin.flow.component.page.Page} does not give access to its
+     * UI, so the UI takes the place of the Vaadin 8 Page here.
      *
      * @param event
      *            error event
-     * @return current {@link Page} for error notification
+     * @return current {@link UI} for error notification
      */
-    protected Page getPageFrom(final ErrorEvent event) {
-        if (event instanceof ConnectorErrorEvent) {
-            final Connector connector = ((ConnectorErrorEvent) event).getConnector();
-            if (connector instanceof UI) {
-                final UI uiInstance = (UI) connector;
-                return uiInstance.getPage();
-            }
-        }
-
-        final Optional<Page> errorOriginPage = getErrorOriginPage(event);
+    protected UI getPageFrom(final ErrorEvent event) {
+        // Flow: the component of the event is also the UI itself when the
+        // error came from the UI (Vaadin 8: ConnectorErrorEvent of a UI)
+        final Optional<UI> errorOriginPage = getErrorOriginPage(event);
         if (errorOriginPage.isPresent()) {
             return errorOriginPage.get();
         }
 
-        return Page.getCurrent();
+        return UI.getCurrent();
     }
 
-    private static Optional<Page> getErrorOriginPage(final ErrorEvent event) {
-        final Component errorOrigin = DefaultErrorHandler.findAbstractComponent(event);
-
-        if (errorOrigin != null && errorOrigin.getUI() != null) {
-            return Optional.ofNullable(errorOrigin.getUI().getPage());
-        }
-
-        return Optional.empty();
+    private static Optional<UI> getErrorOriginPage(final ErrorEvent event) {
+        return event.getComponent().flatMap(Component::getUI);
     }
 
     private List<UiErrorDetails> extractErrorDetails(final ErrorEvent event) {
@@ -116,7 +102,7 @@ public class HawkbitUIErrorHandler implements ErrorHandler {
                 .collect(Collectors.toList());
     }
 
-    private void showGenericErrorNotification(final Page page, final ErrorEvent event) {
+    private void showGenericErrorNotification(final UI page, final ErrorEvent event) {
         LOG.error("Unexpected Ui error occured", event.getThrowable());
 
         final Notification notification = buildErrorNotification(i18n.getMessage(UIMessageIdProvider.CAPTION_ERROR),
@@ -124,7 +110,7 @@ public class HawkbitUIErrorHandler implements ErrorHandler {
         showErrorNotification(page, notification);
     }
 
-    private void showSpecificErrorNotification(final Page page, final UiErrorDetails details) {
+    private void showSpecificErrorNotification(final UI page, final UiErrorDetails details) {
         final Notification notification = buildErrorNotification(details.getCaption(), details.getDescription());
         showErrorNotification(page, notification);
     }
@@ -140,7 +126,7 @@ public class HawkbitUIErrorHandler implements ErrorHandler {
      */
     protected static ParallelNotification buildErrorNotification(final String caption, final String description) {
         return UINotification.buildNotification(SPUIStyleDefinitions.SP_NOTIFICATION_ERROR_MESSAGE_STYLE, caption,
-                description, VaadinIcons.EXCLAMATION_CIRCLE, true);
+                description, VaadinIcon.EXCLAMATION_CIRCLE, true);
     }
 
     /**
@@ -151,7 +137,7 @@ public class HawkbitUIErrorHandler implements ErrorHandler {
      * @param notification
      *            notification to show
      */
-    protected void showErrorNotification(final Page page, final Notification notification) {
-        page.getUI().access(() -> notification.show(page));
+    protected void showErrorNotification(final UI page, final Notification notification) {
+        page.access(notification::open);
     }
 }
