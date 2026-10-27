@@ -1,12 +1,15 @@
 # CI
 
-One GitHub Actions workflow, `.github/workflows/ci.yml`, with one job on a GitHub-hosted `ubuntu-24.04` runner. It builds the UI path (Java 21, Vaadin 25), starts one isolated copy of the app with the env scripts (`env/README.md`), logs in every test user and opens their views, and runs the test suite.
+One GitHub Actions workflow, `.github/workflows/ci.yml`: the job `build-test-smoke` on a GitHub-hosted `ubuntu-24.04` runner, behind the small job `already-green` (see "When it runs"). It builds the UI path (Java 21, Vaadin 25), starts one isolated copy of the app with the env scripts (`env/README.md`), logs in every test user and opens their views, and runs the test suite.
 
 ## When it runs
 
 - Push to `main`, `mig-dev`, `stage/**`, `stabilise/**`, `fix/**`.
-- Pull requests to `main` and `mig-dev`.
 - Manually: Actions, CI, "Run workflow" (`workflow_dispatch`).
+
+There is no `pull_request` trigger: the checks of a push are attached to the commit, so they show on a pull request of that branch, and a second run for the same commit would only repeat the first.
+
+CI runs once per commit. The first job, `already-green`, asks the GitHub API (with the job's own token, permission `actions: read`, no other) whether this commit already has a successful run of this workflow. If it has, the job `build-test-smoke` is skipped and the run ends as a success within a minute: a branch moved to a commit that already passed (a fast-forward merge, a copy of a branch) is not built again. A failed or cancelled earlier run does not count, so that commit runs again. To run a green commit again, start the workflow by hand with `force` ticked. Two runs of one commit started at the same moment (before either has finished) both run: the check only sees finished successes.
 
 No schedule. A newer run on the same ref cancels the one still running. Time limits: 20 minutes for build and start, 5 for the Playwright install, 10 for the smoke, 20 for the tests, 60 for the job. A step over its limit fails, so its diagnostics are uploaded.
 
@@ -14,6 +17,7 @@ No schedule. A newer run on the same ref cancels the one still running. Time lim
 
 | Step | Does | Fails when |
 |---|---|---|
+| (job `already-green`) | See "When it runs": sets `skip` when the commit has a successful run; `build-test-smoke` then does not run | the API call fails (the run then fails rather than guessing) |
 | Restore Maven repository, Node and npm cache, Playwright browser | `actions/cache` of `~/.m2/repository` and `~/.cache/mig-env-build-home` (Vaadin's Node and the npm cache; keys: hash of every `pom.xml`) and `~/.cache/ms-playwright` (key: Playwright version) | never |
 | Test users | `.github/ci/test-users.sh`: four throw-away users with new random passwords (see "Test users") | |
 | Build and start | `env/up.sh`. Builds the app image from the commit: Maven 3.9.16 / JDK 21.0.12.1 in Docker (the image `env/lib.sh` pins by digest), `-pl hawkbit-runtime/hawkbit-vv8-ui,hawkbit-runtime/hawkbit-mgmt-server -am -DskipTests package` with `env/maven-settings.xml` and `-DskipNexusStaging`. Then starts copy `ci` on an internal Docker network with MySQL 8.0 and RabbitMQ 3, seeds it, and serves the UI on `127.0.0.1:18081` | the build fails; Maven or the frontend build downloaded from a host other than `repo.maven.apache.org`, `nodejs.org` and `registry.npmjs.org` (the check is in `env/up.sh`; it sees Maven's transfers and the Node download, not npm's); the app does not start |
@@ -30,8 +34,8 @@ The step "Build and start" is the deployable artefact per commit: the image `mig
 
 Stage 1a ticket 1a-05 moved the build and run images to Java 21; ticket 1a-06 (green build) switched the smoke to the new UI's selectors and routes (`.github/ci/smoke/new-app.json`). Not yet run on GitHub (remote writes are off). Known state, from the same checks run locally on the stage branch with the test-sources tickets merged:
 
-- The build needs the ported test sources: `-DskipTests` still compiles them, so "Build and start" stays red until the test tickets are merged.
-- Smoke: `admin` passes all 13 checks; `readonly`, `targets` and `repository` fail on Deployment, Rollout and Distributions (access denied inside the view), so the step is red until stage 1b fixes that.
+- The build is green with the test-source tickets merged (1a-06): `-DskipTests` still compiles the test sources, so a branch without them has a red "Build and start".
+- Smoke: `admin` passes all 13 checks. `readonly` aborts the step at its login (`SMOKE ERROR`: `/UI/` shows Flow's error page, so the menu never appears), so `targets` and `repository` are not reached and the step is red because of the abort, not because views are checked. The non-admin access fix is ticket 1a-10. Once it is in, note that the smoke reports PASS for a view that shows an error page (an error page is HTTP 200 with no console error), so a green smoke does not prove those views render.
 - The step "Tests" runs `verify` of the UI runtime offline. If its frontend build needs Node or npm packages that the image build did not leave in the shared `~/.cache/mig-env-build-home`, the offline run fails: fetch them online first, as the step does for the surefire provider.
 
 ## Storage
