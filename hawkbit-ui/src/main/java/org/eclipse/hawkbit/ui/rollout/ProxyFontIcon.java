@@ -9,8 +9,10 @@
  */
 package org.eclipse.hawkbit.ui.rollout;
 
+import java.io.Serializable;
+
 import com.cronutils.utils.StringUtils;
-import com.vaadin.server.FontIcon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 
 /**
  * Helper class which holds the details of font icon to be displayed as
@@ -19,10 +21,10 @@ import com.vaadin.server.FontIcon;
  * <code>RolloutListGrid</code> / <code>RolloutGroupListGrid</code> /
  * <code>RolloutGroupTargetsListGrid</code> / <code>ActionHistoryGrid</code>
  */
-public class ProxyFontIcon implements FontIcon {
+public class ProxyFontIcon implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final FontIcon icon;
+    private final VaadinIcon icon;
     private final String style;
     private final String description;
     private final String color;
@@ -33,7 +35,7 @@ public class ProxyFontIcon implements FontIcon {
      * @param icon
      *            the font representing the icon
      */
-    public ProxyFontIcon(final FontIcon icon) {
+    public ProxyFontIcon(final VaadinIcon icon) {
         this(icon, "");
     }
 
@@ -45,7 +47,7 @@ public class ProxyFontIcon implements FontIcon {
      * @param style
      *            the style
      */
-    public ProxyFontIcon(final FontIcon icon, final String style) {
+    public ProxyFontIcon(final VaadinIcon icon, final String style) {
         this(icon, style, "");
     }
 
@@ -59,7 +61,7 @@ public class ProxyFontIcon implements FontIcon {
      * @param description
      *            the description shown as tooltip
      */
-    public ProxyFontIcon(final FontIcon icon, final String style, final String description) {
+    public ProxyFontIcon(final VaadinIcon icon, final String style, final String description) {
         this(icon, style, description, "");
     }
 
@@ -75,7 +77,7 @@ public class ProxyFontIcon implements FontIcon {
      * @param color
      *            the color of the icon
      */
-    public ProxyFontIcon(final FontIcon icon, final String style, final String description, final String color) {
+    public ProxyFontIcon(final VaadinIcon icon, final String style, final String description, final String color) {
         this.icon = icon;
         this.style = style;
         this.description = description;
@@ -100,26 +102,18 @@ public class ProxyFontIcon implements FontIcon {
         return description;
     }
 
-    @Override
-    public String getMIMEType() {
-        return icon.getMIMEType();
-    }
-
-    @Override
-    public String getFontFamily() {
-        return icon.getFontFamily();
-    }
-
-    @Override
-    public int getCodepoint() {
-        return icon.getCodepoint();
-    }
-
-    @Override
+    /**
+     * Gets the HTML of the icon, wrapped in a span with the colour if one is
+     * set.
+     *
+     * @return the HTML of the icon (a Flow {@code vaadin-icon} element)
+     */
     public String getHtml() {
         String html = "";
         if (icon != null) {
-            html = icon.getHtml();
+            // Vaadin 8 FontIcon.getHtml() gave a font glyph span; Flow icons are
+            // <vaadin-icon icon="vaadin:x"> elements
+            html = icon.create().getElement().getOuterHTML();
         }
         if (!StringUtils.isEmpty(color)) {
             html = "<span style=\"color:" + color + " !important;\">" + html + "</span>";
