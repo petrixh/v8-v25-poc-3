@@ -37,7 +37,7 @@ import org.eclipse.hawkbit.repository.test.TestConfiguration;
 import org.eclipse.hawkbit.rest.AbstractRestIntegrationTest;
 import org.eclipse.hawkbit.rest.RestConfiguration;
 import org.eclipse.hawkbit.rest.util.MockMvcResultPrinter;
-import org.springframework.cloud.stream.test.binder.TestSupportBinderAutoConfiguration;
+import org.springframework.cloud.stream.binder.test.TestChannelBinderConfiguration;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -56,7 +56,7 @@ import com.fasterxml.jackson.dataformat.cbor.CBORParser;
 
 @ContextConfiguration(classes = { DdiApiConfiguration.class, RestConfiguration.class,
         RepositoryApplicationConfiguration.class, TestConfiguration.class,
-        TestSupportBinderAutoConfiguration.class })
+        TestChannelBinderConfiguration.class })
 @TestPropertySource(locations = "classpath:/ddi-test.properties")
 public abstract class AbstractDDiApiIntegrationTest extends AbstractRestIntegrationTest {
 
