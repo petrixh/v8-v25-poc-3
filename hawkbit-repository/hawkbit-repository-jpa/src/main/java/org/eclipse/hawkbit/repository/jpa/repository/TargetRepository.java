@@ -38,9 +38,9 @@ public interface TargetRepository extends BaseEntityRepository<JpaTarget> {
     @Deprecated(forRemoval = true)
     @Modifying
     @Transactional
-    @Query("UPDATE JpaTarget t SET t.assignedDistributionSet = :set, t.lastModifiedAt = :lastModifiedAt, t.lastModifiedBy = :lastModifiedBy, t.updateStatus = :status WHERE t.id IN :targets")
+    @Query("UPDATE JpaTarget t SET t.assignedDistributionSet = :distributionSet, t.lastModifiedAt = :lastModifiedAt, t.lastModifiedBy = :lastModifiedBy, t.updateStatus = :status WHERE t.id IN :targets")
     void setAssignedDistributionSetAndUpdateStatus(@Param("status") TargetUpdateStatus status,
-            @Param("set") JpaDistributionSet set, @Param("lastModifiedAt") Long modifiedAt,
+            @Param("distributionSet") JpaDistributionSet set, @Param("lastModifiedAt") Long modifiedAt,
             @Param("lastModifiedBy") String modifiedBy, @Param("targets") Collection<Long> targets);
 
 
@@ -53,9 +53,9 @@ public interface TargetRepository extends BaseEntityRepository<JpaTarget> {
     @Deprecated(forRemoval = true)
     @Modifying
     @Transactional
-    @Query("UPDATE JpaTarget t SET t.assignedDistributionSet = :set, t.installedDistributionSet = :set, t.installationDate = :lastModifiedAt, t.lastModifiedAt = :lastModifiedAt, t.lastModifiedBy = :lastModifiedBy, t.updateStatus = :status WHERE t.id IN :targets")
+    @Query("UPDATE JpaTarget t SET t.assignedDistributionSet = :distributionSet, t.installedDistributionSet = :distributionSet, t.installationDate = :lastModifiedAt, t.lastModifiedAt = :lastModifiedAt, t.lastModifiedBy = :lastModifiedBy, t.updateStatus = :status WHERE t.id IN :targets")
     void setAssignedAndInstalledDistributionSetAndUpdateStatus(@Param("status") TargetUpdateStatus status,
-            @Param("set") JpaDistributionSet set, @Param("lastModifiedAt") Long modifiedAt,
+            @Param("distributionSet") JpaDistributionSet set, @Param("lastModifiedAt") Long modifiedAt,
             @Param("lastModifiedBy") String modifiedBy, @Param("targets") Collection<Long> targets);
 
    /**

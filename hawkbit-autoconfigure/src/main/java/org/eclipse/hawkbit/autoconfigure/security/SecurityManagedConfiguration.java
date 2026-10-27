@@ -75,20 +75,24 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.session.SessionManagementFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -106,6 +110,10 @@ public class SecurityManagedConfiguration {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityManagedConfiguration.class);
 
     private static final int DOS_FILTER_ORDER = -200;
+
+    // Spring Security 6+ pre-authentication filters save the authentication to the HTTP session by default; in 5.7
+    // they did not. The device (DDI) and download-id filters keep the old behaviour: no session, no session cookie.
+    private static final SecurityContextRepository STATELESS_CONTEXT = new NullSecurityContextRepository();
 
     /**
      * @return the {@link UserAuthenticationFilter} to include into the hawkBit
@@ -197,7 +205,7 @@ public class SecurityManagedConfiguration {
             final AuthenticationManager authenticationManager = setAuthenticationManager(http, ddiSecurityConfiguration);
 
             http
-                    .requestMatchers(requestMatchers -> requestMatchers.antMatchers(DDI_ANT_MATCHERS))
+                    .securityMatcher(DDI_ANT_MATCHERS)
                     .csrf(AbstractHttpConfigurer::disable);
 
             if (securityProperties.isRequireSsl()) {
@@ -227,18 +235,21 @@ public class SecurityManagedConfiguration {
                 securityHeaderFilter.setAuthenticationManager(authenticationManager);
                 securityHeaderFilter.setCheckForPrincipalChanges(true);
                 securityHeaderFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                securityHeaderFilter.setSecurityContextRepository(STATELESS_CONTEXT);
 
                 final HttpControllerPreAuthenticateSecurityTokenFilter securityTokenFilter = new HttpControllerPreAuthenticateSecurityTokenFilter(
                         tenantConfigurationManagement, tenantAware, controllerManagement, systemSecurityContext);
                 securityTokenFilter.setAuthenticationManager(authenticationManager);
                 securityTokenFilter.setCheckForPrincipalChanges(true);
                 securityTokenFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                securityTokenFilter.setSecurityContextRepository(STATELESS_CONTEXT);
 
                 final HttpControllerPreAuthenticatedGatewaySecurityTokenFilter gatewaySecurityTokenFilter = new HttpControllerPreAuthenticatedGatewaySecurityTokenFilter(
                         tenantConfigurationManagement, tenantAware, systemSecurityContext);
                 gatewaySecurityTokenFilter.setAuthenticationManager(authenticationManager);
                 gatewaySecurityTokenFilter.setCheckForPrincipalChanges(true);
                 gatewaySecurityTokenFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                gatewaySecurityTokenFilter.setSecurityContextRepository(STATELESS_CONTEXT);
 
                 http
                         .authorizeHttpRequests(amrmRegistry ->
@@ -315,7 +326,7 @@ public class SecurityManagedConfiguration {
             final AuthenticationManager authenticationManager = setAuthenticationManager(http, ddiSecurityConfiguration);
 
             http
-                    .requestMatcher(new AntPathRequestMatcher(DDI_DL_ANT_MATCHER))
+                    .securityMatcher(DDI_DL_ANT_MATCHER)
                     .csrf(AbstractHttpConfigurer::disable);
 
             if (securityProperties.isRequireSsl()) {
@@ -346,24 +357,28 @@ public class SecurityManagedConfiguration {
                 securityHeaderFilter.setAuthenticationManager(authenticationManager);
                 securityHeaderFilter.setCheckForPrincipalChanges(true);
                 securityHeaderFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                securityHeaderFilter.setSecurityContextRepository(STATELESS_CONTEXT);
 
                 final HttpControllerPreAuthenticateSecurityTokenFilter securityTokenFilter = new HttpControllerPreAuthenticateSecurityTokenFilter(
                         tenantConfigurationManagement, tenantAware, controllerManagement, systemSecurityContext);
                 securityTokenFilter.setAuthenticationManager(authenticationManager);
                 securityTokenFilter.setCheckForPrincipalChanges(true);
                 securityTokenFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                securityTokenFilter.setSecurityContextRepository(STATELESS_CONTEXT);
 
                 final HttpControllerPreAuthenticatedGatewaySecurityTokenFilter gatewaySecurityTokenFilter = new HttpControllerPreAuthenticatedGatewaySecurityTokenFilter(
                         tenantConfigurationManagement, tenantAware, systemSecurityContext);
                 gatewaySecurityTokenFilter.setAuthenticationManager(authenticationManager);
                 gatewaySecurityTokenFilter.setCheckForPrincipalChanges(true);
                 gatewaySecurityTokenFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                gatewaySecurityTokenFilter.setSecurityContextRepository(STATELESS_CONTEXT);
 
                 final HttpControllerPreAuthenticateAnonymousDownloadFilter controllerAnonymousDownloadFilter = new HttpControllerPreAuthenticateAnonymousDownloadFilter(
                         tenantConfigurationManagement, tenantAware, systemSecurityContext);
                 controllerAnonymousDownloadFilter.setAuthenticationManager(authenticationManager);
                 controllerAnonymousDownloadFilter.setCheckForPrincipalChanges(true);
                 controllerAnonymousDownloadFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                controllerAnonymousDownloadFilter.setSecurityContextRepository(STATELESS_CONTEXT);
 
                 http
                         .authorizeHttpRequests(amrmRegistry -> amrmRegistry.anyRequest().authenticated())
@@ -434,13 +449,14 @@ public class SecurityManagedConfiguration {
             final HttpDownloadAuthenticationFilter downloadIdAuthenticationFilter = new HttpDownloadAuthenticationFilter(
                     downloadIdCache);
             downloadIdAuthenticationFilter.setAuthenticationManager(authenticationManager);
+            downloadIdAuthenticationFilter.setSecurityContextRepository(STATELESS_CONTEXT);
 
             http
-                    .requestMatcher(new AntPathRequestMatcher("/**/downloadId/**"))
+                    .securityMatcher(antPathRequestMatcher("/**/downloadId/**"))
                     .authorizeHttpRequests(armrRepository -> armrRepository.anyRequest().authenticated())
                     .csrf(AbstractHttpConfigurer::disable)
                     .anonymous(AbstractHttpConfigurer::disable)
-                    .addFilterBefore(downloadIdAuthenticationFilter, FilterSecurityInterceptor.class)
+                    .addFilterBefore(downloadIdAuthenticationFilter, AuthorizationFilter.class)
                     .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
             return http.build();
@@ -495,11 +511,11 @@ public class SecurityManagedConfiguration {
                 final SystemSecurityContext systemSecurityContext)
                 throws Exception {
             http
-                    .requestMatchers(requestMatchers -> requestMatchers.antMatchers("/rest/**", MgmtRestConstants.BASE_SYSTEM_MAPPING + "/admin/**"))
+                    .securityMatcher("/rest/**", MgmtRestConstants.BASE_SYSTEM_MAPPING + "/admin/**")
                     .csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(amrmRegistry ->
                             amrmRegistry
-                                    .antMatchers(MgmtRestConstants.BASE_SYSTEM_MAPPING + "/admin/**")
+                                    .requestMatchers(MgmtRestConstants.BASE_SYSTEM_MAPPING + "/admin/**")
                                         .hasAnyAuthority(SpPermission.SYSTEM_ADMIN)
                                     .anyRequest()
                                         .authenticated())
@@ -534,7 +550,8 @@ public class SecurityManagedConfiguration {
                                 : null;
 
                 Assert.notNull(clientRegistration, "There must be a valid client registration");
-                http.oauth2ResourceServer(configurer -> configurer.jwt().jwkSetUri(clientRegistration.getProviderDetails().getJwkSetUri()));
+                http.oauth2ResourceServer(configurer -> configurer
+                        .jwt(jwt -> jwt.jwkSetUri(clientRegistration.getProviderDetails().getJwkSetUri())));
 
                 oidcBearerTokenAuthenticationFilter.setClientRegistration(clientRegistration);
 
@@ -631,6 +648,23 @@ public class SecurityManagedConfiguration {
             }
             return super.getFirewalledRequest(request);
         }
+    }
+
+    /**
+     * Matches like Spring Security 5's AntPathRequestMatcher (removed in Spring Security 7) did: Ant pattern against
+     * the servlet path plus path info. Used where the pattern is not a valid PathPattern ('**' before the end).
+     */
+    private static RequestMatcher antPathRequestMatcher(final String pattern) {
+        final AntPathMatcher antPathMatcher = new AntPathMatcher();
+        antPathMatcher.setTrimTokens(false);
+        return request -> {
+            String url = request.getServletPath();
+            final String pathInfo = request.getPathInfo();
+            if (pathInfo != null) {
+                url = StringUtils.hasLength(url) ? url + pathInfo : pathInfo;
+            }
+            return antPathMatcher.match(pattern, url);
+        };
     }
 
     private static AuthenticationManager setAuthenticationManager(final HttpSecurity http, final DdiSecurityProperties ddiSecurityConfiguration) throws Exception {

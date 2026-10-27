@@ -539,7 +539,7 @@ public class JpaTargetManagement implements TargetManagement {
     @Retryable(include = {
             ConcurrencyFailureException.class }, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
     public TargetTypeAssignmentResult unassignType(final Collection<String> controllerIds) {
-        final List<JpaTarget> allTargets = findTargetsByInSpecification(controllerIds, null);
+        final List<JpaTarget> allTargets = findTargetsByInSpecification(controllerIds, Specification.unrestricted());
 
         if (allTargets.size() < controllerIds.size()) {
             throw new EntityNotFoundException(Target.class, controllerIds,

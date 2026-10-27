@@ -1080,6 +1080,22 @@ class TargetManagementTest extends AbstractJpaIntegrationTest {
 
     @Test
     @WithUser(allSpPermissions = true)
+    @Description("Checks that the target type of several targets can be unassigned in one call.")
+    void unassignTargetTypeOfSeveralTargets() {
+        final TargetType targetType = testdataFactory.createTargetTypes("targettype", 1).get(0);
+        final Target target1 = testdataFactory.createTarget("target1", "testtarget1", targetType.getId());
+        final Target target2 = testdataFactory.createTarget("target2", "testtarget2", targetType.getId());
+
+        targetManagement.unassignType(List.of(target1.getControllerId(), target2.getControllerId()));
+
+        assertThat(targetRepository.findById(target1.getId())).hasValueSatisfying(
+                target -> assertThat(target.getTargetType()).isNull());
+        assertThat(targetRepository.findById(target2.getId())).hasValueSatisfying(
+                target -> assertThat(target.getTargetType()).isNull());
+    }
+
+    @Test
+    @WithUser(allSpPermissions = true)
     @Description("Checks that target type to a target can be assigned.")
     void assignTargetTypeInTarget() {
         // create a target
