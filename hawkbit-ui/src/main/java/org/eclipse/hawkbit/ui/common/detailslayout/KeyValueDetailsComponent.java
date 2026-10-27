@@ -15,7 +15,7 @@ import java.util.List;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 
-import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.html.Span;
@@ -37,6 +37,8 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
         keyValueDetailsLayout.setSpacing(true);
         keyValueDetailsLayout.setPadding(false);
         keyValueDetailsLayout.setWidthFull();
+        // Vaadin 8: initContent()
+        add(keyValueDetailsLayout);
 
         setReadOnly(true);
     }
@@ -49,12 +51,12 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
     }
 
     @Override
-    protected Component initContent() {
-        return keyValueDetailsLayout;
+    protected List<ProxyKeyValueDetails> generateModelValue() {
+        return Collections.emptyList();
     }
 
     @Override
-    protected void doSetValue(final List<ProxyKeyValueDetails> keyValueDetails) {
+    protected void setPresentationValue(final List<ProxyKeyValueDetails> keyValueDetails) {
         keyValueDetailsLayout.removeAll();
 
         if (keyValueDetails != null) {
@@ -81,7 +83,7 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
         keyValueDetailLayout.add(valueDetail);
         keyValueDetailLayout.setFlexGrow(1.0F, valueDetail);
 
-        keyValueDetailLayout.setDescription(key.concat(": ") + value);
+        Tooltip.forComponent(keyValueDetailLayout).setText(key.concat(": ") + value);
 
         keyValueDetailsLayout.add(keyValueDetailLayout);
     }

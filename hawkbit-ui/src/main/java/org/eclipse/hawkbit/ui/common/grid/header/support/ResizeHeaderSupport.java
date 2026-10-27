@@ -93,8 +93,8 @@ public class ResizeHeaderSupport implements HeaderSupport {
      * Styles min-max-button icon with minimize decoration
      */
     private void showMinIcon() {
-        maxMinIcon.setIcon(VaadinIcon.COMPRESS);
-        maxMinIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_MINIMIZE));
+        maxMinIcon.setIcon(VaadinIcon.COMPRESS.create());
+        maxMinIcon.setTooltipText(i18n.getMessage(UIMessageIdProvider.TOOLTIP_MINIMIZE));
         maxMinIcon.addClassNames(MODE_MAXIMIZED);
     }
 
@@ -102,8 +102,8 @@ public class ResizeHeaderSupport implements HeaderSupport {
      * Styles min-max-button icon with maximize decoration
      */
     private void showMaxIcon() {
-        maxMinIcon.setIcon(VaadinIcon.EXPAND);
-        maxMinIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE));
+        maxMinIcon.setIcon(VaadinIcon.EXPAND.create());
+        maxMinIcon.setTooltipText(i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE));
         maxMinIcon.removeClassNames(MODE_MAXIMIZED);
     }
 

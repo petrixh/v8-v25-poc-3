@@ -116,8 +116,8 @@ public class DeleteSupport<T extends ProxyIdentifiableEntity> {
                 confirmationCaption, confirmationQuestionBuilder.toString(), successNotificationText,
                 failureNotificationText);
 
+        // a Flow dialog opened last is on top (Vaadin 8: bringToFront)
         confirmDeleteDialog.getWindow().open();
-        confirmDeleteDialog.getWindow().bringToFront();
     }
 
     private Set<T> getItemsForDeletion(final T clickedItem) {

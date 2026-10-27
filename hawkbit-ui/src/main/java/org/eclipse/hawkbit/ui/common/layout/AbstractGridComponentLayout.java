@@ -16,9 +16,9 @@ import org.eclipse.hawkbit.ui.common.grid.header.AbstractDetailsHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 
-import com.vaadin.ui.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.Component;
-import com.vaadin.ui.Layout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
@@ -57,14 +57,14 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout impleme
         gridHeaderLayout.setClassName("table-layout");
 
         gridHeaderLayout.add(gridHeader);
-        gridHeaderLayout.setComponentAlignment(gridHeader, Alignment.TOP_CENTER);
+        gridHeaderLayout.setHorizontalComponentAlignment(Alignment.CENTER, gridHeader);
 
         gridHeaderLayout.add(grid);
-        gridHeaderLayout.setComponentAlignment(grid, Alignment.TOP_CENTER);
+        gridHeaderLayout.setHorizontalComponentAlignment(Alignment.CENTER, grid);
         gridHeaderLayout.setFlexGrow(1.0F, grid);
 
         add(gridHeaderLayout);
-        setComponentAlignment(gridHeaderLayout, Alignment.TOP_CENTER);
+        setHorizontalComponentAlignment(Alignment.CENTER, gridHeaderLayout);
         setFlexGrow(1.0F, gridHeaderLayout);
     }
 
@@ -77,7 +77,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout impleme
         buildLayout(gridHeader, grid);
 
         add(detailsLayout);
-        setComponentAlignment(detailsLayout, Alignment.TOP_CENTER);
+        setHorizontalComponentAlignment(Alignment.CENTER, detailsLayout);
 
         this.detailsLayout = detailsLayout;
     }
@@ -96,10 +96,10 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout impleme
         detailsHeaderLayout.addClassNames(SPUIStyleDefinitions.WIDGET_STYLE);
 
         detailsHeaderLayout.add(gridDetailsHeader);
-        detailsHeaderLayout.setComponentAlignment(gridDetailsHeader, Alignment.TOP_CENTER);
+        detailsHeaderLayout.setHorizontalComponentAlignment(Alignment.CENTER, gridDetailsHeader);
 
         detailsHeaderLayout.add(gridDetailsLayout);
-        detailsHeaderLayout.setComponentAlignment(gridDetailsLayout, Alignment.TOP_CENTER);
+        detailsHeaderLayout.setHorizontalComponentAlignment(Alignment.CENTER, gridDetailsLayout);
         detailsHeaderLayout.setFlexGrow(1.0F, gridDetailsLayout);
 
         buildLayout(gridHeader, grid, detailsHeaderLayout);
@@ -112,9 +112,9 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout impleme
             final AbstractFooterSupport footerSupport) {
         buildLayout(gridHeader, grid);
 
-        final Layout footerLayout = footerSupport.createFooterMessageComponent();
+        final HorizontalLayout footerLayout = footerSupport.createFooterMessageComponent();
         add(footerLayout);
-        setComponentAlignment(footerLayout, Alignment.BOTTOM_CENTER);
+        setHorizontalComponentAlignment(Alignment.CENTER, footerLayout);
     }
 
     /**
@@ -126,9 +126,9 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout impleme
             final AbstractFooterSupport footerSupport) {
         buildLayout(gridHeader, grid, gridDetailsHeader, gridDetailsLayout);
 
-        final Layout footerLayout = footerSupport.createFooterMessageComponent();
+        final HorizontalLayout footerLayout = footerSupport.createFooterMessageComponent();
         add(footerLayout);
-        setComponentAlignment(footerLayout, Alignment.BOTTOM_CENTER);
+        setHorizontalComponentAlignment(Alignment.CENTER, footerLayout);
     }
 
     protected void showDetailsLayout() {

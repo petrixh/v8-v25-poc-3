@@ -45,7 +45,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
@@ -217,7 +216,7 @@ public final class DashboardMenu extends Composite<Div> implements HasStyle, Has
         final String formattedTenant = UserDetailsFormatter.formatCurrentTenant();
         if (StringUtils.hasLength(formattedTenant)) {
             settingsItem.add(new Text(formattedTenant));
-            UserDetailsFormatter.getCurrentTenant().ifPresent(tenant -> Tooltip.forComponent(settingsItem).setText(i18n
+            UserDetailsFormatter.getCurrentTenant().ifPresent(tenant -> settingsItem.setTooltipText(i18n
                     .getMessage("menu.user.description", tenant, UserDetailsFormatter.getCurrentUser().getUsername())));
         } else {
             settingsItem.add(new Text("..."));

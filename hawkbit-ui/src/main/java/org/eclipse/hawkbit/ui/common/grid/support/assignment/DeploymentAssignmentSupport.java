@@ -44,8 +44,8 @@ public abstract class DeploymentAssignmentSupport<S extends ProxyNamedEntity, T 
         final ConfirmationDialog confirmAssignDialog = createConfirmationWindow(confirmationMessage, content,
                 canWindowSave, assignmentExecutor);
 
+        // a Flow dialog opened last is on top (Vaadin 8: bringToFront)
         confirmAssignDialog.getWindow().open();
-        confirmAssignDialog.getWindow().bringToFront();
 
         return confirmAssignDialog;
     }

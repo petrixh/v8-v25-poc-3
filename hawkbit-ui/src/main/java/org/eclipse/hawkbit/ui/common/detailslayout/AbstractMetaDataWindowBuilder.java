@@ -15,7 +15,6 @@ import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.flow.component.dialog.Dialog;
 
 /**
@@ -45,10 +44,9 @@ public abstract class AbstractMetaDataWindowBuilder<F> extends AbstractEntityWin
             final F selectedEntityFilter, final String selectedEntityName, final ProxyMetaData proxyMetaData) {
         final CommonDialogWindow window = createWindow(metaDataWindowLayout, null);
 
-        window.setAssistivePrefix(getI18n().getMessage("caption.metadata.popup") + " " + "<b>");
-        window.setCaptionAsHtml(false);
-        window.setCaption(selectedEntityName);
-        window.setAssistivePostfix("</b>");
+        // Vaadin 8: caption with an assistive prefix for screen readers (no
+        // public Flow API for the dialog's aria label)
+        window.setHeaderTitle(selectedEntityName);
 
         metaDataWindowLayout.addValidationListener(window::setSaveButtonEnabled);
         metaDataWindowLayout.setSaveCallback(window::setCloseListener);

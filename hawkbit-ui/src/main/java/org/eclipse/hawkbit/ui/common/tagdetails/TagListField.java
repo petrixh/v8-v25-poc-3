@@ -31,7 +31,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.ui.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -98,7 +98,7 @@ public class TagListField extends Div {
     }
 
     private void addTagButtonsAsComponents() {
-        tagButtons.values().forEach(this::addComponent);
+        tagButtons.values().forEach(this::add);
     }
 
     private HorizontalLayout buildTagButtonLayout(final ProxyTag tagData) {
@@ -111,11 +111,11 @@ public class TagListField extends Div {
         tagButtonLayout.addClassNames(SPUIStyleDefinitions.TAG_BUTTON_WITH_BACKGROUND);
 
         tagButtonLayout.add(colourIcon);
-        tagButtonLayout.setComponentAlignment(colourIcon, Alignment.MIDDLE_LEFT);
+        tagButtonLayout.setVerticalComponentAlignment(Alignment.CENTER, colourIcon);
         tagButtonLayout.setFlexGrow(0.0F, colourIcon);
 
         tagButtonLayout.add(tagButton);
-        tagButtonLayout.setComponentAlignment(tagButton, Alignment.MIDDLE_LEFT);
+        tagButtonLayout.setVerticalComponentAlignment(Alignment.CENTER, tagButton);
         tagButtonLayout.setFlexGrow(1.0F, tagButton);
 
         return tagButtonLayout;
@@ -135,7 +135,7 @@ public class TagListField extends Div {
 
         final Button tagButton = new Button(tagData.getName().concat(" ×"), e -> removeTagAssignment(tagData));
         tagButton.setId(tagButtonId);
-        tagButton.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_REMOVE));
+        tagButton.setTooltipText(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_REMOVE));
         tagButton.addClassNames(SPUIDefinitions.TEXT_STYLE);
         tagButton.addClassNames("borderless");
         tagButton.addClassNames("button-no-border");

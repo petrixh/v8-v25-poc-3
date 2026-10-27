@@ -72,7 +72,7 @@ public abstract class AbstractFilterHeader extends AbstractGridHeader {
     private void addNewItem() {
         final Dialog addWindow = getWindowForAdd();
 
-        addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage(getAddEntityWindowCaptionMsgKey())));
+        addWindow.setHeaderTitle(i18n.getMessage("caption.create.new", i18n.getMessage(getAddEntityWindowCaptionMsgKey())));
         addWindow.open();
         addWindow.setVisible(Boolean.TRUE);
     }

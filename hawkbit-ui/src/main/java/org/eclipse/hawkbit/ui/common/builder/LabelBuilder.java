@@ -110,7 +110,7 @@ public class LabelBuilder {
     private Span createLabel() {
         final Span label = new Span(name);
         label.setVisible(visible);
-        // Vaadin 8: "small" and LABEL_BOLD
+        // Vaadin 8: ValoTheme.LABEL_SMALL and LABEL_BOLD
         label.addClassNames("small", "bold");
         if (id != null) {
             label.setId(id);

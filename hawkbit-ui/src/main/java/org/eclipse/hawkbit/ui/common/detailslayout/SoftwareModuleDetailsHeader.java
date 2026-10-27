@@ -20,7 +20,10 @@ import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 
-import com.vaadin.shared.ui.window.WindowMode;
+import com.vaadin.flow.component.ModalityMode;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
 
@@ -101,7 +104,7 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
 
         final Dialog updateWindow = smWindowBuilder.getWindowForUpdate(selectedEntity);
 
-        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.software.module")));
+        updateWindow.setHeaderTitle(i18n.getMessage("caption.update", i18n.getMessage("caption.software.module")));
         updateWindow.open();
         updateWindow.setVisible(Boolean.TRUE);
     }
@@ -140,6 +143,8 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
         }
     }
 
+    private static final String MAXIMIZED_STYLE = "maximized";
+
     /**
      * Show artifact detail window layout
      */
@@ -157,35 +162,46 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
         final Dialog artifactDtlsWindow = new Dialog();
         artifactDtlsWindow.setId(UIComponentIdProvider.SHOW_ARTIFACT_DETAILS_POPUP_ID);
 
-        artifactDtlsWindow.setClosable(true);
+        // Vaadin 8 setClosable(true): Esc closes (Flow dialogs have no close
+        // button); a click outside does not, as with a Vaadin 8 modal window
+        artifactDtlsWindow.setCloseOnEsc(true);
+        artifactDtlsWindow.setCloseOnOutsideClick(false);
         artifactDtlsWindow.setResizable(true);
-        artifactDtlsWindow.setWindowMode(WindowMode.NORMAL);
-        artifactDtlsWindow.setModal(true);
+        artifactDtlsWindow.setModality(ModalityMode.STRICT);
         artifactDtlsWindow.addClassNames(SPUIStyleDefinitions.CONFIRMATION_WINDOW_CAPTION);
 
-        artifactDtlsWindow
-                .setAssistivePrefix(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS_OF) + " " + "<b>");
-        artifactDtlsWindow.setCaptionAsHtml(false);
-        artifactDtlsWindow.setCaption(selectedEntity.getNameAndVersion());
-        artifactDtlsWindow.setAssistivePostfix("</b>");
+        // Vaadin 8: caption with an assistive prefix for screen readers (no
+        // public Flow API for the dialog's aria label)
+        artifactDtlsWindow.setHeaderTitle(selectedEntity.getNameAndVersion());
 
-        artifactDtlsWindow.addWindowModeChangeListener(event -> {
-            if (event.getWindowMode() == WindowMode.MAXIMIZED) {
+        // Vaadin 8: the window's maximize/restore button (WindowMode); Flow
+        // dialogs have none, so the header gets a button that does the same
+        final Button maximizeButton = new Button(VaadinIcon.EXPAND_SQUARE.create());
+        maximizeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
+        maximizeButton.addClickListener(event -> {
+            if (!artifactDtlsWindow.hasClassName(MAXIMIZED_STYLE)) {
+                artifactDtlsWindow.addClassName(MAXIMIZED_STYLE);
                 artifactDtlsWindow.setSizeFull();
                 artifactDetailsGrid.setSizeFull();
 
                 artifactDetailsGrid.createMaximizedContent();
             } else {
+                artifactDtlsWindow.removeClassName(MAXIMIZED_STYLE);
                 artifactDtlsWindow.setSizeUndefined();
                 setInitialArtifactDetailsGridSize(artifactDetailsGrid);
 
                 artifactDetailsGrid.createMinimizedContent();
             }
         });
+        artifactDtlsWindow.getHeader().add(maximizeButton);
 
-        artifactDtlsWindow.addCloseListener(event -> artifactDetailsGrid = null);
+        artifactDtlsWindow.addOpenedChangeListener(event -> {
+            if (!event.isOpened()) {
+                artifactDetailsGrid = null;
+            }
+        });
 
-        artifactDtlsWindow.setContent(artifactDetailsGrid);
+        artifactDtlsWindow.add(artifactDetailsGrid);
 
         artifactDtlsWindow.open();
     }

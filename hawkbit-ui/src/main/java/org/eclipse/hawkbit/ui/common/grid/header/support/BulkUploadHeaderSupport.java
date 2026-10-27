@@ -108,7 +108,7 @@ public class BulkUploadHeaderSupport implements HeaderSupport {
      */
     public void hideProgressIndicator() {
         bulkUploadIcon.removeClassNames(SPUIStyleDefinitions.BULK_UPLOAD_PROGRESS_INDICATOR_STYLE);
-        bulkUploadIcon.setIcon(VaadinIcon.UPLOAD);
+        bulkUploadIcon.setIcon(VaadinIcon.UPLOAD.create());
     }
 
     @Override

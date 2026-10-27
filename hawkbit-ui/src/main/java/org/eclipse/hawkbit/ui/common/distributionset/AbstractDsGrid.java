@@ -115,10 +115,10 @@ public abstract class AbstractDsGrid<F extends DsFilterParams> extends AbstractG
         return true;
     }
 
-    protected Column<ProxyDistributionSet, String> addNameColumn() {
-        final Column<ProxyDistributionSet, String> nameColumn = GridComponentBuilder.addNameColumn(this, i18n,
+    protected Column<ProxyDistributionSet> addNameColumn() {
+        final Column<ProxyDistributionSet> nameColumn = GridComponentBuilder.addNameColumn(this, i18n,
                 DS_NAME_ID);
-        nameColumn.setDescriptionGenerator(this::createTooltipText);
+        nameColumn.setTooltipGenerator(this::createTooltipText);
         return nameColumn;
     }
 
@@ -135,14 +135,14 @@ public abstract class AbstractDsGrid<F extends DsFilterParams> extends AbstractG
         return tooltipText.toString();
     }
 
-    protected Column<ProxyDistributionSet, String> addVersionColumn() {
-        final Column<ProxyDistributionSet, String> versionColumn = GridComponentBuilder.addVersionColumn(this, i18n,
+    protected Column<ProxyDistributionSet> addVersionColumn() {
+        final Column<ProxyDistributionSet> versionColumn = GridComponentBuilder.addVersionColumn(this, i18n,
                 ProxyDistributionSet::getVersion, DS_VERSION_ID);
-        versionColumn.setDescriptionGenerator(this::createTooltipText);
+        versionColumn.setTooltipGenerator(this::createTooltipText);
         return versionColumn;
     }
 
-    protected Column<ProxyDistributionSet, Button> addDeleteColumn() {
+    protected Column<ProxyDistributionSet> addDeleteColumn() {
         return GridComponentBuilder.addDeleteColumn(this, i18n, DS_DELETE_BUTTON_ID, distributionDeleteSupport,
                 UIComponentIdProvider.DIST_DELET_ICON, e -> permissionChecker.hasDeleteRepositoryPermission());
     }
@@ -157,6 +157,7 @@ public abstract class AbstractDsGrid<F extends DsFilterParams> extends AbstractG
 
         addDeleteColumn();
 
-        getColumns().forEach(column -> column.setHidable(true));
+        // Vaadin 8: setHidable(true) on every column (the user could hide
+        // columns); Flow grids have no column hiding menu
     }
 }

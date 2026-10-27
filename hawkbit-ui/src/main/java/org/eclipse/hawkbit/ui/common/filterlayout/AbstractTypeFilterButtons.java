@@ -164,7 +164,7 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
     protected void editButtonClickListener(final ProxyType clickedFilter) {
         final Dialog updateWindow = getUpdateWindow(clickedFilter);
 
-        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.type")));
+        updateWindow.setHeaderTitle(i18n.getMessage("caption.update", i18n.getMessage("caption.type")));
         updateWindow.open();
         updateWindow.setVisible(Boolean.TRUE);
     }

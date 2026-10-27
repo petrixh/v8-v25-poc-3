@@ -44,7 +44,6 @@ import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -106,19 +105,15 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
         setVisible(false);
     }
 
-    // columns are being re-rendered on each tab change, so we need to reset the
-    // state here
-    @Override
-    public void beforeClientResponse(final boolean initial) {
-        super.beforeClientResponse(initial);
-
-        typeIdIsRendered.clear();
-    }
+    // Vaadin 8 re-rendered the columns on each tab change, so the state was
+    // reset before each client response (beforeClientResponse). A Flow grid
+    // sends its rows once per item set; the state is reset when the items
+    // are set (masterEntityChanged)
 
     private void init() {
         setId(UIComponentIdProvider.DS_DETAILS_MODULES_ID);
         setSizeFull();
-        setHeightMode(HeightMode.UNDEFINED);
+        setAllRowsVisible(true);
 
         addClassNames("no-horizontal-lines");
 
@@ -132,11 +127,11 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
     private void addColumns() {
         GridComponentBuilder.addIconColumn(this, this::buildIsMandatoryLabel, SOFT_TYPE_MANDATORY_ID, null);
 
-        GridComponentBuilder.addColumn(this, this::buildTypeName).setId(SOFT_TYPE_NAME_ID)
-                .setCaption(i18n.getMessage("header.caption.typename"));
+        GridComponentBuilder.addColumn(this, this::buildTypeName).setKey(SOFT_TYPE_NAME_ID)
+                .setHeader(i18n.getMessage("header.caption.typename"));
 
-        GridComponentBuilder.addComponentColumn(this, this::buildSoftwareModulesLayout).setId(SOFT_MODULES_ID)
-                .setCaption(i18n.getMessage("header.caption.softwaremodule"));
+        GridComponentBuilder.addComponentColumn(this, this::buildSoftwareModulesLayout).setKey(SOFT_MODULES_ID)
+                .setHeader(i18n.getMessage("header.caption.softwaremodule"));
     }
 
     private Span buildIsMandatoryLabel(final ProxySoftwareModuleDetails softwareModuleDetails) {
@@ -147,7 +142,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
         isMandatoryLabel.addClassNames("text-cut");
 
         if (softwareModuleDetails.isMandatory() && !isTypeAlreadyAdded(softwareModuleDetails.getTypeId())) {
-            isMandatoryLabel.setValue("*");
+            isMandatoryLabel.setText("*");
             isMandatoryLabel.setClassName(SPUIStyleDefinitions.SP_TEXTFIELD_ERROR);
         }
 
@@ -204,7 +199,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
     }
 
     private Button buildSmUnassignButton(final Long smId, final String smNameAndVersion) {
-        final Button unassignSoftwareModuleButton = new Button(VaadinIcon.CLOSE_SMALL);
+        final Button unassignSoftwareModuleButton = new Button(VaadinIcon.CLOSE_SMALL.create());
 
         unassignSoftwareModuleButton.setId("sm-unassign-button-" + smId);
         unassignSoftwareModuleButton.addClassNames("borderless");
@@ -238,7 +233,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
     }
 
     private void disableColumnSorting() {
-        for (final Column<ProxySoftwareModuleDetails, ?> c : getColumns()) {
+        for (final Column<ProxySoftwareModuleDetails> c : getColumns()) {
             c.setSortable(false);
         }
     }

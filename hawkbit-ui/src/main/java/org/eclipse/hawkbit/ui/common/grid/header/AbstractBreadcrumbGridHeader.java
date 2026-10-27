@@ -115,8 +115,8 @@ public abstract class AbstractBreadcrumbGridHeader extends AbstractGridHeader {
                     SPUIButtonStyleNoBorder.class);
             link.setClassName("small" + " " + "on-focus-no-border link rollout-caption-links");
 
-            link.setDescription(description);
-            link.setCaption(caption);
+            link.setTooltipText(description);
+            link.setText(caption);
             link.addClickListener(event -> clickCallback.run());
 
             return link;
@@ -127,7 +127,7 @@ public abstract class AbstractBreadcrumbGridHeader extends AbstractGridHeader {
         }
 
         public Consumer<String> getSetCaptionCallback() {
-            return linkComponent::setCaption;
+            return linkComponent::setText;
         }
     }
 }

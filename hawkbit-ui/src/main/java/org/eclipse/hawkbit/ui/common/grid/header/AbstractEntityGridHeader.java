@@ -179,7 +179,7 @@ public abstract class AbstractEntityGridHeader extends AbstractGridHeader {
     private void addNewItem() {
         final Dialog addWindow = entityWindowBuilder.getWindowForAdd();
 
-        addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage(getAddWindowCaptionMsg())));
+        addWindow.setHeaderTitle(i18n.getMessage("caption.create.new", i18n.getMessage(getAddWindowCaptionMsg())));
         addWindow.open();
         addWindow.setVisible(Boolean.TRUE);
     }

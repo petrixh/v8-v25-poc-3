@@ -23,10 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.ui.Layout;
 import com.vaadin.flow.component.UI;
 
 /**
@@ -39,6 +37,8 @@ public abstract class AbstractFooterSupport {
     private final UINotification notification;
 
     protected final Span countLabel;
+    // Vaadin 8: the caption of countLabel (Flow spans have no caption)
+    private final Span countLabelCaption;
 
     private final ExecutorService countExecutor;
     private Future<?> currentCountCalculation;
@@ -49,6 +49,7 @@ public abstract class AbstractFooterSupport {
         this.notification = notification;
 
         this.countLabel = new Span();
+        this.countLabelCaption = new Span();
         this.countExecutor = Executors.newSingleThreadExecutor();
 
         init();
@@ -73,13 +74,13 @@ public abstract class AbstractFooterSupport {
      *
      * @return the footer sub-layout.
      */
-    public Layout createFooterMessageComponent() {
+    public HorizontalLayout createFooterMessageComponent() {
         final HorizontalLayout footerLayout = new HorizontalLayout();
         footerLayout.setPadding(false);
         footerLayout.setSpacing(false);
         footerLayout.setWidth("100%");
 
-        footerLayout.add(countLabel);
+        footerLayout.add(countLabelCaption, countLabel);
 
         return footerLayout;
     }
@@ -94,7 +95,7 @@ public abstract class AbstractFooterSupport {
      */
     protected void updateCountAsynchronously(final Runnable countValueUpdater, final Runnable countUiUpdater) {
         abortCurrentCountCalculation();
-        countLabel.setCaption(i18n.getMessage("label.calculating"));
+        setCountLabelCaption(i18n.getMessage("label.calculating"));
 
         currentCountCalculation = submitAsynchronousCountUpdate(countValueUpdater, countUiUpdater);
     }
@@ -110,7 +111,7 @@ public abstract class AbstractFooterSupport {
                 countValueUpdater.run();
 
                 LOG.trace("Finished calculating count asynchronously, updating UI");
-                ui.access(countUiUpdater);
+                ui.access(countUiUpdater::run);
             } catch (final Exception ex) {
                 LOG.error("Error occurred during asynchronous count calculation", ex);
                 ui.access(() -> notification
@@ -131,9 +132,19 @@ public abstract class AbstractFooterSupport {
     protected void updateCountDetailsAsynchronously(final Runnable countDetailsValueUpdater,
             final Runnable countDetailsUiUpdater) {
         abortCurrentDetailsCountCalculation();
-        countLabel.setValue(i18n.getMessage("label.calculating"));
+        countLabel.setText(i18n.getMessage("label.calculating"));
 
         currentCountDetailsCalculation = submitAsynchronousCountUpdate(countDetailsValueUpdater, countDetailsUiUpdater);
+    }
+
+    /**
+     * Vaadin 8: countLabel.setCaption(caption).
+     *
+     * @param caption
+     *            caption shown before the count label, or null for none
+     */
+    protected void setCountLabelCaption(final String caption) {
+        countLabelCaption.setText(caption);
     }
 
     private void abortCurrentCountCalculation() {

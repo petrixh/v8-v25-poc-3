@@ -69,13 +69,14 @@ public class TagAssignementComboBox extends HorizontalLayout {
         final ComboBox<ProxyTag> tagsComboBox = new ComboBox<>();
 
         tagsComboBox.setId(UIComponentIdProvider.TAG_SELECTION_ID);
-        tagsComboBox.setDescription(description);
+        tagsComboBox.setTooltipText(description);
         tagsComboBox.addClassNames("tiny");
         tagsComboBox.setEnabled(!readOnlyMode);
         tagsComboBox.setWidth("100%");
-        tagsComboBox.setEmptySelectionAllowed(true);
+        // Vaadin 8 setEmptySelectionAllowed(true): Flow's clear button
+        tagsComboBox.setClearButtonVisible(true);
 
-        tagsComboBox.setItemCaptionGenerator(ProxyTag::getName);
+        tagsComboBox.setItemLabelGenerator(ProxyTag::getName);
         tagsComboBox.addValueChangeListener(event -> assignTag(event.getValue()));
 
         return tagsComboBox;

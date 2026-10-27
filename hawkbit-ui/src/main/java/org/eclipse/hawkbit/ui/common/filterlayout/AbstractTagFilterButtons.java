@@ -194,7 +194,7 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
     protected void editButtonClickListener(final ProxyTag clickedFilter) {
         final Dialog updateWindow = getUpdateWindow(clickedFilter);
 
-        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.tag")));
+        updateWindow.setHeaderTitle(i18n.getMessage("caption.update", i18n.getMessage("caption.tag")));
         updateWindow.open();
         updateWindow.setVisible(Boolean.TRUE);
     }

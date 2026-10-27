@@ -19,7 +19,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.ui.CheckBox;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 
@@ -93,7 +93,7 @@ public class MetaDataAddUpdateWindowLayoutComponentBuilder {
      *
      * @return Target field CheckBox
      */
-    public CheckBox createVisibleForTargetsField(final Binder<ProxyMetaData> binder) {
+    public Checkbox createVisibleForTargetsField(final Binder<ProxyMetaData> binder) {
         return FormComponentBuilder.createCheckBox(i18n.getMessage(TARGET_VISIBLE),
                 UIComponentIdProvider.METADATA_TARGET_VISIBLE_ID, binder, ProxyMetaData::isVisibleForTargets,
                 ProxyMetaData::setVisibleForTargets);

@@ -20,7 +20,7 @@ import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -100,14 +100,14 @@ public abstract class AbstractGridHeader extends VerticalLayout {
 
         final Component headerCaption = getHeaderCaption();
         headerComponentsLayout.add(headerCaption);
-        headerComponentsLayout.setComponentAlignment(headerCaption, Alignment.TOP_LEFT);
+        headerComponentsLayout.setVerticalComponentAlignment(Alignment.START, headerCaption);
         headerComponentsLayout.setFlexGrow(0.4F, headerCaption);
 
         headerSupports.stream().filter(Objects::nonNull).forEach(headerSupport -> {
             final Component headerComponent = headerSupport.getHeaderComponent();
 
             headerComponentsLayout.add(headerComponent);
-            headerComponentsLayout.setComponentAlignment(headerComponent, Alignment.TOP_RIGHT);
+            headerComponentsLayout.setVerticalComponentAlignment(Alignment.START, headerComponent);
             headerComponentsLayout.setFlexGrow(headerSupport.getExpandRation(), headerComponent);
         });
 

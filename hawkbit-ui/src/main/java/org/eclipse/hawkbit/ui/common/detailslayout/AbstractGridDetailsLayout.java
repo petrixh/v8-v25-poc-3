@@ -98,7 +98,7 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
 
         description.setId(getDetailsDescriptionId());
         description.setReadOnly(true);
-        description.setWordWrap(true);
+        // Vaadin 8 setWordWrap(true): a Flow text area wraps by default
         description.setSizeFull();
         description.setClassName("borderless");
         description.addClassNames("small");
@@ -154,7 +154,7 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
             final String detailsComponentCaption = detailsComponentEntry.getKey();
             final Component detailsComponent = detailsComponentEntry.getValue();
 
-            addTab(buildTabWrapperDetailsLayout(detailsComponent), detailsComponentCaption);
+            add(detailsComponentCaption, buildTabWrapperDetailsLayout(detailsComponent));
         });
     }
 

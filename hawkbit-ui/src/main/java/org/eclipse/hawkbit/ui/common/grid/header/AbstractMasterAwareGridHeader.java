@@ -15,7 +15,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.html.Span;
@@ -86,11 +86,11 @@ public abstract class AbstractMasterAwareGridHeader<T> extends AbstractGridHeade
         masterAwareCaptionLayout.addClassNames("header-caption");
 
         masterAwareCaptionLayout.add(entityDetailsCaption);
-        masterAwareCaptionLayout.setComponentAlignment(entityDetailsCaption, Alignment.TOP_LEFT);
+        masterAwareCaptionLayout.setVerticalComponentAlignment(Alignment.START, entityDetailsCaption);
         masterAwareCaptionLayout.setFlexGrow(0.0F, entityDetailsCaption);
 
         masterAwareCaptionLayout.add(masterEntityDetailsCaption);
-        masterAwareCaptionLayout.setComponentAlignment(masterEntityDetailsCaption, Alignment.TOP_LEFT);
+        masterAwareCaptionLayout.setVerticalComponentAlignment(Alignment.START, masterEntityDetailsCaption);
         masterAwareCaptionLayout.setFlexGrow(1.0F, masterEntityDetailsCaption);
 
         return masterAwareCaptionLayout;
@@ -101,11 +101,11 @@ public abstract class AbstractMasterAwareGridHeader<T> extends AbstractGridHeade
         final String masterEntityName = masterEntity != null ? getMasterEntityName(masterEntity) : "";
 
         if (StringUtils.hasText(masterEntityName)) {
-            entityDetailsCaption.setValue(i18n.getMessage(getEntityDetailsCaptionOfMsgKey()));
-            masterEntityDetailsCaption.setValue(masterEntityName);
+            entityDetailsCaption.setText(i18n.getMessage(getEntityDetailsCaptionOfMsgKey()));
+            masterEntityDetailsCaption.setText(masterEntityName);
         } else {
-            entityDetailsCaption.setValue(i18n.getMessage(getEntityDetailsCaptionMsgKey()));
-            masterEntityDetailsCaption.setValue("");
+            entityDetailsCaption.setText(i18n.getMessage(getEntityDetailsCaptionMsgKey()));
+            masterEntityDetailsCaption.setText("");
         }
     }
 

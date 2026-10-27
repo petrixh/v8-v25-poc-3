@@ -80,7 +80,7 @@ public class DistributionSetDetailsHeader extends AbstractDetailsHeader<ProxyDis
 
         final Dialog updateWindow = dsWindowBuilder.getWindowForUpdate(selectedEntity);
 
-        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.distribution")));
+        updateWindow.setHeaderTitle(i18n.getMessage("caption.update", i18n.getMessage("caption.distribution")));
         updateWindow.open();
         updateWindow.setVisible(Boolean.TRUE);
     }

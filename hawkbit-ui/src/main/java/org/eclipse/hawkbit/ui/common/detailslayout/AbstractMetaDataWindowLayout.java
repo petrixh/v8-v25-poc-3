@@ -26,7 +26,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.ComponentContainer;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 /**
@@ -203,7 +203,7 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
 
         final MetaDataWindowGridLayout metaDataWindowGridLayout = new MetaDataWindowGridLayout(metadataWindowGridHeader,
                 getMetaDataWindowGrid());
-        final ComponentContainer addUpdateWindowLayout = getMetaDataAddUpdateWindowLayout().getRootComponent();
+        final Component addUpdateWindowLayout = getMetaDataAddUpdateWindowLayout().getRootComponent();
 
         add(metaDataWindowGridLayout);
         add(addUpdateWindowLayout);

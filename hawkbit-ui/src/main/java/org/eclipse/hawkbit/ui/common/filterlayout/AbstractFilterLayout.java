@@ -13,9 +13,10 @@ import org.eclipse.hawkbit.ui.common.EventListenersAwareLayout;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 
-import com.vaadin.ui.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.Component;
-import com.vaadin.ui.ComponentContainer;
+import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
@@ -32,22 +33,27 @@ public abstract class AbstractFilterLayout extends VerticalLayout implements Eve
         setPadding(false);
 
         final Component filterHeader = getFilterHeader();
-        final ComponentContainer filterButtons = getFilterContent();
-        // adding border
-        filterButtons.addClassNames("filter-btns-layout");
-        filterButtons.setSizeFull();
+        final Component filterButtons = getFilterContent();
+        // adding border (Vaadin 8: any ComponentContainer; Flow: the
+        // component's style and size mixins)
+        if (filterButtons instanceof HasStyle styledFilterButtons) {
+            styledFilterButtons.addClassNames("filter-btns-layout");
+        }
+        if (filterButtons instanceof HasSize sizedFilterButtons) {
+            sizedFilterButtons.setSizeFull();
+        }
 
         add(filterHeader, filterButtons);
 
-        setComponentAlignment(filterHeader, Alignment.TOP_CENTER);
-        setComponentAlignment(filterButtons, Alignment.TOP_CENTER);
+        setHorizontalComponentAlignment(Alignment.CENTER, filterHeader);
+        setHorizontalComponentAlignment(Alignment.CENTER, filterButtons);
 
         setFlexGrow(1.0F, filterButtons);
     }
 
     protected abstract AbstractGridHeader getFilterHeader();
 
-    protected abstract ComponentContainer getFilterContent();
+    protected abstract Component getFilterContent();
 
     protected static VerticalLayout wrapFilterContent(final Component filterContent) {
         final VerticalLayout filterContentWrapper = new VerticalLayout();
@@ -55,7 +61,7 @@ public abstract class AbstractFilterLayout extends VerticalLayout implements Eve
         filterContentWrapper.setSpacing(false);
 
         filterContentWrapper.add(filterContent);
-        filterContentWrapper.setComponentAlignment(filterContent, Alignment.TOP_LEFT);
+        filterContentWrapper.setHorizontalComponentAlignment(Alignment.START, filterContent);
         filterContentWrapper.setFlexGrow(1.0F, filterContent);
 
         return filterContentWrapper;
