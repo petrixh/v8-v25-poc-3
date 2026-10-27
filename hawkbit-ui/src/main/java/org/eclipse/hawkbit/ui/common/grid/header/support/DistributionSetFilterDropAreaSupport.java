@@ -32,7 +32,7 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Alignment;
 import com.vaadin.flow.component.button.Button;
@@ -90,7 +90,7 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
         final HorizontalLayout dropArea = new HorizontalLayout();
 
         dropArea.setId(UIComponentIdProvider.TARGET_DROP_FILTER_ICON);
-        dropArea.setStyleName("target-dist-filter-info");
+        dropArea.setClassName("target-dist-filter-info");
         dropArea.setSizeUndefined();
 
         return dropArea;
@@ -99,7 +99,7 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
     private HorizontalLayout buildDsDropArea() {
         final HorizontalLayout hintDropFilterLayout = new HorizontalLayout();
 
-        hintDropFilterLayout.addStyleName("filter-drop-hint-layout");
+        hintDropFilterLayout.addClassNames("filter-drop-hint-layout");
         hintDropFilterLayout.setWidth(100, Unit.PERCENTAGE);
 
         final DropTargetExtension<HorizontalLayout> dropExtension = new DropTargetExtension<>(hintDropFilterLayout);
@@ -117,9 +117,9 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
             }
         });
 
-        hintDropFilterLayout.addComponent(currentDsFilterInfo);
+        hintDropFilterLayout.add(currentDsFilterInfo);
         hintDropFilterLayout.setComponentAlignment(currentDsFilterInfo, Alignment.TOP_CENTER);
-        hintDropFilterLayout.setExpandRatio(currentDsFilterInfo, 1.0F);
+        hintDropFilterLayout.setFlexGrow(1.0F, currentDsFilterInfo);
 
         return hintDropFilterLayout;
     }
@@ -142,19 +142,19 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
 
     private void addDsFilterDropAreaTextField(final String dsNameAndVersion) {
         final Button filterLabelClose = SPUIComponentProvider.getButton("drop.filter.close", "", "", "", true,
-                VaadinIcons.CLOSE_CIRCLE, SPUIButtonStyleNoBorder.class);
+                VaadinIcon.CLOSE_CIRCLE, SPUIButtonStyleNoBorder.class);
         filterLabelClose.addClickListener(event -> removeFilter());
 
         final Label filteredDistLabel = new Label();
-        filteredDistLabel.setStyleName(ValoTheme.LABEL_COLORED + " " + ValoTheme.LABEL_SMALL);
+        filteredDistLabel.setClassName(ValoTheme.LABEL_COLORED + " " + ValoTheme.LABEL_SMALL);
         filteredDistLabel.setValue(sanitizeDsNameVersion(dsNameAndVersion));
         filteredDistLabel.setSizeUndefined();
 
-        currentDsFilterInfo.removeAllComponents();
+        currentDsFilterInfo.removeAll();
         currentDsFilterInfo.setSizeFull();
-        currentDsFilterInfo.addComponent(filteredDistLabel);
-        currentDsFilterInfo.addComponent(filterLabelClose);
-        currentDsFilterInfo.setExpandRatio(filteredDistLabel, 1.0F);
+        currentDsFilterInfo.add(filteredDistLabel);
+        currentDsFilterInfo.add(filterLabelClose);
+        currentDsFilterInfo.setFlexGrow(1.0F, filteredDistLabel);
     }
 
     private void removeFilter() {
@@ -167,7 +167,7 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
      * Remove the components from current distribution set filter info
      */
     public void reset() {
-        currentDsFilterInfo.removeAllComponents();
+        currentDsFilterInfo.removeAll();
         currentDsFilterInfo.setSizeUndefined();
 
         targetGridLayoutUiState.setFilterDsInfo(null);

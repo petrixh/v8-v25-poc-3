@@ -30,7 +30,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.ui.Alignment;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.ui.CssLayout;
@@ -71,7 +71,7 @@ public class TagListField extends CssLayout {
      *            assigned tags
      */
     void initializeAssignedTags(final List<ProxyTag> assignedTags) {
-        removeAllComponents();
+        removeAll();
 
         assignedTags.forEach(tag -> {
             final HorizontalLayout tagButtonLayout = buildTagButtonLayout(tag);
@@ -89,7 +89,7 @@ public class TagListField extends CssLayout {
      */
     void addTag(final ProxyTag tagData) {
         if (!tagButtons.containsKey(tagData)) {
-            removeAllComponents();
+            removeAll();
 
             final HorizontalLayout tagButtonLayout = buildTagButtonLayout(tagData);
             tagButtons.put(tagData, tagButtonLayout);
@@ -108,22 +108,22 @@ public class TagListField extends CssLayout {
 
         final HorizontalLayout tagButtonLayout = new HorizontalLayout();
         tagButtonLayout.setSpacing(false);
-        tagButtonLayout.setMargin(false);
-        tagButtonLayout.addStyleName(SPUIStyleDefinitions.TAG_BUTTON_WITH_BACKGROUND);
+        tagButtonLayout.setPadding(false);
+        tagButtonLayout.addClassNames(SPUIStyleDefinitions.TAG_BUTTON_WITH_BACKGROUND);
 
-        tagButtonLayout.addComponent(colourIcon);
+        tagButtonLayout.add(colourIcon);
         tagButtonLayout.setComponentAlignment(colourIcon, Alignment.MIDDLE_LEFT);
-        tagButtonLayout.setExpandRatio(colourIcon, 0.0F);
+        tagButtonLayout.setFlexGrow(0.0F, colourIcon);
 
-        tagButtonLayout.addComponent(tagButton);
+        tagButtonLayout.add(tagButton);
         tagButtonLayout.setComponentAlignment(tagButton, Alignment.MIDDLE_LEFT);
-        tagButtonLayout.setExpandRatio(tagButton, 1.0F);
+        tagButtonLayout.setFlexGrow(1.0F, tagButton);
 
         return tagButtonLayout;
     }
 
     private static final Label buildColourIcon(final Long clickedFilterId, final String colour) {
-        final ProxyFontIcon colourFontIcon = new ProxyFontIcon(VaadinIcons.CIRCLE, ValoTheme.LABEL_TINY, "", colour);
+        final ProxyFontIcon colourFontIcon = new ProxyFontIcon(VaadinIcon.CIRCLE, ValoTheme.LABEL_TINY, "", colour);
         final String colourIconId = new StringBuilder(UIComponentIdProvider.ASSIGNED_TAG_ID_PREFIX)
                 .append(".colour-icon.").append(clickedFilterId).toString();
 
@@ -137,9 +137,9 @@ public class TagListField extends CssLayout {
         final Button tagButton = new Button(tagData.getName().concat(" ×"), e -> removeTagAssignment(tagData));
         tagButton.setId(tagButtonId);
         tagButton.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_REMOVE));
-        tagButton.addStyleName(SPUIDefinitions.TEXT_STYLE);
-        tagButton.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-        tagButton.addStyleName("button-no-border");
+        tagButton.addClassNames(SPUIDefinitions.TEXT_STYLE);
+        tagButton.addClassNames(ValoTheme.BUTTON_BORDERLESS);
+        tagButton.addClassNames("button-no-border");
 
         tagButton.setEnabled(!readOnlyMode);
 
@@ -176,7 +176,7 @@ public class TagListField extends CssLayout {
         final HorizontalLayout buttonLayout = tagButtons.get(tagData);
         if (buttonLayout != null) {
             tagButtons.remove(tagData);
-            removeComponent(buttonLayout);
+            remove(buttonLayout);
         }
     }
 
@@ -193,7 +193,7 @@ public class TagListField extends CssLayout {
      * Removes all tags from the field.
      */
     void removeAllTags() {
-        removeAllComponents();
+        removeAll();
         tagButtons.clear();
     }
 

@@ -59,16 +59,16 @@ public class TargetFilterQueryDetailsGrid extends AbstractGrid<ProxyTargetFilter
 
         setHeightMode(HeightMode.UNDEFINED);
 
-        addStyleName(ValoTheme.TABLE_NO_STRIPES);
-        addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
+        addClassNames(ValoTheme.TABLE_NO_STRIPES);
+        addClassNames(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
     }
 
     @Override
     public void addColumns() {
         GridComponentBuilder.addColumn(this, ProxyTargetFilterQuery::getName).setId(TFQ_NAME_ID)
-                .setCaption(i18n.getMessage("header.target.filter.name")).setExpandRatio(2);
+                .setCaption(i18n.getMessage("header.target.filter.name")).setFlexGrow((int) 2);
         GridComponentBuilder.addColumn(this, ProxyTargetFilterQuery::getQuery).setId(TFQ_QUERY_ID)
-                .setCaption(i18n.getMessage("header.target.filter.query")).setExpandRatio(3);
+                .setCaption(i18n.getMessage("header.target.filter.query")).setFlexGrow((int) 3);
     }
 
     @Override

@@ -192,7 +192,7 @@ public class WindowBuilder {
         if (SPUIDefinitions.CONFIRMATION_WINDOW.equals(type)) {
             window.setDraggable(false);
             window.setClosable(true);
-            window.addStyleName(SPUIStyleDefinitions.CONFIRMATION_WINDOW_CAPTION);
+            window.addClassNames(SPUIStyleDefinitions.CONFIRMATION_WINDOW_CAPTION);
 
         } else if (SPUIDefinitions.CREATE_UPDATE_WINDOW.equals(type)) {
             window.setDraggable(true);

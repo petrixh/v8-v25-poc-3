@@ -58,7 +58,7 @@ public class MetadataWindowGridHeader extends AbstractGridHeader {
 
         setWidth("100%");
         setHeight("30px");
-        addStyleName("metadata-table-margin");
+        addClassNames("metadata-table-margin");
     }
 
     @Override

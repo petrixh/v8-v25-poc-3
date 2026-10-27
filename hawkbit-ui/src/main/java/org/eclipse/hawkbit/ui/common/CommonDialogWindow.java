@@ -19,7 +19,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.flow.component.button.Button;
@@ -131,22 +131,22 @@ public class CommonDialogWindow extends Window {
     }
 
     private final void init() {
-        mainLayout.setMargin(false);
+        mainLayout.setPadding(false);
         mainLayout.setSpacing(false);
 
         if (content instanceof GridLayout) {
-            addStyleName("marginTop");
+            addClassNames("marginTop");
         }
 
         if (content != null) {
-            mainLayout.addComponent(content);
-            mainLayout.setExpandRatio(content, 1.0F);
+            mainLayout.add(content);
+            mainLayout.setFlexGrow(1.0F, content);
         }
 
         createMandatoryLabel();
 
         final HorizontalLayout buttonLayout = createActionButtonsLayout();
-        mainLayout.addComponent(buttonLayout);
+        mainLayout.add(buttonLayout);
         mainLayout.setComponentAlignment(buttonLayout, Alignment.TOP_CENTER);
 
         setCaptionAsHtml(false);
@@ -155,7 +155,7 @@ public class CommonDialogWindow extends Window {
         setResizable(false);
         center();
         setModal(true);
-        addStyleName("fontsize");
+        addClassNames("fontsize");
     }
 
     protected void addCloseListenerForSaveButton() {
@@ -170,7 +170,7 @@ public class CommonDialogWindow extends Window {
 
         buttonsLayout = new HorizontalLayout();
         buttonsLayout.setSizeFull();
-        buttonsLayout.addStyleName("actionButtonsMargin");
+        buttonsLayout.addClassNames("actionButtonsMargin");
 
         createSaveButton();
         createCancelButton();
@@ -183,9 +183,9 @@ public class CommonDialogWindow extends Window {
     private void createMandatoryLabel() {
 
         mandatoryLabel = new Label(i18n.getMessage("label.mandatory.field"));
-        mandatoryLabel.addStyleName(SPUIStyleDefinitions.SP_TEXTFIELD_ERROR + " " + ValoTheme.LABEL_TINY);
+        mandatoryLabel.addClassNames(SPUIStyleDefinitions.SP_TEXTFIELD_ERROR + " " + ValoTheme.LABEL_TINY);
 
-        mainLayout.addComponent(mandatoryLabel);
+        mainLayout.add(mandatoryLabel);
     }
 
     /**
@@ -194,30 +194,30 @@ public class CommonDialogWindow extends Window {
      */
     public void hideMandatoryExplanation() {
         if (mandatoryLabel != null) {
-            mainLayout.removeComponent(mandatoryLabel);
+            mainLayout.remove(mandatoryLabel);
         }
     }
 
     private void createCancelButton() {
         cancelButton = SPUIComponentProvider.getButton(UIComponentIdProvider.CANCEL_BUTTON,
-                i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL), "", "", true, VaadinIcons.CLOSE,
+                i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL), "", "", true, VaadinIcon.CLOSE,
                 SPUIButtonStyleNoBorderWithIcon.class);
         cancelButton.setSizeUndefined();
-        cancelButton.addStyleName("default-color");
+        cancelButton.addClassNames("default-color");
         addCloseListenerForCancelButton();
         if (cancelButtonClickListener != null) {
             cancelButton.addClickListener(cancelButtonClickListener);
         }
 
-        buttonsLayout.addComponent(cancelButton);
+        buttonsLayout.add(cancelButton);
         buttonsLayout.setComponentAlignment(cancelButton, Alignment.MIDDLE_LEFT);
-        buttonsLayout.setExpandRatio(cancelButton, 1.0F);
+        buttonsLayout.setFlexGrow(1.0F, cancelButton);
     }
 
     private void createSaveButton() {
         if (confirmStyle == ConfirmStyle.SAVE) {
             confirmButton = SPUIComponentProvider.getButton(UIComponentIdProvider.SAVE_BUTTON,
-                    i18n.getMessage(UIMessageIdProvider.BUTTON_SAVE), "", "", true, VaadinIcons.HARDDRIVE,
+                    i18n.getMessage(UIMessageIdProvider.BUTTON_SAVE), "", "", true, VaadinIcon.HARDDRIVE,
                     buttonDecorator);
         } else if (confirmStyle == ConfirmStyle.NEXT) {
             confirmButton = SPUIComponentProvider.getButton(UIComponentIdProvider.OK_BUTTON,
@@ -233,13 +233,13 @@ public class CommonDialogWindow extends Window {
                     buttonDecorator);
         }
         confirmButton.setSizeUndefined();
-        confirmButton.addStyleName("default-color");
+        confirmButton.addClassNames("default-color");
         addCloseListenerForSaveButton();
         confirmButton.setEnabled(false);
         confirmButton.setClickShortcut(KeyCode.ENTER);
-        buttonsLayout.addComponent(confirmButton);
+        buttonsLayout.add(confirmButton);
         buttonsLayout.setComponentAlignment(confirmButton, Alignment.MIDDLE_RIGHT);
-        buttonsLayout.setExpandRatio(confirmButton, 1.0F);
+        buttonsLayout.setFlexGrow(1.0F, confirmButton);
     }
 
     private void addHelpLink() {
@@ -248,7 +248,7 @@ public class CommonDialogWindow extends Window {
             return;
         }
         final Link helpLinkComponent = SPUIComponentProvider.getHelpLink(i18n, helpLink);
-        buttonsLayout.addComponent(helpLinkComponent);
+        buttonsLayout.add(helpLinkComponent);
         buttonsLayout.setComponentAlignment(helpLinkComponent, Alignment.MIDDLE_RIGHT);
     }
 

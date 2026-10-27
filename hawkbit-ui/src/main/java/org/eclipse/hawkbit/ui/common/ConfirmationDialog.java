@@ -74,17 +74,17 @@ public class ConfirmationDialog implements Serializable {
             final String id, final Component tab) {
 
         final VerticalLayout content = new VerticalLayout();
-        content.setMargin(false);
+        content.setPadding(false);
         content.setSpacing(false);
 
         if (question != null) {
-            content.addComponent(createConfirmationLabel(question));
+            content.add(createConfirmationLabel(question));
         }
         if (hint != null) {
-            content.addComponent(createConfirmationLabel(hint));
+            content.add(createConfirmationLabel(hint));
         }
         if (tab != null) {
-            content.addComponent(tab);
+            content.add(tab);
         }
         final WindowBuilder windowBuilder = new WindowBuilder(SPUIDefinitions.CONFIRMATION_WINDOW).caption(caption)
                 .content(content).cancelButtonClickListener(e -> {
@@ -105,7 +105,7 @@ public class ConfirmationDialog implements Serializable {
             window.setIcon(icon);
         }
 
-        window.addStyleName(SPUIStyleDefinitions.CONFIRMBOX_WINDOW_STYLE);
+        window.addClassNames(SPUIStyleDefinitions.CONFIRMBOX_WINDOW_STYLE);
     }
 
     private SaveDialogCloseListener getSaveDialogCloseListener() {
@@ -130,7 +130,7 @@ public class ConfirmationDialog implements Serializable {
         final String questionHtmlSave = HawkbitCommonUtil.sanitizeHtml(text);
         final Label questionLbl = new Label(questionHtmlSave, ContentMode.HTML);
         questionLbl.setWidth(100, Unit.PERCENTAGE);
-        questionLbl.addStyleName(SPUIStyleDefinitions.CONFIRMBOX_QUESTION_LABEL);
+        questionLbl.addClassNames(SPUIStyleDefinitions.CONFIRMBOX_QUESTION_LABEL);
 
         return questionLbl;
     }

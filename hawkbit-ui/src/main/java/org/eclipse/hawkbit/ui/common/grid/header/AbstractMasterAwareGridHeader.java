@@ -55,8 +55,8 @@ public abstract class AbstractMasterAwareGridHeader<T> extends AbstractGridHeade
     private Label buildEntityDetailsCaption() {
         final Label caption = new Label(i18n.getMessage(getEntityDetailsCaptionMsgKey()));
 
-        caption.addStyleName(ValoTheme.LABEL_SMALL);
-        caption.addStyleName(ValoTheme.LABEL_BOLD);
+        caption.addClassNames(ValoTheme.LABEL_SMALL);
+        caption.addClassNames(ValoTheme.LABEL_BOLD);
 
         return caption;
     }
@@ -68,10 +68,10 @@ public abstract class AbstractMasterAwareGridHeader<T> extends AbstractGridHeade
 
         caption.setId(getMasterEntityDetailsCaptionId());
         caption.setWidthFull();
-        caption.addStyleName(ValoTheme.LABEL_SMALL);
-        caption.addStyleName(ValoTheme.LABEL_BOLD);
-        caption.addStyleName("text-bold");
-        caption.addStyleName("text-cut");
+        caption.addClassNames(ValoTheme.LABEL_SMALL);
+        caption.addClassNames(ValoTheme.LABEL_BOLD);
+        caption.addClassNames("text-bold");
+        caption.addClassNames("text-cut");
 
         return caption;
     }
@@ -81,18 +81,18 @@ public abstract class AbstractMasterAwareGridHeader<T> extends AbstractGridHeade
     @Override
     protected Component getHeaderCaption() {
         final HorizontalLayout masterAwareCaptionLayout = new HorizontalLayout();
-        masterAwareCaptionLayout.setMargin(false);
+        masterAwareCaptionLayout.setPadding(false);
         masterAwareCaptionLayout.setSpacing(true);
         masterAwareCaptionLayout.setSizeFull();
-        masterAwareCaptionLayout.addStyleName("header-caption");
+        masterAwareCaptionLayout.addClassNames("header-caption");
 
-        masterAwareCaptionLayout.addComponent(entityDetailsCaption);
+        masterAwareCaptionLayout.add(entityDetailsCaption);
         masterAwareCaptionLayout.setComponentAlignment(entityDetailsCaption, Alignment.TOP_LEFT);
-        masterAwareCaptionLayout.setExpandRatio(entityDetailsCaption, 0.0F);
+        masterAwareCaptionLayout.setFlexGrow(0.0F, entityDetailsCaption);
 
-        masterAwareCaptionLayout.addComponent(masterEntityDetailsCaption);
+        masterAwareCaptionLayout.add(masterEntityDetailsCaption);
         masterAwareCaptionLayout.setComponentAlignment(masterEntityDetailsCaption, Alignment.TOP_LEFT);
-        masterAwareCaptionLayout.setExpandRatio(masterEntityDetailsCaption, 1.0F);
+        masterAwareCaptionLayout.setFlexGrow(1.0F, masterEntityDetailsCaption);
 
         return masterAwareCaptionLayout;
     }

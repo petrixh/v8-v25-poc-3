@@ -59,7 +59,7 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity>
         tagPanelLayout.addTagAssignmentListener(this);
 
         tagPanelLayout.setSpacing(false);
-        tagPanelLayout.setMargin(false);
+        tagPanelLayout.setPadding(false);
         tagPanelLayout.setSizeFull();
     }
 

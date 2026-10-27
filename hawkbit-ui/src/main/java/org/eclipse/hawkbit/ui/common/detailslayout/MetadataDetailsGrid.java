@@ -74,12 +74,12 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> imple
         setHeaderVisible(false);
         setHeightMode(HeightMode.UNDEFINED);
 
-        addStyleName("metadata-details");
-        addStyleName(ValoTheme.TABLE_NO_STRIPES);
-        addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-        addStyleName(ValoTheme.TABLE_BORDERLESS);
-        addStyleName(ValoTheme.TABLE_COMPACT);
+        addClassNames("metadata-details");
+        addClassNames(ValoTheme.TABLE_NO_STRIPES);
+        addClassNames(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
+        addClassNames(ValoTheme.TABLE_NO_VERTICAL_LINES);
+        addClassNames(ValoTheme.TABLE_BORDERLESS);
+        addClassNames(ValoTheme.TABLE_COMPACT);
     }
 
     @Override

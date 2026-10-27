@@ -117,9 +117,9 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
         final boolean isNoTagActivated = ClickBehaviourType.CLICKED == clickType;
 
         if (isNoTagActivated) {
-            getNoTagButton().addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+            getNoTagButton().addClassNames(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         } else {
-            getNoTagButton().removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+            getNoTagButton().removeClassNames(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         }
 
         publishNoTagChangedEvent(isNoTagActivated);
@@ -222,7 +222,7 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
         if (getFilterButtonClickBehaviour().getPreviouslyClickedFiltersSize() > 0) {
             if (tagFilterLayoutUiState.isNoTagClicked()) {
                 tagFilterLayoutUiState.setNoTagClicked(false);
-                getNoTagButton().removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+                getNoTagButton().removeClassNames(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
             }
 
             getFilterButtonClickBehaviour().clearPreviouslyClickedFilters();
@@ -240,7 +240,7 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
         }
 
         if (tagFilterLayoutUiState.isNoTagClicked()) {
-            getNoTagButton().addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+            getNoTagButton().addClassNames(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         }
     }
 

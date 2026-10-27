@@ -45,11 +45,11 @@ public class TagPanelLayout extends VerticalLayout {
         this.assignableTagsComboBox = new TagAssignementComboBox(i18n, readOnlyMode);
         this.assignedTagField = new TagListField(i18n, readOnlyMode);
 
-        addComponent(assignableTagsComboBox);
-        addComponent(assignedTagField);
+        add(assignableTagsComboBox);
+        add(assignedTagField);
 
-        setExpandRatio(assignedTagField, 1.0F);
-        setExpandRatio(assignableTagsComboBox, 0.0F);
+        setFlexGrow(1.0F, assignedTagField);
+        setFlexGrow(0.0F, assignableTagsComboBox);
     }
 
     /**

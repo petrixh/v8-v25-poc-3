@@ -43,7 +43,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -121,7 +121,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
         setSizeFull();
         setHeightMode(HeightMode.UNDEFINED);
 
-        addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
+        addClassNames(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
 
         setSelectionMode(SelectionMode.NONE);
 
@@ -144,12 +144,12 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
         final Label isMandatoryLabel = new Label("");
 
         isMandatoryLabel.setSizeFull();
-        isMandatoryLabel.addStyleName(SPUIDefinitions.TEXT_STYLE);
-        isMandatoryLabel.addStyleName("text-cut");
+        isMandatoryLabel.addClassNames(SPUIDefinitions.TEXT_STYLE);
+        isMandatoryLabel.addClassNames("text-cut");
 
         if (softwareModuleDetails.isMandatory() && !isTypeAlreadyAdded(softwareModuleDetails.getTypeId())) {
             isMandatoryLabel.setValue("*");
-            isMandatoryLabel.setStyleName(SPUIStyleDefinitions.SP_TEXTFIELD_ERROR);
+            isMandatoryLabel.setClassName(SPUIStyleDefinitions.SP_TEXTFIELD_ERROR);
         }
 
         return isMandatoryLabel;
@@ -179,14 +179,14 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
 
         final HorizontalLayout smLabelWithUnassignButtonLayout = new HorizontalLayout();
         smLabelWithUnassignButtonLayout.setSpacing(false);
-        smLabelWithUnassignButtonLayout.setMargin(false);
+        smLabelWithUnassignButtonLayout.setPadding(false);
         smLabelWithUnassignButtonLayout.setSizeFull();
 
         if (smId != null && !StringUtils.isEmpty(smNameVersion)) {
-            smLabelWithUnassignButtonLayout.addComponent(buildSmLabel(smId, smNameVersion));
+            smLabelWithUnassignButtonLayout.add(buildSmLabel(smId, smNameVersion));
 
             if (isUnassignSmAllowed && permissionChecker.hasUpdateRepositoryPermission() && masterEntity.getIsValid()) {
-                smLabelWithUnassignButtonLayout.addComponent(buildSmUnassignButton(smId, smNameVersion));
+                smLabelWithUnassignButtonLayout.add(buildSmUnassignButton(smId, smNameVersion));
             }
         }
 
@@ -198,19 +198,19 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
 
         smLabel.setId("sm-label-" + smId);
         smLabel.setSizeFull();
-        smLabel.addStyleName(SPUIDefinitions.TEXT_STYLE);
-        smLabel.addStyleName("text-cut");
+        smLabel.addClassNames(SPUIDefinitions.TEXT_STYLE);
+        smLabel.addClassNames("text-cut");
 
         return smLabel;
     }
 
     private Button buildSmUnassignButton(final Long smId, final String smNameAndVersion) {
-        final Button unassignSoftwareModuleButton = new Button(VaadinIcons.CLOSE_SMALL);
+        final Button unassignSoftwareModuleButton = new Button(VaadinIcon.CLOSE_SMALL);
 
         unassignSoftwareModuleButton.setId("sm-unassign-button-" + smId);
-        unassignSoftwareModuleButton.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-        unassignSoftwareModuleButton.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-        unassignSoftwareModuleButton.addStyleName("button-no-border");
+        unassignSoftwareModuleButton.addClassNames(ValoTheme.BUTTON_BORDERLESS);
+        unassignSoftwareModuleButton.addClassNames(ValoTheme.BUTTON_ICON_ONLY);
+        unassignSoftwareModuleButton.addClassNames("button-no-border");
 
         unassignSoftwareModuleButton.addClickListener(event -> unassignSoftwareModule(smId, smNameAndVersion));
 

@@ -41,8 +41,8 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout impleme
     protected void init() {
         setSizeFull();
         setSpacing(true);
-        setMargin(false);
-        setStyleName("group");
+        setPadding(false);
+        setClassName("group");
     }
 
     /**
@@ -52,20 +52,20 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout impleme
         final VerticalLayout gridHeaderLayout = new VerticalLayout();
         gridHeaderLayout.setSizeFull();
         gridHeaderLayout.setSpacing(false);
-        gridHeaderLayout.setMargin(false);
+        gridHeaderLayout.setPadding(false);
 
-        gridHeaderLayout.setStyleName("table-layout");
+        gridHeaderLayout.setClassName("table-layout");
 
-        gridHeaderLayout.addComponent(gridHeader);
+        gridHeaderLayout.add(gridHeader);
         gridHeaderLayout.setComponentAlignment(gridHeader, Alignment.TOP_CENTER);
 
-        gridHeaderLayout.addComponent(grid);
+        gridHeaderLayout.add(grid);
         gridHeaderLayout.setComponentAlignment(grid, Alignment.TOP_CENTER);
-        gridHeaderLayout.setExpandRatio(grid, 1.0F);
+        gridHeaderLayout.setFlexGrow(1.0F, grid);
 
-        addComponent(gridHeaderLayout);
+        add(gridHeaderLayout);
         setComponentAlignment(gridHeaderLayout, Alignment.TOP_CENTER);
-        setExpandRatio(gridHeaderLayout, 1.0F);
+        setFlexGrow(1.0F, gridHeaderLayout);
     }
 
     /**
@@ -76,7 +76,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout impleme
             final Component detailsLayout) {
         buildLayout(gridHeader, grid);
 
-        addComponent(detailsLayout);
+        add(detailsLayout);
         setComponentAlignment(detailsLayout, Alignment.TOP_CENTER);
 
         this.detailsLayout = detailsLayout;
@@ -91,16 +91,16 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout impleme
         final VerticalLayout detailsHeaderLayout = new VerticalLayout();
         detailsHeaderLayout.setSizeFull();
         detailsHeaderLayout.setSpacing(false);
-        detailsHeaderLayout.setMargin(false);
-        detailsHeaderLayout.setHeightUndefined();
-        detailsHeaderLayout.addStyleName(SPUIStyleDefinitions.WIDGET_STYLE);
+        detailsHeaderLayout.setPadding(false);
+        detailsHeaderLayout.setHeight(null);
+        detailsHeaderLayout.addClassNames(SPUIStyleDefinitions.WIDGET_STYLE);
 
-        detailsHeaderLayout.addComponent(gridDetailsHeader);
+        detailsHeaderLayout.add(gridDetailsHeader);
         detailsHeaderLayout.setComponentAlignment(gridDetailsHeader, Alignment.TOP_CENTER);
 
-        detailsHeaderLayout.addComponent(gridDetailsLayout);
+        detailsHeaderLayout.add(gridDetailsLayout);
         detailsHeaderLayout.setComponentAlignment(gridDetailsLayout, Alignment.TOP_CENTER);
-        detailsHeaderLayout.setExpandRatio(gridDetailsLayout, 1.0F);
+        detailsHeaderLayout.setFlexGrow(1.0F, gridDetailsLayout);
 
         buildLayout(gridHeader, grid, detailsHeaderLayout);
     }
@@ -113,7 +113,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout impleme
         buildLayout(gridHeader, grid);
 
         final Layout footerLayout = footerSupport.createFooterMessageComponent();
-        addComponent(footerLayout);
+        add(footerLayout);
         setComponentAlignment(footerLayout, Alignment.BOTTOM_CENTER);
     }
 
@@ -127,7 +127,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout impleme
         buildLayout(gridHeader, grid, gridDetailsHeader, gridDetailsLayout);
 
         final Layout footerLayout = footerSupport.createFooterMessageComponent();
-        addComponent(footerLayout);
+        add(footerLayout);
         setComponentAlignment(footerLayout, Alignment.BOTTOM_CENTER);
     }
 

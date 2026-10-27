@@ -15,7 +15,7 @@ import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.Component;
 
@@ -50,7 +50,7 @@ public class EditDetailsHeaderSupport implements HeaderSupport {
 
     private Button createEditIcon() {
         final Button editButton = SPUIComponentProvider.getButton("", "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_UPDATE), null, false, VaadinIcons.PENCIL,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_UPDATE), null, false, VaadinIcon.PENCIL,
                 SPUIButtonStyleNoBorder.class);
 
         editButton.setId(editIconId);

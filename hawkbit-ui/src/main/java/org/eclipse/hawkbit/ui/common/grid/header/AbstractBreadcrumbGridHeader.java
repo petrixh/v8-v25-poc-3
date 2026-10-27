@@ -57,7 +57,7 @@ public abstract class AbstractBreadcrumbGridHeader extends AbstractGridHeader {
 
     private Label createHeaderCaptionDetails() {
         final Label captionDetails = new LabelBuilder().id(getHeaderCaptionDetailsId()).name("").buildCaptionLabel();
-        captionDetails.addStyleName("breadcrumbPaddingLeft");
+        captionDetails.addClassNames("breadcrumbPaddingLeft");
 
         return captionDetails;
     }
@@ -77,15 +77,15 @@ public abstract class AbstractBreadcrumbGridHeader extends AbstractGridHeader {
     @Override
     protected Component getHeaderCaption() {
         final HorizontalLayout headerCaptionLayout = new HorizontalLayout();
-        headerCaptionLayout.setMargin(false);
+        headerCaptionLayout.setPadding(false);
         headerCaptionLayout.setSpacing(false);
 
         breadcrumbLinks.stream().filter(Objects::nonNull).forEach(breadcrumbLink -> {
-            headerCaptionLayout.addComponent(breadcrumbLink.getComponent());
-            headerCaptionLayout.addComponent(new Label(">"));
+            headerCaptionLayout.add(breadcrumbLink.getComponent());
+            headerCaptionLayout.add(new Label(">"));
         });
 
-        headerCaptionLayout.addComponent(headerCaptionDetails);
+        headerCaptionLayout.add(headerCaptionDetails);
 
         return headerCaptionLayout;
     }
@@ -114,7 +114,7 @@ public abstract class AbstractBreadcrumbGridHeader extends AbstractGridHeader {
                 final Runnable clickCallback) {
             final Button link = SPUIComponentProvider.getButton(null, "", "", null, false, null,
                     SPUIButtonStyleNoBorder.class);
-            link.setStyleName(ValoTheme.LINK_SMALL + " " + "on-focus-no-border link rollout-caption-links");
+            link.setClassName(ValoTheme.LINK_SMALL + " " + "on-focus-no-border link rollout-caption-links");
 
             link.setDescription(description);
             link.setCaption(caption);

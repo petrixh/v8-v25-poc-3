@@ -33,7 +33,7 @@ public class TextFieldBuilder extends AbstractTextFieldBuilder<TextFieldBuilder,
     @Override
     protected TextField createTextComponent() {
         final TextField textField = new TextField();
-        textField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        textField.addClassNames(ValoTheme.TEXTFIELD_SMALL);
         textField.setValueChangeMode(ValueChangeMode.LAZY);
         textField.setValueChangeTimeout(INPUT_DEBOUNCE_TIMEOUT);
 

@@ -54,9 +54,9 @@ public class EntityDraggingListener extends TopicEventListener {
         }
 
         if (eventPayload.getDraggingEventType() == DraggingEventType.STARTED) {
-            dropComponent.addStyleName(DROP_HINT_STYLE);
+            dropComponent.addClassNames(DROP_HINT_STYLE);
         } else {
-            dropComponent.removeStyleName(DROP_HINT_STYLE);
+            dropComponent.removeClassNames(DROP_HINT_STYLE);
         }
     }
 }

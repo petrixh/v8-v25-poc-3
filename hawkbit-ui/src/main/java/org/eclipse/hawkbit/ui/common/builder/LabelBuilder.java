@@ -83,7 +83,7 @@ public class LabelBuilder {
      */
     public Label buildCaptionLabel() {
         final Label label = createLabel();
-        label.addStyleName("header-caption");
+        label.addClassNames("header-caption");
         return label;
     }
 
@@ -109,7 +109,7 @@ public class LabelBuilder {
         final StringBuilder style = new StringBuilder(ValoTheme.LABEL_SMALL);
         style.append(' ');
         style.append(ValoTheme.LABEL_BOLD);
-        label.addStyleName(style.toString());
+        label.addClassNames(style.toString());
         if (id != null) {
             label.setId(id);
         }

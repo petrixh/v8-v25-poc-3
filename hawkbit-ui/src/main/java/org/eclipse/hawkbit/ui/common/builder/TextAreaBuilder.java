@@ -33,7 +33,7 @@ public class TextAreaBuilder extends AbstractTextFieldBuilder<TextAreaBuilder, T
     @Override
     protected TextArea createTextComponent() {
         final TextArea textArea = new TextArea();
-        textArea.addStyleName(ValoTheme.TEXTAREA_SMALL);
+        textArea.addClassNames(ValoTheme.TEXTAREA_SMALL);
         textArea.setValueChangeMode(ValueChangeMode.LAZY);
         textArea.setValueChangeTimeout(INPUT_DEBOUNCE_TIMEOUT);
 

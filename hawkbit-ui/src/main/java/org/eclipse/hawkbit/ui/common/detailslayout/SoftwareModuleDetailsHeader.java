@@ -161,7 +161,7 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
         artifactDtlsWindow.setResizable(true);
         artifactDtlsWindow.setWindowMode(WindowMode.NORMAL);
         artifactDtlsWindow.setModal(true);
-        artifactDtlsWindow.addStyleName(SPUIStyleDefinitions.CONFIRMATION_WINDOW_CAPTION);
+        artifactDtlsWindow.addClassNames(SPUIStyleDefinitions.CONFIRMATION_WINDOW_CAPTION);
 
         artifactDtlsWindow
                 .setAssistivePrefix(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS_OF) + " " + "<b>");

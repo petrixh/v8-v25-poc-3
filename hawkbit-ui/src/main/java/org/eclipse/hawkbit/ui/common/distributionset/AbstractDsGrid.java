@@ -81,7 +81,7 @@ public abstract class AbstractDsGrid<F extends DsFilterParams> extends AbstractG
     public void init() {
         super.init();
 
-        addStyleName("grid-row-border");
+        addClassNames("grid-row-border");
     }
 
     /**
@@ -149,10 +149,10 @@ public abstract class AbstractDsGrid<F extends DsFilterParams> extends AbstractG
 
     @Override
     protected void addMaxColumns() {
-        addNameColumn().setExpandRatio(7);
+        addNameColumn().setFlexGrow((int) 7);
         addVersionColumn();
 
-        GridComponentBuilder.addDescriptionColumn(this, i18n, DS_DESC_ID).setExpandRatio(5);
+        GridComponentBuilder.addDescriptionColumn(this, i18n, DS_DESC_ID).setFlexGrow((int) 5);
         GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n);
 
         addDeleteColumn();

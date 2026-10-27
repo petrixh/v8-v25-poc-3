@@ -14,7 +14,7 @@ import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.Component;
 
@@ -50,7 +50,7 @@ public class CloseHeaderSupport implements HeaderSupport {
 
     private Button createCloseButton() {
         final Button closeButton = SPUIComponentProvider.getButton(closeIconId, "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLOSE), null, false, VaadinIcons.CLOSE,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLOSE), null, false, VaadinIcon.CLOSE,
                 SPUIButtonStyleNoBorder.class);
 
         closeButton.addClickListener(event -> closeCallback.run());

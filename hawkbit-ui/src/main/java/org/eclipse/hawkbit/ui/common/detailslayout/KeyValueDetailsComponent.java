@@ -35,7 +35,7 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
     public KeyValueDetailsComponent() {
         keyValueDetailsLayout = new VerticalLayout();
         keyValueDetailsLayout.setSpacing(true);
-        keyValueDetailsLayout.setMargin(false);
+        keyValueDetailsLayout.setPadding(false);
         keyValueDetailsLayout.setWidthFull();
 
         setReadOnly(true);
@@ -55,7 +55,7 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
 
     @Override
     protected void doSetValue(final List<ProxyKeyValueDetails> keyValueDetails) {
-        keyValueDetailsLayout.removeAllComponents();
+        keyValueDetailsLayout.removeAll();
 
         if (keyValueDetails != null) {
             keyValueDetails.forEach(this::addKeyValueDetail);
@@ -72,25 +72,25 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
 
         final HorizontalLayout keyValueDetailLayout = new HorizontalLayout();
         keyValueDetailLayout.setSpacing(true);
-        keyValueDetailLayout.setMargin(false);
-        keyValueDetailLayout.setWidthUndefined();
+        keyValueDetailLayout.setPadding(false);
+        keyValueDetailLayout.setWidth(null);
 
-        keyValueDetailLayout.addComponent(keyDetail);
-        keyValueDetailLayout.setExpandRatio(keyDetail, 0.0F);
+        keyValueDetailLayout.add(keyDetail);
+        keyValueDetailLayout.setFlexGrow(0.0F, keyDetail);
 
-        keyValueDetailLayout.addComponent(valueDetail);
-        keyValueDetailLayout.setExpandRatio(valueDetail, 1.0F);
+        keyValueDetailLayout.add(valueDetail);
+        keyValueDetailLayout.setFlexGrow(1.0F, valueDetail);
 
         keyValueDetailLayout.setDescription(key.concat(": ") + value);
 
-        keyValueDetailsLayout.addComponent(keyValueDetailLayout);
+        keyValueDetailsLayout.add(keyValueDetailLayout);
     }
 
     private static Label buildKeyDetail(final String key) {
         final Label keyLabel = new Label(key + ":");
 
-        keyLabel.addStyleName(SPUIDefinitions.TEXT_STYLE);
-        keyLabel.addStyleName("text-bold");
+        keyLabel.addClassNames(SPUIDefinitions.TEXT_STYLE);
+        keyLabel.addClassNames("text-bold");
 
         return keyLabel;
     }
@@ -99,7 +99,7 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
         final Label valueLabel = new Label(value);
 
         valueLabel.setId(id);
-        valueLabel.addStyleName(SPUIDefinitions.TEXT_STYLE);
+        valueLabel.addClassNames(SPUIDefinitions.TEXT_STYLE);
 
         return valueLabel;
     }

@@ -63,14 +63,14 @@ public class MetaDataAddUpdateWindowLayout extends AbstractEntityWindowLayout<Pr
     protected VerticalLayout getMetadataAddUpdateLayout() {
         final VerticalLayout addUpdateLayout = new VerticalLayout();
         addUpdateLayout.setSpacing(true);
-        addUpdateLayout.setMargin(false);
+        addUpdateLayout.setPadding(false);
         addUpdateLayout.setSizeFull();
 
-        addUpdateLayout.addComponent(metadataKey);
+        addUpdateLayout.add(metadataKey);
         metadataKey.focus();
 
-        addUpdateLayout.addComponent(metadataValue);
-        addUpdateLayout.setExpandRatio(metadataValue, 1.0F);
+        addUpdateLayout.add(metadataValue);
+        addUpdateLayout.setFlexGrow(1.0F, metadataValue);
 
         return addUpdateLayout;
     }

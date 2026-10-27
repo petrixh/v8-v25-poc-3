@@ -26,23 +26,23 @@ public abstract class AbstractFilterLayout extends VerticalLayout implements Eve
 
     protected void buildLayout() {
         setWidth(SPUIDefinitions.FILTER_BY_TYPE_WIDTH, Unit.PIXELS);
-        setStyleName("filter-btns-main-layout");
+        setClassName("filter-btns-main-layout");
         setHeight(100.0F, Unit.PERCENTAGE);
         setSpacing(false);
-        setMargin(false);
+        setPadding(false);
 
         final Component filterHeader = getFilterHeader();
         final ComponentContainer filterButtons = getFilterContent();
         // adding border
-        filterButtons.addStyleName("filter-btns-layout");
+        filterButtons.addClassNames("filter-btns-layout");
         filterButtons.setSizeFull();
 
-        addComponents(filterHeader, filterButtons);
+        add(filterHeader, filterButtons);
 
         setComponentAlignment(filterHeader, Alignment.TOP_CENTER);
         setComponentAlignment(filterButtons, Alignment.TOP_CENTER);
 
-        setExpandRatio(filterButtons, 1.0F);
+        setFlexGrow(1.0F, filterButtons);
     }
 
     protected abstract AbstractGridHeader getFilterHeader();
@@ -51,12 +51,12 @@ public abstract class AbstractFilterLayout extends VerticalLayout implements Eve
 
     protected static VerticalLayout wrapFilterContent(final Component filterContent) {
         final VerticalLayout filterContentWrapper = new VerticalLayout();
-        filterContentWrapper.setMargin(false);
+        filterContentWrapper.setPadding(false);
         filterContentWrapper.setSpacing(false);
 
-        filterContentWrapper.addComponent(filterContent);
+        filterContentWrapper.add(filterContent);
         filterContentWrapper.setComponentAlignment(filterContent, Alignment.TOP_LEFT);
-        filterContentWrapper.setExpandRatio(filterContent, 1.0F);
+        filterContentWrapper.setFlexGrow(1.0F, filterContent);
 
         return filterContentWrapper;
     }

@@ -15,7 +15,7 @@ import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.Component;
 
@@ -51,7 +51,7 @@ public class MetaDataDetailsHeaderSupport implements HeaderSupport {
 
     private Button createMetaDataIcon() {
         final Button metaDataButton = SPUIComponentProvider.getButton("", "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_METADATA_ICON), null, false, VaadinIcons.LIST,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_METADATA_ICON), null, false, VaadinIcon.LIST,
                 SPUIButtonStyleNoBorder.class);
 
         metaDataButton.setId(metaDataIconId);

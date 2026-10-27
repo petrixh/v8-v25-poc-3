@@ -63,7 +63,7 @@ public class TagAssignementComboBox extends HorizontalLayout {
         this.allAssignableTags = new HashSet<>();
         this.assignableTagsComboBox.setItems(allAssignableTags);
 
-        addComponent(assignableTagsComboBox);
+        add(assignableTagsComboBox);
     }
 
     private ComboBox<ProxyTag> getAssignableTagsComboBox(final String description) {
@@ -71,7 +71,7 @@ public class TagAssignementComboBox extends HorizontalLayout {
 
         tagsComboBox.setId(UIComponentIdProvider.TAG_SELECTION_ID);
         tagsComboBox.setDescription(description);
-        tagsComboBox.addStyleName(ValoTheme.COMBOBOX_TINY);
+        tagsComboBox.addClassNames(ValoTheme.COMBOBOX_TINY);
         tagsComboBox.setEnabled(!readOnlyMode);
         tagsComboBox.setWidth("100%");
         tagsComboBox.setEmptySelectionAllowed(true);

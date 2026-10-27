@@ -83,7 +83,7 @@ public abstract class AbstractTargetTypeFilterButtons extends AbstractFilterButt
 
         noTargetType.addClickListener(event -> getFilterButtonClickBehaviour().processFilterClick(proxyTargetType));
 
-        noTargetType.addStyleName("filter-drop-hint-layout");
+        noTargetType.addClassNames("filter-drop-hint-layout");
         return noTargetType;
     }
 
@@ -100,9 +100,9 @@ public abstract class AbstractTargetTypeFilterButtons extends AbstractFilterButt
         final boolean isNoTargetTypeActive = proxyTargetType.isNoTargetType() && clickType == ClickBehaviourType.CLICKED;
 
         if (isNoTargetTypeActive) {
-            getNoTargetTypeButton().addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+            getNoTargetTypeButton().addClassNames(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         } else {
-            getNoTargetTypeButton().removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+            getNoTargetTypeButton().removeClassNames(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         }
 
         if (preNoTargetTypeBtnState != isNoTargetTypeActive){
@@ -166,7 +166,7 @@ public abstract class AbstractTargetTypeFilterButtons extends AbstractFilterButt
         }
 
         if (targetTagFilterLayoutUiState.isNoTargetTypeClicked()) {
-            getNoTargetTypeButton().addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+            getNoTargetTypeButton().addClassNames(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         }
     }
 
@@ -222,7 +222,7 @@ public abstract class AbstractTargetTypeFilterButtons extends AbstractFilterButt
     public void clearAppliedTargetTypeFilter() {
         if (targetTagFilterLayoutUiState.isNoTargetTypeClicked()) {
             targetTagFilterLayoutUiState.setNoTargetTypeClicked(false);
-            getNoTargetTypeButton().removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+            getNoTargetTypeButton().removeClassNames(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         }
 
         if (targetTypeFilterButtonClick.getPreviouslyClickedFilterId() != null) {

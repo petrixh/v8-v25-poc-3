@@ -27,7 +27,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.ui.Alignment;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -68,12 +68,12 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
         super.init();
 
         setHeaderVisible(false);
-        setStyleName("type-button-layout");
-        addStyleName(ValoTheme.TABLE_NO_STRIPES);
-        addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-        addStyleName(ValoTheme.TABLE_BORDERLESS);
-        addStyleName(ValoTheme.TABLE_COMPACT);
+        setClassName("type-button-layout");
+        addClassNames(ValoTheme.TABLE_NO_STRIPES);
+        addClassNames(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
+        addClassNames(ValoTheme.TABLE_NO_VERTICAL_LINES);
+        addClassNames(ValoTheme.TABLE_BORDERLESS);
+        addClassNames(ValoTheme.TABLE_COMPACT);
     }
 
     protected abstract String getMessageKeyEntityTypeSing();
@@ -106,23 +106,23 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
 
         final HorizontalLayout filterButtonLayout = new HorizontalLayout();
         filterButtonLayout.setSpacing(false);
-        filterButtonLayout.setMargin(false);
+        filterButtonLayout.setPadding(false);
         filterButtonLayout.setSizeFull();
-        filterButtonLayout.addStyleName(SPUIStyleDefinitions.FILTER_BUTTON_WRAPPER);
+        filterButtonLayout.addClassNames(SPUIStyleDefinitions.FILTER_BUTTON_WRAPPER);
 
-        filterButtonLayout.addComponent(colourIcon);
+        filterButtonLayout.add(colourIcon);
         filterButtonLayout.setComponentAlignment(colourIcon, Alignment.TOP_LEFT);
-        filterButtonLayout.setExpandRatio(colourIcon, 0.0F);
+        filterButtonLayout.setFlexGrow(0.0F, colourIcon);
 
-        filterButtonLayout.addComponent(filterName);
+        filterButtonLayout.add(filterName);
         filterButtonLayout.setComponentAlignment(filterName, Alignment.TOP_LEFT);
-        filterButtonLayout.setExpandRatio(filterName, 1.0F);
+        filterButtonLayout.setFlexGrow(1.0F, filterName);
 
         return filterButtonLayout;
     }
 
     private final Label buildColourIcon(final Long clickedFilterId, final String colour) {
-        final ProxyFontIcon colourFontIcon = new ProxyFontIcon(VaadinIcons.CIRCLE, ValoTheme.LABEL_TINY, "",
+        final ProxyFontIcon colourFontIcon = new ProxyFontIcon(VaadinIcon.CIRCLE, ValoTheme.LABEL_TINY, "",
                 !StringUtils.isEmpty(colour) ? colour : DEFAULT_GREEN);
         final String colourIconId = new StringBuilder(getFilterButtonIdPrefix()).append(".colour-icon.")
                 .append(clickedFilterId).toString();
@@ -154,7 +154,7 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
 
     private Button buildEditFilterButton(final T clickedFilter) {
         return GridComponentBuilder.buildActionButton(i18n, clickEvent -> editButtonClickListener(clickedFilter),
-                VaadinIcons.EDIT, SPUIDefinitions.EDIT, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                VaadinIcon.EDIT, SPUIDefinitions.EDIT, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 getFilterButtonIdPrefix() + ".edit." + clickedFilter.getId(), isEditAllowed());
     }
 

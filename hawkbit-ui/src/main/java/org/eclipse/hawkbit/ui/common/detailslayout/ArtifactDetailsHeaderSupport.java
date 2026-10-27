@@ -15,7 +15,7 @@ import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.Component;
 
@@ -51,7 +51,7 @@ public class ArtifactDetailsHeaderSupport implements HeaderSupport {
 
     private Button createArtifactDetailsIcon() {
         final Button artifactDetailsIconButton = SPUIComponentProvider.getButton(artifactDetailsIconId, "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_ARTIFACT_ICON), null, false, VaadinIcons.FILE_O,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_ARTIFACT_ICON), null, false, VaadinIcon.FILE_O,
                 SPUIButtonStyleNoBorder.class);
 
         artifactDetailsIconButton.addClickListener(event -> showArtifactDetailsCallback.run());

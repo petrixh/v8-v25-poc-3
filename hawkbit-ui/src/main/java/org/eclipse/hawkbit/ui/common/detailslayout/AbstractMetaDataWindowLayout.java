@@ -198,18 +198,18 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
 
     protected void buildLayout() {
         setSpacing(true);
-        setMargin(false);
+        setPadding(false);
         setSizeFull();
 
         final MetaDataWindowGridLayout metaDataWindowGridLayout = new MetaDataWindowGridLayout(metadataWindowGridHeader,
                 getMetaDataWindowGrid());
         final ComponentContainer addUpdateWindowLayout = getMetaDataAddUpdateWindowLayout().getRootComponent();
 
-        addComponent(metaDataWindowGridLayout);
-        addComponent(addUpdateWindowLayout);
+        add(metaDataWindowGridLayout);
+        add(addUpdateWindowLayout);
 
-        setExpandRatio(metaDataWindowGridLayout, 0.5F);
-        setExpandRatio(addUpdateWindowLayout, 0.5F);
+        setFlexGrow(0.5F, metaDataWindowGridLayout);
+        setFlexGrow(0.5F, addUpdateWindowLayout);
     }
 
     protected void addGridSelectionListener() {

@@ -13,7 +13,7 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.CollectionUtils;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -87,26 +87,26 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
         final MenuBar menuBar = new MenuBar();
 
         menuBar.setId(crudMenuBarId);
-        menuBar.setStyleName(ValoTheme.MENUBAR_BORDERLESS);
-        menuBar.addStyleName("crud-menubar");
+        menuBar.setClassName(ValoTheme.MENUBAR_BORDERLESS);
+        menuBar.addClassNames("crud-menubar");
 
         return menuBar;
     }
 
     private void addCrudMenuItemCommands() {
         if (hasCreatePermission) {
-            crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_CREATE), VaadinIcons.PLUS,
+            crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_CREATE), VaadinIcon.PLUS,
                     menuItem -> addCallback.run());
         }
         if (hasUpdatePermission) {
-            crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_EDIT), VaadinIcons.EDIT,
+            crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_EDIT), VaadinIcon.EDIT,
                     menuItem -> {
                         activateModifyMode(Mode.EDIT);
                         editCallback.run();
                     });
         }
         if (hasDeletePermission) {
-            crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_DELETE), VaadinIcons.TRASH,
+            crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_DELETE), VaadinIcon.TRASH,
                     menuItem -> {
                         activateModifyMode(Mode.DELETE);
                         deleteCallback.run();
@@ -120,7 +120,7 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
     }
 
     private void activateSelectMode() {
-        crudMenuItem.setIcon(VaadinIcons.COG);
+        crudMenuItem.setIcon(VaadinIcon.COG);
         crudMenuItem.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE));
         crudMenuItem.setCommand(null);
 
@@ -129,12 +129,12 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
     }
 
     private void activateModifyMode(final Mode mode) {
-        crudMenuItem.setIcon(VaadinIcons.CLOSE_CIRCLE);
+        crudMenuItem.setIcon(VaadinIcon.CLOSE_CIRCLE);
         crudMenuItem.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE_CLOSE));
         crudMenuItem.setCommand(menuItem -> resetModifyMode());
 
         currentMode = mode;
-        crudMenuBar.addStyleName(mode.getStyle());
+        crudMenuBar.addClassNames(mode.getStyle());
     }
 
     private void resetModifyMode() {

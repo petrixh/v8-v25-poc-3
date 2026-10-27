@@ -138,11 +138,11 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
         }
 
         if (!StringUtils.isEmpty(style)) {
-            textComponent.setStyleName(style);
+            textComponent.setClassName(style);
         }
 
         if (!StringUtils.isEmpty(styleName)) {
-            textComponent.addStyleName(styleName);
+            textComponent.addClassNames(styleName);
         }
         if (!StringUtils.isEmpty(prompt)) {
             textComponent.setPlaceholder(prompt);

@@ -60,7 +60,7 @@ public abstract class AbstractFooterSupport {
      */
     protected void init() {
         countLabel.setId(UIComponentIdProvider.COUNT_LABEL);
-        countLabel.addStyleName(SPUIStyleDefinitions.SP_LABEL_MESSAGE_STYLE);
+        countLabel.addClassNames(SPUIStyleDefinitions.SP_LABEL_MESSAGE_STYLE);
 
         countLabel.addDetachListener(e -> {
             abortCurrentCountCalculation();
@@ -75,11 +75,11 @@ public abstract class AbstractFooterSupport {
      */
     public Layout createFooterMessageComponent() {
         final HorizontalLayout footerLayout = new HorizontalLayout();
-        footerLayout.setMargin(false);
+        footerLayout.setPadding(false);
         footerLayout.setSpacing(false);
         footerLayout.setWidth(100, Unit.PERCENTAGE);
 
-        footerLayout.addComponent(countLabel);
+        footerLayout.add(countLabel);
 
         return footerLayout;
     }

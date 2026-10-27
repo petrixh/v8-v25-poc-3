@@ -75,9 +75,9 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
         setWidth(98, Unit.PERCENTAGE);
         setHeight(90, Unit.PERCENTAGE);
 
-        addStyleName(ValoTheme.TABSHEET_COMPACT_TABBAR);
-        addStyleName(ValoTheme.TABSHEET_FRAMED);
-        addStyleName(SPUIStyleDefinitions.DETAILS_LAYOUT_STYLE);
+        addClassNames(ValoTheme.TABSHEET_COMPACT_TABBAR);
+        addClassNames(ValoTheme.TABSHEET_FRAMED);
+        addClassNames(SPUIStyleDefinitions.DETAILS_LAYOUT_STYLE);
 
         setId(getTabSheetId());
     }
@@ -101,9 +101,9 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
         description.setReadOnly(true);
         description.setWordWrap(true);
         description.setSizeFull();
-        description.setStyleName(ValoTheme.TEXTAREA_BORDERLESS);
-        description.addStyleName(ValoTheme.TEXTAREA_SMALL);
-        description.addStyleName("details-description");
+        description.setClassName(ValoTheme.TEXTAREA_BORDERLESS);
+        description.addClassNames(ValoTheme.TEXTAREA_SMALL);
+        description.addClassNames("details-description");
 
         binder.forField(description).bind(ProxyNamedEntity::getDescription, null);
 
@@ -162,10 +162,10 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
     protected static VerticalLayout buildTabWrapperDetailsLayout(final Component detailsComponent) {
         final VerticalLayout tabWrapperDetailsLayout = new VerticalLayout();
         tabWrapperDetailsLayout.setSpacing(false);
-        tabWrapperDetailsLayout.setMargin(false);
-        tabWrapperDetailsLayout.setStyleName("details-layout");
+        tabWrapperDetailsLayout.setPadding(false);
+        tabWrapperDetailsLayout.setClassName("details-layout");
 
-        tabWrapperDetailsLayout.addComponent(detailsComponent);
+        tabWrapperDetailsLayout.add(detailsComponent);
 
         return tabWrapperDetailsLayout;
     }

@@ -16,7 +16,7 @@ import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.Component;
 
@@ -68,7 +68,7 @@ public class ResizeHeaderSupport implements HeaderSupport {
 
     private Button createMaxMinIcon() {
         final Button maxMinbutton = SPUIComponentProvider.getButton(maxMinIconId, "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE), null, false, VaadinIcons.EXPAND,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE), null, false, VaadinIcon.EXPAND,
                 SPUIButtonStyleNoBorder.class);
 
         maxMinbutton.addClickListener(event -> maxMinButtonClicked());
@@ -93,18 +93,18 @@ public class ResizeHeaderSupport implements HeaderSupport {
      * Styles min-max-button icon with minimize decoration
      */
     private void showMinIcon() {
-        maxMinIcon.setIcon(VaadinIcons.COMPRESS);
+        maxMinIcon.setIcon(VaadinIcon.COMPRESS);
         maxMinIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_MINIMIZE));
-        maxMinIcon.addStyleName(MODE_MAXIMIZED);
+        maxMinIcon.addClassNames(MODE_MAXIMIZED);
     }
 
     /**
      * Styles min-max-button icon with maximize decoration
      */
     private void showMaxIcon() {
-        maxMinIcon.setIcon(VaadinIcons.EXPAND);
+        maxMinIcon.setIcon(VaadinIcon.EXPAND);
         maxMinIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE));
-        maxMinIcon.removeStyleName(MODE_MAXIMIZED);
+        maxMinIcon.removeClassNames(MODE_MAXIMIZED);
     }
 
     @Override

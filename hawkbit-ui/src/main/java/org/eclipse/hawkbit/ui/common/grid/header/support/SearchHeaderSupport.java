@@ -20,7 +20,7 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.ui.Alignment;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.Component;
@@ -91,7 +91,7 @@ public class SearchHeaderSupport implements HeaderSupport {
 
     private Button createSearchResetIcon() {
         final Button searchResetButton = SPUIComponentProvider.getButton(searchResetIconId, "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH), null, false, VaadinIcons.SEARCH,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH), null, false, VaadinIcon.SEARCH,
                 SPUIButtonStyleNoBorder.class);
 
         searchResetButton.addClickListener(event -> onSearchResetClick());
@@ -110,7 +110,7 @@ public class SearchHeaderSupport implements HeaderSupport {
     }
 
     private void openSearchTextField() {
-        searchResetIcon.setIcon(VaadinIcons.CLOSE);
+        searchResetIcon.setIcon(VaadinIcon.CLOSE);
         searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_RESET));
         searchResetIcon.addStyleNames(SPUIDefinitions.FILTER_RESET_ICON, MODE_SEARCH_INPUT);
 
@@ -121,7 +121,7 @@ public class SearchHeaderSupport implements HeaderSupport {
     }
 
     private void closeSearchTextField() {
-        searchResetIcon.setIcon(VaadinIcons.SEARCH);
+        searchResetIcon.setIcon(VaadinIcon.SEARCH);
         searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH));
         searchResetIcon.removeStyleNames(SPUIDefinitions.FILTER_RESET_ICON, MODE_SEARCH_INPUT);
 
@@ -183,17 +183,17 @@ public class SearchHeaderSupport implements HeaderSupport {
     @Override
     public Component getHeaderComponent() {
         final HorizontalLayout headerIconLayout = new HorizontalLayout();
-        headerIconLayout.setMargin(false);
+        headerIconLayout.setPadding(false);
         headerIconLayout.setSpacing(false);
         headerIconLayout.setWidthFull();
 
-        headerIconLayout.addComponent(searchField);
+        headerIconLayout.add(searchField);
         headerIconLayout.setComponentAlignment(searchField, Alignment.TOP_RIGHT);
-        headerIconLayout.setExpandRatio(searchField, 1.0F);
+        headerIconLayout.setFlexGrow(1.0F, searchField);
 
-        headerIconLayout.addComponent(searchResetIcon);
+        headerIconLayout.add(searchResetIcon);
         headerIconLayout.setComponentAlignment(searchResetIcon, Alignment.TOP_RIGHT);
-        headerIconLayout.setExpandRatio(searchResetIcon, 0F);
+        headerIconLayout.setFlexGrow(0F, searchResetIcon);
 
         // hidden by default
         searchField.setVisible(false);
