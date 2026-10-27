@@ -15,7 +15,9 @@ import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -27,6 +29,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @Configuration
 @EnableAsync
 @ConditionalOnMissingBean(AsyncConfigurer.class)
+// Spring Boot 4 registers its own AsyncConfigurer in TaskExecutionAutoConfiguration, which the auto-configuration
+// order evaluates first: this one would then not apply (no @EnableAsync, no asyncExecutor). Boot 2.7 had none.
+@AutoConfigureBefore(TaskExecutionAutoConfiguration.class)
 public class AsyncConfigurerAutoConfiguration implements AsyncConfigurer {
 
     @Autowired

@@ -58,6 +58,7 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -217,6 +218,7 @@ public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements B
             tenant.addClassNames(TEXTFIELD_INLINE_ICON, LOGIN_TEXTFIELD);
             tenant.addClassName("uppercase");
             tenant.setId("login-tenant");
+            tenant.setValueChangeMode(ValueChangeMode.LAZY);
 
             binder.forField(tenant).asRequired().bind(ProxyLoginCredentials::getTenant,
                     ProxyLoginCredentials::setTenant);
@@ -229,6 +231,9 @@ public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements B
         username.addThemeVariants(TextFieldVariant.LUMO_SMALL);
         username.addClassNames(TEXTFIELD_INLINE_ICON, LOGIN_TEXTFIELD);
         username.setId("login-username");
+        // Vaadin 8's default (also on tenant and password): the sign-in button follows the binder while typing,
+        // not only when the field loses focus
+        username.setValueChangeMode(ValueChangeMode.LAZY);
 
         binder.forField(username).asRequired().bind(ProxyLoginCredentials::getUsername,
                 ProxyLoginCredentials::setUsername);
@@ -240,6 +245,7 @@ public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements B
         password.addThemeVariants(TextFieldVariant.LUMO_SMALL);
         password.addClassNames(TEXTFIELD_INLINE_ICON, LOGIN_TEXTFIELD);
         password.setId("login-password");
+        password.setValueChangeMode(ValueChangeMode.LAZY);
 
         binder.forField(password).asRequired().bind(ProxyLoginCredentials::getPassword,
                 ProxyLoginCredentials::setPassword);
