@@ -9,13 +9,13 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
-import com.vaadin.flow.component.Component;
-
 /**
  * Interface that all system configurations have to implement to save and undo
- * their customized changes.
+ * their customized changes. Implementations are Flow components (in Vaadin 8
+ * this interface extended the Component interface; Flow's Component is a
+ * class).
  */
-public interface ConfigurationGroup extends Component, ConfigurationItem {
+public interface ConfigurationGroup extends ConfigurationItem {
 
     /**
      * called to store any configuration changes.

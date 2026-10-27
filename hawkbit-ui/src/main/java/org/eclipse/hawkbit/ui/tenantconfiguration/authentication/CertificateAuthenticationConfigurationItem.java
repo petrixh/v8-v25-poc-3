@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -55,7 +56,7 @@ public class CertificateAuthenticationConfigurationItem extends VerticalLayout {
 
         final Span caRootAuthorityLabel = new LabelBuilder()
                 .name(i18n.getMessage("label.configuration.auth.hashField")).buildLabel();
-        caRootAuthorityLabel.setDescription(i18n.getMessage("label.configuration.auth.hashField.tooltip"));
+        Tooltip.forComponent(caRootAuthorityLabel).setText(i18n.getMessage("label.configuration.auth.hashField.tooltip"));
         caRootAuthorityLabel.setWidth(null);
 
         caRootAuthorityTextField = new TextFieldBuilder(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();

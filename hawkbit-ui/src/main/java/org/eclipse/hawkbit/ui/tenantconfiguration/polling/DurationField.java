@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Locale;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -23,9 +22,12 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.HasValidator;
 import com.vaadin.flow.data.binder.Result;
-import com.vaadin.shared.ui.datefield.DateTimeResolution;
-import com.vaadin.ui.DateTimeField;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.Validator;
 
 /**
  * This class represents a Field which is optimized to enter a time duration in
@@ -34,8 +36,14 @@ import com.vaadin.ui.DateTimeField;
  * input. For a correct view of the popup it is recommended not to display the
  * css-class "v-datefield-calendarpanel-header" and
  * "v-datefield-calendarpanel-body" (see systemconfig.scss}
+ * <p>
+ * Vaadin 25: Flow has no date-time field with a free text format and a server
+ * side parse fallback. The field is a {@link CustomField} around a
+ * {@link TextField} that parses and formats {@code HH:mm:ss} on the server,
+ * with the same fallback and error message; the popup with the time selects
+ * is gone.
  */
-public class DurationField extends DateTimeField {
+public class DurationField extends CustomField<LocalDateTime> implements HasValidator<LocalDateTime> {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(DurationField.class);
@@ -50,18 +58,62 @@ public class DurationField extends DateTimeField {
     private transient LocalDateTime minimumDuration;
     private transient LocalDateTime maximumDuration;
 
+    private final TextField textField = new TextField();
+    private String parseErrorMessage;
+
     /**
      * Creates a DurationField
      */
     protected DurationField() {
-        this.setResolution(DateTimeResolution.SECOND);
-        this.setDateFormat(DURATION_FORMAT_STIRNG);
         this.addClassNames(CSS_STYLE_NAME);
         this.addClassNames("tiny");
         this.setWidth("100px");
+        textField.setWidth("100%");
+        add(textField);
 
-        // needed that popup shows a 24h clock
-        this.setLocale(Locale.GERMANY);
+        // Vaadin 8 parsed the text with the date format and the fallback
+        // below, and wrote the (sanitized) value back in HH:mm:ss
+        textField.addValueChangeListener(event -> {
+            if (event.isFromClient()) {
+                updateValue();
+                if (parseErrorMessage == null) {
+                    setPresentationValue(getValue());
+                }
+            }
+        });
+    }
+
+    @Override
+    protected LocalDateTime generateModelValue() {
+        final String text = textField.getValue();
+        parseErrorMessage = null;
+        if (text == null || text.isEmpty()) {
+            return sanitizeValue(null);
+        }
+        final Result<LocalDateTime> result = handleUnparsableDateString(text);
+        if (result.isError()) {
+            parseErrorMessage = result.getMessage().orElse("");
+            setErrorMessage(parseErrorMessage);
+            setInvalid(true);
+            return null;
+        }
+        setInvalid(false);
+        return sanitizeValue(result.getOrThrow(IllegalStateException::new));
+    }
+
+    @Override
+    protected void setPresentationValue(final LocalDateTime value) {
+        textField.setValue(value == null ? "" : value.format(DateTimeFormatter.ofPattern(DURATION_FORMAT_STIRNG)));
+    }
+
+    /**
+     * Vaadin 8 marked the field invalid while the text could not be parsed;
+     * the binder sees the same through this default validator.
+     */
+    @Override
+    public Validator<LocalDateTime> getDefaultValidator() {
+        return (value, context) -> parseErrorMessage == null ? ValidationResult.ok()
+                : ValidationResult.error(parseErrorMessage);
     }
 
     /**
@@ -79,10 +131,10 @@ public class DurationField extends DateTimeField {
      * if the client could not parse it as a Date. In the current case two
      * different parsing schemas are tried. If parsing is not possible a
      * ConversionException is thrown which marks the DurationField as invalid.
+     * (Vaadin 25: called for every non-empty text, see the class comment.)
      *
      * @return the Result of the specified date
      */
-    @Override
     protected Result<LocalDateTime> handleUnparsableDateString(final String value) {
         try {
             return Result.ok(LocalTime.parse(value, DateTimeFormatter.ofPattern(DURATION_FORMAT_STIRNG))
@@ -102,9 +154,9 @@ public class DurationField extends DateTimeField {
     }
 
     @Override
-    protected void doSetValue(final LocalDateTime value) {
+    public void setValue(final LocalDateTime value) {
         final LocalDateTime sanitizedValue = sanitizeValue(value);
-        super.doSetValue(sanitizedValue);
+        super.setValue(sanitizedValue);
     }
 
     /**
@@ -166,7 +218,7 @@ public class DurationField extends DateTimeField {
         if (duration.compareTo(MAXIMUM_DURATION) > 0) {
             throw new IllegalArgumentException("The duaration has to be smaller than 23:59:59.");
         }
-        super.setValue(durationToLocalDateTime(duration));
+        setValue(durationToLocalDateTime(duration));
     }
 
     /**

@@ -23,12 +23,10 @@ import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.TargetSecurityT
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.Alignment;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.ui.Link;
-import com.vaadin.ui.Panel;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.springframework.util.StringUtils;
 
@@ -76,7 +74,7 @@ public class AuthenticationConfigurationView extends BaseConfigurationView<Proxy
 
     private void init() {
 
-        final Panel rootPanel = new Panel();
+        final Div rootPanel = new Div();
         rootPanel.setSizeFull();
 
         rootPanel.addClassNames("config-panel");
@@ -90,11 +88,9 @@ public class AuthenticationConfigurationView extends BaseConfigurationView<Proxy
         header.addClassNames("config-panel-header");
         vLayout.add(header);
 
-        final GridLayout gridLayout = new GridLayout(3, 4);
-        gridLayout.setSpacing(true);
+        final Div gridLayout = createGridLayout();
 
         gridLayout.setSizeFull();
-        gridLayout.setColumnExpandRatio(1, 1.0F);
 
         initCertificateAuthConfiguration(gridLayout, 0);
         initTargetTokenConfiguration(gridLayout, 1);
@@ -102,12 +98,12 @@ public class AuthenticationConfigurationView extends BaseConfigurationView<Proxy
         initAnonymousDownloadConfiguration(gridLayout, 3);
 
         vLayout.add(gridLayout);
-        rootPanel.setContent(vLayout);
-        setCompositionRoot(rootPanel);
+        rootPanel.add(vLayout);
+        getContent().add(rootPanel);
     }
 
-    protected void initCertificateAuthConfiguration(GridLayout gridLayout, int row) {
-        final Checkbox certificateAuthCheckbox = FormComponentBuilder.createCheckBox(
+    protected void initCertificateAuthConfiguration(Div gridLayout, int row) {
+        final Checkbox certificateAuthCheckbox = FormComponentBuilder.createCheckbox(
                 UIComponentIdProvider.CERT_AUTH_ALLOWED_CHECKBOX, getBinder(),
                 ProxySystemConfigAuthentication::isCertificateAuth,
                 ProxySystemConfigAuthentication::setCertificateAuth);
@@ -119,21 +115,21 @@ public class AuthenticationConfigurationView extends BaseConfigurationView<Proxy
                 certificateAuthenticationConfigurationItem.hideDetails();
             }
         });
-        gridLayout.addComponent(certificateAuthCheckbox, 0, row);
-        gridLayout.addComponent(certificateAuthenticationConfigurationItem, 1, row);
+        addToGridLayout(gridLayout, certificateAuthCheckbox, 0, row);
+        addToGridLayout(gridLayout, certificateAuthenticationConfigurationItem, 1, row);
     }
 
-    protected void initTargetTokenConfiguration(GridLayout gridLayout, int row) {
-        final Checkbox targetSecTokenCheckBox = FormComponentBuilder.createCheckBox(
+    protected void initTargetTokenConfiguration(Div gridLayout, int row) {
+        final Checkbox targetSecTokenCheckBox = FormComponentBuilder.createCheckbox(
                 UIComponentIdProvider.TARGET_SEC_TOKEN_ALLOWED_CHECKBOX, getBinder(),
                 ProxySystemConfigAuthentication::isTargetSecToken, ProxySystemConfigAuthentication::setTargetSecToken);
         targetSecTokenCheckBox.setClassName(DIST_CHECKBOX_STYLE);
-        gridLayout.addComponent(targetSecTokenCheckBox, 0, row);
-        gridLayout.addComponent(targetSecurityTokenAuthenticationConfigurationItem, 1, row);
+        addToGridLayout(gridLayout, targetSecTokenCheckBox, 0, row);
+        addToGridLayout(gridLayout, targetSecurityTokenAuthenticationConfigurationItem, 1, row);
     }
 
-    protected void initGatewayTokenConfiguration(GridLayout gridLayout, int row) {
-        final Checkbox gatewaySecTokenCheckBox = FormComponentBuilder.createCheckBox(
+    protected void initGatewayTokenConfiguration(Div gridLayout, int row) {
+        final Checkbox gatewaySecTokenCheckBox = FormComponentBuilder.createCheckbox(
                 UIComponentIdProvider.GATEWAY_SEC_TOKEN_ALLOWED_CHECKBOX, getBinder(),
                 ProxySystemConfigAuthentication::isGatewaySecToken,
                 ProxySystemConfigAuthentication::setGatewaySecToken);
@@ -145,23 +141,23 @@ public class AuthenticationConfigurationView extends BaseConfigurationView<Proxy
                 gatewaySecurityTokenAuthenticationConfigurationItem.hideDetails();
             }
         });
-        gridLayout.addComponent(gatewaySecTokenCheckBox, 0, row);
-        gridLayout.addComponent(gatewaySecurityTokenAuthenticationConfigurationItem, 1, row);
+        addToGridLayout(gridLayout, gatewaySecTokenCheckBox, 0, row);
+        addToGridLayout(gridLayout, gatewaySecurityTokenAuthenticationConfigurationItem, 1, row);
     }
 
-    protected void initAnonymousDownloadConfiguration(GridLayout gridLayout, int row) {
-        final Checkbox downloadAnonymousCheckBox = FormComponentBuilder.createCheckBox(
+    protected void initAnonymousDownloadConfiguration(Div gridLayout, int row) {
+        final Checkbox downloadAnonymousCheckBox = FormComponentBuilder.createCheckbox(
                 UIComponentIdProvider.DOWNLOAD_ANONYMOUS_CHECKBOX, getBinder(),
                 ProxySystemConfigAuthentication::isDownloadAnonymous,
                 ProxySystemConfigAuthentication::setDownloadAnonymous);
         downloadAnonymousCheckBox.setClassName(DIST_CHECKBOX_STYLE);
-        gridLayout.addComponent(downloadAnonymousCheckBox, 0, row);
-        gridLayout.addComponent(anonymousDownloadAuthenticationConfigurationItem, 1, row);
+        addToGridLayout(gridLayout, downloadAnonymousCheckBox, 0, row);
+        addToGridLayout(gridLayout, anonymousDownloadAuthenticationConfigurationItem, 1, row);
 
-        final Link linkToSecurityHelp = SPUIComponentProvider.getHelpLink(i18n,
+        final Anchor linkToSecurityHelp = SPUIComponentProvider.getHelpLink(i18n,
                 uiProperties.getLinks().getDocumentation().getSecurity());
-        gridLayout.addComponent(linkToSecurityHelp, 2, row);
-        gridLayout.setComponentAlignment(linkToSecurityHelp, Alignment.BOTTOM_RIGHT);
+        addToGridLayout(gridLayout, linkToSecurityHelp, 2, row);
+        alignBottomRight(linkToSecurityHelp);
     }
 
     @Override

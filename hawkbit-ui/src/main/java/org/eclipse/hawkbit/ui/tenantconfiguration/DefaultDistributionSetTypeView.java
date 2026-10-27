@@ -28,7 +28,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.ui.Panel;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
@@ -71,7 +71,7 @@ public class DefaultDistributionSetTypeView extends BaseConfigurationView<ProxyS
         if (!permissionChecker.hasReadRepositoryPermission()) {
             return;
         }
-        final Panel rootPanel = new Panel();
+        final Div rootPanel = new Div();
         rootPanel.setSizeFull();
         rootPanel.addClassNames("config-panel");
         final VerticalLayout vlayout = new VerticalLayout();
@@ -95,14 +95,13 @@ public class DefaultDistributionSetTypeView extends BaseConfigurationView<ProxyS
         initDsSetTypeComboBox();
         hlayout.add(dsSetTypeComboBox);
 
-        changeIcon = new Span();
-        changeIcon.setIcon(VaadinIcon.CHECK);
+        changeIcon = new Span(VaadinIcon.CHECK.create());
         hlayout.add(changeIcon);
         changeIcon.setVisible(false);
 
         vlayout.add(hlayout);
-        rootPanel.setContent(vlayout);
-        setCompositionRoot(rootPanel);
+        rootPanel.add(vlayout);
+        getContent().add(rootPanel);
     }
 
     private void initDsSetTypeComboBox() {

@@ -15,7 +15,6 @@ import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.flow.component.combobox.ComboBox;
 
 /**

@@ -13,10 +13,11 @@ import java.time.Duration;
 
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.Alignment;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 /**
  * The DurationConfigField consists of three vaadin fields. A {@link Span}
@@ -43,11 +44,11 @@ public final class DurationConfigField extends HorizontalLayout {
         durationField.setI18n(i18n);
 
         this.add(checkBox);
-        this.setComponentAlignment(checkBox, Alignment.MIDDLE_LEFT);
+        this.setVerticalComponentAlignment(Alignment.CENTER, checkBox);
 
         this.add(durationField);
         this.setFlexGrow(1.0F, durationField);
-        this.setComponentAlignment(durationField, Alignment.MIDDLE_LEFT);
+        this.setVerticalComponentAlignment(Alignment.CENTER, durationField);
 
         checkBox.addValueChangeListener(event -> checkBoxChanged(event.getValue()));
     }
@@ -118,7 +119,7 @@ public final class DurationConfigField extends HorizontalLayout {
          * @return the builder
          */
         public DurationConfigFieldBuilder checkBoxTooltip(final String label) {
-            field.getCheckBox().setDescription(label);
+            field.getCheckBox().setTooltipText(label);
 
             return this;
         }
@@ -145,7 +146,9 @@ public final class DurationConfigField extends HorizontalLayout {
          * @return the builder
          */
         public DurationConfigFieldBuilder caption(final String caption) {
-            field.setCaption(caption);
+            // Vaadin 8 showed the layout caption above the field; Flow layouts
+            // have no caption, so it is the first element of the row
+            field.addComponentAsFirst(new NativeLabel(caption));
             return this;
         }
 

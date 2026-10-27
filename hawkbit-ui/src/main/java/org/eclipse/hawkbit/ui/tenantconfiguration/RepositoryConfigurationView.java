@@ -27,12 +27,10 @@ import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ConfirmationFlowCon
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.Alignment;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.ui.Link;
-import com.vaadin.ui.Panel;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.vaadin.spring.events.EventBus;
 
@@ -93,7 +91,7 @@ public class RepositoryConfigurationView extends BaseConfigurationView<ProxySyst
 
     private void init() {
 
-        final Panel rootPanel = new Panel();
+        final Div rootPanel = new Div();
         rootPanel.setSizeFull();
 
         rootPanel.addClassNames("config-panel");
@@ -107,22 +105,19 @@ public class RepositoryConfigurationView extends BaseConfigurationView<ProxySyst
         header.addClassNames("config-panel-header");
         vLayout.add(header);
 
-        final GridLayout gridLayout = new GridLayout(3, 4);
-        gridLayout.setSpacing(true);
-
-        gridLayout.setColumnExpandRatio(1, 1.0F);
+        final Div gridLayout = createGridLayout();
         gridLayout.setSizeFull();
 
-        final Checkbox actionAutoCloseCheckBox = FormComponentBuilder.createCheckBox(
+        final Checkbox actionAutoCloseCheckBox = FormComponentBuilder.createCheckbox(
                 UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLOSE_CHECKBOX, getBinder(),
                 ProxySystemConfigRepository::isActionAutoclose, ProxySystemConfigRepository::setActionAutoclose);
         actionAutoCloseCheckBox.setClassName(DIST_CHECKBOX_STYLE);
         actionAutoCloseCheckBox.setEnabled(!getBinderBean().isMultiAssignments());
         actionAutocloseConfigurationItem.setEnabled(!getBinderBean().isMultiAssignments());
-        gridLayout.addComponent(actionAutoCloseCheckBox, 0, 0);
-        gridLayout.addComponent(actionAutocloseConfigurationItem, 1, 0);
+        addToGridLayout(gridLayout, actionAutoCloseCheckBox, 0, 0);
+        addToGridLayout(gridLayout, actionAutocloseConfigurationItem, 1, 0);
 
-        multiAssignmentsCheckBox = FormComponentBuilder.createCheckBox(
+        multiAssignmentsCheckBox = FormComponentBuilder.createCheckbox(
                 UIComponentIdProvider.REPOSITORY_MULTI_ASSIGNMENTS_CHECKBOX, getBinder(),
                 ProxySystemConfigRepository::isMultiAssignments, ProxySystemConfigRepository::setMultiAssignments);
         multiAssignmentsCheckBox.setClassName(DIST_CHECKBOX_STYLE);
@@ -137,17 +132,17 @@ public class RepositoryConfigurationView extends BaseConfigurationView<ProxySyst
                 multiAssignmentsConfigurationItem.hideSettings();
             }
         });
-        gridLayout.addComponent(multiAssignmentsCheckBox, 0, 1);
-        gridLayout.addComponent(multiAssignmentsConfigurationItem, 1, 1);
+        addToGridLayout(gridLayout, multiAssignmentsCheckBox, 0, 1);
+        addToGridLayout(gridLayout, multiAssignmentsConfigurationItem, 1, 1);
 
-        final Checkbox confirmationFlowCheckBox = FormComponentBuilder.createCheckBox(
+        final Checkbox confirmationFlowCheckBox = FormComponentBuilder.createCheckbox(
               UIComponentIdProvider.REPOSITORY_USER_CONFIRMATION_CHECKBOX, getBinder(),
               ProxySystemConfigRepository::isConfirmationFlow, ProxySystemConfigRepository::setConfirmationFlow);
         confirmationFlowCheckBox.setClassName(DIST_CHECKBOX_STYLE);
-        gridLayout.addComponent(confirmationFlowCheckBox, 0, 2);
-        gridLayout.addComponent(confirmationFlowConfigurationItem, 1, 2);
+        addToGridLayout(gridLayout, confirmationFlowCheckBox, 0, 2);
+        addToGridLayout(gridLayout, confirmationFlowConfigurationItem, 1, 2);
 
-        final Checkbox actionAutoCleanupCheckBox = FormComponentBuilder.createCheckBox(
+        final Checkbox actionAutoCleanupCheckBox = FormComponentBuilder.createCheckbox(
                 UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLEANUP_CHECKBOX, getBinder(),
                 ProxySystemConfigRepository::isActionAutocleanup, ProxySystemConfigRepository::setActionAutocleanup);
         actionAutoCleanupCheckBox.setClassName(DIST_CHECKBOX_STYLE);
@@ -158,17 +153,17 @@ public class RepositoryConfigurationView extends BaseConfigurationView<ProxySyst
                 actionAutocleanupConfigurationItem.hideSettings();
             }
         });
-        gridLayout.addComponent(actionAutoCleanupCheckBox, 0, 3);
-        gridLayout.addComponent(actionAutocleanupConfigurationItem, 1, 3);
+        addToGridLayout(gridLayout, actionAutoCleanupCheckBox, 0, 3);
+        addToGridLayout(gridLayout, actionAutocleanupConfigurationItem, 1, 3);
 
-        final Link linkToProvisioningHelp = SPUIComponentProvider.getHelpLink(i18n,
+        final Anchor linkToProvisioningHelp = SPUIComponentProvider.getHelpLink(i18n,
                 uiProperties.getLinks().getDocumentation().getProvisioningStateMachine());
-        gridLayout.addComponent(linkToProvisioningHelp, 2, 2);
-        gridLayout.setComponentAlignment(linkToProvisioningHelp, Alignment.BOTTOM_RIGHT);
+        addToGridLayout(gridLayout, linkToProvisioningHelp, 2, 2);
+        alignBottomRight(linkToProvisioningHelp);
 
         vLayout.add(gridLayout);
-        rootPanel.setContent(vLayout);
-        setCompositionRoot(rootPanel);
+        rootPanel.add(vLayout);
+        getContent().add(rootPanel);
     }
 
     /**

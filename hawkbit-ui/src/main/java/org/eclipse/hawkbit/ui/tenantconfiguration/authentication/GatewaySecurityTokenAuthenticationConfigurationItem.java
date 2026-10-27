@@ -62,12 +62,12 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Vertica
                 i18n.getMessage("configuration.button.regenerateKey"), "", "tiny" + " " + "redicon",
                 true, null, SPUIButtonStyleSmall.class);
 
-        gatewaytokenBtn.setIcon(VaadinIcon.REFRESH);
+        gatewaytokenBtn.setIcon(VaadinIcon.REFRESH.create());
         gatewaytokenBtn.addClickListener(event -> refreshGatewayToken());
 
         final Span gatewayTokenLabel = new LabelBuilder().id("gatewaysecuritytokenkey").name("").buildLabel();
         gatewayTokenLabel.addClassNames("gateway-token-label");
-        final ReadOnlyHasValue<String> gatewayTokenFieldBindable = new ReadOnlyHasValue<>(gatewayTokenLabel::setValue);
+        final ReadOnlyHasValue<String> gatewayTokenFieldBindable = new ReadOnlyHasValue<>(gatewayTokenLabel::setText);
         binder.bind(gatewayTokenFieldBindable, ProxySystemConfigAuthentication::getGatewaySecurityToken, null);
 
         final HorizontalLayout keyGenerationLayout = new HorizontalLayout();

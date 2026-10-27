@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.security.PermitAll;
 
-import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.ViewNameAware;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
@@ -27,27 +27,28 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.spring.annotation.ViewScope;
-import com.vaadin.ui.Alignment;
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.ui.CustomComponent;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.ui.Link;
-import com.vaadin.ui.Panel;
+import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.router.Route;
 
 /**
- * Main UI for the system configuration view.
+ * Main UI for the system configuration view. Vaadin 8 {@code @ViewScope}: a
+ * route without a Spring scope, so Flow creates a new instance (through
+ * Spring) on each navigation to it.
  */
-@ViewScope
-@SpringView(name = TenantConfigurationDashboardView.VIEW_NAME, ui = AbstractHawkbitUI.class)
-public class TenantConfigurationDashboardView extends CustomComponent
-        implements View, ViewNameAware, ConfigurationItemChangeListener {
+@Route(TenantConfigurationDashboardView.VIEW_NAME)
+@PermitAll
+public class TenantConfigurationDashboardView extends Composite<Div>
+        implements ViewNameAware, ConfigurationItemChangeListener, HasSize {
     private static final long serialVersionUID = 1L;
 
     public static final String VIEW_NAME = "spSystemConfig";
@@ -80,25 +81,26 @@ public class TenantConfigurationDashboardView extends CustomComponent
     @PostConstruct
     public void init() {
         // filter the autowired views
-        filteredConfigurationViews = autowiredConfigurationViews.stream().filter(c -> c.getComponentCount() > 0)
+        filteredConfigurationViews = autowiredConfigurationViews.stream().filter(c -> c.getContent().getComponentCount() > 0)
                 .filter(ConfigurationGroup::show).collect(Collectors.toList());
         // get and add the binders
         filteredConfigurationViews.forEach(entry -> binders.add(entry.getBinder()));
 
-        final Panel rootPanel = new Panel();
+        // the Vaadin 8 panel scrolled its content (view inventory S12)
+        final Scroller rootPanel = new Scroller();
         rootPanel.setClassName("tenantconfig-root");
 
         final VerticalLayout rootLayout = new VerticalLayout();
         rootLayout.setSizeFull();
         rootLayout.setPadding(true);
         rootLayout.setSpacing(true);
-        filteredConfigurationViews.forEach(rootLayout::addComponent);
+        filteredConfigurationViews.forEach(view -> rootLayout.add(view));
 
         final HorizontalLayout buttonContent = saveConfigurationButtonsLayout();
         rootLayout.add(buttonContent);
-        rootLayout.setComponentAlignment(buttonContent, Alignment.BOTTOM_LEFT);
+        rootLayout.setAlignSelf(FlexComponent.Alignment.START, buttonContent);
         rootPanel.setContent(rootLayout);
-        setCompositionRoot(rootPanel);
+        getContent().add(rootPanel);
 
         filteredConfigurationViews.forEach(view -> view.addChangeListener(this));
         binders.forEach(binder -> binder.addStatusChangeListener(event -> {
@@ -113,18 +115,18 @@ public class TenantConfigurationDashboardView extends CustomComponent
         saveConfigurationBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.SYSTEM_CONFIGURATION_SAVE, "", "",
                 "", true, VaadinIcon.HARDDRIVE, SPUIButtonStyleNoBorder.class);
         saveConfigurationBtn.setEnabled(false);
-        saveConfigurationBtn.setDescription(i18n.getMessage("configuration.savebutton.tooltip"));
+        saveConfigurationBtn.setTooltipText(i18n.getMessage("configuration.savebutton.tooltip"));
         saveConfigurationBtn.addClickListener(event -> saveConfiguration());
         hlayout.add(saveConfigurationBtn);
 
         undoConfigurationBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.SYSTEM_CONFIGURATION_CANCEL, "",
                 "", "", true, VaadinIcon.ARROW_BACKWARD, SPUIButtonStyleNoBorder.class);
         undoConfigurationBtn.setEnabled(false);
-        undoConfigurationBtn.setDescription(i18n.getMessage("configuration.cancellbutton.tooltip"));
+        undoConfigurationBtn.setTooltipText(i18n.getMessage("configuration.cancellbutton.tooltip"));
         undoConfigurationBtn.addClickListener(event -> undoConfiguration());
         hlayout.add(undoConfigurationBtn);
 
-        final Link linkToSystemConfigHelp = SPUIComponentProvider.getHelpLink(i18n,
+        final Anchor linkToSystemConfigHelp = SPUIComponentProvider.getHelpLink(i18n,
                 uiProperties.getLinks().getDocumentation().getSystemConfigurationView());
         hlayout.add(linkToSystemConfigHelp);
 
@@ -159,11 +161,6 @@ public class TenantConfigurationDashboardView extends CustomComponent
     public void configurationHasChanged() {
         saveConfigurationBtn.setEnabled(true);
         undoConfigurationBtn.setEnabled(true);
-    }
-
-    @Override
-    public void enter(final ViewChangeEvent event) {
-        // This view is constructed in the init() method()
     }
 
     @Override

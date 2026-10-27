@@ -28,7 +28,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.ui.Panel;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
@@ -67,7 +67,7 @@ public class PollingConfigurationView extends BaseConfigurationView<ProxySystemC
         final Duration globalOverdueTime = DurationHelper.formattedStringToDuration(getTenantConfigurationManagement()
                 .getGlobalConfigurationValue(TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, String.class));
 
-        final Panel rootPanel = new Panel();
+        final Div rootPanel = new Div();
         rootPanel.setSizeFull();
         rootPanel.addClassNames("config-panel");
 
@@ -112,8 +112,8 @@ public class PollingConfigurationView extends BaseConfigurationView<ProxySystemC
 
         vLayout.add(fieldPollingOverdueTime);
 
-        rootPanel.setContent(vLayout);
-        setCompositionRoot(rootPanel);
+        rootPanel.add(vLayout);
+        getContent().add(rootPanel);
     }
 
     private static Duration localDateTimeToDuration(final LocalDateTime date) {
