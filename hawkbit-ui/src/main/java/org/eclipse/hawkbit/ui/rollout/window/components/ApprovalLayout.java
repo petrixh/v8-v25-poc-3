@@ -17,13 +17,15 @@ import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationException;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.RadioButtonGroup;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.function.SerializableFunction;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Rollout approval layout
@@ -60,26 +62,30 @@ public class ApprovalLayout extends ValidatableLayout {
     private RadioButtonGroup<ApprovalDecision> createApproveButtonsGroupField() {
         final RadioButtonGroup<Rollout.ApprovalDecision> approveButtonsGroupField = new RadioButtonGroup<>();
         approveButtonsGroupField.setId(UIComponentIdProvider.ROLLOUT_APPROVAL_OPTIONGROUP_ID);
-        approveButtonsGroupField.addStyleName(ValoTheme.OPTIONGROUP_SMALL);
-        approveButtonsGroupField.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
-        approveButtonsGroupField.addStyleName("custom-option-group");
+        approveButtonsGroupField.addClassNames("small");
+        approveButtonsGroupField.addClassNames("horizontal");
+        approveButtonsGroupField.addClassNames("custom-option-group");
 
         approveButtonsGroupField.setItems(Rollout.ApprovalDecision.values());
 
-        approveButtonsGroupField.setItemCaptionGenerator(item -> {
+        final SerializableFunction<Rollout.ApprovalDecision, String> itemCaptionGenerator = item -> {
             if (Rollout.ApprovalDecision.APPROVED == item) {
                 return i18n.getMessage(APPROVAL_BUTTON_LABEL);
             } else {
                 return i18n.getMessage(DENY_BUTTON_LABEL);
             }
-        });
-        approveButtonsGroupField.setItemIconGenerator(item -> {
+        };
+        final SerializableFunction<Rollout.ApprovalDecision, VaadinIcon> itemIconGenerator = item -> {
             if (Rollout.ApprovalDecision.APPROVED == item) {
-                return VaadinIcons.CHECK;
+                return VaadinIcon.CHECK;
             } else {
-                return VaadinIcons.CLOSE;
+                return VaadinIcon.CLOSE;
             }
-        });
+        };
+        // Flow's RadioButtonGroup has no item icon generator: each item is
+        // rendered as icon + caption
+        approveButtonsGroupField.setRenderer(new ComponentRenderer<>(
+                item -> new Span(itemIconGenerator.apply(item).create(), new Text(itemCaptionGenerator.apply(item)))));
 
         binder.forField(approveButtonsGroupField).asRequired().bind(ProxyRolloutApproval::getApprovalDecision,
                 ProxyRolloutApproval::setApprovalDecision);
@@ -109,7 +115,7 @@ public class ApprovalLayout extends ValidatableLayout {
      * @param lastRowIdx
      *          Approval remark position
      */
-    public void addApprovalToLayout(final GridLayout layout, final int lastColumnIdx, final int lastRowIdx) {
+    public void addApprovalToLayout(final CssGridLayout layout, final int lastColumnIdx, final int lastRowIdx) {
         layout.addComponent(SPUIComponentProvider.generateLabel(i18n, APPROVAL_CAPTION), 0, lastRowIdx);
 
         layout.addComponent(approveButtonsGroup, 1, lastRowIdx);
