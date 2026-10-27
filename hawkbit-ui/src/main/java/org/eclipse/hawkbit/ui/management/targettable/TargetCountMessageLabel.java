@@ -25,7 +25,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.vaadin.flow.data.provider.Query;
-import com.vaadin.shared.ui.ContentMode;
 
 /**
  * Count message label which display current filter details and details on
@@ -60,9 +59,8 @@ public class TargetCountMessageLabel extends AbstractFooterSupport implements Co
     protected void init() {
         super.init();
 
-        countLabel.setContentMode(ContentMode.HTML);
-        countLabel.setIcon(null);
-        countLabel.setDescription(null);
+        // Vaadin 8: ContentMode.HTML, no icon, no description; the HTML
+        // value is set as the span's inner HTML (setCountLabelHtml)
     }
 
     public void updateTotalAndFilteredCount() {
@@ -98,7 +96,7 @@ public class TargetCountMessageLabel extends AbstractFooterSupport implements Co
             appendFilteredTargetsMessage(countMessageBuilder, targetFilterParams);
         }
 
-        countLabel.setCaption(countMessageBuilder.toString());
+        setCountLabelCaption(countMessageBuilder.toString());
     }
 
     private StringBuilder getTotalTargetsMessage() {
@@ -196,7 +194,7 @@ public class TargetCountMessageLabel extends AbstractFooterSupport implements Co
     public void updatePinningDetails() {
         final Long pinnedDsId = gridFilterSupport.getFilter().getPinnedDistId();
         if (pinnedDsId == null) {
-            countLabel.setValue("");
+            setCountLabelHtml("");
             return;
         }
 
@@ -217,7 +215,12 @@ public class TargetCountMessageLabel extends AbstractFooterSupport implements Co
         message.append(i18n.getMessage("label.installed.count", targetsWithInstalledDsCount));
         message.append("</span>");
 
-        countLabel.setValue(message.toString());
+        setCountLabelHtml(message.toString());
+    }
+
+    // Vaadin 8 Label with ContentMode.HTML: same HTML as inner HTML of a span
+    private void setCountLabelHtml(final String html) {
+        countLabel.getElement().setProperty("innerHTML", html);
     }
 
     @Override

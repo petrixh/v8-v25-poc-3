@@ -29,6 +29,7 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.component.textfield.TextArea;
 
 /**
@@ -53,7 +54,9 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
 
         addClassNames(SPUIStyleDefinitions.ACTION_HISTORY_MESSAGE_GRID);
 
-        setDetailsGenerator(ActionStatusMsgGrid::generateDetails);
+        setItemDetailsRenderer(new ComponentRenderer<>(ActionStatusMsgGrid::generateDetails));
+        // Flow toggles details on click by default; the listener below does it
+        setDetailsVisibleOnClick(false);
 
         this.itemClickListenerRegistration = addItemClickListener(event -> {
             final ProxyMessage msg = event.getItem();
@@ -102,14 +105,12 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
 
     @Override
     public void addColumns() {
-        GridComponentBuilder.addColumn(this, ProxyMessage::getId).setId(MSG_ID).setCaption("##").setFlexGrow((int) 0)
-                .setHidable(false).setHidden(false).setMinimumWidthFromContent(true);
+        // Vaadin 8: setFrozenColumnCount(2), the two columns frozen
+        GridComponentBuilder.addColumn(this, ProxyMessage::getId).setKey(MSG_ID).setHeader("##").setFlexGrow((int) 0)
+                .setAutoWidth(true).setFrozen(true);
 
-        GridComponentBuilder.addColumn(this, ProxyMessage::getMessage).setId(VALUE_ID)
-                .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_MESSAGES)).setHidable(false)
-                .setHidden(false);
-
-        setFrozenColumnCount(2);
+        GridComponentBuilder.addColumn(this, ProxyMessage::getMessage).setKey(VALUE_ID)
+                .setHeader(i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_MESSAGES)).setFrozen(true);
     }
 
     /**

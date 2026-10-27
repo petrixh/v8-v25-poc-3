@@ -127,8 +127,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
             final TargetGridLayoutUiState targetGridLayoutUiState,
             final DistributionGridLayoutUiState distributionGridLayoutUiState,
             final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState) {
-        super(uiDependencies.getI18n(), uiDependencies.getEventBus(), uiDependencies.getPermChecker(),
-                targetManagementStateDataSupplier.dataCommunicator());
+        super(uiDependencies.getI18n(), uiDependencies.getEventBus(), uiDependencies.getPermChecker());
 
         this.targetManagement = targetManagement;
         this.targetGridLayoutUiState = targetGridLayoutUiState;
@@ -294,7 +293,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private void initDsPinningStyleGenerator() {
-        setStyleGenerator(target -> pinSupport.getAssignedOrInstalledRowStyle(target.getId()));
+        setPartNameGenerator(target -> pinSupport.getAssignedOrInstalledRowStyle(target.getId()));
     }
 
     @Override
@@ -324,31 +323,33 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     public void addColumns() {
         addNameColumn();
 
-        GridComponentBuilder.joinToIconColumn(getDefaultHeaderRow(), i18n.getMessage("header.status"),
+        // Vaadin 8 default header row: Flow joins cells only in the top-most
+        // header row, the only one here (getDefaultHeaderRow is protected)
+        GridComponentBuilder.joinToIconColumn(getHeaderRows().get(0), i18n.getMessage("header.status"),
                 Arrays.asList(addTargetPollingStatusColumn(), addTargetStatusColumn()));
 
-        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
+        GridComponentBuilder.joinToActionColumn(i18n, getHeaderRows().get(0),
                 Arrays.asList(addPinColumn(), addDeleteColumn()));
     }
 
-    private Column<ProxyTarget, Button> addControllerIdColumn() {
+    private Column<ProxyTarget> addControllerIdColumn() {
         return GridComponentBuilder.addControllerIdColumn(this, i18n, TARGET_CONTROLLER_ID);
     }
 
-    private Column<ProxyTarget, String> addNameColumn() {
+    private Column<ProxyTarget> addNameColumn() {
         return GridComponentBuilder.addNameColumn(this, i18n, TARGET_NAME_ID);
     }
 
-    private Column<ProxyTarget, Span> addTargetPollingStatusColumn() {
+    private Column<ProxyTarget> addTargetPollingStatusColumn() {
         return GridComponentBuilder.addIconColumn(this, targetPollingStatusIconSupplier::getLabel,
                 TARGET_POLLING_STATUS_ID, null);
     }
 
-    private Column<ProxyTarget, Span> addTargetStatusColumn() {
+    private Column<ProxyTarget> addTargetStatusColumn() {
         return GridComponentBuilder.addIconColumn(this, targetStatusIconSupplier::getLabel, TARGET_STATUS_ID, null);
     }
 
-    private Column<ProxyTarget, Button> addPinColumn() {
+    private Column<ProxyTarget> addPinColumn() {
         final ValueProvider<ProxyTarget, Button> buttonProvider = target -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> pinSupport.changeItemPinning(target), VaadinIcon.PIN,
                 UIMessageIdProvider.TOOLTIP_TARGET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
@@ -357,7 +358,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                 pinSupport::getPinningStyle);
     }
 
-    private Column<ProxyTarget, Button> addDeleteColumn() {
+    private Column<ProxyTarget> addDeleteColumn() {
         return GridComponentBuilder.addDeleteColumn(this, i18n, TARGET_DELETE_BUTTON_ID, targetDeleteSupport,
                 UIComponentIdProvider.TARGET_DELET_ICON, e -> permissionChecker.hasDeleteTargetPermission());
     }
@@ -372,7 +373,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         addDeleteColumn();
 
-        getColumns().forEach(column -> column.setHidable(true));
+        // Vaadin 8: setHidable(true) on every column (the user could hide
+        // columns); Flow grids have no column hiding menu
     }
 
     @Override

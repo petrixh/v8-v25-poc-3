@@ -158,50 +158,53 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
     @Override
     public void addColumns() {
-        addActiveStatusColumn().setHidable(true);
+        // Vaadin 8: setHidable(true) on these columns (the user could hide
+        // them, and show the maintenance window column); Flow grids have no
+        // column hiding menu
+        addActiveStatusColumn();
 
-        addDsColumn().setHidable(true);
+        addDsColumn();
 
-        addDateAndTimeColumn().setHidable(true);
+        addDateAndTimeColumn();
 
-        addStatusColumn().setHidable(true);
+        addStatusColumn();
 
-        addMaintenanceWindowColumn().setHidable(true).setHidden(true);
+        addMaintenanceWindowColumn().setVisible(false);
 
-        GridComponentBuilder.joinToIconColumn(getDefaultHeaderRow(), i18n.getMessage("label.action.type"),
+        GridComponentBuilder.joinToIconColumn(getHeaderRows().get(0), i18n.getMessage("label.action.type"),
                 Arrays.asList(addTypeColumn(), addTimeforcedColumn()));
 
-        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
+        GridComponentBuilder.joinToActionColumn(i18n, getHeaderRows().get(0),
                 Arrays.asList(addCancelColumn(), addForceColumn(), addForceQuitColumn()));
     }
 
-    private Column<ProxyAction, Span> addActiveStatusColumn() {
+    private Column<ProxyAction> addActiveStatusColumn() {
         return GridComponentBuilder.addIconColumn(this, activeStatusIconSupplier::getLabel, ACTIVE_STATUS_ID,
                 i18n.getMessage("label.active"));
     }
 
-    private Column<ProxyAction, String> addDsColumn() {
-        return GridComponentBuilder.addColumn(this, ProxyAction::getDsNameVersion).setId(DS_NAME_VERSION_ID)
-                .setCaption(i18n.getMessage("distribution.details.header"));
+    private Column<ProxyAction> addDsColumn() {
+        return GridComponentBuilder.addColumn(this, ProxyAction::getDsNameVersion).setKey(DS_NAME_VERSION_ID)
+                .setHeader(i18n.getMessage("distribution.details.header"));
     }
 
-    private Column<ProxyAction, String> addDateAndTimeColumn() {
+    private Column<ProxyAction> addDateAndTimeColumn() {
         return GridComponentBuilder
                 .addColumn(this,
                         action -> SPDateTimeUtil.getFormattedDate(action.getLastModifiedAt(),
                                 SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT))
-                .setId(LAST_MODIFIED_AT_ID).setCaption(i18n.getMessage("header.rolloutgroup.target.date"))
-                .setDescriptionGenerator(action -> SPDateTimeUtil.getFormattedDate(action.getLastModifiedAt()));
+                .setKey(LAST_MODIFIED_AT_ID).setHeader(i18n.getMessage("header.rolloutgroup.target.date"))
+                .setTooltipGenerator(action -> SPDateTimeUtil.getFormattedDate(action.getLastModifiedAt()));
     }
 
-    private Column<ProxyAction, Span> addStatusColumn() {
+    private Column<ProxyAction> addStatusColumn() {
         return GridComponentBuilder.addIconColumn(this, actionStatusIconSupplier::getLabel, STATUS_ID,
                 i18n.getMessage("header.status"));
     }
 
-    private Column<ProxyAction, String> addMaintenanceWindowColumn() {
-        return GridComponentBuilder.addColumn(this, ProxyAction::getMaintenanceWindow).setId(MAINTENANCE_WINDOW_ID)
-                .setCaption(i18n.getMessage("header.maintenancewindow")).setDescriptionGenerator(
+    private Column<ProxyAction> addMaintenanceWindowColumn() {
+        return GridComponentBuilder.addColumn(this, ProxyAction::getMaintenanceWindow).setKey(MAINTENANCE_WINDOW_ID)
+                .setHeader(i18n.getMessage("header.maintenancewindow")).setTooltipGenerator(
                         action -> getFormattedNextMaintenanceWindow(action.getMaintenanceWindowStartTime()));
     }
 
@@ -215,15 +218,15 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 SPDateTimeUtil.getFormattedDate(nextAtMilli, SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT));
     }
 
-    private Column<ProxyAction, Span> addTypeColumn() {
+    private Column<ProxyAction> addTypeColumn() {
         return GridComponentBuilder.addIconColumn(this, actionTypeIconSupplier::getLabel, TYPE_ID, null);
     }
 
-    private Column<ProxyAction, Span> addTimeforcedColumn() {
+    private Column<ProxyAction> addTimeforcedColumn() {
         return GridComponentBuilder.addIconColumn(this, timeforcedIconSupplier::getLabel, TIME_FORCED_ID, null);
     }
 
-    private Column<ProxyAction, Button> addCancelColumn() {
+    private Column<ProxyAction> addCancelColumn() {
         final ValueProvider<ProxyAction, Button> buttonProvider = action -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> confirmAndCancelAction(action.getId()), VaadinIcon.CLOSE_SMALL, "message.cancel.action",
                 SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
@@ -245,7 +248,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 .question(i18n.getMessage("message.cancel.action.confirm"))
                 .onSaveOrUpdate(() -> cancelActiveAction(actionId)).build();
         confirmDialog.getWindow().open();
-        confirmDialog.getWindow().bringToFront();
+        // Flow: the dialog opened last is on top (no bringToFront)
     }
 
     private void cancelActiveAction(final Long actionId) {
@@ -268,7 +271,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         }
     }
 
-    private Column<ProxyAction, Button> addForceColumn() {
+    private Column<ProxyAction> addForceColumn() {
         final ValueProvider<ProxyAction, Button> buttonProvider = action -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> confirmAndForceAction(action.getId()), VaadinIcon.BOLT, "message.force.action",
                 SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
@@ -292,7 +295,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 .onSaveOrUpdate(() -> forceActiveAction(actionId)).build();
         confirmDialog.getWindow().open();
 
-        confirmDialog.getWindow().bringToFront();
+        // Flow: the dialog opened last is on top (no bringToFront)
     }
 
     private void forceActiveAction(final Long actionId) {
@@ -307,7 +310,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         }
     }
 
-    private Column<ProxyAction, Button> addForceQuitColumn() {
+    private Column<ProxyAction> addForceQuitColumn() {
         final ValueProvider<ProxyAction, Button> buttonProvider = action -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> confirmAndForceQuitAction(action.getId()), VaadinIcon.CLOSE_SMALL,
                 "message.forcequit.action", SPUIStyleDefinitions.STATUS_ICON_RED,
@@ -330,7 +333,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 .onSaveOrUpdate(() -> forceQuitActiveAction(actionId)).build();
         confirmDialog.getWindow().open();
 
-        confirmDialog.getWindow().bringToFront();
+        // Flow: the dialog opened last is on top (no bringToFront)
     }
 
     private void forceQuitActiveAction(final Long actionId) {
@@ -347,35 +350,38 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
     @Override
     protected void addMaxColumns() {
-        addActiveStatusColumn().setHidable(true);
+        // Vaadin 8: setHidable(true) on these columns (the user could hide
+        // them, and show the maintenance window column); Flow grids have no
+        // column hiding menu
+        addActiveStatusColumn();
 
-        addActionIdColumn().setFlexGrow((int) 0).setHidable(true);
+        addActionIdColumn().setFlexGrow((int) 0);
 
-        addDsColumn().setHidable(true);
+        addDsColumn();
 
-        addDateAndTimeColumn().setHidable(true);
+        addDateAndTimeColumn();
 
-        addStatusColumn().setHidable(true);
+        addStatusColumn();
 
-        addMaintenanceWindowColumn().setHidable(true).setHidden(true);
+        addMaintenanceWindowColumn().setVisible(false);
 
-        addRolloutNameColumn().setHidable(true);
+        addRolloutNameColumn();
 
-        GridComponentBuilder.joinToIconColumn(getDefaultHeaderRow(), i18n.getMessage("label.action.type"),
+        GridComponentBuilder.joinToIconColumn(getHeaderRows().get(0), i18n.getMessage("label.action.type"),
                 Arrays.asList(addTypeColumn(), addTimeforcedColumn()));
 
-        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
+        GridComponentBuilder.joinToActionColumn(i18n, getHeaderRows().get(0),
                 Arrays.asList(addCancelColumn(), addForceColumn(), addForceQuitColumn()));
     }
 
-    private Column<ProxyAction, Long> addActionIdColumn() {
-        return GridComponentBuilder.addColumn(this, ProxyAction::getId).setId(ACTION_ID)
-                .setCaption(i18n.getMessage("label.action.id")).setMinimumWidthFromContent(true);
+    private Column<ProxyAction> addActionIdColumn() {
+        return GridComponentBuilder.addColumn(this, ProxyAction::getId).setKey(ACTION_ID)
+                .setHeader(i18n.getMessage("label.action.id")).setAutoWidth(true);
     }
 
-    private Column<ProxyAction, String> addRolloutNameColumn() {
-        return GridComponentBuilder.addColumn(this, ProxyAction::getRolloutName).setId(ROLLOUT_NAME_ID)
-                .setCaption(i18n.getMessage("caption.rollout.name"));
+    private Column<ProxyAction> addRolloutNameColumn() {
+        return GridComponentBuilder.addColumn(this, ProxyAction::getRolloutName).setKey(ROLLOUT_NAME_ID)
+                .setHeader(i18n.getMessage("caption.rollout.name"));
     }
 
     /**

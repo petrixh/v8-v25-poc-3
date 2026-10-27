@@ -31,7 +31,6 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ContextAware;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.TenantAware;
-import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.AbstractEventListenersAwareView;
@@ -56,19 +55,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.flow.component.page.Page;
-import com.vaadin.server.Page.BrowserWindowResizeEvent;
-import com.vaadin.server.Page.BrowserWindowResizeListener;
-import com.vaadin.spring.annotation.SpringView;
+import jakarta.annotation.security.PermitAll;
+
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.page.BrowserWindowResizeEvent;
+import com.vaadin.flow.component.page.BrowserWindowResizeListener;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.ui.Layout;
 
 /**
  * Target status and deployment management view
  */
+@Route(DeploymentView.VIEW_NAME)
+@SpringComponent
 @UIScope
-@SpringView(name = DeploymentView.VIEW_NAME, ui = AbstractHawkbitUI.class)
+@PermitAll
 public class DeploymentView extends AbstractEventListenersAwareView implements BrowserWindowResizeListener {
     private static final long serialVersionUID = 1L;
 
@@ -82,7 +85,7 @@ public class DeploymentView extends AbstractEventListenersAwareView implements B
     private final DistributionGridLayout distributionGridLayout;
     private final DistributionTagLayout distributionTagLayout;
     private final ActionHistoryLayout actionHistoryLayout;
-    private final Layout targetCountLayout;
+    private final HorizontalLayout targetCountLayout;
 
     private HorizontalLayout mainLayout;
 
@@ -182,7 +185,7 @@ public class DeploymentView extends AbstractEventListenersAwareView implements B
     protected void init() {
         if (permChecker.hasTargetReadPermission() || permChecker.hasReadRepositoryPermission()) {
             super.init();
-            Page.getCurrent().addBrowserWindowResizeListener(this);
+            UI.getCurrent().getPage().addBrowserWindowResizeListener(this);
         }
     }
 
@@ -355,7 +358,7 @@ public class DeploymentView extends AbstractEventListenersAwareView implements B
     }
 
     private void clearAllWidgetsRatios() {
-        mainLayout.iterator().forEachRemaining(layout -> mainLayout.setFlexGrow(0F, layout));
+        mainLayout.getChildren().forEach(layout -> mainLayout.setFlexGrow(0F, layout));
     }
 
     private void minimizeTargetGridLayout() {

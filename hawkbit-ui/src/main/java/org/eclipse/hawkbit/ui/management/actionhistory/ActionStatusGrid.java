@@ -82,16 +82,14 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     @Override
     public void addColumns() {
         GridComponentBuilder
-                .addIconColumn(this, actionStatusIconSupplier::getLabel, STATUS_ID, i18n.getMessage("header.status"))
-                .setHidable(false).setHidden(false);
+                .addIconColumn(this, actionStatusIconSupplier::getLabel, STATUS_ID, i18n.getMessage("header.status"));
 
         GridComponentBuilder
                 .addColumn(this,
                         actionStatus -> SPDateTimeUtil.getFormattedDate(actionStatus.getCreatedAt(),
                                 SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT))
-                .setId(CREATED_AT_ID).setCaption(i18n.getMessage("header.rolloutgroup.target.date"))
-                .setDescriptionGenerator(actionStatus -> SPDateTimeUtil.getFormattedDate(actionStatus.getCreatedAt()))
-                .setHidable(false).setHidden(false);
+                .setKey(CREATED_AT_ID).setHeader(i18n.getMessage("header.rolloutgroup.target.date"))
+                .setTooltipGenerator(actionStatus -> SPDateTimeUtil.getFormattedDate(actionStatus.getCreatedAt()));
     }
 
     /**

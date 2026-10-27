@@ -194,7 +194,7 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
     }
 
     private void initStyleGenerator() {
-        setStyleGenerator(this::getRowStyle);
+        setPartNameGenerator(this::getRowStyle);
     }
 
     private String getRowStyle(final ProxyDistributionSet distributionSet) {
@@ -223,11 +223,11 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
         addNameColumn();
         addVersionColumn();
 
-        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
+        GridComponentBuilder.joinToActionColumn(i18n, getHeaderRows().get(0),
                 Arrays.asList(addPinColumn(), addDeleteColumn(), addInvalidateColumn()));
     }
 
-    private Column<ProxyDistributionSet, Button> addPinColumn() {
+    private Column<ProxyDistributionSet> addPinColumn() {
         final ValueProvider<ProxyDistributionSet, Button> buttonProvider = ds -> GridComponentBuilder.buildActionButton(
                 i18n, clickEvent -> pinSupport.changeItemPinning(ds), VaadinIcon.PIN,
                 UIMessageIdProvider.TOOLTIP_DISTRIBUTION_SET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
@@ -237,7 +237,7 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
     }
 
 
-    private Column<ProxyDistributionSet, Button> addInvalidateColumn() {
+    private Column<ProxyDistributionSet> addInvalidateColumn() {
         final ValueProvider<ProxyDistributionSet, Button> buttonProvider = ds -> GridComponentBuilder.buildActionButton(
                 i18n, clickEvent -> invalidateDistributionSetSupport.openConsequencesWindowOnInvalidateAction(ds),
                 VaadinIcon.BAN, UIMessageIdProvider.TOOLTIP_INVALIDATE_DISTRIBUTIONSET,
