@@ -26,12 +26,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -44,16 +43,22 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.ObjectUtils;
-import org.vaadin.spring.http.HttpService;
-import org.vaadin.spring.security.annotation.EnableVaadinSharedSecurity;
-import org.vaadin.spring.security.config.VaadinSharedSecurityConfiguration;
-import org.vaadin.spring.security.shared.VaadinAuthenticationSuccessHandler;
-import org.vaadin.spring.security.shared.VaadinUrlAuthenticationSuccessHandler;
-import org.vaadin.spring.security.web.VaadinRedirectStrategy;
+import org.springframework.util.StringUtils;
+
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.server.VaadinServletRequest;
+import com.vaadin.flow.server.VaadinServletResponse;
+import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
+
+import org.eclipse.hawkbit.ui.login.VaadinLoginSupport;
 
 import java.util.Arrays;
 
@@ -62,7 +67,6 @@ import java.util.Arrays;
  */
 @Configuration
 @EnableWebSecurity
-@EnableVaadinSharedSecurity
 @ConditionalOnClass(MgmtUiConfiguration.class)
 public class UISecurityConfigurationAdapter {
 
@@ -106,20 +110,37 @@ public class UISecurityConfigurationAdapter {
     }
 
     /**
-     * Overwriting VaadinAuthenticationSuccessHandler of default
-     * VaadinSharedSecurityConfiguration
+     * The success handler of the UI login (replaces the
+     * VaadinAuthenticationSuccessHandler of vaadin4spring's shared security,
+     * A3). Not a Spring Security {@link AuthenticationSuccessHandler} bean, so
+     * the OIDC detection in {@link #filterChainUI} is not affected.
      *
      * @return the vaadin success authentication handler
      */
     @Primary
-    @Bean(name = VaadinSharedSecurityConfiguration.VAADIN_AUTHENTICATION_SUCCESS_HANDLER_BEAN)
-    public VaadinAuthenticationSuccessHandler redirectSaveHandler(final HttpService httpService,
-                                                                  final VaadinRedirectStrategy redirectStrategy) {
-        final VaadinUrlAuthenticationSuccessHandler handler = new TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler(
-                httpService, redirectStrategy, "/UI/");
+    @Bean
+    public VaadinLoginSupport.VaadinAuthenticationSuccessHandler redirectSaveHandler() {
+        final TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler handler = new TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler(
+                "/UI/");
         handler.setTargetUrlParameter("r");
 
         return handler;
+    }
+
+    /**
+     * Programmatic login of the UI login view (replaces vaadin4spring's
+     * VaadinSecurity, A3).
+     *
+     * @param authenticationManager
+     *            the authentication manager
+     * @param successHandler
+     *            the vaadin success authentication handler
+     * @return the login support bean
+     */
+    @Bean
+    public VaadinLoginSupport vaadinLoginSupport(final AuthenticationManager authenticationManager,
+            final VaadinLoginSupport.VaadinAuthenticationSuccessHandler successHandler) {
+        return new VaadinLoginSupport(authenticationManager, successHandler);
     }
 
     /**
@@ -153,15 +174,22 @@ public class UISecurityConfigurationAdapter {
         // https://vaadin.com/forum#!/thread/3200565.
         HttpSecurity httpSec;
         if (enableOidc) {
-            httpSec = http.requestMatchers().antMatchers("/**/UI/**", "/**/oauth2/**").and();
+            httpSec = http.securityMatcher(
+                    new OrRequestMatcher(antPathRequestMatcher("/**/UI/**"), antPathRequestMatcher("/**/oauth2/**")));
         } else {
-            httpSec = http.antMatcher("/**/UI/**");
+            httpSec = http.securityMatcher(antPathRequestMatcher("/**/UI/**"));
         }
+        // Vaadin 25 security integration (A3): lets the framework's internal
+        // requests (UIDL, push, heartbeat, static resources) through and keeps
+        // the navigation access control; no form login (the login view logs in
+        // programmatically, as before), CSRF and logout stay as configured here
+        httpSec.with(VaadinSecurityConfigurer.vaadin(), vaadin -> vaadin.enableCsrfConfiguration(false)
+                .enableLogoutConfiguration(false));
         // disable as CSRF is handled by Vaadin
         httpSec.csrf(AbstractHttpConfigurer::disable);
         // allow same origin X-Frame-Options for correct file download under
         // Safari
-        httpSec.headers().frameOptions().sameOrigin();
+        httpSec.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
 
         if (hawkbitSecurityProperties.isRequireSsl()) {
             httpSec = httpSec.requiresChannel(crmRegistry -> crmRegistry.anyRequest().requiresSecure());
@@ -174,25 +202,28 @@ public class UISecurityConfigurationAdapter {
         }
 
         if (!ObjectUtils.isEmpty(hawkbitSecurityProperties.getContentSecurityPolicy())) {
-            httpSec.headers().contentSecurityPolicy(hawkbitSecurityProperties.getContentSecurityPolicy());
+            httpSec.headers(headers -> headers
+                    .contentSecurityPolicy(csp -> csp.policyDirectives(hawkbitSecurityProperties.getContentSecurityPolicy())));
         }
 
-        // UI
-        httpSec.authorizeRequests().antMatchers("/UI/login/**", "/UI/UIDL/**").permitAll().anyRequest()
-                .authenticated();
+        // UI: the login view; Vaadin's UIDL requests are let through by the
+        // Vaadin configurer, which also requires authentication for any other
+        // request
+        httpSec.authorizeHttpRequests(requests -> requests.requestMatchers("/UI/login/**").permitAll());
 
         if (enableOidc) {
             // OIDC
-            httpSec.oauth2Login().userInfoEndpoint().oidcUserService(oidcUserService).and()
-                    .successHandler(authenticationSuccessHandler).and().oauth2Client();
+            httpSec.oauth2Login(oauth2 -> oauth2.userInfoEndpoint(userInfo -> userInfo.oidcUserService(oidcUserService))
+                    .successHandler(authenticationSuccessHandler)).oauth2Client(Customizer.withDefaults());
         } else {
             // UI login / Basic auth
-            httpSec.exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/UI/login"));
+            httpSec.exceptionHandling(exceptionHandling -> exceptionHandling
+                    .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/UI/login")));
         }
 
         // UI logout
-        httpSec.logout().logoutUrl("/UI/logout*").addLogoutHandler(logoutHandler)
-                .logoutSuccessHandler(logoutSuccessHandler);
+        httpSec.logout(logout -> logout.logoutUrl("/UI/logout*").addLogoutHandler(logoutHandler)
+                .logoutSuccessHandler(logoutSuccessHandler));
 
         return httpSec.build();
     }
@@ -200,32 +231,48 @@ public class UISecurityConfigurationAdapter {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         // No security for static content
-        return (web) -> web.ignoring().antMatchers("/documentation/**", "/VAADIN/**", "/*.*", "/docs/**");
+        return (web) -> web.ignoring().requestMatchers("/documentation/**", "/VAADIN/**", "/*.*", "/docs/**");
     }
 
     /**
-     * Configuration that defines the {@link AccessDecisionManager} bean for
-     * UI method security used by the Vaadin Servlet. Notice: we can not use
-     * the top-level method security configuration because
-     * AdviceMode.ASPECTJ is not supported.
+     * Matches like Spring Security 5's AntPathRequestMatcher (removed in Spring
+     * Security 7) did: Ant pattern against the servlet path plus path info.
+     * Used where the pattern is not a valid PathPattern ('**' before the end).
+     * Same as in SecurityManagedConfiguration.
+     */
+    private static RequestMatcher antPathRequestMatcher(final String pattern) {
+        final AntPathMatcher antPathMatcher = new AntPathMatcher();
+        antPathMatcher.setTrimTokens(false);
+        return request -> {
+            String url = request.getServletPath();
+            final String pathInfo = request.getPathInfo();
+            if (pathInfo != null) {
+                url = StringUtils.hasLength(url) ? url + pathInfo : pathInfo;
+            }
+            return antPathMatcher.match(pattern, url);
+        };
+    }
+
+    /**
+     * Proxy-based method security for the UI. Notice: we can not use the
+     * top-level method security configuration because AdviceMode.ASPECTJ is
+     * not supported. Spring Security 7: {@code @EnableGlobalMethodSecurity}
+     * needs the removed AccessDecisionManager, so the same switches move to
+     * {@code @EnableMethodSecurity}; the AccessDecisionManager bean was only
+     * used by vaadin4spring (A3) and is gone with it.
      */
     @Configuration
-    @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true, proxyTargetClass = true)
+    @EnableMethodSecurity(securedEnabled = true, prePostEnabled = true, proxyTargetClass = true)
     @ConditionalOnClass(MgmtUiConfiguration.class)
-    static class UIMethodSecurity extends GlobalMethodSecurityConfiguration {
-
-        @Bean(name = VaadinSharedSecurityConfiguration.ACCESS_DECISION_MANAGER_BEAN)
-        @Override
-        protected AccessDecisionManager accessDecisionManager() {
-            return super.accessDecisionManager();
-        }
+    static class UIMethodSecurity {
     }
 
     /**
      * After a successful login on the UI we need to ensure to create the tenant
      * meta data within SP.
      */
-    class TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler extends VaadinUrlAuthenticationSuccessHandler {
+    class TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler
+            implements VaadinLoginSupport.VaadinAuthenticationSuccessHandler {
 
         @Autowired
         private SystemManagement systemManagement;
@@ -233,16 +280,28 @@ public class UISecurityConfigurationAdapter {
         @Autowired
         private SystemSecurityContext systemSecurityContext;
 
-        public TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler(final HttpService http,
-                                                                                 final VaadinRedirectStrategy redirectStrategy, final String defaultTargetUrl) {
-            super(http, redirectStrategy, defaultTargetUrl);
+        // what vaadin4spring's VaadinUrlAuthenticationSuccessHandler did: the
+        // target URL parameter, else the default target URL (it did not use
+        // the saved request, so the user lands on the start view as before,
+        // BR-026); the redirect goes through the browser (Page.setLocation)
+        // because the login runs inside a Vaadin request
+        private final SimpleUrlAuthenticationSuccessHandler redirectHandler = new SimpleUrlAuthenticationSuccessHandler();
+
+        public TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler(final String defaultTargetUrl) {
+            redirectHandler.setDefaultTargetUrl(defaultTargetUrl);
+            redirectHandler.setRedirectStrategy((request, response, url) -> UI.getCurrent().getPage().setLocation(url));
+        }
+
+        public void setTargetUrlParameter(final String targetUrlParameter) {
+            redirectHandler.setTargetUrlParameter(targetUrlParameter);
         }
 
         @Override
         public void onAuthenticationSuccess(final Authentication authentication) throws Exception {
             systemSecurityContext.runAsSystemAsTenant(systemManagement::getTenantMetadata, getTenantFrom(authentication));
 
-            super.onAuthenticationSuccess(authentication);
+            redirectHandler.onAuthenticationSuccess(VaadinServletRequest.getCurrent().getHttpServletRequest(),
+                    VaadinServletResponse.getCurrent().getHttpServletResponse(), authentication);
         }
 
         private static String getTenantFrom(final Authentication authentication) {

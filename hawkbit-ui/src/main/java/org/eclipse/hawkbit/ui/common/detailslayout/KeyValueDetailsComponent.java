@@ -15,11 +15,11 @@ import java.util.List;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.shared.Tooltip;
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * key value detail to component layout
@@ -35,8 +35,10 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
     public KeyValueDetailsComponent() {
         keyValueDetailsLayout = new VerticalLayout();
         keyValueDetailsLayout.setSpacing(true);
-        keyValueDetailsLayout.setMargin(false);
+        keyValueDetailsLayout.setPadding(false);
         keyValueDetailsLayout.setWidthFull();
+        // Vaadin 8: initContent()
+        add(keyValueDetailsLayout);
 
         setReadOnly(true);
     }
@@ -49,13 +51,13 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
     }
 
     @Override
-    protected Component initContent() {
-        return keyValueDetailsLayout;
+    protected List<ProxyKeyValueDetails> generateModelValue() {
+        return Collections.emptyList();
     }
 
     @Override
-    protected void doSetValue(final List<ProxyKeyValueDetails> keyValueDetails) {
-        keyValueDetailsLayout.removeAllComponents();
+    protected void setPresentationValue(final List<ProxyKeyValueDetails> keyValueDetails) {
+        keyValueDetailsLayout.removeAll();
 
         if (keyValueDetails != null) {
             keyValueDetails.forEach(this::addKeyValueDetail);
@@ -67,39 +69,39 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
         final String key = keyValueDetail.getKey();
         final String value = keyValueDetail.getValue();
 
-        final Label keyDetail = buildKeyDetail(key);
-        final Label valueDetail = buildValueDetail(id, value);
+        final Span keyDetail = buildKeyDetail(key);
+        final Span valueDetail = buildValueDetail(id, value);
 
         final HorizontalLayout keyValueDetailLayout = new HorizontalLayout();
         keyValueDetailLayout.setSpacing(true);
-        keyValueDetailLayout.setMargin(false);
-        keyValueDetailLayout.setWidthUndefined();
+        keyValueDetailLayout.setPadding(false);
+        keyValueDetailLayout.setWidth(null);
 
-        keyValueDetailLayout.addComponent(keyDetail);
-        keyValueDetailLayout.setExpandRatio(keyDetail, 0.0F);
+        keyValueDetailLayout.add(keyDetail);
+        keyValueDetailLayout.setFlexGrow(0.0F, keyDetail);
 
-        keyValueDetailLayout.addComponent(valueDetail);
-        keyValueDetailLayout.setExpandRatio(valueDetail, 1.0F);
+        keyValueDetailLayout.add(valueDetail);
+        keyValueDetailLayout.setFlexGrow(1.0F, valueDetail);
 
-        keyValueDetailLayout.setDescription(key.concat(": ") + value);
+        Tooltip.forComponent(keyValueDetailLayout).setText(key.concat(": ") + value);
 
-        keyValueDetailsLayout.addComponent(keyValueDetailLayout);
+        keyValueDetailsLayout.add(keyValueDetailLayout);
     }
 
-    private static Label buildKeyDetail(final String key) {
-        final Label keyLabel = new Label(key + ":");
+    private static Span buildKeyDetail(final String key) {
+        final Span keyLabel = new Span(key + ":");
 
-        keyLabel.addStyleName(SPUIDefinitions.TEXT_STYLE);
-        keyLabel.addStyleName("text-bold");
+        keyLabel.addClassNames(SPUIDefinitions.TEXT_STYLE);
+        keyLabel.addClassNames("text-bold");
 
         return keyLabel;
     }
 
-    private static Label buildValueDetail(final String id, final String value) {
-        final Label valueLabel = new Label(value);
+    private static Span buildValueDetail(final String id, final String value) {
+        final Span valueLabel = new Span(value);
 
         valueLabel.setId(id);
-        valueLabel.addStyleName(SPUIDefinitions.TEXT_STYLE);
+        valueLabel.addClassNames(SPUIDefinitions.TEXT_STYLE);
 
         return valueLabel;
     }

@@ -16,10 +16,10 @@ import java.util.function.UnaryOperator;
 
 import org.eclipse.hawkbit.ui.common.event.FilterType;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
-import com.vaadin.data.provider.DataProvider;
-import com.vaadin.data.provider.DataProviderWrapper;
-import com.vaadin.data.provider.Query;
+import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.DataProviderWrapper;
+import com.vaadin.flow.data.provider.Query;
 
 /**
  * Support for Filter in Grid

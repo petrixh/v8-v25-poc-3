@@ -11,8 +11,7 @@ package org.eclipse.hawkbit.ui.common.builder;
 
 import org.springframework.util.StringUtils;
 
-import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.html.Span;
 
 /**
  * Label Builder.
@@ -81,9 +80,9 @@ public class LabelBuilder {
      * 
      * @return Label
      */
-    public Label buildCaptionLabel() {
-        final Label label = createLabel();
-        label.addStyleName("header-caption");
+    public Span buildCaptionLabel() {
+        final Span label = createLabel();
+        label.addClassNames("header-caption");
         return label;
     }
 
@@ -92,24 +91,27 @@ public class LabelBuilder {
      * 
      * @return Label
      */
-    public Label buildLabel() {
-        final Label label = createLabel();
-        label.setWidth("-1px");
-        label.setHeight("-1px");
+    public Span buildLabel() {
+        final Span label = createLabel();
+        // Vaadin 8: undefined size (-1px)
+        label.setWidth(null);
+        label.setHeight(null);
         if (StringUtils.hasText(caption)) {
-            label.setCaption(caption);
+            // Vaadin 8 caption of the label: Flow spans have none, it is
+            // shown as a first child (styled in stage 2a)
+            final Span captionText = new Span(caption);
+            captionText.addClassName("v-caption");
+            label.addComponentAsFirst(captionText);
         }
 
         return label;
     }
 
-    private Label createLabel() {
-        final Label label = new Label(name);
+    private Span createLabel() {
+        final Span label = new Span(name);
         label.setVisible(visible);
-        final StringBuilder style = new StringBuilder(ValoTheme.LABEL_SMALL);
-        style.append(' ');
-        style.append(ValoTheme.LABEL_BOLD);
-        label.addStyleName(style.toString());
+        // Vaadin 8: ValoTheme.LABEL_SMALL and LABEL_BOLD
+        label.addClassNames("small", "bold");
         if (id != null) {
             label.setId(id);
         }

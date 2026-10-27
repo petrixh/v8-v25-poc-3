@@ -28,17 +28,19 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.vaadin.spring.annotation.EnableVaadinExtensions;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.annotation.EnableEventBus;
 
-import com.vaadin.spring.annotation.UIScope;
+import com.vaadin.flow.spring.annotation.EnableVaadin;
+import com.vaadin.flow.spring.annotation.UIScope;
 
 /**
  * The Management UI auto configuration.
  */
 @Configuration
-@EnableVaadinExtensions
+// Vaadin 25: find the routes of hawkbit-ui and of the runtime that embeds it
+// (org.eclipse.hawkbit.app...); replaces the Spring view beans of Vaadin 8
+@EnableVaadin("org.eclipse.hawkbit")
 @EnableEventBus
 @ConditionalOnClass(MgmtUiConfiguration.class)
 @Import(MgmtUiConfiguration.class)

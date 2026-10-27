@@ -27,7 +27,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
-import com.vaadin.server.VaadinService;
+import com.vaadin.flow.server.VaadinService;
 
 /**
  * A Utility class to user details e.g. username

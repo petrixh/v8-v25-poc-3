@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.menu;
 
 import org.springframework.util.DigestUtils;
 
-import com.vaadin.server.ExternalResource;
+import java.io.Serializable;
 
 /**
  * {@link ExternalResource} for user profile pictures hosted by gravatar.
@@ -20,7 +20,7 @@ import com.vaadin.server.ExternalResource;
  *      Requests</a>
  *
  */
-public class GravatarResource extends ExternalResource {
+public class GravatarResource implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -32,8 +32,17 @@ public class GravatarResource extends ExternalResource {
      * @param email
      *            to generate resource for
      */
+    private final String url;
+
     GravatarResource(final String email) {
-        super("https://www.gravatar.com/avatar/" + DigestUtils.md5DigestAsHex(email.getBytes()) + ".jpg?s=56&r=g&d=mm");
+        url = "https://www.gravatar.com/avatar/" + DigestUtils.md5DigestAsHex(email.getBytes()) + ".jpg?s=56&r=g&d=mm";
+    }
+
+    /**
+     * @return the image URL (Vaadin 25 has no ExternalResource)
+     */
+    public String getURL() {
+        return url;
     }
 
 }

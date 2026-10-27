@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGrid;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
 import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractDetailsHeader;
@@ -20,9 +21,12 @@ import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 
-import com.vaadin.shared.ui.window.WindowMode;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.ModalityMode;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Software module details header
@@ -99,10 +103,10 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
             return;
         }
 
-        final Window updateWindow = smWindowBuilder.getWindowForUpdate(selectedEntity);
+        final Dialog updateWindow = smWindowBuilder.getWindowForUpdate(selectedEntity);
 
-        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.software.module")));
-        UI.getCurrent().addWindow(updateWindow);
+        updateWindow.setHeaderTitle(i18n.getMessage("caption.update", i18n.getMessage("caption.software.module")));
+        updateWindow.open();
         updateWindow.setVisible(Boolean.TRUE);
     }
 
@@ -117,10 +121,10 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
             return;
         }
 
-        final Window metaDataWindow = smMetaDataWindowBuilder.getWindowForShowSmMetaData(selectedEntity.getId(),
+        final Dialog metaDataWindow = smMetaDataWindowBuilder.getWindowForShowSmMetaData(selectedEntity.getId(),
                 selectedEntity.getNameAndVersion());
 
-        UI.getCurrent().addWindow(metaDataWindow);
+        metaDataWindow.open();
         metaDataWindow.setVisible(Boolean.TRUE);
     }
 
@@ -140,6 +144,8 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
         }
     }
 
+    private static final String MAXIMIZED_STYLE = "maximized";
+
     /**
      * Show artifact detail window layout
      */
@@ -154,44 +160,56 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
         setInitialArtifactDetailsGridSize(artifactDetailsGrid);
         artifactDetailsGrid.getMasterEntitySupport().masterEntityChanged(selectedEntity);
 
-        final Window artifactDtlsWindow = new Window();
+        final Dialog artifactDtlsWindow = new Dialog();
         artifactDtlsWindow.setId(UIComponentIdProvider.SHOW_ARTIFACT_DETAILS_POPUP_ID);
 
-        artifactDtlsWindow.setClosable(true);
+        // Vaadin 8 setClosable(true): close button and Esc; a click outside
+        // does not close, as with a Vaadin 8 modal window
+        artifactDtlsWindow.setCloseOnEsc(true);
+        artifactDtlsWindow.setCloseOnOutsideClick(false);
         artifactDtlsWindow.setResizable(true);
-        artifactDtlsWindow.setWindowMode(WindowMode.NORMAL);
-        artifactDtlsWindow.setModal(true);
-        artifactDtlsWindow.addStyleName(SPUIStyleDefinitions.CONFIRMATION_WINDOW_CAPTION);
+        artifactDtlsWindow.setModality(ModalityMode.STRICT);
+        artifactDtlsWindow.addClassNames(SPUIStyleDefinitions.CONFIRMATION_WINDOW_CAPTION);
 
-        artifactDtlsWindow
-                .setAssistivePrefix(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS_OF) + " " + "<b>");
-        artifactDtlsWindow.setCaptionAsHtml(false);
-        artifactDtlsWindow.setCaption(selectedEntity.getNameAndVersion());
-        artifactDtlsWindow.setAssistivePostfix("</b>");
+        // Vaadin 8: caption with an assistive prefix for screen readers (no
+        // public Flow API for the dialog's aria label)
+        artifactDtlsWindow.setHeaderTitle(selectedEntity.getNameAndVersion());
 
-        artifactDtlsWindow.addWindowModeChangeListener(event -> {
-            if (event.getWindowMode() == WindowMode.MAXIMIZED) {
+        // Vaadin 8: the window's maximize/restore button (WindowMode); Flow
+        // dialogs have none, so the header gets a button that does the same
+        final Button maximizeButton = new Button(VaadinIcon.EXPAND_SQUARE.create());
+        maximizeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
+        maximizeButton.addClickListener(event -> {
+            if (!artifactDtlsWindow.hasClassName(MAXIMIZED_STYLE)) {
+                artifactDtlsWindow.addClassName(MAXIMIZED_STYLE);
                 artifactDtlsWindow.setSizeFull();
                 artifactDetailsGrid.setSizeFull();
 
                 artifactDetailsGrid.createMaximizedContent();
             } else {
+                artifactDtlsWindow.removeClassName(MAXIMIZED_STYLE);
                 artifactDtlsWindow.setSizeUndefined();
                 setInitialArtifactDetailsGridSize(artifactDetailsGrid);
 
                 artifactDetailsGrid.createMinimizedContent();
             }
         });
+        artifactDtlsWindow.getHeader().add(maximizeButton);
+        CommonDialogWindow.addCloseButton(artifactDtlsWindow);
 
-        artifactDtlsWindow.addCloseListener(event -> artifactDetailsGrid = null);
+        artifactDtlsWindow.addOpenedChangeListener(event -> {
+            if (!event.isOpened()) {
+                artifactDetailsGrid = null;
+            }
+        });
 
-        artifactDtlsWindow.setContent(artifactDetailsGrid);
+        artifactDtlsWindow.add(artifactDetailsGrid);
 
-        UI.getCurrent().addWindow(artifactDtlsWindow);
+        artifactDtlsWindow.open();
     }
 
     private static void setInitialArtifactDetailsGridSize(final ArtifactDetailsGrid artifactDetailsGrid) {
-        artifactDetailsGrid.setWidth(700, Unit.PIXELS);
-        artifactDetailsGrid.setHeight(500, Unit.PIXELS);
+        artifactDetailsGrid.setWidth("700px");
+        artifactDetailsGrid.setHeight("500px");
     }
 }

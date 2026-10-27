@@ -12,23 +12,26 @@ package org.eclipse.hawkbit.app.vv8ui;
 import org.eclipse.hawkbit.im.authentication.MultitenancyIndicator;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.login.AbstractHawkbitLoginUI;
+import org.eclipse.hawkbit.ui.login.VaadinLoginSupport;
 import org.eclipse.hawkbit.ui.themes.HawkbitTheme;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.vaadin.spring.security.VaadinSecurity;
 
-import com.vaadin.spring.annotation.SpringUI;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 /**
  * Example hawkBit login UI implementation.
  * 
- * A {@link SpringUI} annotated class must be present in the classpath for the
+ * A {@link Route} annotated class must be present in the classpath for the
  * login path. The easiest way to get an hawkBit login UI running is to extend
- * the {@link AbstractHawkbitLoginUI} and to annotated it with {@link SpringUI}
- * as in this example to the defined {@link HawkbitTheme#LOGIN_UI_PATH}.
+ * the {@link AbstractHawkbitLoginUI} and to annotate it with {@link Route} as
+ * in this example to the defined {@link HawkbitTheme#LOGIN_UI_PATH}, without
+ * the hawkBit UI layout around it.
  */
-@SpringUI(path = HawkbitTheme.LOGIN_UI_PATH)
+@Route(value = HawkbitTheme.LOGIN_UI_PATH, autoLayout = false)
+@AnonymousAllowed
 // Exception squid:MaximumInheritanceDepth - Most of the inheritance comes from
 // Vaadin.
 @SuppressWarnings({ "squid:MaximumInheritanceDepth" })
@@ -36,8 +39,9 @@ public class MyLoginUI extends AbstractHawkbitLoginUI {
     private static final long serialVersionUID = 1L;
 
     @Autowired
-    MyLoginUI(final ApplicationContext context, final VaadinSecurity vaadinSecurity, final VaadinMessageSource i18n,
-            final UiProperties uiProperties, final MultitenancyIndicator multiTenancyIndicator) {
+    MyLoginUI(final ApplicationContext context, final VaadinLoginSupport vaadinSecurity,
+            final VaadinMessageSource i18n, final UiProperties uiProperties,
+            final MultitenancyIndicator multiTenancyIndicator) {
         super(context, vaadinSecurity, i18n, uiProperties, multiTenancyIndicator);
     }
 

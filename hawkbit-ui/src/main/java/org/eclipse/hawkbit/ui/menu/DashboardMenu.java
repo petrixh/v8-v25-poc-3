@@ -26,25 +26,27 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.Page;
-import com.vaadin.server.Resource;
-import com.vaadin.server.ThemeResource;
-import com.vaadin.spring.annotation.SpringComponent;
-import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Link;
-import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.HasStyle;
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 
 /**
  * A responsive menu component providing user information and the controls for
@@ -52,12 +54,16 @@ import com.vaadin.ui.themes.ValoTheme;
  */
 @UIScope
 @SpringComponent
-public final class DashboardMenu extends CustomComponent {
+public final class DashboardMenu extends Composite<Div> implements HasStyle, HasSize {
 
     private static final String ID = "dashboard-menu";
 
     private static final String LOGOUT_BASE = "/UI/logout";
     private static final String LOGIN_BASE = "/UI/login";
+
+    // Vaadin 8 served this from the theme (ThemeResource); the theme moves in
+    // stage 2a
+    private static final String DEFAULT_PROFILE_IMAGE = "VAADIN/themes/hawkbit/images/profile-pic-57px.jpg";
 
     private final VaadinMessageSource i18n;
 
@@ -79,6 +85,8 @@ public final class DashboardMenu extends CustomComponent {
 
     private boolean accessibleViewsEmpty;
 
+    private VerticalLayout compositionRoot;
+
     @Autowired
     DashboardMenu(final VaadinMessageSource i18n, final UiProperties uiProperties,
             final HawkbitServerProperties serverProperties, final PermissionService permissionService,
@@ -97,32 +105,34 @@ public final class DashboardMenu extends CustomComponent {
      */
     public void init() {
         initialViewName = "";
-        addStyleName("valo-menu");
+        addClassName("valo-menu");
         setId(ID);
         setSizeUndefined();
         setHeight("100%");
-        setCompositionRoot(buildContent());
+        compositionRoot = buildContent();
+        getContent().removeAll();
+        getContent().add(compositionRoot);
     }
 
-    private Component buildContent() {
+    private VerticalLayout buildContent() {
         final VerticalLayout dashboardMenuLayout = new VerticalLayout();
         dashboardMenuLayout.setSpacing(false);
-        dashboardMenuLayout.setMargin(false);
+        dashboardMenuLayout.setPadding(false);
         dashboardMenuLayout.setSizeFull();
 
         final VerticalLayout menuContent = getMenuLayout();
-        menuContent.addComponent(buildUserMenu(uiProperties));
-        menuContent.addComponent(buildToggleButton());
+        menuContent.add(buildUserMenu(uiProperties));
+        menuContent.add(buildToggleButton());
 
         final VerticalLayout menus = buildMenuItems();
         final VerticalLayout links = buildLinksAndVersion();
-        menus.addComponent(links);
-        menus.setComponentAlignment(links, Alignment.BOTTOM_CENTER);
-        menus.setExpandRatio(links, 1.0F);
-        menuContent.addComponent(menus);
-        menuContent.setExpandRatio(menus, 1.0F);
+        menus.add(links);
+        menus.setHorizontalComponentAlignment(Alignment.CENTER, links);
+        menus.setFlexGrow(1.0, links);
+        menuContent.add(menus);
+        menuContent.setFlexGrow(1.0, menus);
 
-        dashboardMenuLayout.addComponent(menuContent);
+        dashboardMenuLayout.add(menuContent);
 
         return dashboardMenuLayout;
     }
@@ -130,14 +140,14 @@ public final class DashboardMenu extends CustomComponent {
     private static VerticalLayout getMenuLayout() {
         final VerticalLayout menuContent = new VerticalLayout();
         menuContent.setSpacing(false);
-        menuContent.setMargin(false);
+        menuContent.setPadding(false);
         menuContent.setWidth(null);
         menuContent.setHeight("100%");
 
-        menuContent.addStyleName(ValoTheme.MENU_PART);
-        menuContent.addStyleName("sidebar");
-        menuContent.addStyleName("no-vertical-drag-hints");
-        menuContent.addStyleName("no-horizontal-drag-hints");
+        menuContent.addClassName("valo-menu-part");
+        menuContent.addClassName("sidebar");
+        menuContent.addClassName("no-vertical-drag-hints");
+        menuContent.addClassName("no-horizontal-drag-hints");
 
         return menuContent;
     }
@@ -145,79 +155,81 @@ public final class DashboardMenu extends CustomComponent {
     private VerticalLayout buildLinksAndVersion() {
         final VerticalLayout links = new VerticalLayout();
         links.setSpacing(true);
-        links.setMargin(false);
-        links.addStyleName("links");
+        links.setPadding(false);
+        links.addClassName("links");
         final String linkStyle = "v-link";
 
         if (!uiProperties.getLinks().getDocumentation().getRoot().isEmpty()) {
-            final Link docuLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_DOCUMENTATION,
+            final Anchor docuLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_DOCUMENTATION,
                     i18n.getMessage("link.documentation.name"), uiProperties.getLinks().getDocumentation().getRoot(),
-                    VaadinIcons.QUESTION_CIRCLE, "_blank", linkStyle);
+                    VaadinIcon.QUESTION_CIRCLE, "_blank", linkStyle);
             docuLink.setSizeFull();
-            links.addComponent(docuLink);
-            links.setComponentAlignment(docuLink, Alignment.BOTTOM_CENTER);
+            links.add(docuLink);
+            links.setHorizontalComponentAlignment(Alignment.CENTER, docuLink);
         }
 
         if (!uiProperties.getLinks().getUserManagement().isEmpty()) {
-            final Link userManagementLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_USERMANAGEMENT,
+            final Anchor userManagementLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_USERMANAGEMENT,
                     i18n.getMessage("link.usermanagement.name"), uiProperties.getLinks().getUserManagement(),
-                    VaadinIcons.USERS, "_blank", linkStyle);
-            links.addComponent(userManagementLink);
+                    VaadinIcon.USERS, "_blank", linkStyle);
+            links.add(userManagementLink);
             userManagementLink.setSizeFull();
-            links.setComponentAlignment(userManagementLink, Alignment.BOTTOM_CENTER);
+            links.setHorizontalComponentAlignment(Alignment.CENTER, userManagementLink);
         }
 
         if (!uiProperties.getLinks().getSupport().isEmpty()) {
-            final Link supportLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_SUPPORT,
-                    i18n.getMessage("link.support.name"), uiProperties.getLinks().getSupport(), VaadinIcons.ENVELOPE_O,
+            final Anchor supportLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_SUPPORT,
+                    i18n.getMessage("link.support.name"), uiProperties.getLinks().getSupport(), VaadinIcon.ENVELOPE_O,
                     "", linkStyle);
             supportLink.setSizeFull();
-            links.addComponent(supportLink);
-            links.setComponentAlignment(supportLink, Alignment.BOTTOM_CENTER);
+            links.add(supportLink);
+            links.setHorizontalComponentAlignment(Alignment.CENTER, supportLink);
 
         }
 
         final Component buildVersionInfo = buildVersionInfo();
-        links.addComponent(buildVersionInfo);
-        links.setComponentAlignment(buildVersionInfo, Alignment.BOTTOM_CENTER);
+        links.add(buildVersionInfo);
+        links.setHorizontalComponentAlignment(Alignment.CENTER, buildVersionInfo);
         links.setSizeFull();
-        links.setHeightUndefined();
+        links.setHeight(null);
         return links;
     }
 
-    private static Resource getImage(final boolean gravatar) {
+    private static String getImage(final boolean gravatar) {
         if (!gravatar) {
-            return new ThemeResource("images/profile-pic-57px.jpg");
+            return DEFAULT_PROFILE_IMAGE;
         }
 
-        return UserDetailsFormatter.getCurrentUserEmail().map(email -> (Resource) new GravatarResource(email))
-                .orElse(new ThemeResource("images/profile-pic-57px.jpg"));
+        return UserDetailsFormatter.getCurrentUserEmail().map(email -> new GravatarResource(email).getURL())
+                .orElse(DEFAULT_PROFILE_IMAGE);
 
     }
 
     private Component buildUserMenu(final UiProperties uiProperties) {
         final MenuBar settings = new MenuBar();
-        settings.addStyleName("user-menu");
-        settings.setHtmlContentAllowed(true);
+        settings.addClassName("user-menu");
 
-        final MenuItem settingsItem = settings.addItem("", getImage(uiProperties.isGravatar()), null);
+        final MenuItem settingsItem = settings.addItem(new Image(getImage(uiProperties.isGravatar()), ""));
 
+        // Vaadin 8 rendered this text as HTML (setHtmlContentAllowed); Flow
+        // menu items take components, the text is added as plain text
         final String formattedTenant = UserDetailsFormatter.formatCurrentTenant();
-        if (!StringUtils.isEmpty(formattedTenant)) {
-            settingsItem.setText(formattedTenant);
-            UserDetailsFormatter.getCurrentTenant().ifPresent(tenant -> settingsItem.setDescription(i18n
+        if (StringUtils.hasLength(formattedTenant)) {
+            settingsItem.add(new Text(formattedTenant));
+            UserDetailsFormatter.getCurrentTenant().ifPresent(tenant -> settingsItem.setTooltipText(i18n
                     .getMessage("menu.user.description", tenant, UserDetailsFormatter.getCurrentUser().getUsername())));
         } else {
-            settingsItem.setText("...");
+            settingsItem.add(new Text("..."));
         }
 
-        settingsItem.setStyleName("user-menuitem");
+        settingsItem.setClassName("user-menuitem");
 
         final String logoutUrl = generateLogoutUrl();
 
-        settingsItem.addItem(i18n.getMessage("label.sign.out"), selectedItem -> {
-            getUI().getSession().close();
-            Page.getCurrent().setLocation(logoutUrl);
+        settingsItem.getSubMenu().addItem(i18n.getMessage("label.sign.out"), selectedItem -> {
+            final UI ui = UI.getCurrent();
+            ui.getPage().setLocation(logoutUrl);
+            ui.getSession().close();
         });
         return settings;
     }
@@ -234,19 +246,18 @@ public final class DashboardMenu extends CustomComponent {
     private Component buildToggleButton() {
         final Button valoMenuToggleButton = new Button(i18n.getMessage("label.menu"),
                 new MenuToggleClickListenerMyClickListener());
-        valoMenuToggleButton.setIcon(VaadinIcons.LIST);
-        valoMenuToggleButton.addStyleName("valo-menu-toggle");
-        valoMenuToggleButton.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-        valoMenuToggleButton.addStyleName(ValoTheme.BUTTON_SMALL);
+        valoMenuToggleButton.setIcon(VaadinIcon.LIST.create());
+        valoMenuToggleButton.addClassName("valo-menu-toggle");
+        valoMenuToggleButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
         return valoMenuToggleButton;
     }
 
     private VerticalLayout buildMenuItems() {
         final VerticalLayout menuItemsLayout = new VerticalLayout();
         menuItemsLayout.setSpacing(false);
-        menuItemsLayout.setMargin(false);
-        menuItemsLayout.addStyleName("valo-menuitems");
-        menuItemsLayout.setHeight(100.0F, Unit.PERCENTAGE);
+        menuItemsLayout.setPadding(false);
+        menuItemsLayout.addClassName("valo-menuitems");
+        menuItemsLayout.setHeight("100%");
 
         final List<DashboardMenuItem> accessibleViews = getAccessibleViews();
         if (accessibleViews.isEmpty()) {
@@ -257,7 +268,7 @@ public final class DashboardMenu extends CustomComponent {
         for (final DashboardMenuItem view : accessibleViews) {
             final ValoMenuItemButton menuItemComponent = new ValoMenuItemButton(view);
             menuButtons.add(menuItemComponent);
-            menuItemsLayout.addComponent(buildLabelWrapper(menuItemComponent, view.getNotificationUnreadLabel()));
+            menuItemsLayout.add(buildLabelWrapper(menuItemComponent, view.getNotificationUnreadLabel()));
         }
         return menuItemsLayout;
     }
@@ -270,19 +281,19 @@ public final class DashboardMenu extends CustomComponent {
      *            the menu item
      * @param notificationLabel
      *            the label for displaying the occurred events
-     * @return Component of type CssLayout
+     * @return Component of type Div
      */
     private static Component buildLabelWrapper(final ValoMenuItemButton menuItemButton,
-            final Component notificationLabel) {
-        final CssLayout dashboardWrapper = new CssLayout(menuItemButton);
-        dashboardWrapper.addStyleName("labelwrapper");
-        dashboardWrapper.addStyleName(ValoTheme.MENU_ITEM);
-        notificationLabel.addStyleName(ValoTheme.MENU_BADGE);
-        notificationLabel.setWidthUndefined();
+            final Span notificationLabel) {
+        final Div dashboardWrapper = new Div(menuItemButton);
+        dashboardWrapper.addClassName("labelwrapper");
+        dashboardWrapper.addClassName("valo-menu-item");
+        notificationLabel.addClassName("valo-menu-badge");
+        notificationLabel.setWidth(null);
         notificationLabel.setVisible(false);
         notificationLabel
-                .setId(UIComponentIdProvider.NOTIFICATION_MENU_ID + "." + menuItemButton.getCaption().toLowerCase());
-        dashboardWrapper.addComponent(notificationLabel);
+                .setId(UIComponentIdProvider.NOTIFICATION_MENU_ID + "." + menuItemButton.getText().toLowerCase());
+        dashboardWrapper.add(notificationLabel);
         return dashboardWrapper;
     }
 
@@ -300,10 +311,10 @@ public final class DashboardMenu extends CustomComponent {
     }
 
     private Component buildVersionInfo() {
-        final Label label = new Label();
+        final Span label = new Span();
         label.setSizeFull();
-        label.setStyleName("version-layout");
-        label.setValue(serverProperties.getBuild().getVersion());
+        label.setClassName("version-layout");
+        label.setText(serverProperties.getBuild().getVersion());
         return label;
     }
 
@@ -362,17 +373,17 @@ public final class DashboardMenu extends CustomComponent {
                 .noneMatch(dashboardMenuItem -> dashboardMenuItem.getViewName().equals(viewName));
     }
 
-    private class MenuToggleClickListenerMyClickListener implements ClickListener {
+    private class MenuToggleClickListenerMyClickListener implements ComponentEventListener<ClickEvent<Button>> {
 
         private static final long serialVersionUID = 1L;
         private static final String STYLE_VISIBLE = "valo-menu-visible";
 
         @Override
-        public void buttonClick(final ClickEvent event) {
-            if (getCompositionRoot().getStyleName().contains(STYLE_VISIBLE)) {
-                getCompositionRoot().removeStyleName(STYLE_VISIBLE);
+        public void onComponentEvent(final ClickEvent<Button> event) {
+            if (compositionRoot.hasClassName(STYLE_VISIBLE)) {
+                compositionRoot.removeClassName(STYLE_VISIBLE);
             } else {
-                getCompositionRoot().addStyleName(STYLE_VISIBLE);
+                compositionRoot.addClassName(STYLE_VISIBLE);
             }
         }
     }
@@ -396,14 +407,15 @@ public final class DashboardMenu extends CustomComponent {
          */
         public ValoMenuItemButton(final DashboardMenuItem view) {
             this.view = view;
-            setPrimaryStyleName("valo-menu-item");
-            setIcon(view.getDashboardIcon());
-            setCaption(view.getDashboardCaption());
-            setDescription(view.getDashboardCaptionLong());
+            setClassName("valo-menu-item");
+            setIcon(view.getDashboardIcon().create());
+            setText(view.getDashboardCaption());
+            setTooltipText(view.getDashboardCaptionLong());
             setId(view.getDashboardCaption().toLowerCase());
             /* Avoid double click */
             setDisableOnClick(true);
-            addClickListener(event -> event.getComponent().getUI().getNavigator().navigateTo(view.getViewName()));
+            addClickListener(event -> event.getSource().getUI()
+                    .ifPresent(ui -> ui.navigate(view.getViewName())));
         }
 
         /**
@@ -413,9 +425,9 @@ public final class DashboardMenu extends CustomComponent {
          *            the post view change event
          */
         public void postViewChange(final PostViewChangeEvent event) {
-            removeStyleName(STYLE_SELECTED);
+            removeClassName(STYLE_SELECTED);
             if (event.getView() != null && event.getView().equals(view)) {
-                addStyleName(STYLE_SELECTED);
+                addClassName(STYLE_SELECTED);
                 /* disable current selected view */
                 setEnabled(false);
             } else {

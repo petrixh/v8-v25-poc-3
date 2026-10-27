@@ -36,12 +36,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.vaadin.spring.servlet.Vaadin4SpringServlet;
 
-import com.vaadin.server.ErrorHandler;
-import com.vaadin.server.SystemMessagesProvider;
-import com.vaadin.server.VaadinServlet;
-import com.vaadin.spring.annotation.UIScope;
+import com.vaadin.flow.server.ErrorHandler;
+import com.vaadin.flow.server.SystemMessagesProvider;
+import com.vaadin.flow.server.VaadinServiceInitListener;
+import com.vaadin.flow.spring.annotation.UIScope;
 
 /**
  * Enables UI components for the Management UI.
@@ -210,13 +209,18 @@ public class MgmtUiConfiguration {
     }
 
     /**
-     * Vaadin4Spring servlet bean.
+     * Registers the localized system messages with the Vaadin service. Vaadin
+     * 25 uses its own auto-configured servlet (the Vaadin 8 servlet bean is
+     * gone) and does not pick up a {@link SystemMessagesProvider} bean by
+     * itself.
      *
-     * @return Vaadin servlet for Spring
+     * @param systemMessagesProvider
+     *            SystemMessagesProvider
+     * @return Vaadin service init listener
      */
     @Bean
-    public VaadinServlet vaadinServlet() {
-        return new Vaadin4SpringServlet();
+    VaadinServiceInitListener systemMessagesServiceInitListener(final SystemMessagesProvider systemMessagesProvider) {
+        return event -> event.getSource().setSystemMessagesProvider(systemMessagesProvider);
     }
 
     /**

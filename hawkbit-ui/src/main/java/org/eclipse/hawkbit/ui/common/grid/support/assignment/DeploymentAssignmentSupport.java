@@ -18,8 +18,8 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 
 /**
  * Support for assigning the {@link ProxyNamedEntity} items between two grids
@@ -44,8 +44,8 @@ public abstract class DeploymentAssignmentSupport<S extends ProxyNamedEntity, T 
         final ConfirmationDialog confirmAssignDialog = createConfirmationWindow(confirmationMessage, content,
                 canWindowSave, assignmentExecutor);
 
-        UI.getCurrent().addWindow(confirmAssignDialog.getWindow());
-        confirmAssignDialog.getWindow().bringToFront();
+        // a Flow dialog opened last is on top (Vaadin 8: bringToFront)
+        confirmAssignDialog.getWindow().open();
 
         return confirmAssignDialog;
     }

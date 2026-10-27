@@ -17,7 +17,7 @@ import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.server.VaadinSession;
+import com.vaadin.flow.server.VaadinSession;
 
 /**
  * Event change listener for bulk upload

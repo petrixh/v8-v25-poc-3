@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.common;
 
 import java.util.function.Consumer;
 
-import com.vaadin.ui.ComponentContainer;
+import com.vaadin.flow.component.Component;
 
 /**
  * Interface for entity window layout
@@ -21,7 +21,7 @@ import com.vaadin.ui.ComponentContainer;
  */
 public interface EntityWindowLayout<T> {
 
-    ComponentContainer getRootComponent();
+    Component getRootComponent();
 
     void setEntity(final T proxyEntity);
 

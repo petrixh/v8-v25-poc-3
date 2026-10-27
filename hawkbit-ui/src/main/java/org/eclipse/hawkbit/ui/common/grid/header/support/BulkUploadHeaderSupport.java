@@ -18,9 +18,9 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.Component;
 
 /**
  * Class for bulk upload
@@ -59,7 +59,7 @@ public class BulkUploadHeaderSupport implements HeaderSupport {
     private Button createBulkUploadIcon() {
         final Button bulkUploadButton = SPUIComponentProvider.getButton(
                 UIComponentIdProvider.TARGET_TBL_BULK_UPLOAD_ICON_ID, "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_BULK_UPLOAD), null, false, VaadinIcons.UPLOAD,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_BULK_UPLOAD), null, false, VaadinIcon.UPLOAD,
                 SPUIButtonStyleNoBorder.class);
 
         bulkUploadButton.addClickListener(event -> bulkUploadCallback.run());
@@ -99,7 +99,7 @@ public class BulkUploadHeaderSupport implements HeaderSupport {
      * Show upload progress indicator
      */
     public void showProgressIndicator() {
-        bulkUploadIcon.addStyleName(SPUIStyleDefinitions.BULK_UPLOAD_PROGRESS_INDICATOR_STYLE);
+        bulkUploadIcon.addClassNames(SPUIStyleDefinitions.BULK_UPLOAD_PROGRESS_INDICATOR_STYLE);
         bulkUploadIcon.setIcon(null);
     }
 
@@ -107,8 +107,8 @@ public class BulkUploadHeaderSupport implements HeaderSupport {
      * Hide upload progress indicator
      */
     public void hideProgressIndicator() {
-        bulkUploadIcon.removeStyleName(SPUIStyleDefinitions.BULK_UPLOAD_PROGRESS_INDICATOR_STYLE);
-        bulkUploadIcon.setIcon(VaadinIcons.UPLOAD);
+        bulkUploadIcon.removeClassNames(SPUIStyleDefinitions.BULK_UPLOAD_PROGRESS_INDICATOR_STYLE);
+        bulkUploadIcon.setIcon(VaadinIcon.UPLOAD.create());
     }
 
     @Override

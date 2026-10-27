@@ -26,8 +26,8 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.navigator.View;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 
 /**
  * Event listener for entity modified
@@ -106,7 +106,9 @@ public final class EntityModifiedListener<T extends ProxyIdentifiableEntity> ext
     }
 
     private String getCurrentViewName() {
-        final View currentView = UI.getCurrent().getNavigator().getCurrentView();
+        // Vaadin 8: the Navigator's current view; Flow: the current route
+        // target
+        final Component currentView = UI.getCurrent().getCurrentView();
         if (currentView instanceof ViewNameAware) {
             return ((ViewNameAware) currentView).getViewName();
         }
