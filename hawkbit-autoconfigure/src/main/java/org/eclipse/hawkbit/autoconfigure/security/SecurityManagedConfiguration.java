@@ -82,6 +82,8 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
@@ -108,6 +110,10 @@ public class SecurityManagedConfiguration {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityManagedConfiguration.class);
 
     private static final int DOS_FILTER_ORDER = -200;
+
+    // Spring Security 6+ pre-authentication filters save the authentication to the HTTP session by default; in 5.7
+    // they did not. The device (DDI) and download-id filters keep the old behaviour: no session, no session cookie.
+    private static final SecurityContextRepository STATELESS_CONTEXT = new NullSecurityContextRepository();
 
     /**
      * @return the {@link UserAuthenticationFilter} to include into the hawkBit
@@ -229,18 +235,21 @@ public class SecurityManagedConfiguration {
                 securityHeaderFilter.setAuthenticationManager(authenticationManager);
                 securityHeaderFilter.setCheckForPrincipalChanges(true);
                 securityHeaderFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                securityHeaderFilter.setSecurityContextRepository(STATELESS_CONTEXT);
 
                 final HttpControllerPreAuthenticateSecurityTokenFilter securityTokenFilter = new HttpControllerPreAuthenticateSecurityTokenFilter(
                         tenantConfigurationManagement, tenantAware, controllerManagement, systemSecurityContext);
                 securityTokenFilter.setAuthenticationManager(authenticationManager);
                 securityTokenFilter.setCheckForPrincipalChanges(true);
                 securityTokenFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                securityTokenFilter.setSecurityContextRepository(STATELESS_CONTEXT);
 
                 final HttpControllerPreAuthenticatedGatewaySecurityTokenFilter gatewaySecurityTokenFilter = new HttpControllerPreAuthenticatedGatewaySecurityTokenFilter(
                         tenantConfigurationManagement, tenantAware, systemSecurityContext);
                 gatewaySecurityTokenFilter.setAuthenticationManager(authenticationManager);
                 gatewaySecurityTokenFilter.setCheckForPrincipalChanges(true);
                 gatewaySecurityTokenFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                gatewaySecurityTokenFilter.setSecurityContextRepository(STATELESS_CONTEXT);
 
                 http
                         .authorizeHttpRequests(amrmRegistry ->
@@ -348,24 +357,28 @@ public class SecurityManagedConfiguration {
                 securityHeaderFilter.setAuthenticationManager(authenticationManager);
                 securityHeaderFilter.setCheckForPrincipalChanges(true);
                 securityHeaderFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                securityHeaderFilter.setSecurityContextRepository(STATELESS_CONTEXT);
 
                 final HttpControllerPreAuthenticateSecurityTokenFilter securityTokenFilter = new HttpControllerPreAuthenticateSecurityTokenFilter(
                         tenantConfigurationManagement, tenantAware, controllerManagement, systemSecurityContext);
                 securityTokenFilter.setAuthenticationManager(authenticationManager);
                 securityTokenFilter.setCheckForPrincipalChanges(true);
                 securityTokenFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                securityTokenFilter.setSecurityContextRepository(STATELESS_CONTEXT);
 
                 final HttpControllerPreAuthenticatedGatewaySecurityTokenFilter gatewaySecurityTokenFilter = new HttpControllerPreAuthenticatedGatewaySecurityTokenFilter(
                         tenantConfigurationManagement, tenantAware, systemSecurityContext);
                 gatewaySecurityTokenFilter.setAuthenticationManager(authenticationManager);
                 gatewaySecurityTokenFilter.setCheckForPrincipalChanges(true);
                 gatewaySecurityTokenFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                gatewaySecurityTokenFilter.setSecurityContextRepository(STATELESS_CONTEXT);
 
                 final HttpControllerPreAuthenticateAnonymousDownloadFilter controllerAnonymousDownloadFilter = new HttpControllerPreAuthenticateAnonymousDownloadFilter(
                         tenantConfigurationManagement, tenantAware, systemSecurityContext);
                 controllerAnonymousDownloadFilter.setAuthenticationManager(authenticationManager);
                 controllerAnonymousDownloadFilter.setCheckForPrincipalChanges(true);
                 controllerAnonymousDownloadFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                controllerAnonymousDownloadFilter.setSecurityContextRepository(STATELESS_CONTEXT);
 
                 http
                         .authorizeHttpRequests(amrmRegistry -> amrmRegistry.anyRequest().authenticated())
@@ -436,6 +449,7 @@ public class SecurityManagedConfiguration {
             final HttpDownloadAuthenticationFilter downloadIdAuthenticationFilter = new HttpDownloadAuthenticationFilter(
                     downloadIdCache);
             downloadIdAuthenticationFilter.setAuthenticationManager(authenticationManager);
+            downloadIdAuthenticationFilter.setSecurityContextRepository(STATELESS_CONTEXT);
 
             http
                     .securityMatcher(antPathRequestMatcher("/**/downloadId/**"))
