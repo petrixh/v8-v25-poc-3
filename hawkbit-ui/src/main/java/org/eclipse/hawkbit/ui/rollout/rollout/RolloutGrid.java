@@ -21,12 +21,10 @@ import com.cronutils.utils.StringUtils;
 import com.google.common.base.Predicates;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.ui.renderers.HtmlRenderer;
+import com.vaadin.flow.data.renderer.LitRenderer;
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
@@ -282,54 +280,58 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
 
     @Override
     public void addColumns() {
-        final Column<ProxyRollout, Button> nameColumn = GridComponentBuilder
-                .addComponentColumn(this, this::buildRolloutLink).setId(ROLLOUT_LINK_ID)
-                .setCaption(i18n.getMessage("header.name")).setHidable(false).setFlexGrow((int) 3);
+        // Vaadin 8 hidable columns (user column menu): Flow grids have none,
+        // so setHidable is dropped; hidden columns start invisible as before
+        final Column<ProxyRollout> nameColumn = GridComponentBuilder
+                .addComponentColumn(this, this::buildRolloutLink).setKey(ROLLOUT_LINK_ID)
+                .setHeader(i18n.getMessage("header.name")).setFlexGrow((int) 3);
         GridComponentBuilder.setColumnSortable(nameColumn, "name");
 
-        GridComponentBuilder.addDescriptionColumn(this, i18n, DESC_ID).setHidable(true).setHidden(true);
+        GridComponentBuilder.addDescriptionColumn(this, i18n, DESC_ID).setVisible(false);
 
         GridComponentBuilder.addColumn(this, ProxyRollout::getDsNameVersion, this::getDistributionCellStyle)
-                .setId(DIST_NAME_VERSION_ID).setCaption(i18n.getMessage("header.distributionset"))
-                .setDescriptionGenerator(this::createDSTooltipText).setHidable(true).setFlexGrow((int) 2);
+                .setKey(DIST_NAME_VERSION_ID).setHeader(i18n.getMessage("header.distributionset"))
+                .setTooltipGenerator(this::createDSTooltipText).setFlexGrow((int) 2);
 
-        final Column<ProxyRollout, Span> statusColumn = GridComponentBuilder
-                .addIconColumn(this, rolloutStatusIconSupplier::getLabel, STATUS_ID, i18n.getMessage("header.status"))
-                .setHidable(true);
+        final Column<ProxyRollout> statusColumn = GridComponentBuilder
+                .addIconColumn(this, rolloutStatusIconSupplier::getLabel, STATUS_ID, i18n.getMessage("header.status"));
         GridComponentBuilder.setColumnSortable(statusColumn, STATUS_PROPERTY_NAME);
 
         GridComponentBuilder
                 .addIconColumn(this, actionTypeIconSupplier::getLabel, ACTION_TYPE_ID, i18n.getMessage("header.type"))
-                .setHidable(true).setHidden(true);
+                .setVisible(false);
 
-        addColumn(rollout -> DistributionBarHelper.getDistributionBarAsHTMLString(rollout.getStatusTotalCountMap()),
-                new HtmlRenderer()).setId(TOTAL_TARGETS_COUNT_STATUS_ID)
-                        .setCaption(i18n.getMessage("header.detail.status"))
-                        .setDescriptionGenerator(
-                                rollout -> DistributionBarHelper.getTooltip(rollout.getStatusTotalCountMap(), i18n),
-                                ContentMode.HTML)
-                        .setHidable(true).setFlexGrow((int) 5);
+        // HtmlRenderer: the same HTML as inner HTML; the HTML tooltip becomes
+        // plain text, one line per status
+        addColumn(LitRenderer.<ProxyRollout> of("<span .innerHTML=${item.html}></span>").withProperty("html",
+                rollout -> DistributionBarHelper.getDistributionBarAsHTMLString(rollout.getStatusTotalCountMap())))
+                .setKey(TOTAL_TARGETS_COUNT_STATUS_ID)
+                        .setHeader(i18n.getMessage("header.detail.status"))
+                        .setTooltipGenerator(
+                                rollout -> DistributionBarHelper.getTooltip(rollout.getStatusTotalCountMap(), i18n)
+                                        .replace("<br>", "\n").trim())
+                        .setFlexGrow((int) 5);
 
-        GridComponentBuilder.addColumn(this, ProxyRollout::getNumberOfGroups).setId(NUMBER_OF_GROUPS_ID)
-                .setCaption(i18n.getMessage("header.numberofgroups")).setHidable(true);
+        GridComponentBuilder.addColumn(this, ProxyRollout::getNumberOfGroups).setKey(NUMBER_OF_GROUPS_ID)
+                .setHeader(i18n.getMessage("header.numberofgroups"));
 
-        GridComponentBuilder.addColumn(this, ProxyRollout::getTotalTargets).setId(TOTAL_TARGETS_ID)
-                .setCaption(i18n.getMessage("header.total.targets")).setHidable(true);
+        GridComponentBuilder.addColumn(this, ProxyRollout::getTotalTargets).setKey(TOTAL_TARGETS_ID)
+                .setHeader(i18n.getMessage("header.total.targets"));
 
-        GridComponentBuilder.addColumn(this, ProxyRollout::getApprovalDecidedBy).setId(APPROVAL_DECIDED_BY_ID)
-                .setCaption(i18n.getMessage("header.approvalDecidedBy")).setHidable(true).setHidden(true);
-        GridComponentBuilder.addColumn(this, ProxyRollout::getApprovalRemark).setId(APPROVAL_REMARK_ID)
-                .setCaption(i18n.getMessage("header.approvalRemark")).setHidable(true).setHidden(true);
+        GridComponentBuilder.addColumn(this, ProxyRollout::getApprovalDecidedBy).setKey(APPROVAL_DECIDED_BY_ID)
+                .setHeader(i18n.getMessage("header.approvalDecidedBy")).setVisible(false);
+        GridComponentBuilder.addColumn(this, ProxyRollout::getApprovalRemark).setKey(APPROVAL_REMARK_ID)
+                .setHeader(i18n.getMessage("header.approvalRemark")).setVisible(false);
 
         GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n)
-                .forEach(col -> col.setHidable(true).setHidden(true));
+                .forEach(col -> col.setVisible(false));
 
         addActionColumns();
     }
 
     private void addActionColumns() {
 
-        final List<Column<?, ?>> actionColumns = new ArrayList<>();
+        final List<Column<?>> actionColumns = new ArrayList<>();
 
         final ValueProvider<ProxyRollout, Button> startButton = rollout -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> startOrResumeRollout(rollout.getId(), rollout.getName(), rollout.getStatus()),
@@ -381,7 +383,9 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
                 UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID,
                 rollout -> permissionChecker.hasRolloutDeletePermission() && isDeletionAllowed(rollout.getStatus())));
 
-        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(), actionColumns);
+        // Vaadin 8 getDefaultHeaderRow(): the grid's only header row (Flow's
+        // getDefaultHeaderRow() is protected)
+        GridComponentBuilder.joinToActionColumn(i18n, getHeaderRows().get(0), actionColumns);
     }
 
     private Button buildRolloutLink(final ProxyRollout rollout) {
@@ -431,7 +435,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private void approveRollout(final ProxyRollout rollout) {
         final Dialog approveWindow = rolloutWindowBuilder.getWindowForApproveRollout(rollout);
 
-        approveWindow.setCaption(i18n.getMessage("caption.approve", i18n.getMessage(ROLLOUT_CAPTION_MSG_KEY)));
+        approveWindow.setHeaderTitle(i18n.getMessage("caption.approve", i18n.getMessage(ROLLOUT_CAPTION_MSG_KEY)));
         approveWindow.open();
         approveWindow.setVisible(Boolean.TRUE);
     }
@@ -444,7 +448,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private void updateRollout(final ProxyRollout rollout) {
         final Dialog updateWindow = rolloutWindowBuilder.getWindowForUpdate(rollout);
 
-        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage(ROLLOUT_CAPTION_MSG_KEY)));
+        updateWindow.setHeaderTitle(i18n.getMessage("caption.update", i18n.getMessage(ROLLOUT_CAPTION_MSG_KEY)));
         updateWindow.open();
         updateWindow.setVisible(Boolean.TRUE);
     }
@@ -452,7 +456,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private void copyRollout(final ProxyRollout rollout) {
         final Dialog copyWindow = rolloutWindowBuilder.getWindowForCopyRollout(rollout);
 
-        copyWindow.setCaption(i18n.getMessage("caption.copy", i18n.getMessage(ROLLOUT_CAPTION_MSG_KEY)));
+        copyWindow.setHeaderTitle(i18n.getMessage("caption.copy", i18n.getMessage(ROLLOUT_CAPTION_MSG_KEY)));
         copyWindow.open();
         copyWindow.setVisible(Boolean.TRUE);
     }
@@ -522,8 +526,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
             uiNotification.displayValidationError(i18n.getMessage("message.rollout.trigger.next.group.not.running"));
         } else {
             final ConfirmationDialog triggerNextDialog = createTriggerNextGroupDialog(rolloutId);
+            // Flow: the dialog opened last is on top (no bringToFront)
             triggerNextDialog.getWindow().open();
-            triggerNextDialog.getWindow().bringToFront();
         }
     }
 

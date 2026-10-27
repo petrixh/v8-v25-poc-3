@@ -39,10 +39,8 @@ import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
 import com.google.common.base.Predicates;
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.ui.renderers.HtmlRenderer;
+import com.vaadin.flow.data.renderer.LitRenderer;
 import org.eclipse.hawkbit.utils.TenantConfigHelper;
 
 /**
@@ -119,53 +117,56 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
 
     @Override
     public void addColumns() {
-        final Column<ProxyRolloutGroup, Button> nameColumn = GridComponentBuilder.addComponentColumn(this, this::buildRolloutGroupLink).setId(ROLLOUT_GROUP_LINK_ID)
-                .setCaption(i18n.getMessage("header.name")).setHidable(false).setFlexGrow((int) 3);
+        // Vaadin 8 hidable columns (user column menu): Flow grids have none,
+        // so setHidable is dropped; hidden columns start invisible as before
+        final Column<ProxyRolloutGroup> nameColumn = GridComponentBuilder.addComponentColumn(this, this::buildRolloutGroupLink).setKey(ROLLOUT_GROUP_LINK_ID)
+                .setHeader(i18n.getMessage("header.name")).setFlexGrow((int) 3);
         GridComponentBuilder.setColumnSortable(nameColumn, "name");
 
-        GridComponentBuilder.addDescriptionColumn(this, i18n, SPUILabelDefinitions.VAR_DESC).setHidable(true)
-                .setHidden(true);
+        GridComponentBuilder.addDescriptionColumn(this, i18n, SPUILabelDefinitions.VAR_DESC).setVisible(false);
 
-        final Column<ProxyRolloutGroup, Span> statusColumn = GridComponentBuilder
+        final Column<ProxyRolloutGroup> statusColumn = GridComponentBuilder
                 .addIconColumn(this, rolloutGroupStatusIconSupplier::getLabel,
-                SPUILabelDefinitions.VAR_STATUS, i18n.getMessage("header.status")).setHidable(true);
+                SPUILabelDefinitions.VAR_STATUS, i18n.getMessage("header.status"));
         GridComponentBuilder.setColumnSortable(statusColumn, "status");
 
-        addColumn(rolloutGroup -> DistributionBarHelper
-                .getDistributionBarAsHTMLString(rolloutGroup.getTotalTargetCountStatus().getStatusTotalCountMap()),
-                new HtmlRenderer()).setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS)
-                        .setCaption(i18n.getMessage("header.detail.status"))
-                        .setDescriptionGenerator(
+        // HtmlRenderer: the same HTML as inner HTML; the HTML tooltip becomes
+        // plain text, one line per status
+        addColumn(LitRenderer.<ProxyRolloutGroup> of("<span .innerHTML=${item.html}></span>").withProperty("html",
+                rolloutGroup -> DistributionBarHelper.getDistributionBarAsHTMLString(
+                        rolloutGroup.getTotalTargetCountStatus().getStatusTotalCountMap())))
+                .setKey(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS)
+                        .setHeader(i18n.getMessage("header.detail.status"))
+                        .setTooltipGenerator(
                                 rolloutGroup -> DistributionBarHelper.getTooltip(
-                                        rolloutGroup.getTotalTargetCountStatus().getStatusTotalCountMap(), i18n),
-                                ContentMode.HTML)
-                        .setFlexGrow((int) 5).setHidable(true);
+                                        rolloutGroup.getTotalTargetCountStatus().getStatusTotalCountMap(), i18n)
+                                        .replace("<br>", "\n").trim())
+                        .setFlexGrow((int) 5);
 
         GridComponentBuilder.addColumn(this, ProxyRolloutGroup::getTotalTargetsCount)
-                .setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setCaption(i18n.getMessage("header.total.targets"))
-                .setHidable(true);
+                .setKey(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setHeader(i18n.getMessage("header.total.targets"));
 
         GridComponentBuilder.addColumn(this, group -> group.getFinishedPercentage() + "%")
-                .setId(SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE)
-                .setCaption(i18n.getMessage("header.rolloutgroup.installed.percentage")).setHidable(true);
+                .setKey(SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE)
+                .setHeader(i18n.getMessage("header.rolloutgroup.installed.percentage"));
 
         GridComponentBuilder.addColumn(this, group -> group.getErrorConditionExp() + "%")
-                .setId(SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD)
-                .setCaption(i18n.getMessage("header.rolloutgroup.threshold.error")).setHidable(true);
+                .setKey(SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD)
+                .setHeader(i18n.getMessage("header.rolloutgroup.threshold.error"));
 
         GridComponentBuilder.addColumn(this, group -> group
                 .getSuccessConditionExp() + "%")
-                .setId(SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD)
-                .setCaption(i18n.getMessage("header.rolloutgroup.threshold")).setHidable(true);
+                .setKey(SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD)
+                .setHeader(i18n.getMessage("header.rolloutgroup.threshold"));
 
         if (tenantConfigHelper.isConfirmationFlowEnabled()) {
             GridComponentBuilder.addColumn(this, group -> group.isConfirmationRequired() ? "required" : "not required")
-                  .setId(SPUILabelDefinitions.ROLLOUT_GROUP_CONFIRMATION_REQUIRED)
-                  .setCaption(i18n.getMessage("header.rolloutgroup.confirmation")).setHidable(true);
+                  .setKey(SPUILabelDefinitions.ROLLOUT_GROUP_CONFIRMATION_REQUIRED)
+                  .setHeader(i18n.getMessage("header.rolloutgroup.confirmation"));
         }
         
         GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n)
-                .forEach(col -> col.setHidable(true).setHidden(true));
+                .forEach(col -> col.setVisible(false));
     }
 
     private Button buildRolloutGroupLink(final ProxyRolloutGroup rolloutGroup) {
@@ -220,8 +221,8 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
                 SPUILabelDefinitions.ROLLOUT_GROUP_CONFIRMATION_REQUIRED);
         if (active && !columnPresent) {
             GridComponentBuilder.addColumn(this, group -> group.isConfirmationRequired() ? "required" : "not required")
-                    .setId(SPUILabelDefinitions.ROLLOUT_GROUP_CONFIRMATION_REQUIRED)
-                    .setCaption(i18n.getMessage("header.rolloutgroup.confirmation")).setHidable(true);
+                    .setKey(SPUILabelDefinitions.ROLLOUT_GROUP_CONFIRMATION_REQUIRED)
+                    .setHeader(i18n.getMessage("header.rolloutgroup.confirmation"));
         } else if (!active && columnPresent) {
             GridComponentBuilder.removeColumn(this, SPUILabelDefinitions.ROLLOUT_GROUP_CONFIRMATION_REQUIRED);
         }
