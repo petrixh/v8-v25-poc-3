@@ -23,9 +23,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBusAware;
 
-import java.security.AccessControlContext;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 
 /**
  * {@link org.springframework.beans.factory.config.BeanPostProcessor}
@@ -46,26 +43,9 @@ public class VaadinEventBusAwareProcessor implements ApplicationContextAware, Be
 
     @Override
     public Object postProcessBeforeInitialization(final Object bean, String beanName) throws BeansException {
-        AccessControlContext acc = null;
-
-        if (System.getSecurityManager() != null && (bean instanceof EventBusAware)) {
-            acc = this.applicationContext.getBeanFactory().getAccessControlContext();
-        }
-
-        if (acc != null) {
-            AccessController.doPrivileged(new PrivilegedAction<Object>() {
-
-                @Override
-                public Object run() {
-                    invokeAwareInterfaces(bean);
-                    return null;
-                }
-
-            }, acc);
-        } else {
-            invokeAwareInterfaces(bean);
-        }
-
+        // Changed for hawkBit: Spring 6 removed the SecurityManager support
+        // (ConfigurableBeanFactory.getAccessControlContext()), so the aware interfaces are always invoked directly.
+        invokeAwareInterfaces(bean);
         return bean;
     }
 

@@ -26,7 +26,8 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 import org.vaadin.spring.util.ClassUtils;
 
-import javax.annotation.PreDestroy;
+// Changed for hawkBit: javax.annotation.PreDestroy -> jakarta.annotation.PreDestroy (Jakarta EE)
+import jakarta.annotation.PreDestroy;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 

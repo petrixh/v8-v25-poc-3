@@ -15,9 +15,9 @@
  */
 package org.vaadin.spring.events.config;
 
-import com.vaadin.spring.internal.UIScopeImpl;
-import com.vaadin.spring.internal.VaadinSessionScope;
-import com.vaadin.spring.internal.ViewScopeImpl;
+import com.vaadin.flow.spring.scopes.VaadinRouteScope;
+import com.vaadin.flow.spring.scopes.VaadinSessionScope;
+import com.vaadin.flow.spring.scopes.VaadinUIScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -30,6 +30,9 @@ import org.vaadin.spring.events.support.VaadinEventBusAwareProcessor;
 
 /**
  * Configuration class to configure the Spring Vaadin Eventbus
+ * <p>
+ * Changed for hawkBit (Vaadin Flow): the scopes are Flow's {@code vaadin-ui} and {@code vaadin-session} scopes;
+ * Flow has no view scope, so the view event bus is bound to Flow's route scope.
  *
  * @author Gert-Jan Timmer (gjr.timmer@gmail.com)
  */
@@ -61,28 +64,28 @@ public class EventBusConfiguration {
     }
 
     @Bean
-    @Scope(value = UIScopeImpl.VAADIN_UI_SCOPE_NAME, proxyMode = ScopedProxyMode.INTERFACES)
+    @Scope(value = VaadinUIScope.VAADIN_UI_SCOPE_NAME, proxyMode = ScopedProxyMode.INTERFACES)
     @EventBusProxy
     EventBus.UIEventBus proxiedUiEventBus() {
         return uiEventBus();
     }
 
     @Bean
-    @Scope(value = UIScopeImpl.VAADIN_UI_SCOPE_NAME, proxyMode = ScopedProxyMode.NO)
+    @Scope(value = VaadinUIScope.VAADIN_UI_SCOPE_NAME, proxyMode = ScopedProxyMode.NO)
     @Primary
     EventBus.UIEventBus uiEventBus() {
         return new ScopedEventBus.DefaultUIEventBus(sessionEventBus());
     }
 
     @Bean
-    @Scope(value = ViewScopeImpl.VAADIN_VIEW_SCOPE_NAME, proxyMode = ScopedProxyMode.INTERFACES)
+    @Scope(value = VaadinRouteScope.VAADIN_ROUTE_SCOPE_NAME, proxyMode = ScopedProxyMode.INTERFACES)
     @EventBusProxy
     EventBus.ViewEventBus proxiedViewEventBus() {
         return viewEventBus();
     }
 
     @Bean
-    @Scope(value = ViewScopeImpl.VAADIN_VIEW_SCOPE_NAME, proxyMode = ScopedProxyMode.NO)
+    @Scope(value = VaadinRouteScope.VAADIN_ROUTE_SCOPE_NAME, proxyMode = ScopedProxyMode.NO)
     @Primary
     EventBus.ViewEventBus viewEventBus() {
         return new ScopedEventBus.DefualtViewEventBus(uiEventBus());
