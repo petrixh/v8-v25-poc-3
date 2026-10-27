@@ -43,7 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.spring.annotation.UIScope;
+import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.ui.Alignment;
 
 /**
@@ -102,22 +102,22 @@ public class RolloutView extends AbstractEventListenersAwareView {
     @Override
     protected void buildLayout() {
         setSpacing(false);
-        setMargin(false);
+        setPadding(false);
         setSizeFull();
 
-        addComponent(rolloutsLayout);
+        add(rolloutsLayout);
         setComponentAlignment(rolloutsLayout, Alignment.TOP_CENTER);
-        setExpandRatio(rolloutsLayout, 1.0F);
+        setFlexGrow(1.0F, rolloutsLayout);
 
         rolloutGroupsLayout.setVisible(false);
-        addComponent(rolloutGroupsLayout);
+        add(rolloutGroupsLayout);
         setComponentAlignment(rolloutGroupsLayout, Alignment.TOP_CENTER);
-        setExpandRatio(rolloutGroupsLayout, 1.0F);
+        setFlexGrow(1.0F, rolloutGroupsLayout);
 
         rolloutGroupTargetsLayout.setVisible(false);
-        addComponent(rolloutGroupTargetsLayout);
+        add(rolloutGroupTargetsLayout);
         setComponentAlignment(rolloutGroupTargetsLayout, Alignment.TOP_CENTER);
-        setExpandRatio(rolloutGroupTargetsLayout, 1.0F);
+        setFlexGrow(1.0F, rolloutGroupTargetsLayout);
     }
 
     private void showRolloutListLayout() {

@@ -17,13 +17,12 @@ import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationException;
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.RadioButtonGroup;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Rollout approval layout
@@ -60,9 +59,9 @@ public class ApprovalLayout extends ValidatableLayout {
     private RadioButtonGroup<ApprovalDecision> createApproveButtonsGroupField() {
         final RadioButtonGroup<Rollout.ApprovalDecision> approveButtonsGroupField = new RadioButtonGroup<>();
         approveButtonsGroupField.setId(UIComponentIdProvider.ROLLOUT_APPROVAL_OPTIONGROUP_ID);
-        approveButtonsGroupField.addStyleName(ValoTheme.OPTIONGROUP_SMALL);
-        approveButtonsGroupField.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
-        approveButtonsGroupField.addStyleName("custom-option-group");
+        approveButtonsGroupField.addClassNames("small");
+        approveButtonsGroupField.addClassNames("horizontal");
+        approveButtonsGroupField.addClassNames("custom-option-group");
 
         approveButtonsGroupField.setItems(Rollout.ApprovalDecision.values());
 
@@ -75,9 +74,9 @@ public class ApprovalLayout extends ValidatableLayout {
         });
         approveButtonsGroupField.setItemIconGenerator(item -> {
             if (Rollout.ApprovalDecision.APPROVED == item) {
-                return VaadinIcons.CHECK;
+                return VaadinIcon.CHECK;
             } else {
-                return VaadinIcons.CLOSE;
+                return VaadinIcon.CLOSE;
             }
         });
 

@@ -36,11 +36,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.util.concurrent.ListenableFuture;
 
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.UI;
 
 /**
  * Define groups for a Rollout
@@ -104,7 +104,7 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
 
     private GridLayout buildLayout() {
         final GridLayout gridLayout = new GridLayout();
-        gridLayout.setMargin(false);
+        gridLayout.setPadding(false);
         gridLayout.setSpacing(true);
         gridLayout.setSizeUndefined();
         gridLayout.setRows(3);
@@ -113,7 +113,7 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
         } else {
             gridLayout.setColumns(6);
         }
-        gridLayout.setStyleName("marginTop");
+        gridLayout.setClassName("marginTop");
 
         gridLayout.addComponent(SPUIComponentProvider.generateLabel(i18n, "caption.rollout.group.definition.desc"), 0,
                 0, 5, 0);
@@ -130,17 +130,17 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
             headerColumns.add("header.rolloutgroup.confirmation");
         }
         for (int i = 0; i < headerColumns.size(); i++) {
-            final Label label = SPUIComponentProvider.generateLabel(i18n, headerColumns.get(i));
+            final Span label = SPUIComponentProvider.generateLabel(i18n, headerColumns.get(i));
             gridLayout.addComponent(label, i, headerRow);
         }
     }
 
     private Button createAddButton() {
         final Button button = SPUIComponentProvider.getButton(UIComponentIdProvider.ROLLOUT_GROUP_ADD_ID,
-                i18n.getMessage("button.rollout.add.group"), "", "", true, VaadinIcons.PLUS,
+                i18n.getMessage("button.rollout.add.group"), "", "", true, VaadinIcon.PLUS,
                 SPUIButtonStyleNoBorderWithIcon.class);
         button.setSizeUndefined();
-        button.addStyleName("default-color");
+        button.addClassNames("default-color");
         button.setEnabled(true);
         button.setVisible(true);
         button.addClickListener(event -> addGroupRowAndValidate());
@@ -206,10 +206,10 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
 
     private Button createRemoveButton(final AdvancedGroupRow groupRow, final int index) {
         final Button button = SPUIComponentProvider.getButton(
-                UIComponentIdProvider.ROLLOUT_GROUP_REMOVE_ID + "." + index, "", "", "", true, VaadinIcons.MINUS,
+                UIComponentIdProvider.ROLLOUT_GROUP_REMOVE_ID + "." + index, "", "", "", true, VaadinIcon.MINUS,
                 SPUIButtonStyleNoBorderWithIcon.class);
         button.setSizeUndefined();
-        button.addStyleName("default-color");
+        button.addClassNames("default-color");
 
         button.addClickListener(event -> removeGroupRow(groupRow, index));
 

@@ -19,13 +19,13 @@ import java.util.stream.Collectors;
 
 import com.cronutils.utils.StringUtils;
 import com.google.common.base.Predicates;
-import com.vaadin.data.ValueProvider;
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.RolloutManagement;
@@ -284,16 +284,16 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     public void addColumns() {
         final Column<ProxyRollout, Button> nameColumn = GridComponentBuilder
                 .addComponentColumn(this, this::buildRolloutLink).setId(ROLLOUT_LINK_ID)
-                .setCaption(i18n.getMessage("header.name")).setHidable(false).setExpandRatio(3);
+                .setCaption(i18n.getMessage("header.name")).setHidable(false).setFlexGrow((int) 3);
         GridComponentBuilder.setColumnSortable(nameColumn, "name");
 
         GridComponentBuilder.addDescriptionColumn(this, i18n, DESC_ID).setHidable(true).setHidden(true);
 
         GridComponentBuilder.addColumn(this, ProxyRollout::getDsNameVersion, this::getDistributionCellStyle)
                 .setId(DIST_NAME_VERSION_ID).setCaption(i18n.getMessage("header.distributionset"))
-                .setDescriptionGenerator(this::createDSTooltipText).setHidable(true).setExpandRatio(2);
+                .setDescriptionGenerator(this::createDSTooltipText).setHidable(true).setFlexGrow((int) 2);
 
-        final Column<ProxyRollout, Label> statusColumn = GridComponentBuilder
+        final Column<ProxyRollout, Span> statusColumn = GridComponentBuilder
                 .addIconColumn(this, rolloutStatusIconSupplier::getLabel, STATUS_ID, i18n.getMessage("header.status"))
                 .setHidable(true);
         GridComponentBuilder.setColumnSortable(statusColumn, STATUS_PROPERTY_NAME);
@@ -308,7 +308,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
                         .setDescriptionGenerator(
                                 rollout -> DistributionBarHelper.getTooltip(rollout.getStatusTotalCountMap(), i18n),
                                 ContentMode.HTML)
-                        .setHidable(true).setExpandRatio(5);
+                        .setHidable(true).setFlexGrow((int) 5);
 
         GridComponentBuilder.addColumn(this, ProxyRollout::getNumberOfGroups).setId(NUMBER_OF_GROUPS_ID)
                 .setCaption(i18n.getMessage("header.numberofgroups")).setHidable(true);
@@ -333,20 +333,20 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
 
         final ValueProvider<ProxyRollout, Button> startButton = rollout -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> startOrResumeRollout(rollout.getId(), rollout.getName(), rollout.getStatus()),
-                VaadinIcons.PLAY, UIMessageIdProvider.TOOLTIP_ROLLOUT_RUN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                VaadinIcon.PLAY, UIMessageIdProvider.TOOLTIP_ROLLOUT_RUN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.ROLLOUT_RUN_BUTTON_ID + "." + rollout.getId(),
                 permissionChecker.hasRolloutHandlePermission() && isStartingAndResumingAllowed(rollout.getStatus()));
         actionColumns.add(GridComponentBuilder.addIconColumn(this, startButton, RUN_BUTTON_ID, null));
 
         final ValueProvider<ProxyRollout, Button> approveButton = rollout -> GridComponentBuilder.buildActionButton(
-                i18n, clickEvent -> approveRollout(rollout), VaadinIcons.HANDSHAKE,
+                i18n, clickEvent -> approveRollout(rollout), VaadinIcon.HANDSHAKE,
                 UIMessageIdProvider.TOOLTIP_ROLLOUT_APPROVE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.ROLLOUT_APPROVAL_BUTTON_ID + "." + rollout.getId(), isRolloutApprovalEnabled()
                         && permissionChecker.hasRolloutApprovalPermission() && isApprovingAllowed(rollout.getStatus()));
         actionColumns.add(GridComponentBuilder.addIconColumn(this, approveButton, APPROVE_BUTTON_ID, null));
 
         final ValueProvider<ProxyRollout, Button> pauseButton = rollout -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> pauseRollout(rollout.getId(), rollout.getName(), rollout.getStatus()), VaadinIcons.PAUSE,
+                clickEvent -> pauseRollout(rollout.getId(), rollout.getName(), rollout.getStatus()), VaadinIcon.PAUSE,
                 UIMessageIdProvider.TOOLTIP_ROLLOUT_PAUSE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.ROLLOUT_PAUSE_BUTTON_ID + "." + rollout.getId(),
                 permissionChecker.hasRolloutHandlePermission() && isPausingAllowed(rollout.getStatus()));
@@ -354,7 +354,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
 
         final ValueProvider<ProxyRollout, Button> triggerNextGroupButton = rollout -> GridComponentBuilder
                 .buildActionButton(i18n, clickEvent -> triggerNextRolloutGroup(rollout.getId(), rollout.getStatus()),
-                        VaadinIcons.STEP_FORWARD, UIMessageIdProvider.TOOLTIP_ROLLOUT_TRIGGER_NEXT_GROUP,
+                        VaadinIcon.STEP_FORWARD, UIMessageIdProvider.TOOLTIP_ROLLOUT_TRIGGER_NEXT_GROUP,
                         SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                         UIComponentIdProvider.ROLLOUT_TRIGGER_NEXT_GROUP_BUTTON_ID + "." + rollout.getId(),
                         permissionChecker.hasRolloutUpdatePermission() && isTriggerNextGroupAllowed(rollout));
@@ -362,7 +362,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
                 GridComponentBuilder.addIconColumn(this, triggerNextGroupButton, TRIGGER_NEXT_GROUP_BUTTON_ID, null));
 
         final ValueProvider<ProxyRollout, Button> updateButton = rollout -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> updateRollout(rollout), VaadinIcons.EDIT, UIMessageIdProvider.TOOLTIP_ROLLOUT_UPDATE,
+                clickEvent -> updateRollout(rollout), VaadinIcon.EDIT, UIMessageIdProvider.TOOLTIP_ROLLOUT_UPDATE,
                 SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.ROLLOUT_UPDATE_BUTTON_ID + "." + rollout.getId(),
                 permissionChecker.hasRolloutUpdatePermission() && isEditingAllowed(rollout.getStatus())
@@ -370,7 +370,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         actionColumns.add(GridComponentBuilder.addIconColumn(this, updateButton, UPDATE_BUTTON_ID, null));
 
         final ValueProvider<ProxyRollout, Button> copyButton = rollout -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> copyRollout(rollout), VaadinIcons.COPY, UIMessageIdProvider.TOOLTIP_ROLLOUT_COPY,
+                clickEvent -> copyRollout(rollout), VaadinIcon.COPY, UIMessageIdProvider.TOOLTIP_ROLLOUT_COPY,
                 SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.ROLLOUT_COPY_BUTTON_ID + "." + rollout.getId(),
                 permissionChecker.hasRolloutCreatePermission() && isCopyingAllowed(rollout.getStatus())
@@ -429,10 +429,10 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     }
 
     private void approveRollout(final ProxyRollout rollout) {
-        final Window approveWindow = rolloutWindowBuilder.getWindowForApproveRollout(rollout);
+        final Dialog approveWindow = rolloutWindowBuilder.getWindowForApproveRollout(rollout);
 
         approveWindow.setCaption(i18n.getMessage("caption.approve", i18n.getMessage(ROLLOUT_CAPTION_MSG_KEY)));
-        UI.getCurrent().addWindow(approveWindow);
+        approveWindow.open();
         approveWindow.setVisible(Boolean.TRUE);
     }
 
@@ -442,18 +442,18 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     }
 
     private void updateRollout(final ProxyRollout rollout) {
-        final Window updateWindow = rolloutWindowBuilder.getWindowForUpdate(rollout);
+        final Dialog updateWindow = rolloutWindowBuilder.getWindowForUpdate(rollout);
 
         updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage(ROLLOUT_CAPTION_MSG_KEY)));
-        UI.getCurrent().addWindow(updateWindow);
+        updateWindow.open();
         updateWindow.setVisible(Boolean.TRUE);
     }
 
     private void copyRollout(final ProxyRollout rollout) {
-        final Window copyWindow = rolloutWindowBuilder.getWindowForCopyRollout(rollout);
+        final Dialog copyWindow = rolloutWindowBuilder.getWindowForCopyRollout(rollout);
 
         copyWindow.setCaption(i18n.getMessage("caption.copy", i18n.getMessage(ROLLOUT_CAPTION_MSG_KEY)));
-        UI.getCurrent().addWindow(copyWindow);
+        copyWindow.open();
         copyWindow.setVisible(Boolean.TRUE);
     }
 
@@ -522,7 +522,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
             uiNotification.displayValidationError(i18n.getMessage("message.rollout.trigger.next.group.not.running"));
         } else {
             final ConfirmationDialog triggerNextDialog = createTriggerNextGroupDialog(rolloutId);
-            UI.getCurrent().addWindow(triggerNextDialog.getWindow());
+            triggerNextDialog.getWindow().open();
             triggerNextDialog.getWindow().bringToFront();
         }
     }

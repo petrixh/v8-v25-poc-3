@@ -84,14 +84,14 @@ public class TargetFilterDetailsGridHeader extends AbstractBreadcrumbGridHeader 
     @Override
     protected void init() {
         super.init();
-        setHeightUndefined();
+        setHeight(null);
     }
 
     @Override
     public void buildHeader() {
         super.buildHeader();
 
-        addComponent(targetFilterAddUpdateLayout.getRootComponent());
+        add(targetFilterAddUpdateLayout.getRootComponent());
     }
 
     private void closeDetails() {

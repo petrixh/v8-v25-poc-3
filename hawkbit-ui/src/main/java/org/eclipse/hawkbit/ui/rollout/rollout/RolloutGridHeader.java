@@ -25,9 +25,9 @@ import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Header layout of rollout list view.
@@ -80,10 +80,10 @@ public class RolloutGridHeader extends AbstractGridHeader {
     }
 
     private void addNewRollout() {
-        final Window addWindow = rolloutWindowBuilder.getWindowForAdd();
+        final Dialog addWindow = rolloutWindowBuilder.getWindowForAdd();
 
         addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.rollout")));
-        UI.getCurrent().addWindow(addWindow);
+        addWindow.open();
         addWindow.setVisible(Boolean.TRUE);
     }
 }

@@ -19,13 +19,13 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.Button;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.ui.Link;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Builder for target filter add update layout component
@@ -63,7 +63,7 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
     public TextField createNameField(final Binder<ProxyTargetFilterQuery> binder) {
         final TextField filterName = FormComponentBuilder
                 .createNameInput(binder, i18n, UIComponentIdProvider.CUSTOM_FILTER_ADD_NAME).getComponent();
-        filterName.setWidth(40.0F, Unit.PERCENTAGE);
+        filterName.setWidth("40%");
 
         return filterName;
     }
@@ -106,7 +106,7 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
      */
     public Button createSearchTargetsByFilterButton() {
         return SPUIComponentProvider.getButton(UIComponentIdProvider.FILTER_SEARCH_ICON_ID, "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH), null, false, VaadinIcons.SEARCH,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH), null, false, VaadinIcon.SEARCH,
                 SPUIButtonStyleNoBorder.class);
     }
 
@@ -118,6 +118,6 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
     public Button createSaveButton() {
         return SPUIComponentProvider.getButton(UIComponentIdProvider.CUSTOM_FILTER_SAVE_ICON,
                 UIComponentIdProvider.CUSTOM_FILTER_SAVE_ICON, i18n.getMessage(UIMessageIdProvider.TOOLTIP_SAVE), null,
-                false, VaadinIcons.HARDDRIVE, SPUIButtonStyleNoBorder.class);
+                false, VaadinIcon.HARDDRIVE, SPUIButtonStyleNoBorder.class);
     }
 }

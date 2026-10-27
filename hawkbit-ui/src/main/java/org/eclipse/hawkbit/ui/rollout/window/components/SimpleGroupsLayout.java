@@ -27,23 +27,22 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.eclipse.hawkbit.utils.TenantConfigHelper;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.Binder.Binding;
-import com.vaadin.data.ValidationException;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.data.converter.StringToIntegerConverter;
-import com.vaadin.data.validator.IntegerRangeValidator;
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.Binder.Binding;
+import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.converter.StringToIntegerConverter;
+import com.vaadin.flow.data.validator.IntegerRangeValidator;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.RadioButtonGroup;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Simple group layout component
@@ -66,9 +65,9 @@ public class SimpleGroupsLayout extends ValidatableLayout {
     private final Binder<ProxySimpleRolloutGroupsDefinition> binder;
 
     private final BoundComponent<TextField> noOfGroupsWithBinding;
-    private final Label groupSizeLabel;
+    private final Span groupSizeLabel;
     private final TextField triggerThreshold;
-    private final Label percentHintLabel;
+    private final Span percentHintLabel;
 
     private final CheckBox requireConfirmationToggle;
     private final Link confirmationHelpLink;
@@ -148,9 +147,9 @@ public class SimpleGroupsLayout extends ValidatableLayout {
         return (int) Math.ceil((double) totalTargets / (double) numberOfGroups);
     }
 
-    private static Label createCountLabel() {
-        final Label countLabel = new LabelBuilder().visible(false).name("").buildLabel();
-        countLabel.addStyleName(ValoTheme.LABEL_TINY + " " + "rollout-target-count-message");
+    private static Span createCountLabel() {
+        final Span countLabel = new LabelBuilder().visible(false).name("").buildLabel();
+        countLabel.addClassNames("tiny" + " " + "rollout-target-count-message");
         countLabel.setSizeUndefined();
 
         return countLabel;
@@ -176,9 +175,9 @@ public class SimpleGroupsLayout extends ValidatableLayout {
         return triggerThresholdField;
     }
 
-    private static Label getPercentHintLabel() {
-        final Label percentSymbol = new Label("%");
-        percentSymbol.addStyleName(ValoTheme.LABEL_TINY + " " + ValoTheme.LABEL_BOLD);
+    private static Span getPercentHintLabel() {
+        final Span percentSymbol = new Span("%");
+        percentSymbol.addClassNames("tiny" + " " + "bold");
         percentSymbol.setSizeUndefined();
 
         return percentSymbol;
@@ -257,8 +256,8 @@ public class SimpleGroupsLayout extends ValidatableLayout {
     private RadioButtonGroup<ERROR_THRESHOLD_OPTIONS> createErrorThresholdOptionGroup() {
         final RadioButtonGroup<ERROR_THRESHOLD_OPTIONS> errorThresholdOptions = new RadioButtonGroup<>();
         errorThresholdOptions.setId(UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_OPTION_ID);
-        errorThresholdOptions.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
-        errorThresholdOptions.addStyleName(SPUIStyleDefinitions.ROLLOUT_OPTION_GROUP);
+        errorThresholdOptions.addClassNames("horizontal");
+        errorThresholdOptions.addClassNames(SPUIStyleDefinitions.ROLLOUT_OPTION_GROUP);
         errorThresholdOptions.setSizeUndefined();
 
         errorThresholdOptions.setItems(ERROR_THRESHOLD_OPTIONS.values());
@@ -274,7 +273,7 @@ public class SimpleGroupsLayout extends ValidatableLayout {
                 UIComponentIdProvider.ROLLOUT_CONFIRMATION_REQUIRED, binder,
                 ProxySimpleRolloutGroupsDefinition::isConfirmationRequired,
                 ProxySimpleRolloutGroupsDefinition::setConfirmationRequired);
-        confirmationToggle.addStyleName(ValoTheme.CHECKBOX_SMALL);
+        confirmationToggle.addClassNames("small");
 
         return confirmationToggle;
     }
@@ -285,7 +284,7 @@ public class SimpleGroupsLayout extends ValidatableLayout {
         final Link link = new Link("", new ExternalResource(confirmationFlowHelpUrl));
 
         link.setTargetName("_blank");
-        link.setIcon(VaadinIcons.QUESTION_CIRCLE);
+        link.setIcon(VaadinIcon.QUESTION_CIRCLE);
         link.setDescription(i18n.getMessage("tooltip.documentation.link"));
 
         return link;
@@ -293,7 +292,7 @@ public class SimpleGroupsLayout extends ValidatableLayout {
 
     private GridLayout buildLayout(final boolean isConfirmationFlowEnabled) {
         final GridLayout gridLayout = new GridLayout();
-        gridLayout.setMargin(false);
+        gridLayout.setPadding(false);
         gridLayout.setSpacing(true);
         gridLayout.setSizeUndefined();
         if (isConfirmationFlowEnabled) {
@@ -302,7 +301,7 @@ public class SimpleGroupsLayout extends ValidatableLayout {
             gridLayout.setRows(4);
         }
         gridLayout.setColumns(3);
-        gridLayout.setStyleName("marginTop");
+        gridLayout.setClassName("marginTop");
 
         gridLayout.addComponent(SPUIComponentProvider.generateLabel(i18n, "caption.rollout.generate.groups"), 0, 0, 2,
                 0);
@@ -332,10 +331,10 @@ public class SimpleGroupsLayout extends ValidatableLayout {
     private HorizontalLayout initializeConfirmationElements(){
         final HorizontalLayout confirmationLayout = new HorizontalLayout();
         confirmationLayout.setSpacing(false);
-        confirmationLayout.setMargin(false);
-        confirmationLayout.addComponent(requireConfirmationToggle);
+        confirmationLayout.setPadding(false);
+        confirmationLayout.add(requireConfirmationToggle);
         confirmationLayout.setComponentAlignment(requireConfirmationToggle, Alignment.MIDDLE_CENTER);
-        confirmationLayout.addComponent(confirmationHelpLink);
+        confirmationLayout.add(confirmationHelpLink);
         confirmationLayout.setComponentAlignment(confirmationHelpLink, Alignment.MIDDLE_CENTER);
         return confirmationLayout;
     }

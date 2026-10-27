@@ -24,8 +24,8 @@ import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
 import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.TabSheet;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.tabs.TabSheet;
 
 /**
  * Builder for Rollout window components.
@@ -97,9 +97,9 @@ public final class RolloutWindowLayoutComponentBuilder {
             final Component advancedGroupDefinitionTab) {
         final TabSheet groupsDefinitionTabs = new TabSheet();
         groupsDefinitionTabs.setId(UIComponentIdProvider.ROLLOUT_GROUPS);
-        groupsDefinitionTabs.setWidth(900, Unit.PIXELS);
-        groupsDefinitionTabs.setHeight(300, Unit.PIXELS);
-        groupsDefinitionTabs.setStyleName(SPUIStyleDefinitions.ROLLOUT_GROUPS);
+        groupsDefinitionTabs.setWidth("900px");
+        groupsDefinitionTabs.setHeight("300px");
+        groupsDefinitionTabs.setClassName(SPUIStyleDefinitions.ROLLOUT_GROUPS);
 
         groupsDefinitionTabs
                 .addTab(simpleGroupDefinitionTab, dependencies.getI18n().getMessage("caption.rollout.tabs.simple"))
@@ -123,9 +123,9 @@ public final class RolloutWindowLayoutComponentBuilder {
 
     private static GroupsPieChart createGroupsPieChart() {
         final GroupsPieChart groupsPieChart = new GroupsPieChart();
-        groupsPieChart.setWidth(260, Unit.PIXELS);
-        groupsPieChart.setHeight(220, Unit.PIXELS);
-        groupsPieChart.setStyleName(SPUIStyleDefinitions.ROLLOUT_GROUPS_CHART);
+        groupsPieChart.setWidth("260px");
+        groupsPieChart.setHeight("220px");
+        groupsPieChart.setClassName(SPUIStyleDefinitions.ROLLOUT_GROUPS_CHART);
 
         return groupsPieChart;
     }

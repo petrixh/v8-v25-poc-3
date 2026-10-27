@@ -22,16 +22,15 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.StatusChangeListener;
-import com.vaadin.data.converter.StringToFloatConverter;
-import com.vaadin.data.validator.FloatRangeValidator;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.StatusChangeListener;
+import com.vaadin.flow.data.converter.StringToFloatConverter;
+import com.vaadin.flow.data.validator.FloatRangeValidator;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.UserError;
-import com.vaadin.ui.ComboBox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.textfield.TextField;
 
 import static org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions.DIST_CHECKBOX_STYLE;
 
@@ -82,8 +81,8 @@ public class AdvancedGroupRow {
         final TextField nameField = new TextFieldBuilder(RolloutGroup.NAME_MAX_SIZE)
                 .prompt(i18n.getMessage("textfield.name")).buildTextComponent();
         nameField.setSizeUndefined();
-        nameField.setStyleName("rollout-group-name");
-        nameField.addStyleName(ValoTheme.TEXTAREA_SMALL);
+        nameField.setClassName("rollout-group-name");
+        nameField.addClassNames("small");
         nameField.setWidth(12, Unit.EM);
 
         binder.forField(nameField).asRequired(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_NAMEREQUIRED))
@@ -144,7 +143,7 @@ public class AdvancedGroupRow {
     public CheckBox createConfirmationToggle() {
         final CheckBox checkBox = new CheckBox();
         checkBox.setWidth(5, Unit.EM);
-        checkBox.setStyleName(DIST_CHECKBOX_STYLE);
+        checkBox.setClassName(DIST_CHECKBOX_STYLE);
         binder.forField(checkBox).bind(ProxyAdvancedRolloutGroup::isConfirmationRequired, ProxyAdvancedRolloutGroup::setConfirmationRequired);
         checkBox.setValue(true);
         return checkBox;

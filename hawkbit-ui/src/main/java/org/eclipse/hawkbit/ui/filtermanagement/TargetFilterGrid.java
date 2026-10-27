@@ -40,14 +40,14 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.utils.TenantConfigHelper;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.data.ValueProvider;
+import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dialog.Dialog;
 
 import static org.eclipse.hawkbit.ui.utils.UIComponentIdProvider.TARGET_FILTER_TABLE_CONFIRMATION_LABEL_ID;
 
@@ -163,24 +163,24 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
     private void addAutoAssignmentColumns() {
         final ValueProvider<ProxyTargetFilterQuery, HorizontalLayout> autoAssignmentProvider = filter -> {
             final HorizontalLayout horizontalLayout = new HorizontalLayout();
-            horizontalLayout.setWidthUndefined();
+            horizontalLayout.setWidth(null);
             horizontalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
 
-            final Label icon = actionTypeIconSupplier.getLabel(filter);
-            horizontalLayout.addComponent(icon);
+            final Span icon = actionTypeIconSupplier.getLabel(filter);
+            horizontalLayout.add(icon);
 
             if (tenantConfigHelper.isConfirmationFlowEnabled()) {
-                final Label confirmationIcon = confirmationIconSupplier.getLabel(filter);
-                horizontalLayout.addComponent(confirmationIcon);
+                final Span confirmationIcon = confirmationIconSupplier.getLabel(filter);
+                horizontalLayout.add(confirmationIcon);
             }
 
             final Button link = buildAutoAssignmentLink(filter);
-            horizontalLayout.addComponent(link);
+            horizontalLayout.add(link);
 
             return horizontalLayout;
         };
         GridComponentBuilder.addComponentColumn(this, autoAssignmentProvider)
-                .setCaption(i18n.getMessage("header.auto.assignment.ds")).setWidthUndefined();
+                .setCaption(i18n.getMessage("header.auto.assignment.ds")).setWidth(null);
     }
 
     private Button buildFilterLink(final ProxyTargetFilterQuery targetFilter) {
@@ -218,12 +218,12 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
 
     private void onClickOfAutoAssignmentLink(final ProxyTargetFilterQuery targetFilter) {
         if (permissionChecker.hasReadRepositoryPermission()) {
-            final Window autoAssignmentWindow = autoAssignmentWindowBuilder.getWindowForAutoAssignment(targetFilter);
+            final Dialog autoAssignmentWindow = autoAssignmentWindowBuilder.getWindowForAutoAssignment(targetFilter);
 
             autoAssignmentWindow.setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_SELECT_AUTO_ASSIGN_DS));
             autoAssignmentWindow.setWidth(40.0F, Sizeable.Unit.PERCENTAGE);
 
-            UI.getCurrent().addWindow(autoAssignmentWindow);
+            autoAssignmentWindow.open();
             autoAssignmentWindow.setVisible(Boolean.TRUE);
         } else {
             notification.displayValidationError(i18n.getMessage(

@@ -15,13 +15,12 @@ import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.DateTimeField;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.ui.RadioButtonGroup;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Rollout start types options layout
@@ -59,16 +58,16 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
     private void createOptionGroup() {
         autoStartOptionGroup = new RadioButtonGroup<>();
         autoStartOptionGroup.setId(autoStartOptionGroupId);
-        autoStartOptionGroup.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
-        autoStartOptionGroup.addStyleName(ValoTheme.OPTIONGROUP_SMALL);
+        autoStartOptionGroup.addClassNames("horizontal");
+        autoStartOptionGroup.addClassNames("small");
         autoStartOptionGroup.setItemIconGenerator(item -> {
             switch (item) {
             case MANUAL:
-                return VaadinIcons.HAND;
+                return VaadinIcon.HAND;
             case AUTO_START:
-                return VaadinIcons.PLAY;
+                return VaadinIcon.PLAY;
             case SCHEDULED:
-                return VaadinIcons.CLOCK;
+                return VaadinIcon.CLOCK;
             default:
                 return null;
             }
@@ -99,19 +98,19 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
         });
 
         autoStartOptionGroup.setItems(AutoStartOption.values());
-        addComponent(autoStartOptionGroup);
+        add(autoStartOptionGroup);
 
         startAtDateField = new DateTimeField();
         startAtDateField.setEnabled(false);
-        startAtDateField.setStyleName("dist-window-forcedtime");
+        startAtDateField.setClassName("dist-window-forcedtime");
 
         final TimeZone tz = SPDateTimeUtil.getBrowserTimeZone();
         startAtDateField.setZoneId(SPDateTimeUtil.getTimeZoneId(tz));
         startAtDateField.setLocale(HawkbitCommonUtil.getCurrentLocale());
         startAtDateField.setResolution(DateTimeResolution.MINUTE);
-        startAtDateField.addStyleName(ValoTheme.DATEFIELD_TINY);
+        startAtDateField.addClassNames("tiny");
         startAtDateField.setWidth("14em");
-        addComponent(startAtDateField);
+        add(startAtDateField);
         setComponentAlignment(startAtDateField, Alignment.MIDDLE_LEFT);
     }
 

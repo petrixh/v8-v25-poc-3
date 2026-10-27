@@ -14,8 +14,8 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 
-import com.vaadin.spring.annotation.SpringComponent;
-import com.vaadin.spring.annotation.VaadinSessionScope;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 
 /**
  * Stores rollout management view UI state according to user interactions.

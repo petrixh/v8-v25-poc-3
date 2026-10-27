@@ -20,7 +20,7 @@ import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.html.Span;
 
 /**
  * Shows the targets as a result of the executed filter query.
@@ -75,7 +75,7 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     public void init() {
         super.init();
 
-        addStyleName("grid-row-border");
+        addClassNames("grid-row-border");
     }
 
     @Override
@@ -91,7 +91,7 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
 
         GridComponentBuilder.addDescriptionColumn(this, i18n, TARGET_DESCRIPTION_ID);
 
-        final Column<ProxyTarget, Label> statusColumn = GridComponentBuilder.addIconColumn(this,
+        final Column<ProxyTarget, Span> statusColumn = GridComponentBuilder.addIconColumn(this,
                 targetStatusIconSupplier::getLabel, TARGET_STATUS_ID,
                 i18n.getMessage("header.status"));
         GridComponentBuilder.setColumnSortable(statusColumn, "updateStatus");

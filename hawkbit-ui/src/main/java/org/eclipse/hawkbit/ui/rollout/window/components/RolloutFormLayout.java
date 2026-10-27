@@ -27,17 +27,17 @@ import org.eclipse.hawkbit.ui.rollout.window.components.AutoStartOptionGroupLayo
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.Binder.Binding;
-import com.vaadin.data.HasValue;
-import com.vaadin.data.ValidationException;
-import com.vaadin.data.Validator;
-import com.vaadin.data.validator.LongRangeValidator;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.Binder.Binding;
+import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.binder.Validator;
+import com.vaadin.flow.data.validator.LongRangeValidator;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.Component;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Rollout form layout

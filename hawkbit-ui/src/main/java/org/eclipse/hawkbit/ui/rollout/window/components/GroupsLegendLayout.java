@@ -17,9 +17,9 @@ import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.CollectionUtils;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Displays a legend for the Groups of a Rollout with the count of targets in
@@ -34,9 +34,9 @@ public class GroupsLegendLayout extends VerticalLayout {
 
     private final VaadinMessageSource i18n;
 
-    private Label totalTargetsLabel;
-    private Label loadingLabel;
-    private Label unassignedTargetsLabel;
+    private Span totalTargetsLabel;
+    private Span loadingLabel;
+    private Span unassignedTargetsLabel;
 
     private VerticalLayout groupsLegend;
 
@@ -60,20 +60,20 @@ public class GroupsLegendLayout extends VerticalLayout {
         loadingLabel.setVisible(false);
 
         groupsLegend = new VerticalLayout();
-        groupsLegend.setMargin(false);
+        groupsLegend.setPadding(false);
         groupsLegend.setSpacing(false);
-        groupsLegend.setStyleName("groups-legend");
+        groupsLegend.setClassName("groups-legend");
 
-        addComponent(totalTargetsLabel);
-        addComponent(loadingLabel);
-        addComponent(unassignedTargetsLabel);
-        addComponent(groupsLegend);
+        add(totalTargetsLabel);
+        add(loadingLabel);
+        add(unassignedTargetsLabel);
+        add(groupsLegend);
 
         for (int i = 0; i < MAX_GROUPS_TO_BE_DISPLAYED; i++) {
-            groupsLegend.addComponent(createGroupTargetsLabel());
+            groupsLegend.add(createGroupTargetsLabel());
         }
 
-        groupsLegend.addComponent(createToBeContinuedLabel());
+        groupsLegend.add(createToBeContinuedLabel());
     }
 
     /**
@@ -87,36 +87,36 @@ public class GroupsLegendLayout extends VerticalLayout {
         }
     }
 
-    private static Label createTotalTargetsLabel() {
-        final Label label = new LabelBuilder().visible(false).name("").buildLabel();
-        label.addStyleName("rollout-target-count-title");
+    private static Span createTotalTargetsLabel() {
+        final Span label = new LabelBuilder().visible(false).name("").buildLabel();
+        label.addClassNames("rollout-target-count-title");
         label.setSizeUndefined();
         return label;
     }
 
-    private Label createLoadingLabel() {
-        final Label label = new LabelBuilder().visible(false).name("").buildLabel();
-        label.addStyleName("rollout-target-count-loading");
+    private Span createLoadingLabel() {
+        final Span label = new LabelBuilder().visible(false).name("").buildLabel();
+        label.addClassNames("rollout-target-count-loading");
         label.setSizeUndefined();
         label.setValue(i18n.getMessage("label.rollout.calculating"));
         return label;
     }
 
-    private static Label createUnassignedTargetsLabel() {
-        final Label label = new LabelBuilder().visible(false).name("").buildLabel();
-        label.addStyleName("rollout-group-unassigned");
+    private static Span createUnassignedTargetsLabel() {
+        final Span label = new LabelBuilder().visible(false).name("").buildLabel();
+        label.addClassNames("rollout-group-unassigned");
         label.setSizeUndefined();
         return label;
     }
 
-    private static Label createGroupTargetsLabel() {
-        final Label label = new LabelBuilder().visible(false).name("").buildLabel();
-        label.addStyleName("rollout-group-count");
+    private static Span createGroupTargetsLabel() {
+        final Span label = new LabelBuilder().visible(false).name("").buildLabel();
+        label.addClassNames("rollout-group-count");
         label.setSizeUndefined();
         return label;
     }
 
-    private static Label createToBeContinuedLabel() {
+    private static Span createToBeContinuedLabel() {
         return new LabelBuilder().caption("...").visible(false).buildLabel();
     }
 
@@ -161,7 +161,7 @@ public class GroupsLegendLayout extends VerticalLayout {
 
         for (int i = 0; i < getGroupsWithoutToBeContinuedLabel(listOfTargetCountPerGroup.size()); i++) {
             final Component component = groupsLegend.getComponent(i);
-            final Label label = (Label) component;
+            final Span label = (Span) component;
             if (listOfTargetCountPerGroup.size() > i) {
                 final Long targetCount = listOfTargetCountPerGroup.get(i);
                 label.setValue(getTargetsInGroupMessage(targetCount,
@@ -233,7 +233,7 @@ public class GroupsLegendLayout extends VerticalLayout {
 
         for (int i = 0; i < getGroupsWithoutToBeContinuedLabel(targetsPerGroup.size()); i++) {
             final Component component = groupsLegend.getComponent(i);
-            final Label label = (Label) component;
+            final Span label = (Span) component;
             if (targetsPerGroup.size() > i && labelsToUpdate > i) {
                 final Long targetCount = targetsPerGroup.get(i);
                 final String groupName = groupNames.get(i);

@@ -28,9 +28,9 @@ import org.eclipse.hawkbit.ui.rollout.window.components.SimpleGroupsLayout;
 import org.eclipse.hawkbit.ui.rollout.window.components.VisualGroupDefinitionLayout;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.data.ValidationException;
+import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.TabSheet;
+import com.vaadin.flow.component.tabs.TabSheet;
 
 /**
  * Layout builder for Add Rollout window together with component value change

@@ -15,7 +15,7 @@ import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.rollout.window.components.RolloutFormLayout;
 import org.eclipse.hawkbit.ui.rollout.window.components.VisualGroupDefinitionLayout;
 
-import com.vaadin.data.ValidationException;
+import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.ui.GridLayout;
 
 /**

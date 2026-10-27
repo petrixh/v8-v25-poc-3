@@ -19,15 +19,15 @@ import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.shared.ui.ValueChangeMode;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * An textfield with the {@link TextFieldSuggestionBox} extension which shows
@@ -40,7 +40,7 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
 
     private final transient List<ValidationListener> listeners = new LinkedList<>();
 
-    private final Label validationIcon;
+    private final Span validationIcon;
     private final TextField queryTextField;
     private final HorizontalLayout autoCompleteLayout;
 
@@ -69,14 +69,14 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
     private void init() {
         autoCompleteLayout.setSizeFull();
         autoCompleteLayout.setSpacing(false);
-        autoCompleteLayout.setMargin(false);
-        autoCompleteLayout.addStyleName("custom-search-layout");
+        autoCompleteLayout.setPadding(false);
+        autoCompleteLayout.addClassNames("custom-search-layout");
 
-        autoCompleteLayout.addComponent(validationIcon);
+        autoCompleteLayout.add(validationIcon);
         autoCompleteLayout.setComponentAlignment(validationIcon, Alignment.MIDDLE_CENTER);
 
-        autoCompleteLayout.addComponent(queryTextField);
-        autoCompleteLayout.setExpandRatio(queryTextField, 1.0F);
+        autoCompleteLayout.add(queryTextField);
+        autoCompleteLayout.setFlexGrow(1.0F, queryTextField);
 
         queryTextField.addValueChangeListener(event -> onQueryFilterChange(event.getValue()));
 
@@ -116,8 +116,8 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
         queryTextField.addValueChangeListener(listener);
     }
 
-    private static Label createStatusIcon() {
-        final Label statusIcon = new Label(VaadinIcons.CHECK_CIRCLE.getHtml(), ContentMode.HTML);
+    private static Span createStatusIcon() {
+        final Span statusIcon = new Span(VaadinIcon.CHECK_CIRCLE.getHtml(), ContentMode.HTML);
         statusIcon.setId(UIComponentIdProvider.VALIDATION_STATUS_ICON_ID);
         statusIcon.setVisible(false);
 
@@ -128,7 +128,7 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
         final TextField textField = new TextFieldBuilder(TargetFilterQuery.QUERY_MAX_SIZE)
                 .id(UIComponentIdProvider.CUSTOM_FILTER_QUERY).buildTextComponent();
         textField.setWidthFull();
-        textField.addStyleName("target-filter-textfield");
+        textField.addClassNames("target-filter-textfield");
 
         textField.setValueChangeMode(ValueChangeMode.EAGER);
 
@@ -183,15 +183,15 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
 
     private void showValidationSuccesIcon() {
         validationIcon.setVisible(true);
-        validationIcon.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
-        validationIcon.setStyleName(SPUIStyleDefinitions.SUCCESS_ICON);
+        validationIcon.setValue(VaadinIcon.CHECK_CIRCLE.getHtml());
+        validationIcon.setClassName(SPUIStyleDefinitions.SUCCESS_ICON);
         validationIcon.setDescription(null);
     }
 
     private void showValidationFailureIcon(final String validationMessage) {
         validationIcon.setVisible(true);
-        validationIcon.setValue(VaadinIcons.CLOSE_CIRCLE.getHtml());
-        validationIcon.setStyleName(SPUIStyleDefinitions.ERROR_ICON);
+        validationIcon.setValue(VaadinIcon.CLOSE_CIRCLE.getHtml());
+        validationIcon.setClassName(SPUIStyleDefinitions.ERROR_ICON);
         validationIcon.setDescription(validationMessage);
     }
 

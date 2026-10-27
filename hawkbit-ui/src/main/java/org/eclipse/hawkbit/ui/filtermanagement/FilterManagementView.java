@@ -41,7 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.spring.annotation.UIScope;
+import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.ui.Alignment;
 
 /**
@@ -98,18 +98,18 @@ public class FilterManagementView extends AbstractEventListenersAwareView {
 
     @Override
     protected void buildLayout() {
-        setMargin(false);
+        setPadding(false);
         setSpacing(false);
         setSizeFull();
 
-        addComponent(targetFilterGridLayout);
+        add(targetFilterGridLayout);
         setComponentAlignment(targetFilterGridLayout, Alignment.TOP_CENTER);
-        setExpandRatio(targetFilterGridLayout, 1.0F);
+        setFlexGrow(1.0F, targetFilterGridLayout);
 
         targetFilterDetailsLayout.setVisible(false);
-        addComponent(targetFilterDetailsLayout);
+        add(targetFilterDetailsLayout);
         setComponentAlignment(targetFilterDetailsLayout, Alignment.TOP_CENTER);
-        setExpandRatio(targetFilterDetailsLayout, 1.0F);
+        setFlexGrow(1.0F, targetFilterDetailsLayout);
     }
 
     private void showTfqListLayout() {

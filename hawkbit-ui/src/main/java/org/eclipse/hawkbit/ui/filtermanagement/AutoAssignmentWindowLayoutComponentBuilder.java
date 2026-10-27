@@ -19,10 +19,10 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.html.Span;
 
 /**
  * Builder for auto assignment window layout component
@@ -48,8 +48,8 @@ public class AutoAssignmentWindowLayoutComponentBuilder {
      *
      * @return Description label
      */
-    public Label createDescriptionLabel() {
-        final Label autoAssignmentDescription = new Label(
+    public Span createDescriptionLabel() {
+        final Span autoAssignmentDescription = new Span(
                 i18n.getMessage(UIMessageIdProvider.LABEL_AUTO_ASSIGNMENT_DESC));
         autoAssignmentDescription.setSizeFull();
 

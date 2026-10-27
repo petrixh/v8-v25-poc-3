@@ -20,7 +20,7 @@ import org.eclipse.hawkbit.ui.filtermanagement.client.TextFieldSuggestionBoxClie
 import org.eclipse.hawkbit.ui.filtermanagement.client.TextFieldSuggestionBoxServerRpc;
 
 import com.vaadin.server.AbstractExtension;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Extension for the AutoCompleteTexfield.

@@ -23,8 +23,8 @@ import org.eclipse.hawkbit.ui.rollout.window.components.ValidatableLayout.Valida
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.data.ValidationException;
-import com.vaadin.data.ValidationResult;
+import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
@@ -53,9 +53,9 @@ public abstract class AbstractRolloutWindowLayout implements EntityWindowLayout<
         rootLayout.setSpacing(true);
         rootLayout.setSizeUndefined();
         rootLayout.setColumns(4);
-        rootLayout.setStyleName("marginTop");
+        rootLayout.setClassName("marginTop");
         rootLayout.setColumnExpandRatio(3, 1);
-        rootLayout.setWidth(900, Unit.PIXELS);
+        rootLayout.setWidth("900px");
 
         addComponents(rootLayout);
 

@@ -23,9 +23,9 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.server.Sizeable;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
 import org.eclipse.hawkbit.utils.TenantConfigHelper;
 import org.springframework.util.StringUtils;
 
@@ -136,7 +136,7 @@ public class AutoAssignmentWindowController extends
         final ConfirmationDialog confirmDialog = ConfirmationDialog
                 .newBuilder(getI18n(), UIComponentIdProvider.DIST_SET_SELECT_CONS_WINDOW_ID)
                 .caption(confirmationCaption).question(confirmationQuestion).hint(confirmationHint)
-                .icon(StringUtils.hasText(confirmationHint) ? VaadinIcons.WARNING : null).onSaveOrUpdate(() -> {
+                .icon(StringUtils.hasText(confirmationHint) ? VaadinIcon.WARNING : null).onSaveOrUpdate(() -> {
                     final TargetFilterQuery targetFilterQuery = targetFilterQueryManagement.updateAutoAssignDS(
                             getEntityFactory().targetFilterQuery().updateAutoAssign(targetFilterId).ds(autoAssignDsId)
                                     .actionType(autoAssignActionType).confirmationRequired(confirmationRequired));
@@ -145,7 +145,7 @@ public class AutoAssignmentWindowController extends
 
         confirmDialog.getWindow().setWidth(40.0F, Sizeable.Unit.PERCENTAGE);
 
-        UI.getCurrent().addWindow(confirmDialog.getWindow());
+        confirmDialog.getWindow().open();
         confirmDialog.getWindow().bringToFront();
     }
 
