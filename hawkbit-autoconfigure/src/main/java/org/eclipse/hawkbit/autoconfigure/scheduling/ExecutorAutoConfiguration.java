@@ -56,7 +56,7 @@ public class ExecutorAutoConfiguration {
     @Bean(destroyMethod = "shutdown")
     @ConditionalOnMissingBean
     public ExecutorService asyncExecutor() {
-        return new DelegatingSecurityContextExecutorService(threadPoolExecutor());
+        return withGlobalStrategy(new DelegatingSecurityContextExecutorService(threadPoolExecutor()));
     }
 
     /**
@@ -102,7 +102,7 @@ public class ExecutorAutoConfiguration {
         final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 20, 10000, TimeUnit.MILLISECONDS,
                 blockingQueue, new ThreadFactoryBuilder().setNameFormat("ui-executor-pool-%d").build());
         threadPoolExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        return new DelegatingSecurityContextExecutor(threadPoolExecutor);
+        return withGlobalStrategy(new DelegatingSecurityContextExecutor(threadPoolExecutor));
     }
 
     /**
@@ -112,9 +112,20 @@ public class ExecutorAutoConfiguration {
     @Bean(destroyMethod = "shutdown")
     @ConditionalOnMissingBean
     public ScheduledExecutorService scheduledExecutorService() {
-        return new DelegatingSecurityContextScheduledExecutorService(
+        return withGlobalStrategy(new DelegatingSecurityContextScheduledExecutorService(
                 Executors.newScheduledThreadPool(asyncConfigurerProperties.getSchedulerThreads(),
-                        new ThreadFactoryBuilder().setNameFormat("central-scheduled-executor-pool-%d").build()));
+                        new ThreadFactoryBuilder().setNameFormat("central-scheduled-executor-pool-%d").build())));
+    }
+
+    /**
+     * Spring Security 6+: the executor keeps the security context holder
+     * strategy that is global when it is built, which is before the UI installs
+     * its own. Use the strategy that is global when a task is submitted and
+     * run, as Spring Security 5 did.
+     */
+    private static <T extends DelegatingSecurityContextExecutor> T withGlobalStrategy(final T executor) {
+        executor.setSecurityContextHolderStrategy(new GlobalSecurityContextHolderStrategy());
+        return executor;
     }
 
     /**
