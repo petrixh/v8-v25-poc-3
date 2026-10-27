@@ -45,7 +45,7 @@ import com.vaadin.flow.data.binder.Binder.BindingBuilder;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.data.binder.Setter;
-import com.vaadin.ui.CheckBox;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
@@ -386,9 +386,9 @@ public final class FormComponentBuilder {
      *            setter for the binder
      * @return the bound box
      */
-    public static <T> CheckBox createCheckBox(final String id, final Binder<T> binder,
+    public static <T> Checkbox createCheckbox(final String id, final Binder<T> binder,
             final ValueProvider<T, Boolean> getter, final Setter<T, Boolean> setter) {
-        return createCheckBox(null, id, binder, getter, setter);
+        return createCheckbox(null, id, binder, getter, setter);
     }
 
     /**
@@ -408,13 +408,13 @@ public final class FormComponentBuilder {
      *            setter for the binder
      * @return the bound box
      */
-    public static <T> CheckBox createCheckBox(final String caption, final String id, final Binder<T> binder,
+    public static <T> Checkbox createCheckbox(final String caption, final String id, final Binder<T> binder,
             final ValueProvider<T, Boolean> getter, final Setter<T, Boolean> setter) {
-        final CheckBox checkBox;
-        if (StringUtils.isEmpty(caption)) {
-            checkBox = new CheckBox();
+        final Checkbox checkBox;
+        if (!StringUtils.hasLength(caption)) {
+            checkBox = new Checkbox();
         } else {
-            checkBox = new CheckBox(caption);
+            checkBox = new Checkbox(caption);
         }
         checkBox.setId(id);
         binder.forField(checkBox).bind(getter, setter);

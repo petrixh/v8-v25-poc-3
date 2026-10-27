@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.common.builder;
 
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.textfield.TextFieldVariant;
 
 /**
  * Textfield builder.
@@ -33,7 +33,7 @@ public class TextFieldBuilder extends AbstractTextFieldBuilder<TextFieldBuilder,
     @Override
     protected TextField createTextComponent() {
         final TextField textField = new TextField();
-        textField.addClassNames(ValoTheme.TEXTFIELD_SMALL);
+        textField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
         textField.setValueChangeMode(ValueChangeMode.LAZY);
         textField.setValueChangeTimeout(INPUT_DEBOUNCE_TIMEOUT);
 

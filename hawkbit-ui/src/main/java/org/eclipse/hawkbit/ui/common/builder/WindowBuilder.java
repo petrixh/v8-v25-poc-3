@@ -18,9 +18,12 @@ import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.flow.component.ModalityMode;
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Builder for Window.
@@ -29,7 +32,7 @@ public class WindowBuilder {
 
     private String caption;
     private Component content;
-    private ClickListener cancelButtonClickListener;
+    private ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener;
     private String helpLink;
     private VaadinMessageSource i18n;
     private final String type;
@@ -93,7 +96,8 @@ public class WindowBuilder {
      *            the cancelButtonClickListener
      * @return the window builder
      */
-    public WindowBuilder cancelButtonClickListener(final ClickListener cancelButtonClickListener) {
+    public WindowBuilder cancelButtonClickListener(
+            final ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener) {
         this.cancelButtonClickListener = cancelButtonClickListener;
         return this;
     }
@@ -184,19 +188,19 @@ public class WindowBuilder {
 
     }
 
-    private void decorateWindow(final Window window) {
+    // Vaadin 8 setClosable(true|false): the window's close (X) button and
+    // Esc; Flow dialogs have no close button, Esc stays as set by the dialog
+    private void decorateWindow(final Dialog window) {
         if (id != null) {
             window.setId(id);
         }
 
         if (SPUIDefinitions.CONFIRMATION_WINDOW.equals(type)) {
             window.setDraggable(false);
-            window.setClosable(true);
             window.addClassNames(SPUIStyleDefinitions.CONFIRMATION_WINDOW_CAPTION);
 
         } else if (SPUIDefinitions.CREATE_UPDATE_WINDOW.equals(type)) {
             window.setDraggable(true);
-            window.setClosable(true);
         }
     }
 
@@ -205,17 +209,20 @@ public class WindowBuilder {
      *
      * @return Window
      */
-    public Window buildWindow() {
-        final Window window = new Window(caption);
-        window.setContent(content);
+    public Dialog buildWindow() {
+        final Dialog window = new Dialog(caption);
+        window.add(content);
         window.setSizeUndefined();
-        window.setModal(true);
+        window.setModality(ModalityMode.STRICT);
         window.setResizable(false);
+        // Vaadin 8 modal windows did not close on a click outside
+        window.setCloseOnOutsideClick(false);
 
         decorateWindow(window);
 
         if (SPUIDefinitions.CREATE_UPDATE_WINDOW.equals(type)) {
-            window.setClosable(false);
+            // Vaadin 8: setClosable(false), no close button and no Esc
+            window.setCloseOnEsc(false);
         }
 
         return window;

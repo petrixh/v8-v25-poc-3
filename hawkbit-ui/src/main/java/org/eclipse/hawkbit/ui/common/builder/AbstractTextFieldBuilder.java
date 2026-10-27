@@ -11,7 +11,9 @@ package org.eclipse.hawkbit.ui.common.builder;
 
 import org.springframework.util.StringUtils;
 
-import com.vaadin.ui.AbstractTextField;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.TextFieldBase;
 
 /**
  * Abstract Text field builder.
@@ -22,7 +24,7 @@ import com.vaadin.ui.AbstractTextField;
  *            the text component
  *
  */
-public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
+public abstract class AbstractTextFieldBuilder<T, E extends TextFieldBase<E, String>> {
 
     private String caption;
     private String style;
@@ -134,7 +136,7 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
         textComponent.setEnabled(enabled);
 
         if (!StringUtils.isEmpty(caption)) {
-            textComponent.setCaption(caption);
+            textComponent.setLabel(caption);
         }
 
         if (!StringUtils.isEmpty(style)) {
@@ -149,7 +151,13 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
         }
 
         if (maxLengthAllowed > 0) {
-            textComponent.setMaxLength(maxLengthAllowed);
+            // Vaadin 8: AbstractTextField#setMaxLength; Flow has it on each
+            // field class
+            if (textComponent instanceof TextField textField) {
+                textField.setMaxLength(maxLengthAllowed);
+            } else if (textComponent instanceof TextArea textArea) {
+                textArea.setMaxLength(maxLengthAllowed);
+            }
         }
 
         if (!StringUtils.isEmpty(id)) {

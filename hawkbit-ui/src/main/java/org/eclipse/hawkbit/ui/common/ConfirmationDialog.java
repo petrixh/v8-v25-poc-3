@@ -22,13 +22,11 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.server.Resource;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.flow.component.Component;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.ui.Window;
 
 /**
  * Class for the confirmation dialog which pops up when deleting, assigning...
@@ -70,7 +68,7 @@ public class ConfirmationDialog implements Serializable {
      *            which has to be confirmed, e.g. maintenance window
      */
     private ConfirmationDialog(final VaadinMessageSource i18n, final String caption, final String question,
-            final String hint, final Runnable onSaveOrUpdate, final Runnable onCancel, final Resource icon,
+            final String hint, final Runnable onSaveOrUpdate, final Runnable onCancel, final VaadinIcon icon,
             final String id, final Component tab) {
 
         final VerticalLayout content = new VerticalLayout();
@@ -102,7 +100,9 @@ public class ConfirmationDialog implements Serializable {
         this.callback = onSaveOrUpdate;
 
         if (icon != null) {
-            window.setIcon(icon);
+            // Vaadin 8 window icon: Flow dialogs have none, the icon goes
+            // into the header
+            window.getHeader().add(icon.create());
         }
 
         window.addClassNames(SPUIStyleDefinitions.CONFIRMBOX_WINDOW_STYLE);
@@ -124,12 +124,13 @@ public class ConfirmationDialog implements Serializable {
         };
     }
 
-    private static Label createConfirmationLabel(final String text) {
+    private static Span createConfirmationLabel(final String text) {
         // ContentMode.HTML is used instead of ContentMode.PREFORMATTED here due
         // to no linebreaks if an entity name is very long
         final String questionHtmlSave = HawkbitCommonUtil.sanitizeHtml(text);
-        final Label questionLbl = new Label(questionHtmlSave, ContentMode.HTML);
-        questionLbl.setWidth(100, Unit.PERCENTAGE);
+        final Span questionLbl = new Span();
+        questionLbl.getElement().setProperty("innerHTML", questionHtmlSave);
+        questionLbl.setWidth("100%");
         questionLbl.addClassNames(SPUIStyleDefinitions.CONFIRMBOX_QUESTION_LABEL);
 
         return questionLbl;
@@ -148,7 +149,7 @@ public class ConfirmationDialog implements Serializable {
     /**
      * @return confirmation window
      */
-    public Window getWindow() {
+    public Dialog getWindow() {
         return window;
     }
 
@@ -162,7 +163,7 @@ public class ConfirmationDialog implements Serializable {
         private String caption;
         private String question;
         private String hint;
-        private Resource icon;
+        private VaadinIcon icon;
         private Component tab;
 
         private Runnable callbackOnSaveOrUpdate;
@@ -197,7 +198,7 @@ public class ConfirmationDialog implements Serializable {
             return this;
         }
 
-        public Builder icon(final Resource icon) {
+        public Builder icon(final VaadinIcon icon) {
             this.icon = icon;
             return this;
         }
