@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -120,14 +121,20 @@ public class BulkUploadHandler implements UploadHandler {
             return;
         }
 
+        // Vaadin 8 called the failed listener for any interruption: runtime
+        // errors too (UploadEvent wraps read errors in UncheckedIOException)
         try (InputStream in = event.getInputStream(); OutputStream out = receiveUpload(filename, ui)) {
             ByteStreams.copy(in, out);
-        } catch (final IOException e) {
+        } catch (final IOException | RuntimeException e) {
             uploadFailed(filename, e, ui);
             return;
         }
 
-        uploadSucceeded(event.getSession(), ui);
+        try {
+            uploadSucceeded(event.getSession(), ui);
+        } catch (final RuntimeException e) {
+            uploadFailed(filename, e, ui);
+        }
     }
 
     private OutputStream receiveUpload(final String filename, final UI ui) {
@@ -162,8 +169,13 @@ public class BulkUploadHandler implements UploadHandler {
     }
 
     private void uploadSucceeded(final VaadinSession session, final UI ui) {
-        // Vaadin 8 ran this listener with the session locked
-        ui.access(() -> uiExecutor.execute(new UploadAsync(session, ui)));
+        // Vaadin 8 ran this listener in the request thread with the session
+        // locked: the task reads the window inputs under the lock, and is
+        // handed to the executor from this request thread, whose security
+        // context (tenant, user) the executor carries into the task
+        final AtomicReference<UploadAsync> uploadAsync = new AtomicReference<>();
+        ui.accessSynchronously(() -> uploadAsync.set(new UploadAsync(session, ui)));
+        uiExecutor.execute(uploadAsync.get());
     }
 
     private class UploadAsync implements Runnable {
