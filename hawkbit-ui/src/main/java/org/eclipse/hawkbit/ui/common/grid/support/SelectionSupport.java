@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 import java.util.function.LongFunction;
 import java.util.function.Supplier;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;

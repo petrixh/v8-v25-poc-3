@@ -12,7 +12,7 @@ package org.eclipse.hawkbit.ui.artifacts.details;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.servlet.MultipartConfigElement;
+import jakarta.servlet.MultipartConfigElement;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;

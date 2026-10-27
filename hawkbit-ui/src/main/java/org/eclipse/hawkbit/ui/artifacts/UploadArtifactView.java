@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 
-import javax.servlet.MultipartConfigElement;
+import jakarta.servlet.MultipartConfigElement;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;

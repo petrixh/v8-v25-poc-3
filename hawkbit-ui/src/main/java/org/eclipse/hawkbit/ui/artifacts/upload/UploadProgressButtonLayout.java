@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.artifacts.upload;
 
 import java.util.concurrent.locks.Lock;
 
-import javax.servlet.MultipartConfigElement;
+import jakarta.servlet.MultipartConfigElement;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;

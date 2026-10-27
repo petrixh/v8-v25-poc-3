@@ -9,7 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
