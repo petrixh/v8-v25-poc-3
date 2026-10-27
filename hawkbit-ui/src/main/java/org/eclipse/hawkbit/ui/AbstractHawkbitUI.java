@@ -59,7 +59,13 @@ import jakarta.annotation.security.PermitAll;
  * ({@link EmptyView}) forwards to the first accessible view or to an old
  * {@code #!view} address, and a view the user may not open goes to the error
  * view, as before.
+ *
+ * {@code @PermitAll}: Flow's navigation access control also checks the
+ * {@code @Layout} of a route (found here through the subclass), so the shell
+ * must allow any logged-in user, as the Vaadin 8 UI did; the per-view menu
+ * permissions are checked in {@link #beforeEnter(BeforeEnterEvent)}.
  */
+@PermitAll
 public abstract class AbstractHawkbitUI extends HorizontalLayout
         implements RouterLayout, BeforeEnterObserver, AfterNavigationObserver {
     private static final long serialVersionUID = 1L;
