@@ -15,7 +15,7 @@ import org.eclipse.hawkbit.ui.components.SPUIButton;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleSmall;
 
-import com.vaadin.ui.Button;
+import com.vaadin.flow.component.button.Button;
 
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
@@ -41,8 +41,8 @@ public class SPUIComponentProviderTest {
         placeHolderButton = SPUIComponentProvider.getButton("", "Test", "Test", SPUIDefinitions.SP_BUTTON_STATUS_STYLE,
                 true, null, SPUIButtonStyleSmall.class);
         assertThat(placeHolderButton).isInstanceOf(SPUIButton.class);
-        assertThat(placeHolderButton.getCaption()).isEqualTo("Test");
-        assertThat(placeHolderButton.getStyleName()).isEqualTo(SPUIDefinitions.SP_BUTTON_STATUS_STYLE);
+        assertThat(placeHolderButton.getText()).isEqualTo("Test");
+        assertThat(placeHolderButton.getClassName()).isEqualTo(SPUIDefinitions.SP_BUTTON_STATUS_STYLE);
     }
 
 }
