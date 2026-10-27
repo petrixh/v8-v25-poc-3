@@ -30,7 +30,6 @@ import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.ui.Alignment;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.html.Span;
@@ -96,7 +95,7 @@ public class FilterByStatusLayout extends VerticalLayout {
     private Button buildStatusButton(final TargetUpdateStatus status, final String id, final String descriptionMsgKey,
             final String statusStyleName) {
         final Button statusButton = buildFilterButton(id, descriptionMsgKey, statusStyleName);
-        statusButton.addClickListener(event -> processClickedStatusButton(status, event.getButton()));
+        statusButton.addClickListener(event -> processClickedStatusButton(status, event.getSource()));
 
         return statusButton;
     }
@@ -130,7 +129,7 @@ public class FilterByStatusLayout extends VerticalLayout {
 
     private Button buildOverdueButton(final String id, final String descriptionMsgKey, final String statusStyleName) {
         final Button overdueButton = buildFilterButton(id, descriptionMsgKey, statusStyleName);
-        overdueButton.addClickListener(event -> processClickedOverdueButton(event.getButton()));
+        overdueButton.addClickListener(event -> processClickedOverdueButton(event.getSource()));
 
         return overdueButton;
     }
@@ -169,17 +168,17 @@ public class FilterByStatusLayout extends VerticalLayout {
         targetFilterStatusLabel.addClassNames("target-status-filters-title");
 
         add(targetFilterStatusLabel);
-        setComponentAlignment(targetFilterStatusLabel, Alignment.MIDDLE_LEFT);
+        setHorizontalComponentAlignment(Alignment.START, targetFilterStatusLabel);
 
         final HorizontalLayout fiterByStatusLayout = buildFilterByStatusLayout();
 
         add(fiterByStatusLayout);
-        setComponentAlignment(fiterByStatusLayout, Alignment.MIDDLE_LEFT);
+        setHorizontalComponentAlignment(Alignment.START, fiterByStatusLayout);
 
         final HorizontalLayout filterByOverdueLayout = buildFilterByOverdueLayout();
 
         add(filterByOverdueLayout);
-        setComponentAlignment(filterByOverdueLayout, Alignment.MIDDLE_LEFT);
+        setHorizontalComponentAlignment(Alignment.START, filterByOverdueLayout);
     }
 
     private HorizontalLayout buildFilterByStatusLayout() {
@@ -189,15 +188,15 @@ public class FilterByStatusLayout extends VerticalLayout {
         buttonLayout.setClassName("status-button-layout");
 
         buttonLayout.add(unknown);
-        buttonLayout.setComponentAlignment(unknown, Alignment.MIDDLE_CENTER);
+        buttonLayout.setVerticalComponentAlignment(Alignment.CENTER, unknown);
         buttonLayout.add(inSync);
-        buttonLayout.setComponentAlignment(inSync, Alignment.MIDDLE_CENTER);
+        buttonLayout.setVerticalComponentAlignment(Alignment.CENTER, inSync);
         buttonLayout.add(pending);
-        buttonLayout.setComponentAlignment(pending, Alignment.MIDDLE_CENTER);
+        buttonLayout.setVerticalComponentAlignment(Alignment.CENTER, pending);
         buttonLayout.add(error);
-        buttonLayout.setComponentAlignment(error, Alignment.MIDDLE_CENTER);
+        buttonLayout.setVerticalComponentAlignment(Alignment.CENTER, error);
         buttonLayout.add(registered);
-        buttonLayout.setComponentAlignment(registered, Alignment.MIDDLE_CENTER);
+        buttonLayout.setVerticalComponentAlignment(Alignment.CENTER, registered);
 
         return buttonLayout;
     }
@@ -209,12 +208,12 @@ public class FilterByStatusLayout extends VerticalLayout {
         overdueLayout.setClassName("overdue-button-layout");
 
         overdueLayout.add(overdue);
-        overdueLayout.setComponentAlignment(overdue, Alignment.MIDDLE_LEFT);
+        overdueLayout.setVerticalComponentAlignment(Alignment.CENTER, overdue);
 
         final Span overdueLabel = SPUIComponentProvider.generateLabel(i18n, "label.filter.by.overdue");
 
         overdueLayout.add(overdueLabel);
-        overdueLayout.setComponentAlignment(overdueLabel, Alignment.MIDDLE_LEFT);
+        overdueLayout.setVerticalComponentAlignment(Alignment.CENTER, overdueLabel);
 
         return overdueLayout;
     }

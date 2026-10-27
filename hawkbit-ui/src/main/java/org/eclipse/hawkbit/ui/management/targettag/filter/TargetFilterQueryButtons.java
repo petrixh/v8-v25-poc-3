@@ -34,7 +34,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.ui.StyleGenerator;
+import com.vaadin.flow.function.SerializableFunction;
 
 /**
  * Target filter query{#link {@link TargetFilterQuery} buttons layout.
@@ -79,8 +79,9 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
         addClassNames("borderless");
         addClassNames("compact");
 
-        removeHeaderRow(0);
-        setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_FILTER_CUSTOM));
+        // Vaadin 8: removeHeaderRow(0); Flow grids always show the header row
+        // (look: stage 2a). The caption is the accordion panel's summary
+        // (MultipleTargetFilter)
     }
 
     @Override
@@ -90,7 +91,7 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
 
     @Override
     public void addColumns() {
-        final StyleGenerator<ProxyTargetFilterQuery> styleGenerator = item -> {
+        final SerializableFunction<ProxyTargetFilterQuery, String> styleGenerator = item -> {
             if (customTargetTagFilterButtonClick.isFilterPreviouslyClicked(item)) {
                 return SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE;
             } else {
@@ -98,7 +99,7 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
             }
         };
         GridComponentBuilder.addComponentColumn(this, this::buildTfqButton, styleGenerator)
-                .setId(FILTER_BUTTON_COLUMN_ID);
+                .setKey(FILTER_BUTTON_COLUMN_ID);
     }
 
     private Button buildTfqButton(final ProxyTargetFilterQuery filterQuery) {

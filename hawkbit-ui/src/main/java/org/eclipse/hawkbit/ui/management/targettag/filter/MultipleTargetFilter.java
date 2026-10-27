@@ -35,11 +35,14 @@ import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.management.targettag.targettype.TargetTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Accordion;
-import com.vaadin.ui.Alignment;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.accordion.Accordion;
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
@@ -60,6 +63,11 @@ public class MultipleTargetFilter extends Accordion {
     private final TargetTypeFilterButtons targetTypeFilterButtons;
     private final FilterByStatusLayout filterByStatusFooter;
     private final TargetFilterQueryButtons customFilterTab;
+
+    // Flow accordion: the tab captions and ids belong to the panels
+    private AccordionPanel simpleFilterPanel;
+    private AccordionPanel customFilterPanel;
+    private AccordionPanel targetTypeFilterPanel;
 
     private final transient GridActionsVisibilityListener targetTagGridActionsVisibilityListener;
     private final transient GridActionsVisibilityListener targetTypeGridActionsVisibilityListener;
@@ -105,7 +113,7 @@ public class MultipleTargetFilter extends Accordion {
 
         init();
         addTabs();
-        addSelectedTabChangeListener(event -> selectedTabChanged());
+        addOpenedChangeListener(event -> selectedTabChanged());
     }
 
     private VerticalLayout buildSimpleFilterTab() {
@@ -113,7 +121,6 @@ public class MultipleTargetFilter extends Accordion {
         simpleTab.setSpacing(false);
         simpleTab.setPadding(false);
         simpleTab.setSizeFull();
-        simpleTab.setCaption(i18n.getMessage("caption.filter.simple"));
         simpleTab.addClassNames(SPUIStyleDefinitions.SIMPLE_FILTER_HEADER);
 
         final VerticalLayout targetTagGridLayout = new VerticalLayout();
@@ -124,14 +131,14 @@ public class MultipleTargetFilter extends Accordion {
 
         targetTagGridLayout.add(filterByButtons.getNoTagButton());
         targetTagGridLayout.add(filterByButtons);
-        targetTagGridLayout.setComponentAlignment(filterByButtons, Alignment.MIDDLE_CENTER);
+        targetTagGridLayout.setHorizontalComponentAlignment(Alignment.CENTER, filterByButtons);
         targetTagGridLayout.setFlexGrow(1.0F, filterByButtons);
 
         simpleTab.add(targetTagGridLayout);
         simpleTab.setFlexGrow(1.0F, targetTagGridLayout);
 
         simpleTab.add(filterByStatusFooter);
-        simpleTab.setComponentAlignment(filterByStatusFooter, Alignment.MIDDLE_CENTER);
+        simpleTab.setHorizontalComponentAlignment(Alignment.CENTER, filterByStatusFooter);
 
         return simpleTab;
     }
@@ -141,7 +148,6 @@ public class MultipleTargetFilter extends Accordion {
         targetTypeTab.setSpacing(false);
         targetTypeTab.setPadding(false);
         targetTypeTab.setSizeFull();
-        targetTypeTab.setCaption(i18n.getMessage("caption.filter.type"));
         targetTypeTab.addClassNames(SPUIStyleDefinitions.TARGET_TYPE_FILTER_HEADER);
 
         final VerticalLayout targetTypeGridLayout = new VerticalLayout();
@@ -151,7 +157,7 @@ public class MultipleTargetFilter extends Accordion {
         targetTypeGridLayout.setId(UIComponentIdProvider.TARGET_TYPE_DROP_AREA_ID);
         targetTypeGridLayout.add(targetTypeFilterButtons.getNoTargetTypeButton());
         targetTypeGridLayout.add(targetTypeFilterButtons);
-        targetTypeGridLayout.setComponentAlignment(targetTypeFilterButtons, Alignment.MIDDLE_CENTER);
+        targetTypeGridLayout.setHorizontalComponentAlignment(Alignment.CENTER, targetTypeFilterButtons);
         targetTypeGridLayout.setFlexGrow(1.0F, targetTypeFilterButtons);
 
         targetTypeTab.add(targetTypeGridLayout);
@@ -183,16 +189,19 @@ public class MultipleTargetFilter extends Accordion {
     }
 
     private void addTabs() {
-        addTab(simpleFilterTab).setId(UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB);
-        addTab(customFilterTab).setId(UIComponentIdProvider.CUSTOM_FILTER_ACCORDION_TAB);
-        addTab(targetTypeFilterTab).setId(UIComponentIdProvider.TARGET_TYPE_FILTER_ACCORDION_TAB);
+        simpleFilterPanel = add(i18n.getMessage("caption.filter.simple"), simpleFilterTab);
+        simpleFilterPanel.setId(UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB);
+        customFilterPanel = add(i18n.getMessage(UIMessageIdProvider.CAPTION_FILTER_CUSTOM), customFilterTab);
+        customFilterPanel.setId(UIComponentIdProvider.CUSTOM_FILTER_ACCORDION_TAB);
+        targetTypeFilterPanel = add(i18n.getMessage("caption.filter.type"), targetTypeFilterTab);
+        targetTypeFilterPanel.setId(UIComponentIdProvider.TARGET_TYPE_FILTER_ACCORDION_TAB);
     }
 
     /**
      * Update target filter ui state on tab changed
      */
     public void selectedTabChanged() {
-        final String selectedTabId = getTab(getSelectedTab()).getId();
+        final String selectedTabId = getOpenedPanel().flatMap(Component::getId).orElse(null);
 
         if (UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB.equals(selectedTabId)) {
             customFilterTab.clearAppliedTargetFilterQuery();
@@ -232,14 +241,14 @@ public class MultipleTargetFilter extends Accordion {
     public void restoreState() {
         if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {
             customFilterTab.restoreState();
-            setSelectedTab(customFilterTab);
+            open(customFilterPanel);
         } else if (targetTagFilterLayoutUiState.isTargetTypeFilterTabSelected()){
             targetTypeFilterButtons.restoreState();
-            setSelectedTab(targetTypeFilterTab);
+            open(targetTypeFilterPanel);
         } else {
             filterByButtons.restoreState();
             filterByStatusFooter.restoreState();
-            setSelectedTab(simpleFilterTab);
+            open(simpleFilterPanel);
         }
     }
 

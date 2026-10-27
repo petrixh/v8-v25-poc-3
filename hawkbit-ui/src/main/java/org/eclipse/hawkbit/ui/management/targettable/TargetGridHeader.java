@@ -25,7 +25,6 @@ import org.eclipse.hawkbit.ui.management.bulkupload.TargetBulkUploadUiState;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.Alignment;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -83,7 +82,7 @@ public class TargetGridHeader extends AbstractEntityGridHeader {
     public void addDsDropArea() {
         final Component distributionSetFilterDropArea = distributionSetFilterDropAreaSupport.getHeaderComponent();
         add(distributionSetFilterDropArea);
-        setComponentAlignment(distributionSetFilterDropArea, Alignment.TOP_CENTER);
+        setHorizontalComponentAlignment(Alignment.CENTER, distributionSetFilterDropArea);
     }
 
     @Override
