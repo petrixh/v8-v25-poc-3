@@ -10,6 +10,7 @@
 package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
@@ -58,6 +59,18 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
         add(targetAttributesDetailsLayout);
 
         setReadOnly(true);
+    }
+
+    @Override
+    public void setValue(final ProxyTargetAttributesDetails value) {
+        // Vaadin 8 compared the new value with the overridden getValue() (a
+        // new object each time), so every setValue rendered again; Flow
+        // compares with its own buffered value and skips an equal one
+        if (Objects.equals(value, super.getValue())) {
+            setPresentationValue(value);
+        } else {
+            super.setValue(value);
+        }
     }
 
     @Override

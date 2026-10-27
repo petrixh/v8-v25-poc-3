@@ -19,6 +19,7 @@ import static org.eclipse.hawkbit.ui.utils.UIComponentIdProvider.AUTO_CONFIRMATI
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.hawkbit.repository.ConfirmationManagement;
 import org.eclipse.hawkbit.tenancy.TenantAware;
@@ -83,6 +84,18 @@ public class TargetConfirmationOptionsComponent extends CustomField<ProxyTargetC
         this.targetConfirmationOptionsLayout.setSizeFull();
         // Vaadin 8: initContent()
         add(targetConfirmationOptionsLayout);
+    }
+
+    @Override
+    public void setValue(final ProxyTargetConfirmationOptions value) {
+        // Vaadin 8 compared the new value with the overridden getValue() (a
+        // new object each time), so every setValue rendered again; Flow
+        // compares with its own buffered value and skips an equal one
+        if (Objects.equals(value, super.getValue())) {
+            setPresentationValue(value);
+        } else {
+            super.setValue(value);
+        }
     }
 
     @Override
