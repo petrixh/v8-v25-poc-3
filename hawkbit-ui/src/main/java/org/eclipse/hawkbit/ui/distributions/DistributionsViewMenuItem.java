@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.server.Resource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
@@ -43,7 +42,7 @@ public class DistributionsViewMenuItem extends AbstractDashboardMenuItemNotifica
     }
 
     @Override
-    public Resource getDashboardIcon() {
+    public VaadinIcon getDashboardIcon() {
         return VaadinIcon.BRIEFCASE;
     }
 

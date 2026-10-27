@@ -62,18 +62,18 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
         addClassNames(AbstractGrid.MULTI_SELECT_STYLE);
 
         setId(SPUIDefinitions.TWIN_TABLE_SELECTED_ID);
-        setSelectionModel(new RangeSelectionModel<>(i18n));
+        new RangeSelectionModel<ProxyType>(i18n).extend(this);
 
         addColumns();
     }
 
     private void addColumns() {
-        GridComponentBuilder.addColumn(this, ProxyType::getName).setId(SM_TYPE_SELECTED_NAME_ID)
-                .setCaption(i18n.getMessage("header.dist.twintable.selected"))
-                .setDescriptionGenerator(ProxyType::getDescription);
+        GridComponentBuilder.addColumn(this, ProxyType::getName).setKey(SM_TYPE_SELECTED_NAME_ID)
+                .setHeader(i18n.getMessage("header.dist.twintable.selected"))
+                .setTooltipGenerator(ProxyType::getDescription);
 
         GridComponentBuilder.addIconColumn(this, this::buildMandatoryTypeCheckBox, SM_TYPE_SELECTED_MANDATORY, STAR)
-                .setDescriptionGenerator(smType -> i18n.getMessage(UIMessageIdProvider.TOOLTIP_CHECK_FOR_MANDATORY));
+                .setTooltipGenerator(smType -> i18n.getMessage(UIMessageIdProvider.TOOLTIP_CHECK_FOR_MANDATORY));
     }
 
     private Checkbox buildMandatoryTypeCheckBox(final ProxyType smType) {
@@ -82,6 +82,6 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
         binder.addValueChangeListener(event -> mandatoryPropertyChangedCallback.run());
 
         final String id = "selected.sm.type." + smType.getId();
-        return FormComponentBuilder.createCheckBox(id, binder, ProxyType::isMandatory, ProxyType::setMandatory);
+        return FormComponentBuilder.createCheckbox(id, binder, ProxyType::isMandatory, ProxyType::setMandatory);
     }
 }

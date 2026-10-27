@@ -13,6 +13,8 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 
+import jakarta.annotation.security.PermitAll;
+
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
@@ -25,7 +27,6 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
-import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.AbstractEventListenersAwareView;
 import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
@@ -46,20 +47,21 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.annotations.JavaScript;
-import com.vaadin.server.Page;
-import com.vaadin.server.Page.BrowserWindowResizeEvent;
-import com.vaadin.server.Page.BrowserWindowResizeListener;
-import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.flow.spring.annotation.UIScope;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.page.BrowserWindowResizeEvent;
+import com.vaadin.flow.component.page.BrowserWindowResizeListener;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 
 /**
  * Manage distributions and distributions type view.
  */
+@Route(DistributionsView.VIEW_NAME)
+@SpringComponent
 @UIScope
-@SpringView(name = DistributionsView.VIEW_NAME, ui = AbstractHawkbitUI.class)
-@JavaScript("vaadin://js/dynamicStylesheet.js")
+@PermitAll
 public class DistributionsView extends AbstractEventListenersAwareView implements BrowserWindowResizeListener {
     private static final long serialVersionUID = 1L;
 
@@ -143,7 +145,7 @@ public class DistributionsView extends AbstractEventListenersAwareView implement
     protected void init() {
         if (permChecker.hasReadRepositoryPermission()) {
             super.init();
-            Page.getCurrent().addBrowserWindowResizeListener(this);
+            UI.getCurrent().getPage().addBrowserWindowResizeListener(this);
         }
     }
 

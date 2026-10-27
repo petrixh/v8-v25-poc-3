@@ -52,14 +52,14 @@ public class SmTypeSourceGrid extends Grid<ProxyType> {
         addClassNames(AbstractGrid.MULTI_SELECT_STYLE);
 
         setId(SPUIDefinitions.TWIN_TABLE_SOURCE_ID);
-        setSelectionModel(new RangeSelectionModel<>(i18n));
+        new RangeSelectionModel<ProxyType>(i18n).extend(this);
 
         addColumns();
     }
 
     private void addColumns() {
-        GridComponentBuilder.addColumn(this, ProxyType::getName).setId(SM_TYPE_SOURCE_NAME_ID)
-                .setCaption(i18n.getMessage("header.dist.twintable.available"))
-                .setDescriptionGenerator(ProxyType::getDescription);
+        GridComponentBuilder.addColumn(this, ProxyType::getName).setKey(SM_TYPE_SOURCE_NAME_ID)
+                .setHeader(i18n.getMessage("header.dist.twintable.available"))
+                .setTooltipGenerator(ProxyType::getDescription);
     }
 }

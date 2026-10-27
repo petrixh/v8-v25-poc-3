@@ -106,11 +106,11 @@ public class DsWindowLayoutComponentBuilder {
      * @return Migration step required checkbox
      */
     public Checkbox createMigrationStepField(final Binder<ProxyDistributionSet> binder) {
-        final Checkbox migrationRequired = FormComponentBuilder.createCheckBox(i18n.getMessage(MIGRATION_STEP),
+        final Checkbox migrationRequired = FormComponentBuilder.createCheckbox(i18n.getMessage(MIGRATION_STEP),
                 UIComponentIdProvider.DIST_ADD_MIGRATION_CHECK, binder, ProxyDistributionSet::isRequiredMigrationStep,
                 ProxyDistributionSet::setRequiredMigrationStep);
 
-        migrationRequired.setDescription(i18n.getMessage(MIGRATION_STEP));
+        migrationRequired.setTooltipText(i18n.getMessage(MIGRATION_STEP));
         migrationRequired.addClassNames(DIST_CHECKBOX_STYLE);
         migrationRequired.addClassNames("small");
 

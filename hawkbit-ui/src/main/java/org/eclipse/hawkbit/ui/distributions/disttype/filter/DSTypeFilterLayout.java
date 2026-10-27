@@ -31,7 +31,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridR
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
 
-import com.vaadin.ui.ComponentContainer;
+import com.vaadin.flow.component.Component;
 
 /**
  * Distribution Set Type filter buttons layout.
@@ -97,7 +97,7 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
     }
 
     @Override
-    protected ComponentContainer getFilterContent() {
+    protected Component getFilterContent() {
         return wrapFilterContent(dSTypeFilterButtons);
     }
 

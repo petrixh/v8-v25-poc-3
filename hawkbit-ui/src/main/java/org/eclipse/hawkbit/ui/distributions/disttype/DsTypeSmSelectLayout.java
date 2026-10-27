@@ -27,11 +27,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.Sets;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.ui.Alignment;
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -80,6 +80,7 @@ public class DsTypeSmSelectLayout extends CustomField<Set<ProxyType>> {
         this.layout.setWidth("400px");
 
         buildLayout();
+        add(layout);
     }
 
     private void buildLayout() {
@@ -97,8 +98,7 @@ public class DsTypeSmSelectLayout extends CustomField<Set<ProxyType>> {
 
         selectButtonLayout.add(selectButton);
         selectButtonLayout.add(unSelectButton);
-        selectButtonLayout.setComponentAlignment(selectButton, Alignment.MIDDLE_CENTER);
-        selectButtonLayout.setComponentAlignment(unSelectButton, Alignment.MIDDLE_CENTER);
+        selectButtonLayout.setHorizontalComponentAlignment(Alignment.CENTER, selectButton, unSelectButton);
 
         sourceGrid = buildSourceGrid();
         selectedGrid = buildSelectedGrid();
@@ -106,9 +106,7 @@ public class DsTypeSmSelectLayout extends CustomField<Set<ProxyType>> {
         layout.add(sourceGrid);
         layout.add(selectButtonLayout);
         layout.add(selectedGrid);
-        layout.setComponentAlignment(sourceGrid, Alignment.MIDDLE_LEFT);
-        layout.setComponentAlignment(selectButtonLayout, Alignment.MIDDLE_CENTER);
-        layout.setComponentAlignment(selectedGrid, Alignment.MIDDLE_RIGHT);
+        layout.setVerticalComponentAlignment(Alignment.CENTER, sourceGrid, selectButtonLayout, selectedGrid);
         layout.setFlexGrow(0.45F, sourceGrid);
         layout.setFlexGrow(0.07F, selectButtonLayout);
         layout.setFlexGrow(0.48F, selectedGrid);
@@ -148,7 +146,7 @@ public class DsTypeSmSelectLayout extends CustomField<Set<ProxyType>> {
         // property change because binder itself does not track modified
         // software module types within collection
         final SmTypeSelectedGrid smTypeSelectedGrid = new SmTypeSelectedGrid(i18n,
-                () -> fireEvent(createValueChange(selectedSmTypes, false)));
+                () -> fireEvent(new ComponentValueChangeEvent<>(this, this, selectedSmTypes, false)));
         smTypeSelectedGrid.setItems(selectedSmTypes);
 
         return smTypeSelectedGrid;
@@ -160,12 +158,12 @@ public class DsTypeSmSelectLayout extends CustomField<Set<ProxyType>> {
     }
 
     @Override
-    protected Component initContent() {
-        return layout;
+    protected Set<ProxyType> generateModelValue() {
+        return selectedSmTypes;
     }
 
     @Override
-    protected void doSetValue(final Set<ProxyType> value) {
+    protected void setPresentationValue(final Set<ProxyType> value) {
         if (value == null) {
             return;
         }

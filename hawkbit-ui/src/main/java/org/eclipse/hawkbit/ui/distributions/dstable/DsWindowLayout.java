@@ -23,8 +23,9 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.ui.ComponentContainer;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 
@@ -81,11 +82,11 @@ public class DsWindowLayout extends AbstractEntityWindowLayout<ProxyDistribution
     }
 
     @Override
-    public ComponentContainer getRootComponent() {
+    public Component getRootComponent() {
         final FormLayout dsWindowLayout = new FormLayout();
 
-        dsWindowLayout.setSpacing(true);
-        dsWindowLayout.setPadding(true);
+        // Vaadin 8 FormLayout: one column; Flow has no spacing/margin here
+        dsWindowLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
         dsWindowLayout.setSizeUndefined();
 
         dsWindowLayout.add(dsTypeSelect);
