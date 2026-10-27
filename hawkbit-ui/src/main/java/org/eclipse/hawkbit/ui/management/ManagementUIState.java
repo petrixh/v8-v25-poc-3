@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.management;
 
 import java.io.Serializable;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import org.eclipse.hawkbit.ui.common.layout.listener.BulkUploadChangedListener;
 import org.eclipse.hawkbit.ui.common.state.TagFilterLayoutUiState;
