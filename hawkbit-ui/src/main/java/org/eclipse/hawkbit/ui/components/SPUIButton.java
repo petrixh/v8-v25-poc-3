@@ -9,7 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.components;
 
-import com.vaadin.server.Resource;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.button.Button;
 
 /**
@@ -20,7 +20,7 @@ public class SPUIButton extends Button {
 
     SPUIButton(final String id, final String buttonName, final String buttonDesc) {
         super(buttonName);
-        setDescription(buttonDesc);
+        setTooltipText(buttonDesc);
 
         if (null != id) {
             setId(id);
@@ -33,7 +33,7 @@ public class SPUIButton extends Button {
      * @param icon
      *            as Resource
      */
-    public void toggleIcon(final Resource icon) {
-        setIcon(icon);
+    public void toggleIcon(final VaadinIcon icon) {
+        setIcon(icon == null ? null : icon.create());
     }
 }

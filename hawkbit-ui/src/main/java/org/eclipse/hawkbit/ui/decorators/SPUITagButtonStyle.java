@@ -9,9 +9,11 @@
  */
 package org.eclipse.hawkbit.ui.decorators;
 
-import com.vaadin.server.Resource;
+import org.springframework.util.StringUtils;
+
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.button.ButtonVariant;
 
 /**
  * Style for button: Tag.
@@ -19,24 +21,24 @@ import com.vaadin.ui.themes.ValoTheme;
 public class SPUITagButtonStyle implements SPUIButtonDecorator {
 
     @Override
-    public Button decorate(final Button button, final String style, final boolean setStyle, final Resource icon) {
+    public Button decorate(final Button button, final String style, final boolean setStyle, final VaadinIcon icon) {
 
-        button.addStyleName("button-no-border");
-        button.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-        button.addStyleName("button-tag-no-border");
-        button.addStyleName("text-cut");
+        button.addClassName("button-no-border");
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        button.addClassName("button-tag-no-border");
+        button.addClassName("text-cut");
 
         // Set Style
         if (null != style) {
             if (setStyle) {
-                button.setStyleName(style);
+                button.setClassName(style);
             } else {
-                button.addStyleName(style);
+                button.addClassNames(StringUtils.tokenizeToStringArray(style, " "));
             }
         }
         // Set icon
         if (null != icon) {
-            button.setIcon(icon);
+            button.setIcon(icon.create());
         }
         return button;
     }

@@ -9,7 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.decorators;
 
-import com.vaadin.server.Resource;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.button.Button;
 
 /**
@@ -31,6 +31,6 @@ public interface SPUIButtonDecorator {
      *            as resource
      * @return Button
      */
-    Button decorate(Button button, String style, boolean setStyle, Resource icon);
+    Button decorate(Button button, String style, boolean setStyle, VaadinIcon icon);
 
 }
