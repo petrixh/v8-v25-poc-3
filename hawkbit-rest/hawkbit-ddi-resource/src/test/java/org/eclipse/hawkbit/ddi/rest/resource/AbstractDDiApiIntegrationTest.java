@@ -60,6 +60,9 @@ import com.fasterxml.jackson.dataformat.cbor.CBORParser;
 @TestPropertySource(locations = "classpath:/ddi-test.properties")
 public abstract class AbstractDDiApiIntegrationTest extends AbstractRestIntegrationTest {
 
+    // Spring 7 removed MediaType.APPLICATION_JSON_UTF8; same value as before
+    protected static final MediaType APPLICATION_JSON_UTF8 = MediaType.valueOf("application/json;charset=UTF-8");
+
     protected static final String HTTP_LOCALHOST = "http://localhost:8080/";
     protected static final String CONTROLLER_BASE = "/{tenant}/controller/v1/{controllerId}";
 
@@ -127,7 +130,7 @@ public abstract class AbstractDDiApiIntegrationTest extends AbstractRestIntegrat
 
     protected ResultActions postDeploymentFeedback(final String controllerId, final Long actionId, final String content,
             final ResultMatcher statusMatcher) throws Exception {
-        return postDeploymentFeedback(MediaType.APPLICATION_JSON_UTF8, controllerId, actionId, content.getBytes(),
+        return postDeploymentFeedback(APPLICATION_JSON_UTF8, controllerId, actionId, content.getBytes(),
                 statusMatcher);
     }
 
@@ -141,7 +144,7 @@ public abstract class AbstractDDiApiIntegrationTest extends AbstractRestIntegrat
 
     protected ResultActions postCancelFeedback(final String controllerId, final Long actionId, final String content,
             final ResultMatcher statusMatcher) throws Exception {
-        return postCancelFeedback(MediaType.APPLICATION_JSON_UTF8, controllerId, actionId, content.getBytes(),
+        return postCancelFeedback(APPLICATION_JSON_UTF8, controllerId, actionId, content.getBytes(),
                 statusMatcher);
     }
 

@@ -56,7 +56,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.vendor.Database;
@@ -76,13 +76,13 @@ public class RSQLUtilityTest {
     @Spy
     private final VirtualPropertyResolver macroResolver = new VirtualPropertyResolver();
 
-    @MockBean
+    @MockitoBean
     private TenantConfigurationManagement confMgmt;
 
-    @MockBean
+    @MockitoBean
     private SystemSecurityContext securityContext;
 
-    @MockBean
+    @MockitoBean
     private RsqlVisitorFactory rsqlVisitorFactory;
 
     @Mock

@@ -31,8 +31,8 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 import com.google.common.collect.Maps;
 
 /**
@@ -66,10 +66,10 @@ public abstract class AbstractRemoteEventTest extends AbstractJpaIntegrationTest
         final Map<String, MimeType> headers = Maps.newLinkedHashMap();
         headers.put(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON);
         try {
-            final String json = new ObjectMapper().writeValueAsString(event);
+            final String json = JsonMapper.builder().build().writeValueAsString(event);
             final Message<String> message = MessageBuilder.withPayload(json).copyHeaders(headers).build();
             return message;
-        } catch (final JsonProcessingException e) {
+        } catch (final JacksonException e) {
             fail(e.getMessage());
         }
         return null;
