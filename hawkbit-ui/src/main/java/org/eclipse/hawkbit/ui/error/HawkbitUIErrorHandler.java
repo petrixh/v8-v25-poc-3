@@ -25,14 +25,14 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.ClientConnector.ConnectorErrorEvent;
-import com.vaadin.server.DefaultErrorHandler;
-import com.vaadin.server.ErrorEvent;
-import com.vaadin.server.ErrorHandler;
-import com.vaadin.server.Page;
+import com.vaadin.flow.server.DefaultErrorHandler;
+import com.vaadin.flow.server.ErrorEvent;
+import com.vaadin.flow.server.ErrorHandler;
+import com.vaadin.flow.component.page.Page;
 import com.vaadin.shared.Connector;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.UI;
 
 /**
  * Default handler for Hawkbit UI.

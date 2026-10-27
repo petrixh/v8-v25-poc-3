@@ -24,7 +24,7 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Maps;
-import com.vaadin.server.WebBrowser;
+import com.vaadin.flow.server.WebBrowser;
 
 /**
  * Common Util to get date/time related information.

@@ -10,7 +10,7 @@
 package org.eclipse.hawkbit.ui.components;
 
 import com.vaadin.server.Resource;
-import com.vaadin.ui.Button;
+import com.vaadin.flow.component.button.Button;
 
 /**
  * Basic button for SPUI. Any commonality can be decorated.

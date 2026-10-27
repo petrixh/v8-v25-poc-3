@@ -17,8 +17,8 @@ import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetManagementStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 
-import com.vaadin.data.provider.DataCommunicator;
-import com.vaadin.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.DataCommunicator;
+import com.vaadin.flow.data.provider.DataProvider;
 
 /**
  * Target backend data retrieval provider for Management View default

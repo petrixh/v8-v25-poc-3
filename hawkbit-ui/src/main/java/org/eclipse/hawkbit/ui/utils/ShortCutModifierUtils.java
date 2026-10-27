@@ -10,8 +10,8 @@
 package org.eclipse.hawkbit.ui.utils;
 
 import com.vaadin.event.ShortcutAction;
-import com.vaadin.server.Page;
-import com.vaadin.server.WebBrowser;
+import com.vaadin.flow.component.page.Page;
+import com.vaadin.flow.server.WebBrowser;
 
 /**
  * On different systems there are different modifier for short cuts. This

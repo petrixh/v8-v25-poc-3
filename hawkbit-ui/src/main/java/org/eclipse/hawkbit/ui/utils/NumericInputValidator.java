@@ -9,9 +9,9 @@
  */
 package org.eclipse.hawkbit.ui.utils;
 
-import com.vaadin.data.ValidationResult;
-import com.vaadin.data.ValueContext;
-import com.vaadin.data.validator.AbstractValidator;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.ValueContext;
+import com.vaadin.flow.data.validator.AbstractValidator;
 
 /**
  * Validator to verify a text input in {@link String} format if it's parseable

@@ -10,7 +10,7 @@
 package org.eclipse.hawkbit.ui.decorators;
 
 import com.vaadin.server.Resource;
-import com.vaadin.ui.Button;
+import com.vaadin.flow.component.button.Button;
 
 /**
  * Interface to define method for button decoration.

@@ -11,9 +11,9 @@ package org.eclipse.hawkbit.ui.utils;
 
 import org.springframework.util.StringUtils;
 
-import com.vaadin.data.Converter;
-import com.vaadin.data.Result;
-import com.vaadin.data.ValueContext;
+import com.vaadin.flow.data.converter.Converter;
+import com.vaadin.flow.data.binder.Result;
+import com.vaadin.flow.data.binder.ValueContext;
 
 /**
  * Converter to trim whitespaces for an input e.g. to further convert it into an

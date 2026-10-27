@@ -15,10 +15,10 @@ import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.server.CustomizedSystemMessages;
-import com.vaadin.server.SystemMessages;
-import com.vaadin.server.SystemMessagesInfo;
-import com.vaadin.server.SystemMessagesProvider;
+import com.vaadin.flow.server.CustomizedSystemMessages;
+import com.vaadin.flow.server.SystemMessages;
+import com.vaadin.flow.server.SystemMessagesInfo;
+import com.vaadin.flow.server.SystemMessagesProvider;
 
 /**
  * {@link SystemMessagesProvider} that localizes Vaadin system messages.

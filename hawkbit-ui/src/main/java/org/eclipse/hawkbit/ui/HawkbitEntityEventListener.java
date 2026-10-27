@@ -32,7 +32,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
 
 /**
  * Listener for internal and remote entity modified events. Keeps a cache of the

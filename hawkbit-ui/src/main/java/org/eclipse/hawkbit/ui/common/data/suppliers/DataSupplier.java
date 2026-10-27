@@ -9,8 +9,8 @@
  */
 package org.eclipse.hawkbit.ui.common.data.suppliers;
 
-import com.vaadin.data.provider.DataCommunicator;
-import com.vaadin.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.DataCommunicator;
+import com.vaadin.flow.data.provider.DataProvider;
 
 /**
  * Interface for backend data retrieval provider.
