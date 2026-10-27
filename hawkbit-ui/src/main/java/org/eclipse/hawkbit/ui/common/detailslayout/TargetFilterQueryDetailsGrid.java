@@ -21,7 +21,6 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.shared.ui.grid.HeightMode;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * DistributionSet TargetFilterQuery table
@@ -59,8 +58,8 @@ public class TargetFilterQueryDetailsGrid extends AbstractGrid<ProxyTargetFilter
 
         setHeightMode(HeightMode.UNDEFINED);
 
-        addClassNames(ValoTheme.TABLE_NO_STRIPES);
-        addClassNames(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
+        addClassNames("no-stripes");
+        addClassNames("no-horizontal-lines");
     }
 
     @Override

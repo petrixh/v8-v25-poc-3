@@ -38,10 +38,9 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.ui.dnd.DropTargetExtension;
 import com.vaadin.ui.dnd.event.DropEvent;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Allows to drop a Distribution Set in order to filter for it
@@ -100,7 +99,7 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
         final HorizontalLayout hintDropFilterLayout = new HorizontalLayout();
 
         hintDropFilterLayout.addClassNames("filter-drop-hint-layout");
-        hintDropFilterLayout.setWidth(100, Unit.PERCENTAGE);
+        hintDropFilterLayout.setWidth("100%");
 
         final DropTargetExtension<HorizontalLayout> dropExtension = new DropTargetExtension<>(hintDropFilterLayout);
         dropExtension.addDropListener(event -> {
@@ -145,8 +144,8 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
                 VaadinIcon.CLOSE_CIRCLE, SPUIButtonStyleNoBorder.class);
         filterLabelClose.addClickListener(event -> removeFilter());
 
-        final Label filteredDistLabel = new Label();
-        filteredDistLabel.setClassName(ValoTheme.LABEL_COLORED + " " + ValoTheme.LABEL_SMALL);
+        final Span filteredDistLabel = new Span();
+        filteredDistLabel.setClassName("colored" + " " + "small");
         filteredDistLabel.setValue(sanitizeDsNameVersion(dsNameAndVersion));
         filteredDistLabel.setSizeUndefined();
 

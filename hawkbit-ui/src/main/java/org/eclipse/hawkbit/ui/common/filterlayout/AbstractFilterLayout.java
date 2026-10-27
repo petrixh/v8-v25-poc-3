@@ -25,9 +25,9 @@ public abstract class AbstractFilterLayout extends VerticalLayout implements Eve
     private static final long serialVersionUID = 1L;
 
     protected void buildLayout() {
-        setWidth(SPUIDefinitions.FILTER_BY_TYPE_WIDTH, Unit.PIXELS);
+        setWidth(SPUIDefinitions.FILTER_BY_TYPE_WIDTH + "px");
         setClassName("filter-btns-main-layout");
-        setHeight(100.0F, Unit.PERCENTAGE);
+        setHeight("100%");
         setSpacing(false);
         setPadding(false);
 

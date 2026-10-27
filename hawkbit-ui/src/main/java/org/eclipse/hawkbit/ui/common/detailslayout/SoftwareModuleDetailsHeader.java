@@ -22,7 +22,7 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 
 import com.vaadin.shared.ui.window.WindowMode;
 import com.vaadin.flow.component.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Software module details header
@@ -99,10 +99,10 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
             return;
         }
 
-        final Window updateWindow = smWindowBuilder.getWindowForUpdate(selectedEntity);
+        final Dialog updateWindow = smWindowBuilder.getWindowForUpdate(selectedEntity);
 
         updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.software.module")));
-        UI.getCurrent().addWindow(updateWindow);
+        updateWindow.open();
         updateWindow.setVisible(Boolean.TRUE);
     }
 
@@ -117,10 +117,10 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
             return;
         }
 
-        final Window metaDataWindow = smMetaDataWindowBuilder.getWindowForShowSmMetaData(selectedEntity.getId(),
+        final Dialog metaDataWindow = smMetaDataWindowBuilder.getWindowForShowSmMetaData(selectedEntity.getId(),
                 selectedEntity.getNameAndVersion());
 
-        UI.getCurrent().addWindow(metaDataWindow);
+        metaDataWindow.open();
         metaDataWindow.setVisible(Boolean.TRUE);
     }
 
@@ -154,7 +154,7 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
         setInitialArtifactDetailsGridSize(artifactDetailsGrid);
         artifactDetailsGrid.getMasterEntitySupport().masterEntityChanged(selectedEntity);
 
-        final Window artifactDtlsWindow = new Window();
+        final Dialog artifactDtlsWindow = new Dialog();
         artifactDtlsWindow.setId(UIComponentIdProvider.SHOW_ARTIFACT_DETAILS_POPUP_ID);
 
         artifactDtlsWindow.setClosable(true);
@@ -187,11 +187,11 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
 
         artifactDtlsWindow.setContent(artifactDetailsGrid);
 
-        UI.getCurrent().addWindow(artifactDtlsWindow);
+        artifactDtlsWindow.open();
     }
 
     private static void setInitialArtifactDetailsGridSize(final ArtifactDetailsGrid artifactDetailsGrid) {
-        artifactDetailsGrid.setWidth(700, Unit.PIXELS);
-        artifactDetailsGrid.setHeight(500, Unit.PIXELS);
+        artifactDetailsGrid.setWidth("700px");
+        artifactDetailsGrid.setHeight("500px");
     }
 }

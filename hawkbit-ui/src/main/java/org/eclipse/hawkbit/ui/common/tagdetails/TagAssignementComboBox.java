@@ -26,7 +26,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import com.google.common.collect.Sets;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Combobox that lists all available Tags that can be assigned to a
@@ -71,7 +70,7 @@ public class TagAssignementComboBox extends HorizontalLayout {
 
         tagsComboBox.setId(UIComponentIdProvider.TAG_SELECTION_ID);
         tagsComboBox.setDescription(description);
-        tagsComboBox.addClassNames(ValoTheme.COMBOBOX_TINY);
+        tagsComboBox.addClassNames("tiny");
         tagsComboBox.setEnabled(!readOnlyMode);
         tagsComboBox.setWidth("100%");
         tagsComboBox.setEmptySelectionAllowed(true);

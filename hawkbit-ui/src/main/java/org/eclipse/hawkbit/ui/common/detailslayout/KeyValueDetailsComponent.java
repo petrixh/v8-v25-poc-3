@@ -18,7 +18,7 @@ import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
@@ -67,8 +67,8 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
         final String key = keyValueDetail.getKey();
         final String value = keyValueDetail.getValue();
 
-        final Label keyDetail = buildKeyDetail(key);
-        final Label valueDetail = buildValueDetail(id, value);
+        final Span keyDetail = buildKeyDetail(key);
+        final Span valueDetail = buildValueDetail(id, value);
 
         final HorizontalLayout keyValueDetailLayout = new HorizontalLayout();
         keyValueDetailLayout.setSpacing(true);
@@ -86,8 +86,8 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
         keyValueDetailsLayout.add(keyValueDetailLayout);
     }
 
-    private static Label buildKeyDetail(final String key) {
-        final Label keyLabel = new Label(key + ":");
+    private static Span buildKeyDetail(final String key) {
+        final Span keyLabel = new Span(key + ":");
 
         keyLabel.addClassNames(SPUIDefinitions.TEXT_STYLE);
         keyLabel.addClassNames("text-bold");
@@ -95,8 +95,8 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
         return keyLabel;
     }
 
-    private static Label buildValueDetail(final String id, final String value) {
-        final Label valueLabel = new Label(value);
+    private static Span buildValueDetail(final String id, final String value) {
+        final Span valueLabel = new Span(value);
 
         valueLabel.setId(id);
         valueLabel.addClassNames(SPUIDefinitions.TEXT_STYLE);

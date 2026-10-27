@@ -24,7 +24,6 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Metadata grid for entities.
@@ -75,11 +74,11 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> imple
         setHeightMode(HeightMode.UNDEFINED);
 
         addClassNames("metadata-details");
-        addClassNames(ValoTheme.TABLE_NO_STRIPES);
-        addClassNames(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        addClassNames(ValoTheme.TABLE_NO_VERTICAL_LINES);
-        addClassNames(ValoTheme.TABLE_BORDERLESS);
-        addClassNames(ValoTheme.TABLE_COMPACT);
+        addClassNames("no-stripes");
+        addClassNames("no-horizontal-lines");
+        addClassNames("no-vertical-lines");
+        addClassNames("borderless");
+        addClassNames("compact");
     }
 
     @Override

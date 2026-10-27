@@ -25,7 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.ui.Layout;
 import com.vaadin.flow.component.UI;
 
@@ -38,7 +38,7 @@ public abstract class AbstractFooterSupport {
     protected final VaadinMessageSource i18n;
     private final UINotification notification;
 
-    protected final Label countLabel;
+    protected final Span countLabel;
 
     private final ExecutorService countExecutor;
     private Future<?> currentCountCalculation;
@@ -48,7 +48,7 @@ public abstract class AbstractFooterSupport {
         this.i18n = i18n;
         this.notification = notification;
 
-        this.countLabel = new Label();
+        this.countLabel = new Span();
         this.countExecutor = Executors.newSingleThreadExecutor();
 
         init();
@@ -77,7 +77,7 @@ public abstract class AbstractFooterSupport {
         final HorizontalLayout footerLayout = new HorizontalLayout();
         footerLayout.setPadding(false);
         footerLayout.setSpacing(false);
-        footerLayout.setWidth(100, Unit.PERCENTAGE);
+        footerLayout.setWidth("100%");
 
         footerLayout.add(countLabel);
 

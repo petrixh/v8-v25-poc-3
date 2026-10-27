@@ -33,16 +33,15 @@ import com.google.common.collect.Sets;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.ui.Alignment;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.ui.CssLayout;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.html.Span;
 
 /**
  * A panel that shows the assigned tags. A click on a tag unsassigns the tag
  * from the {@link Target} or {@link DistributionSet}.
  */
-public class TagListField extends CssLayout {
+public class TagListField extends Div {
     private static final long serialVersionUID = 1L;
 
     private final transient Map<ProxyTag, HorizontalLayout> tagButtons = new TreeMap<>(
@@ -103,7 +102,7 @@ public class TagListField extends CssLayout {
     }
 
     private HorizontalLayout buildTagButtonLayout(final ProxyTag tagData) {
-        final Label colourIcon = buildColourIcon(tagData.getId(), tagData.getColour());
+        final Span colourIcon = buildColourIcon(tagData.getId(), tagData.getColour());
         final Button tagButton = buildTagButton(tagData);
 
         final HorizontalLayout tagButtonLayout = new HorizontalLayout();
@@ -122,8 +121,8 @@ public class TagListField extends CssLayout {
         return tagButtonLayout;
     }
 
-    private static final Label buildColourIcon(final Long clickedFilterId, final String colour) {
-        final ProxyFontIcon colourFontIcon = new ProxyFontIcon(VaadinIcon.CIRCLE, ValoTheme.LABEL_TINY, "", colour);
+    private static final Span buildColourIcon(final Long clickedFilterId, final String colour) {
+        final ProxyFontIcon colourFontIcon = new ProxyFontIcon(VaadinIcon.CIRCLE, "tiny", "", colour);
         final String colourIconId = new StringBuilder(UIComponentIdProvider.ASSIGNED_TAG_ID_PREFIX)
                 .append(".colour-icon.").append(clickedFilterId).toString();
 
@@ -138,7 +137,7 @@ public class TagListField extends CssLayout {
         tagButton.setId(tagButtonId);
         tagButton.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_REMOVE));
         tagButton.addClassNames(SPUIDefinitions.TEXT_STYLE);
-        tagButton.addClassNames(ValoTheme.BUTTON_BORDERLESS);
+        tagButton.addClassNames("borderless");
         tagButton.addClassNames("button-no-border");
 
         tagButton.setEnabled(!readOnlyMode);

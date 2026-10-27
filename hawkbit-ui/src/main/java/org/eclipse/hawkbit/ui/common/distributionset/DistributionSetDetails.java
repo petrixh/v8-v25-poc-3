@@ -36,7 +36,7 @@ import org.eclipse.hawkbit.ui.common.tagdetails.DistributionTagToken;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
 import com.vaadin.flow.component.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Code for Distribution Set Details
@@ -153,10 +153,10 @@ public class DistributionSetDetails extends AbstractGridDetailsLayout<ProxyDistr
             return;
         }
 
-        final Window metaDataWindow = dsMetaDataWindowBuilder.getWindowForShowDsMetaData(binder.getBean().getId(),
+        final Dialog metaDataWindow = dsMetaDataWindowBuilder.getWindowForShowDsMetaData(binder.getBean().getId(),
                 binder.getBean().getNameVersion(), metadata);
 
-        UI.getCurrent().addWindow(metaDataWindow);
+        metaDataWindow.open();
         metaDataWindow.setVisible(Boolean.TRUE);
     }
 

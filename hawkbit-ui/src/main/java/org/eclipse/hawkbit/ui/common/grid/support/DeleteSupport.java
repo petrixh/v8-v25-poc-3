@@ -116,7 +116,7 @@ public class DeleteSupport<T extends ProxyIdentifiableEntity> {
                 confirmationCaption, confirmationQuestionBuilder.toString(), successNotificationText,
                 failureNotificationText);
 
-        UI.getCurrent().addWindow(confirmDeleteDialog.getWindow());
+        confirmDeleteDialog.getWindow().open();
         confirmDeleteDialog.getWindow().bringToFront();
     }
 

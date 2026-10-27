@@ -44,7 +44,7 @@ public abstract class DeploymentAssignmentSupport<S extends ProxyNamedEntity, T 
         final ConfirmationDialog confirmAssignDialog = createConfirmationWindow(confirmationMessage, content,
                 canWindowSave, assignmentExecutor);
 
-        UI.getCurrent().addWindow(confirmAssignDialog.getWindow());
+        confirmAssignDialog.getWindow().open();
         confirmAssignDialog.getWindow().bringToFront();
 
         return confirmAssignDialog;

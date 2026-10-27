@@ -48,8 +48,7 @@ import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.html.Span;
 
 /**
  * Software module details table.
@@ -121,7 +120,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
         setSizeFull();
         setHeightMode(HeightMode.UNDEFINED);
 
-        addClassNames(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
+        addClassNames("no-horizontal-lines");
 
         setSelectionMode(SelectionMode.NONE);
 
@@ -140,8 +139,8 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
                 .setCaption(i18n.getMessage("header.caption.softwaremodule"));
     }
 
-    private Label buildIsMandatoryLabel(final ProxySoftwareModuleDetails softwareModuleDetails) {
-        final Label isMandatoryLabel = new Label("");
+    private Span buildIsMandatoryLabel(final ProxySoftwareModuleDetails softwareModuleDetails) {
+        final Span isMandatoryLabel = new Span("");
 
         isMandatoryLabel.setSizeFull();
         isMandatoryLabel.addClassNames(SPUIDefinitions.TEXT_STYLE);
@@ -193,8 +192,8 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
         return smLabelWithUnassignButtonLayout;
     }
 
-    private static Label buildSmLabel(final Long smId, final String smNameWithVersion) {
-        final Label smLabel = new Label(smNameWithVersion);
+    private static Span buildSmLabel(final Long smId, final String smNameWithVersion) {
+        final Span smLabel = new Span(smNameWithVersion);
 
         smLabel.setId("sm-label-" + smId);
         smLabel.setSizeFull();
@@ -208,8 +207,8 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
         final Button unassignSoftwareModuleButton = new Button(VaadinIcon.CLOSE_SMALL);
 
         unassignSoftwareModuleButton.setId("sm-unassign-button-" + smId);
-        unassignSoftwareModuleButton.addClassNames(ValoTheme.BUTTON_BORDERLESS);
-        unassignSoftwareModuleButton.addClassNames(ValoTheme.BUTTON_ICON_ONLY);
+        unassignSoftwareModuleButton.addClassNames("borderless");
+        unassignSoftwareModuleButton.addClassNames("icon-only");
         unassignSoftwareModuleButton.addClassNames("button-no-border");
 
         unassignSoftwareModuleButton.addClickListener(event -> unassignSoftwareModule(smId, smNameAndVersion));

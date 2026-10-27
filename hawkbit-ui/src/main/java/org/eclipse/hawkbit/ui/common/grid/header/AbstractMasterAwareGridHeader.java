@@ -18,8 +18,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.vaadin.ui.Alignment;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.html.Span;
 
 /**
  * Abstract header for master entity aware grids.
@@ -31,8 +30,8 @@ public abstract class AbstractMasterAwareGridHeader<T> extends AbstractGridHeade
         implements MasterEntityAwareComponent<T> {
     private static final long serialVersionUID = 1L;
 
-    private final Label entityDetailsCaption;
-    private final Label masterEntityDetailsCaption;
+    private final Span entityDetailsCaption;
+    private final Span masterEntityDetailsCaption;
 
     /**
      * Constructor for AbstractMasterAwareGridHeader
@@ -52,24 +51,24 @@ public abstract class AbstractMasterAwareGridHeader<T> extends AbstractGridHeade
         this.masterEntityDetailsCaption = buildMasterEntityDetailsCaption();
     }
 
-    private Label buildEntityDetailsCaption() {
-        final Label caption = new Label(i18n.getMessage(getEntityDetailsCaptionMsgKey()));
+    private Span buildEntityDetailsCaption() {
+        final Span caption = new Span(i18n.getMessage(getEntityDetailsCaptionMsgKey()));
 
-        caption.addClassNames(ValoTheme.LABEL_SMALL);
-        caption.addClassNames(ValoTheme.LABEL_BOLD);
+        caption.addClassNames("small");
+        caption.addClassNames("bold");
 
         return caption;
     }
 
     protected abstract String getEntityDetailsCaptionMsgKey();
 
-    private Label buildMasterEntityDetailsCaption() {
-        final Label caption = new Label();
+    private Span buildMasterEntityDetailsCaption() {
+        final Span caption = new Span();
 
         caption.setId(getMasterEntityDetailsCaptionId());
         caption.setWidthFull();
-        caption.addClassNames(ValoTheme.LABEL_SMALL);
-        caption.addClassNames(ValoTheme.LABEL_BOLD);
+        caption.addClassNames("small");
+        caption.addClassNames("bold");
         caption.addClassNames("text-bold");
         caption.addClassNames("text-cut");
 

@@ -25,8 +25,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.html.Span;
 
 /**
  * Abstract header with breadcrumb links to parent grids.
@@ -34,7 +33,7 @@ import com.vaadin.ui.themes.ValoTheme;
 public abstract class AbstractBreadcrumbGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    protected final Label headerCaptionDetails;
+    protected final Span headerCaptionDetails;
     private final transient List<BreadcrumbLink> breadcrumbLinks;
 
     /**
@@ -55,8 +54,8 @@ public abstract class AbstractBreadcrumbGridHeader extends AbstractGridHeader {
         this.breadcrumbLinks = new ArrayList<>();
     }
 
-    private Label createHeaderCaptionDetails() {
-        final Label captionDetails = new LabelBuilder().id(getHeaderCaptionDetailsId()).name("").buildCaptionLabel();
+    private Span createHeaderCaptionDetails() {
+        final Span captionDetails = new LabelBuilder().id(getHeaderCaptionDetailsId()).name("").buildCaptionLabel();
         captionDetails.addClassNames("breadcrumbPaddingLeft");
 
         return captionDetails;
@@ -82,7 +81,7 @@ public abstract class AbstractBreadcrumbGridHeader extends AbstractGridHeader {
 
         breadcrumbLinks.stream().filter(Objects::nonNull).forEach(breadcrumbLink -> {
             headerCaptionLayout.add(breadcrumbLink.getComponent());
-            headerCaptionLayout.add(new Label(">"));
+            headerCaptionLayout.add(new Span(">"));
         });
 
         headerCaptionLayout.add(headerCaptionDetails);
@@ -114,7 +113,7 @@ public abstract class AbstractBreadcrumbGridHeader extends AbstractGridHeader {
                 final Runnable clickCallback) {
             final Button link = SPUIComponentProvider.getButton(null, "", "", null, false, null,
                     SPUIButtonStyleNoBorder.class);
-            link.setClassName(ValoTheme.LINK_SMALL + " " + "on-focus-no-border link rollout-caption-links");
+            link.setClassName("small" + " " + "on-focus-no-border link rollout-caption-links");
 
             link.setDescription(description);
             link.setCaption(caption);

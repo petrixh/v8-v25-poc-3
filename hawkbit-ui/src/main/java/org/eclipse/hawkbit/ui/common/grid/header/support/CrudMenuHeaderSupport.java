@@ -17,7 +17,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Header support for CRUD menu
@@ -87,7 +86,7 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
         final MenuBar menuBar = new MenuBar();
 
         menuBar.setId(crudMenuBarId);
-        menuBar.setClassName(ValoTheme.MENUBAR_BORDERLESS);
+        menuBar.setClassName("borderless");
         menuBar.addClassNames("crud-menubar");
 
         return menuBar;

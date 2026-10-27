@@ -31,9 +31,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.ui.Alignment;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.ui.StyleGenerator;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Parent class for filter button layout.
@@ -69,11 +68,11 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
 
         setHeaderVisible(false);
         setClassName("type-button-layout");
-        addClassNames(ValoTheme.TABLE_NO_STRIPES);
-        addClassNames(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        addClassNames(ValoTheme.TABLE_NO_VERTICAL_LINES);
-        addClassNames(ValoTheme.TABLE_BORDERLESS);
-        addClassNames(ValoTheme.TABLE_COMPACT);
+        addClassNames("no-stripes");
+        addClassNames("no-horizontal-lines");
+        addClassNames("no-vertical-lines");
+        addClassNames("borderless");
+        addClassNames("compact");
     }
 
     protected abstract String getMessageKeyEntityTypeSing();
@@ -101,7 +100,7 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
     }
 
     private HorizontalLayout buildFilterButtonLayout(final T clickedFilter) {
-        final Label colourIcon = buildColourIcon(clickedFilter.getId(), clickedFilter.getColour());
+        final Span colourIcon = buildColourIcon(clickedFilter.getId(), clickedFilter.getColour());
         final Button filterName = buildFilterNameButton(clickedFilter);
 
         final HorizontalLayout filterButtonLayout = new HorizontalLayout();
@@ -121,8 +120,8 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
         return filterButtonLayout;
     }
 
-    private final Label buildColourIcon(final Long clickedFilterId, final String colour) {
-        final ProxyFontIcon colourFontIcon = new ProxyFontIcon(VaadinIcon.CIRCLE, ValoTheme.LABEL_TINY, "",
+    private final Span buildColourIcon(final Long clickedFilterId, final String colour) {
+        final ProxyFontIcon colourFontIcon = new ProxyFontIcon(VaadinIcon.CIRCLE, "tiny", "",
                 !StringUtils.isEmpty(colour) ? colour : DEFAULT_GREEN);
         final String colourIconId = new StringBuilder(getFilterButtonIdPrefix()).append(".colour-icon.")
                 .append(clickedFilterId).toString();

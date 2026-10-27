@@ -29,7 +29,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Abstract Layout to show the entity details.
@@ -72,11 +71,11 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
     }
 
     private void init() {
-        setWidth(98, Unit.PERCENTAGE);
-        setHeight(90, Unit.PERCENTAGE);
+        setWidth("98%");
+        setHeight("90%");
 
-        addClassNames(ValoTheme.TABSHEET_COMPACT_TABBAR);
-        addClassNames(ValoTheme.TABSHEET_FRAMED);
+        addClassNames("compact-tabbar");
+        addClassNames("framed");
         addClassNames(SPUIStyleDefinitions.DETAILS_LAYOUT_STYLE);
 
         setId(getTabSheetId());
@@ -101,8 +100,8 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
         description.setReadOnly(true);
         description.setWordWrap(true);
         description.setSizeFull();
-        description.setClassName(ValoTheme.TEXTAREA_BORDERLESS);
-        description.addClassNames(ValoTheme.TEXTAREA_SMALL);
+        description.setClassName("borderless");
+        description.addClassNames("small");
         description.addClassNames("details-description");
 
         binder.forField(description).bind(ProxyNamedEntity::getDescription, null);

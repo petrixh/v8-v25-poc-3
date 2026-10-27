@@ -27,7 +27,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
 import com.vaadin.flow.component.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Abstract class which contains common code for Software Module Details
@@ -117,10 +117,10 @@ public class SoftwareModuleDetails extends AbstractGridDetailsLayout<ProxySoftwa
             return;
         }
 
-        final Window metaDataWindow = smMetaDataWindowBuilder.getWindowForShowSmMetaData(binder.getBean().getId(),
+        final Dialog metaDataWindow = smMetaDataWindowBuilder.getWindowForShowSmMetaData(binder.getBean().getId(),
                 binder.getBean().getNameAndVersion(), metadata);
 
-        UI.getCurrent().addWindow(metaDataWindow);
+        metaDataWindow.open();
         metaDataWindow.setVisible(Boolean.TRUE);
     }
 

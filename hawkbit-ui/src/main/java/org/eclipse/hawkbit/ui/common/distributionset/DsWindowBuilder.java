@@ -23,7 +23,7 @@ import org.eclipse.hawkbit.ui.distributions.dstable.DsWindowLayout;
 import org.eclipse.hawkbit.ui.distributions.dstable.UpdateDsWindowController;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Builder for distribution set window
@@ -79,7 +79,7 @@ public class DsWindowBuilder extends AbstractEntityWindowBuilder<ProxyDistributi
     }
 
     @Override
-    public Window getWindowForAdd() {
+    public Dialog getWindowForAdd() {
         return getWindowForNewEntity(new AddDsWindowController(uiDependencies, systemManagement, dsManagement,
                 new DsWindowLayout(uiDependencies.getI18n(), systemSecurityContext, tenantConfigurationManagement,
                         dsTypeManagement),
@@ -88,7 +88,7 @@ public class DsWindowBuilder extends AbstractEntityWindowBuilder<ProxyDistributi
     }
 
     @Override
-    public Window getWindowForUpdate(final ProxyDistributionSet proxyDs) {
+    public Dialog getWindowForUpdate(final ProxyDistributionSet proxyDs) {
         return getWindowForEntity(proxyDs, new UpdateDsWindowController(uiDependencies, dsManagement,
                 new DsWindowLayout(getI18n(), systemSecurityContext, tenantConfigurationManagement, dsTypeManagement)));
     }
