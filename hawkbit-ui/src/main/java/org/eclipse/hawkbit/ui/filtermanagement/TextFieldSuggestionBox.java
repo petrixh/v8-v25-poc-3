@@ -15,14 +15,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
-import org.eclipse.hawkbit.repository.rsql.SuggestToken;
 import org.eclipse.hawkbit.repository.rsql.SuggestionContext;
 import org.eclipse.hawkbit.repository.rsql.ValidationOracleContext;
 
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.popover.Popover;
 import com.vaadin.flow.component.popover.PopoverPosition;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.dom.DomEvent;
 
 import tools.jackson.databind.JsonNode;
@@ -52,8 +53,13 @@ public class TextFieldSuggestionBox implements Serializable {
 
     private final transient RsqlValidationOracle rsqlValidationOracle;
 
-    private final ListBox<SuggestToken> select;
+    private final ListBox<Suggestion> select;
     private final Popover panel;
+
+    // incremented every time the list is rebuilt or a suggestion is inserted:
+    // an insert event for an item of an older list is stale and ignored (a click
+    // can arrive as an item click and as a value change; only one may insert)
+    private long generation;
 
     private TextField textFieldWidget;
 
@@ -67,10 +73,20 @@ public class TextFieldSuggestionBox implements Serializable {
         this.rsqlValidationOracle = rsqlValidationOracle;
 
         this.select = new ListBox<>();
-        this.select.setItemLabelGenerator(SuggestToken::getSuggestion);
+        this.select.setItemLabelGenerator(Suggestion::getText);
+        // every item is a text span that inserts its suggestion on a click, also
+        // when the item is the one already highlighted (the old GWT menu inserted
+        // on any click); plain text, not HTML
+        this.select.setRenderer(new ComponentRenderer<>(suggestion -> {
+            final Span item = new Span(suggestion.getText());
+            item.getStyle().set("display", "block");
+            item.addClickListener(event -> insertSuggestion(suggestion));
+            return item;
+        }));
         this.select.addClassName("autocomplete");
-        // a click on a suggestion inserts it (moving the selection with the
-        // arrow keys is done by the server and does not insert)
+        // a click on the padding around the text of an item reaches the list as a
+        // selection change from the client; the programmatic selection by the
+        // arrow keys does not come from the client and does not insert
         this.select.addValueChangeListener(event -> {
             if (event.isFromClient() && event.getValue() != null) {
                 insertSuggestion(event.getValue());
@@ -154,7 +170,8 @@ public class TextFieldSuggestionBox implements Serializable {
     }
 
     private void showSuggestions(final SuggestionContext suggestionContext) {
-        final List<SuggestToken> suggestions = mapToDto(suggestionContext);
+        generation++;
+        final List<Suggestion> suggestions = mapToDto(suggestionContext, generation);
         if (!suggestions.isEmpty()) {
             select.setItems(suggestions);
             panel.open();
@@ -167,7 +184,7 @@ public class TextFieldSuggestionBox implements Serializable {
 
     // selection moves like the old GWT menu: wraps around at both ends
     private void moveSelection(final int step) {
-        final List<SuggestToken> items = select.getListDataView().getItems().collect(Collectors.toList());
+        final List<Suggestion> items = select.getListDataView().getItems().collect(Collectors.toList());
         if (items.isEmpty()) {
             return;
         }
@@ -181,9 +198,13 @@ public class TextFieldSuggestionBox implements Serializable {
         select.setValue(items.get(next));
     }
 
-    private void insertSuggestion(final SuggestToken suggestToken) {
+    private void insertSuggestion(final Suggestion suggestToken) {
+        if (suggestToken.generation != generation) {
+            return;
+        }
+        generation++;
         final StringBuilder builder = new StringBuilder(textFieldWidget.getValue());
-        builder.replace(suggestToken.getStart(), suggestToken.getEnd() + 1, suggestToken.getSuggestion());
+        builder.replace(suggestToken.start, suggestToken.end + 1, suggestToken.text);
         textFieldWidget.setValue(builder.toString());
         panel.close();
         textFieldWidget.focus();
@@ -191,14 +212,38 @@ public class TextFieldSuggestionBox implements Serializable {
         suggest(builder.toString(), builder.length());
     }
 
-    private static List<SuggestToken> mapToDto(final SuggestionContext suggestionContext) {
+    private static List<Suggestion> mapToDto(final SuggestionContext suggestionContext, final long generation) {
         if (suggestionContext == null || suggestionContext.getSuggestions() == null) {
             return Collections.emptyList();
         }
         return suggestionContext.getSuggestions().stream()
                 .filter(suggestion -> suggestion.getTokenImageName() == null
                         || suggestion.getSuggestion().contains(suggestion.getTokenImageName()))
+                .map(suggestion -> new Suggestion(suggestion.getSuggestion(), suggestion.getStart(),
+                        suggestion.getEnd(), generation))
                 .collect(Collectors.toList());
+    }
+
+    // serializable copy of a SuggestToken (the repository type is not Serializable)
+    private static final class Suggestion implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        private final String text;
+        private final int start;
+        private final int end;
+        private final long generation;
+
+        private Suggestion(final String text, final int start, final int end, final long generation) {
+            this.text = text;
+            this.start = start;
+            this.end = end;
+            this.generation = generation;
+        }
+
+        private String getText() {
+            return text;
+        }
     }
 
 }
