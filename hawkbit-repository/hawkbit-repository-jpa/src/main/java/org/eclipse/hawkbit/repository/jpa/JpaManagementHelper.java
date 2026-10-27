@@ -47,7 +47,7 @@ public final class JpaManagementHelper {
     public static <T, J extends T> Page<T> findAllWithCountBySpec(final JpaSpecificationExecutor<J> repository,
             final Pageable pageable, final List<Specification<J>> specList) {
         if (CollectionUtils.isEmpty(specList)) {
-            return convertPage(repository.findAll(Specification.where(null), pageable), pageable);
+            return convertPage(repository.findAll(Specification.unrestricted(), pageable), pageable);
         }
 
         return convertPage(repository.findAll(combineWithAnd(specList), pageable), pageable);
@@ -59,7 +59,7 @@ public final class JpaManagementHelper {
 
     public static <J> Specification<J> combineWithAnd(final List<Specification<J>> specList) {
         if (ObjectUtils.isEmpty(specList)) {
-            return Specification.where(null);
+            return Specification.unrestricted();
         }
         return specList.size() == 1 ? specList.get(0) : SpecificationsBuilder.combineWithAnd(specList);
     }
@@ -80,7 +80,7 @@ public final class JpaManagementHelper {
     public static <J> long countBySpec(final JpaSpecificationExecutor<J> repository,
             final List<Specification<J>> specList) {
         if (CollectionUtils.isEmpty(specList)) {
-            return repository.count(Specification.where(null));
+            return repository.count(Specification.unrestricted());
         }
 
         return repository.count(combineWithAnd(specList));
