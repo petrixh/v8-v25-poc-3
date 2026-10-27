@@ -9,7 +9,6 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
-import com.vaadin.server.Sizeable;
 import org.eclipse.hawkbit.repository.ConfirmationManagement;
 import org.eclipse.hawkbit.tenancy.TenantAware;
 import org.eclipse.hawkbit.ui.UiProperties;
@@ -68,16 +67,14 @@ public class TargetAutoConfActivationWindowBuilder extends AbstractEntityWindowB
 
         final CommonDialogWindow window = createWindow(layout.getRootComponent(), null);
         window.hideMandatoryExplanation();
-        window.setAssistivePrefix(
-                getI18n().getMessage("caption.target.auto.confirmation.activate.prefix") + " " + "<b>");
-        window.setCaptionAsHtml(false);
-        window.setCaption(entity.getControllerId());
-        window.setAssistivePostfix("</b>");
+        // Vaadin 8: caption with an assistive prefix for screen readers (no
+        // public Flow API for the dialog's aria label)
+        window.setHeaderTitle(entity.getControllerId());
 
         layout.setSaveCallback(window::setCloseListener);
 
-        window.setHeight(320, Sizeable.Unit.PIXELS);
-        window.setWidth(400, Sizeable.Unit.PIXELS);
+        window.setHeight("320px");
+        window.setWidth("400px");
         window.setSaveButtonEnabled(true);
         return window;
     }

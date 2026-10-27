@@ -29,11 +29,11 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.Binding;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.server.ExternalResource;
-import com.vaadin.ui.CheckBox;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.ui.Link;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.textfield.TextField;
 
 import static org.eclipse.hawkbit.ui.utils.UIMessageIdProvider.CAPTION_ACTION_CONFIRMATION_REQUIRED;
@@ -82,8 +82,8 @@ public class AssignmentWindowLayoutComponentBuilder {
      *
      * @return Maintenance window checkbox
      */
-    public CheckBox createEnableMaintenanceWindowToggle(final Binder<ProxyAssignmentWindow> binder) {
-        final CheckBox maintenanceWindowToggle = FormComponentBuilder.createCheckBox(
+    public Checkbox createEnableMaintenanceWindowToggle(final Binder<ProxyAssignmentWindow> binder) {
+        final Checkbox maintenanceWindowToggle = FormComponentBuilder.createCheckbox(
                 i18n.getMessage("caption.maintenancewindow.enabled"),
                 UIComponentIdProvider.MAINTENANCE_WINDOW_ENABLED_ID, binder,
                 ProxyAssignmentWindow::isMaintenanceWindowEnabled, ProxyAssignmentWindow::setMaintenanceWindowEnabled);
@@ -93,8 +93,8 @@ public class AssignmentWindowLayoutComponentBuilder {
         return maintenanceWindowToggle;
     }
 
-    public CheckBox createConfirmationToggle(final Binder<ProxyAssignmentWindow> binder) {
-        final CheckBox confirmationToggle = FormComponentBuilder.createCheckBox(
+    public Checkbox createConfirmationToggle(final Binder<ProxyAssignmentWindow> binder) {
+        final Checkbox confirmationToggle = FormComponentBuilder.createCheckbox(
                 i18n.getMessage(CAPTION_ACTION_CONFIRMATION_REQUIRED),
                 UIComponentIdProvider.ASSIGNMENT_CONFIRMATION_REQUIRED, binder,
                 ProxyAssignmentWindow::isConfirmationRequired, ProxyAssignmentWindow::setConfirmationRequired);
@@ -175,11 +175,12 @@ public class AssignmentWindowLayoutComponentBuilder {
         final ComboBox<String> maintenanceTimeZoneCombo = new ComboBox<>();
 
         maintenanceTimeZoneCombo.setId(UIComponentIdProvider.MAINTENANCE_WINDOW_TIME_ZONE_ID);
-        maintenanceTimeZoneCombo.setCaption(i18n.getMessage("caption.maintenancewindow.timezone"));
+        maintenanceTimeZoneCombo.setLabel(i18n.getMessage("caption.maintenancewindow.timezone"));
         maintenanceTimeZoneCombo.addClassNames("small");
 
-        maintenanceTimeZoneCombo.setTextInputAllowed(false);
-        maintenanceTimeZoneCombo.setEmptySelectionAllowed(false);
+        // Flow's ComboBox always accepts typing to filter (Vaadin 8:
+        // setTextInputAllowed(false)); no empty item: no clear button
+        maintenanceTimeZoneCombo.setClearButtonVisible(false);
 
         maintenanceTimeZoneCombo.setItems(SPDateTimeUtil.getAllTimeZoneOffsetIds());
 
@@ -211,24 +212,24 @@ public class AssignmentWindowLayoutComponentBuilder {
      *
      * @return Maintenance window help link
      */
-    public Link createMaintenanceHelpLink(final UiProperties uiProperties) {
+    public Anchor createMaintenanceHelpLink(final UiProperties uiProperties) {
         final String maintenanceWindowHelpUrl = uiProperties.getLinks().getDocumentation().getMaintenanceWindowView();
-        final Link maintenanceHelpLink = new Link("", new ExternalResource(maintenanceWindowHelpUrl));
+        final Anchor maintenanceHelpLink = new Anchor(maintenanceWindowHelpUrl, "");
 
-        maintenanceHelpLink.setTargetName("_blank");
-        maintenanceHelpLink.setIcon(VaadinIcon.QUESTION_CIRCLE);
-        maintenanceHelpLink.setDescription(i18n.getMessage("tooltip.documentation.link"));
+        maintenanceHelpLink.setTarget("_blank");
+        maintenanceHelpLink.add(VaadinIcon.QUESTION_CIRCLE.create());
+        Tooltip.forComponent(maintenanceHelpLink).setText(i18n.getMessage("tooltip.documentation.link"));
 
         return maintenanceHelpLink;
     }
 
-    public Link createConfirmationHelpLink(final UiProperties uiProperties) {
+    public Anchor createConfirmationHelpLink(final UiProperties uiProperties) {
         final String confirmationFlowHelpUrl = uiProperties.getLinks().getDocumentation().getUserConsentAndConfirmationGuide();
-        final Link confirmationHelpLink = new Link("", new ExternalResource(confirmationFlowHelpUrl));
+        final Anchor confirmationHelpLink = new Anchor(confirmationFlowHelpUrl, "");
 
-        confirmationHelpLink.setTargetName("_blank");
-        confirmationHelpLink.setIcon(VaadinIcon.QUESTION_CIRCLE);
-        confirmationHelpLink.setDescription(i18n.getMessage("tooltip.documentation.link"));
+        confirmationHelpLink.setTarget("_blank");
+        confirmationHelpLink.add(VaadinIcon.QUESTION_CIRCLE.create());
+        Tooltip.forComponent(confirmationHelpLink).setText(i18n.getMessage("tooltip.documentation.link"));
 
         return confirmationHelpLink;
     }

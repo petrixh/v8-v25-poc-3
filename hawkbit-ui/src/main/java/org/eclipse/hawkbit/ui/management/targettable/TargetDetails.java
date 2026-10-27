@@ -42,6 +42,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.tabs.Tab;
 import org.eclipse.hawkbit.utils.TenantConfigHelper;
 
 /**
@@ -119,7 +120,7 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
             final TenantAware tenantAware) {
         final TargetConfirmationOptionsComponent confirmationOptions = buildConfirmationOptionsLayout(uiDependencies,
                 uiProperties, tenantAware);
-        return addTab(buildTabWrapperDetailsLayout(confirmationOptions), i18n.getMessage("caption.tab.confirmation"));
+        return add(i18n.getMessage("caption.tab.confirmation"), buildTabWrapperDetailsLayout(confirmationOptions));
     }
 
     protected void alignWithConfirmationFlowState() {

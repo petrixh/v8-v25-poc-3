@@ -13,9 +13,13 @@ import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.shared.Tooltip;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.function.SerializableFunction;
 
 /**
  * Action type option group abstract layout.
@@ -55,7 +59,7 @@ public abstract class AbstractActionTypeOptionGroupLayout extends HorizontalLayo
         actionTypeOptionGroup.setSizeFull();
         actionTypeOptionGroup.addClassNames("horizontal");
 
-        actionTypeOptionGroup.setItemIconGenerator(item -> {
+        final SerializableFunction<ActionType, VaadinIcon> itemIconGenerator = item -> {
             switch (item) {
             case FORCED:
                 return VaadinIcon.BOLT;
@@ -68,9 +72,9 @@ public abstract class AbstractActionTypeOptionGroupLayout extends HorizontalLayo
             default:
                 return null;
             }
-        });
+        };
 
-        actionTypeOptionGroup.setItemCaptionGenerator(item -> {
+        actionTypeOptionGroup.setItemLabelGenerator(item -> {
             switch (item) {
             case FORCED:
                 return i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED);
@@ -85,7 +89,7 @@ public abstract class AbstractActionTypeOptionGroupLayout extends HorizontalLayo
             }
         });
 
-        actionTypeOptionGroup.setItemDescriptionGenerator(item -> {
+        final SerializableFunction<ActionType, String> itemDescriptionGenerator = item -> {
             switch (item) {
             case FORCED:
                 return i18n.getMessage(UIMessageIdProvider.TOOLTIP_FORCED_ITEM);
@@ -98,7 +102,23 @@ public abstract class AbstractActionTypeOptionGroupLayout extends HorizontalLayo
             default:
                 return null;
             }
-        });
+        };
+
+        // Flow's RadioButtonGroup has no icon or description generator: each
+        // item is rendered as icon + caption with the description as tooltip
+        actionTypeOptionGroup.setRenderer(new ComponentRenderer<>(item -> {
+            final Span itemLabel = new Span();
+            final VaadinIcon icon = itemIconGenerator.apply(item);
+            if (icon != null) {
+                itemLabel.add(icon.create());
+            }
+            itemLabel.add(actionTypeOptionGroup.getItemLabelGenerator().apply(item));
+            final String description = itemDescriptionGenerator.apply(item);
+            if (description != null) {
+                Tooltip.forComponent(itemLabel).setText(description);
+            }
+            return itemLabel;
+        }));
     }
 
     protected abstract void addOptionGroup();

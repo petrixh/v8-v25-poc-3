@@ -19,10 +19,10 @@ import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.ui.CheckBox;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.ui.Link;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -36,17 +36,17 @@ public class AssignmentWindowLayout extends VerticalLayout {
     private final transient AssignmentWindowLayoutComponentBuilder componentBuilder;
 
     private final BoundComponent<ActionTypeOptionGroupAssignmentLayout> actionTypeLayout;
-    private final CheckBox maintenanceWindowToggle;
-    private final CheckBox confirmationRequiredToggle;
+    private final Checkbox maintenanceWindowToggle;
+    private final Checkbox confirmationRequiredToggle;
     
-    private final Link confirmationHelpLink;
+    private final Anchor confirmationHelpLink;
 
     private final BoundComponent<TextField> maintenanceSchedule;
     private final BoundComponent<TextField> maintenanceDuration;
     private final ComboBox<String> maintenanceTimeZoneCombo;
 
     private final MaintenanceWindowLayout maintenanceWindowLayout;
-    private final Link maintenanceHelpLink;
+    private final Anchor maintenanceHelpLink;
 
     /**
      * Constructor for AssignmentWindowLayout

@@ -11,10 +11,9 @@ package org.eclipse.hawkbit.ui.management.targettag.targettype;
 
 import com.google.common.collect.Sets;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.ui.Alignment;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
@@ -80,6 +79,8 @@ public class TargetTypeDsTypeSelectLayout extends CustomField<Set<ProxyType>> {
         this.layout.setWidth("400px");
 
         buildLayout();
+        // Vaadin 8 initContent(): Flow's CustomField takes its content here
+        add(layout);
     }
 
     private void buildLayout() {
@@ -97,8 +98,7 @@ public class TargetTypeDsTypeSelectLayout extends CustomField<Set<ProxyType>> {
 
         selectButtonLayout.add(selectButton);
         selectButtonLayout.add(unSelectButton);
-        selectButtonLayout.setComponentAlignment(selectButton, Alignment.MIDDLE_CENTER);
-        selectButtonLayout.setComponentAlignment(unSelectButton, Alignment.MIDDLE_CENTER);
+        selectButtonLayout.setHorizontalComponentAlignment(Alignment.CENTER, selectButton, unSelectButton);
 
         sourceGrid = buildSourceGrid();
         selectedGrid = buildSelectedGrid();
@@ -106,9 +106,7 @@ public class TargetTypeDsTypeSelectLayout extends CustomField<Set<ProxyType>> {
         layout.add(sourceGrid);
         layout.add(selectButtonLayout);
         layout.add(selectedGrid);
-        layout.setComponentAlignment(sourceGrid, Alignment.MIDDLE_LEFT);
-        layout.setComponentAlignment(selectButtonLayout, Alignment.MIDDLE_CENTER);
-        layout.setComponentAlignment(selectedGrid, Alignment.MIDDLE_RIGHT);
+        layout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         layout.setFlexGrow(0.45F, sourceGrid);
         layout.setFlexGrow(0.07F, selectButtonLayout);
         layout.setFlexGrow(0.48F, selectedGrid);
@@ -155,12 +153,12 @@ public class TargetTypeDsTypeSelectLayout extends CustomField<Set<ProxyType>> {
     }
 
     @Override
-    protected Component initContent() {
-        return layout;
+    protected Set<ProxyType> generateModelValue() {
+        return selectedDsTypes;
     }
 
     @Override
-    protected void doSetValue(final Set<ProxyType> value) {
+    protected void setPresentationValue(final Set<ProxyType> value) {
         if (value == null) {
             return;
         }

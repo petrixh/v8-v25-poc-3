@@ -21,8 +21,9 @@ import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetConfirmationOptions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.ComponentContainer;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 
@@ -63,11 +64,10 @@ public class TargetAutoConfActivationLayout extends AbstractEntityWindowLayout<P
     }
 
     @Override
-    public ComponentContainer getRootComponent() {
+    public Component getRootComponent() {
         final FormLayout autoConfirmationLayout = new FormLayout();
-
-        autoConfirmationLayout.setSpacing(true);
-        autoConfirmationLayout.setPadding(true);
+        // Vaadin 8 FormLayout: one column; Flow has no spacing/margin here
+        autoConfirmationLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
         autoConfirmationLayout.setSizeUndefined();
 
         autoConfirmationLayout.add(initiator);
@@ -125,7 +125,7 @@ public class TargetAutoConfActivationLayout extends AbstractEntityWindowLayout<P
                                 .icon(VaadinIcon.WARNING).onSaveOrUpdate(() -> activateAutoConfirmation(newOptions))
                                 .build();
                         confirmationDialog.getWindow().open();
-                        confirmationDialog.getWindow().bringToFront();
+                        // Flow: the dialog opened last is on top (no bringToFront)
                     } else {
                         activateAutoConfirmation(newOptions);
                     }

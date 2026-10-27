@@ -22,7 +22,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.html.Span;
@@ -55,6 +54,8 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
         this.targetAttributesDetailsLayout.setSpacing(true);
         this.targetAttributesDetailsLayout.setPadding(false);
         this.targetAttributesDetailsLayout.setSizeFull();
+        // Vaadin 8: initContent()
+        add(targetAttributesDetailsLayout);
 
         setReadOnly(true);
     }
@@ -67,12 +68,12 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
     }
 
     @Override
-    protected Component initContent() {
-        return targetAttributesDetailsLayout;
+    protected ProxyTargetAttributesDetails generateModelValue() {
+        return new ProxyTargetAttributesDetails();
     }
 
     @Override
-    protected void doSetValue(final ProxyTargetAttributesDetails targetAttributesDetails) {
+    protected void setPresentationValue(final ProxyTargetAttributesDetails targetAttributesDetails) {
         targetAttributesDetailsLayout.removeAll();
 
         if (targetAttributesDetails == null) {
@@ -122,7 +123,7 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
                 SPUIButtonStyleNoBorder.class);
 
         requestAttributesButton.addClickListener(e -> {
-            toggleRequestAttributesUpdateButton(e.getButton(), true);
+            toggleRequestAttributesUpdateButton(e.getSource(), true);
             targetManagement.requestControllerAttributes(controllerId);
         });
 
@@ -134,7 +135,7 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
     private void toggleRequestAttributesUpdateButton(final Button requestAttributesButton,
             final boolean isRequestAttributes) {
         requestAttributesButton
-                .setDescription(isRequestAttributes ? i18n.getMessage("tooltip.target.attributes.update.requested")
+                .setTooltipText(isRequestAttributes ? i18n.getMessage("tooltip.target.attributes.update.requested")
                         : i18n.getMessage("tooltip.target.attributes.update.request"));
         requestAttributesButton.setEnabled(!isRequestAttributes);
     }

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.ui.Link;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import org.eclipse.hawkbit.repository.model.DistributionSetInvalidation.CancelationType;
 import org.eclipse.hawkbit.ui.UiProperties;
@@ -30,7 +30,9 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.CheckBox;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.shared.Tooltip;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -48,7 +50,7 @@ public class InvalidateDsConsequencesDialog {
 
     private final CommonDialogWindow window;
 
-    private final CheckBox stopRolloutsCheckBox;
+    private final Checkbox stopRolloutsCheckBox;
 
     private final RadioButtonGroup<CancelationType> cancelationTypeGroup;
 
@@ -134,10 +136,10 @@ public class InvalidateDsConsequencesDialog {
         }
     }
 
-    private CheckBox createStopRolloutsCheckbox() {
-        final CheckBox checkBox = new CheckBox();
+    private Checkbox createStopRolloutsCheckbox() {
+        final Checkbox checkBox = new Checkbox();
         checkBox.setId(UIComponentIdProvider.INVALIDATE_DS_STOP_ROLLOUTS);
-        checkBox.setCaption(i18n.getMessage(UIMessageIdProvider.LABEL_INVALIDATE_DS_STOP_ROLLOUTS));
+        checkBox.setLabel(i18n.getMessage(UIMessageIdProvider.LABEL_INVALIDATE_DS_STOP_ROLLOUTS));
         return checkBox;
     }
 
@@ -145,7 +147,7 @@ public class InvalidateDsConsequencesDialog {
         final HorizontalLayout horizontalLabelInfo = new HorizontalLayout();
         final Span typeLabel = new Span(
                 i18n.getMessage(UIMessageIdProvider.LABEL_INVALIDATE_DS_TYPE_OF_CANCELLATION));
-        final Link linkToInvalidationHelp = SPUIComponentProvider.getHelpLink(i18n,
+        final Anchor linkToInvalidationHelp = SPUIComponentProvider.getHelpLink(i18n,
                 uiProperties.getLinks().getDocumentation().getDistributionSetInvalidation());
         horizontalLabelInfo.add(typeLabel);
         horizontalLabelInfo.add(linkToInvalidationHelp);
@@ -159,11 +161,17 @@ public class InvalidateDsConsequencesDialog {
         cancellationTypeOptions.setSizeUndefined();
 
         cancellationTypeOptions.setItems(CancelationType.values());
-        cancellationTypeOptions.setItemCaptionGenerator(this::getCancelationTypeCaptionMessageId);
-        cancellationTypeOptions.setItemDescriptionGenerator(this::getCancelationTypeToolTipMessageId);
+        cancellationTypeOptions.setItemLabelGenerator(this::getCancelationTypeCaptionMessageId);
+        // Flow's RadioButtonGroup has no description generator: each item is
+        // rendered as its caption with the description as tooltip
+        cancellationTypeOptions.setRenderer(new ComponentRenderer<>(item -> {
+            final Span itemLabel = new Span(getCancelationTypeCaptionMessageId(item));
+            Tooltip.forComponent(itemLabel).setText(getCancelationTypeToolTipMessageId(item));
+            return itemLabel;
+        }));
 
         // default shall be "None"
-        cancellationTypeOptions.setSelectedItem(CancelationType.NONE);
+        cancellationTypeOptions.setValue(CancelationType.NONE);
 
         return cancellationTypeOptions;
     }

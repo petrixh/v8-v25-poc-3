@@ -9,16 +9,11 @@
  */
 package org.eclipse.hawkbit.ui.management.miscs;
 
-import java.util.TimeZone;
-
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.shared.ui.datefield.DateTimeResolution;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.DateTimeField;
+import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 
 /**
  * Action type option group layout for manual assignment.
@@ -28,7 +23,7 @@ public class ActionTypeOptionGroupAssignmentLayout extends AbstractActionTypeOpt
 
     protected static final String STYLE_DIST_WINDOW_FORCEDTIME = "dist-window-forcedtime";
 
-    private DateTimeField forcedTimeDateField;
+    private DateTimePicker forcedTimeDateField;
 
     /**
      * Constructor
@@ -59,24 +54,24 @@ public class ActionTypeOptionGroupAssignmentLayout extends AbstractActionTypeOpt
     }
 
     private void addTimeforcedDateTimeField() {
-        forcedTimeDateField = new DateTimeField();
+        forcedTimeDateField = new DateTimePicker();
         forcedTimeDateField.setEnabled(false);
         forcedTimeDateField.setClassName(STYLE_DIST_WINDOW_FORCEDTIME);
 
-        final TimeZone tz = SPDateTimeUtil.getBrowserTimeZone();
-        forcedTimeDateField.setZoneId(SPDateTimeUtil.getTimeZoneId(tz));
+        // The value is a LocalDateTime as before; Vaadin 8's setZoneId only
+        // formatted a zone name, which this field does not show. Minute
+        // resolution is the picker's default (hh:mm)
         forcedTimeDateField.setLocale(HawkbitCommonUtil.getCurrentLocale());
-        forcedTimeDateField.setResolution(DateTimeResolution.MINUTE);
         forcedTimeDateField.addClassNames("tiny");
         forcedTimeDateField.setWidth("14em");
         add(forcedTimeDateField);
-        setComponentAlignment(forcedTimeDateField, Alignment.MIDDLE_LEFT);
+        setVerticalComponentAlignment(Alignment.CENTER, forcedTimeDateField);
     }
 
     /**
      * @return Date field for forced time
      */
-    public DateTimeField getForcedTimeDateField() {
+    public DateTimePicker getForcedTimeDateField() {
         return forcedTimeDateField;
     }
 }

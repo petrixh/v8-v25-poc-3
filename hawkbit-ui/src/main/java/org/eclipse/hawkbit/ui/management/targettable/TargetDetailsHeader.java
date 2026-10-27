@@ -79,7 +79,7 @@ public class TargetDetailsHeader extends AbstractDetailsHeader<ProxyTarget> {
 
         final Dialog updateWindow = targetWindowBuilder.getWindowForUpdate(selectedEntity);
 
-        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.target")));
+        updateWindow.setHeaderTitle(i18n.getMessage("caption.update", i18n.getMessage("caption.target")));
         updateWindow.open();
         updateWindow.setVisible(Boolean.TRUE);
     }

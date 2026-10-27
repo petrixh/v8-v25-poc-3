@@ -87,7 +87,7 @@ public class MaintenanceWindowLayout extends VerticalLayout {
 
     private void addValueChangeListeners() {
         schedule.addValueChangeListener(
-                event -> scheduleTranslator.setValue(translateCronExpression(event.getValue())));
+                event -> scheduleTranslator.setText(translateCronExpression(event.getValue())));
     }
 
     private String translateCronExpression(final String cronExpression) {
