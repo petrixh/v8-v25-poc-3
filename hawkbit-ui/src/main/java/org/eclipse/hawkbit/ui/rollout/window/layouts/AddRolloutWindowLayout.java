@@ -29,7 +29,7 @@ import org.eclipse.hawkbit.ui.rollout.window.components.VisualGroupDefinitionLay
 import org.springframework.util.StringUtils;
 
 import com.vaadin.flow.data.binder.ValidationException;
-import com.vaadin.ui.GridLayout;
+import org.eclipse.hawkbit.ui.rollout.window.components.CssGridLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 
 /**
@@ -79,7 +79,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     }
 
     @Override
-    protected void addComponents(final GridLayout rootLayout) {
+    protected void addComponents(final CssGridLayout rootLayout) {
         rootLayout.setRows(7);
 
         final int lastRowIdx = rootLayout.getRows() - 1;
@@ -93,7 +93,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     private void addValueChangeListeners() {
         rolloutFormLayout.setFilterQueryChangedListener(this::onFilterQueryChange);
         rolloutFormLayout.setDistSetChangedListener(this::onDistSetTypeChange);
-        groupsDefinitionTabs.addSelectedTabChangeListener(event -> onGroupDefinitionTabChanged());
+        groupsDefinitionTabs.addSelectedChangeListener(event -> onGroupDefinitionTabChanged());
         simpleGroupsLayout.setNoOfGroupsChangedListener(this::onNoOfSimpleGroupsChanged);
         advancedGroupsLayout.setAdvancedGroupDefinitionsChangedListener(this::onAdvancedGroupsChanged);
     }
@@ -144,11 +144,11 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     }
 
     private boolean isSimpleGroupsTabSelected() {
-        return groupsDefinitionTabs.getSelectedTab().equals(simpleGroupsLayout.getLayout());
+        return groupsDefinitionTabs.getSelectedTab().equals(groupsDefinitionTabs.getTab(simpleGroupsLayout.getLayout()));
     }
 
     private boolean isAdvancedGroupsTabSelected() {
-        return groupsDefinitionTabs.getSelectedTab().equals(advancedGroupsLayout.getLayout());
+        return groupsDefinitionTabs.getSelectedTab().equals(groupsDefinitionTabs.getTab(advancedGroupsLayout.getLayout()));
     }
 
     private void onGroupDefinitionTabChanged() {
@@ -221,7 +221,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
      * Select advance group tab in the add rollout window
      */
     public void selectAdvancedGroupsTab() {
-        groupsDefinitionTabs.setSelectedTab(advancedGroupsLayout.getLayout());
+        groupsDefinitionTabs.setSelectedTab(groupsDefinitionTabs.getTab(advancedGroupsLayout.getLayout()));
     }
 
     @Override

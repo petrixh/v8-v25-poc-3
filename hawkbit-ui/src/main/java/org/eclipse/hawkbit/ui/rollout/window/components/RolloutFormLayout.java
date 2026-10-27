@@ -29,13 +29,13 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.Binding;
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.validator.LongRangeValidator;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.Component;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 
@@ -117,7 +117,7 @@ public class RolloutFormLayout extends ValidatableLayout {
     private TextField createRolloutNameField() {
         final TextField textField = FormComponentBuilder
                 .createNameInput(binder, i18n, UIComponentIdProvider.ROLLOUT_NAME_FIELD_ID).getComponent();
-        textField.setCaption(null);
+        textField.setLabel(null);
         return textField;
     }
 
@@ -129,7 +129,7 @@ public class RolloutFormLayout extends ValidatableLayout {
     private ComboBox<ProxyDistributionSet> createDistributionSetCombo() {
         final ComboBox<ProxyDistributionSet> dsComboBox = FormComponentBuilder.createDistributionSetComboBox(binder,
                 distributionSetDataProvider, i18n, UIComponentIdProvider.ROLLOUT_DS_ID).getComponent();
-        dsComboBox.setCaption(null);
+        dsComboBox.setLabel(null);
 
         return dsComboBox;
     }
@@ -166,7 +166,7 @@ public class RolloutFormLayout extends ValidatableLayout {
     private TextArea createDescription() {
         final TextArea description = FormComponentBuilder
                 .createDescriptionInput(binder, i18n, UIComponentIdProvider.ROLLOUT_DESCRIPTION_ID).getComponent();
-        description.setCaption(null);
+        description.setLabel(null);
 
         return description;
     }
@@ -202,7 +202,7 @@ public class RolloutFormLayout extends ValidatableLayout {
                 event -> autoStartOptionGroupLayout.setRequired(event.getValue() == AutoStartOption.SCHEDULED));
     }
 
-    private HasValue.ValueChangeListener<ProxyTargetFilterQuery> filterQueryChangedListener() {
+    private HasValue.ValueChangeListener<ComponentValueChangeEvent<ComboBox<ProxyTargetFilterQuery>, ProxyTargetFilterQuery>> filterQueryChangedListener() {
         return event -> {
             if (filterQueryChangedListener != null) {
                 filterQueryChangedListener.accept(event.getValue());
@@ -210,7 +210,7 @@ public class RolloutFormLayout extends ValidatableLayout {
         };
     }
 
-    private HasValue.ValueChangeListener<ProxyDistributionSet> distSetChangedListener() {
+    private HasValue.ValueChangeListener<ComponentValueChangeEvent<ComboBox<ProxyDistributionSet>, ProxyDistributionSet>> distSetChangedListener() {
         return event -> {
             if (distSetChangedListener != null) {
                 distSetChangedListener.accept(event.getValue());
@@ -224,7 +224,7 @@ public class RolloutFormLayout extends ValidatableLayout {
      * @param layout
      *            Grid layout
      */
-    public void addFormToAddLayout(final GridLayout layout) {
+    public void addFormToAddLayout(final CssGridLayout layout) {
         targetFilterQueryField.unbind();
         addFormToLayout(layout, targetFilterQueryCombo.getComponent());
 
@@ -236,12 +236,12 @@ public class RolloutFormLayout extends ValidatableLayout {
      * @param layout
      *            Grid layout
      */
-    public void addFormToEditLayout(final GridLayout layout) {
+    public void addFormToEditLayout(final CssGridLayout layout) {
         targetFilterQueryCombo.unbind();
         addFormToLayout(layout, targetFilterQueryField.getComponent());
     }
 
-    private void addFormToLayout(final GridLayout layout, final Component targetFilterQueryComponent) {
+    private void addFormToLayout(final CssGridLayout layout, final Component targetFilterQueryComponent) {
         layout.addComponent(SPUIComponentProvider.generateLabel(i18n, TEXTFIELD_NAME), CAPTION_COLUMN, 0);
         layout.addComponent(nameField, FIELD_COLUMN, 0);
         nameField.focus();

@@ -83,7 +83,7 @@ public class GroupsLegendLayout extends VerticalLayout {
         totalTargetsLabel.setVisible(false);
         populateGroupsLegend(Collections.emptyList());
         if (groupsLegend.getComponentCount() > MAX_GROUPS_TO_BE_DISPLAYED) {
-            groupsLegend.getComponent(MAX_GROUPS_TO_BE_DISPLAYED).setVisible(false);
+            groupsLegend.getComponentAt(MAX_GROUPS_TO_BE_DISPLAYED).setVisible(false);
         }
     }
 
@@ -98,7 +98,7 @@ public class GroupsLegendLayout extends VerticalLayout {
         final Span label = new LabelBuilder().visible(false).name("").buildLabel();
         label.addClassNames("rollout-target-count-loading");
         label.setSizeUndefined();
-        label.setValue(i18n.getMessage("label.rollout.calculating"));
+        label.setText(i18n.getMessage("label.rollout.calculating"));
         return label;
     }
 
@@ -145,7 +145,7 @@ public class GroupsLegendLayout extends VerticalLayout {
             totalTargetsLabel.setVisible(false);
         } else {
             totalTargetsLabel.setVisible(true);
-            totalTargetsLabel.setValue(getTotalTargetMessage(totalTargets));
+            totalTargetsLabel.setText(getTotalTargetMessage(totalTargets));
         }
     }
 
@@ -160,30 +160,30 @@ public class GroupsLegendLayout extends VerticalLayout {
         loadingLabel.setVisible(false);
 
         for (int i = 0; i < getGroupsWithoutToBeContinuedLabel(listOfTargetCountPerGroup.size()); i++) {
-            final Component component = groupsLegend.getComponent(i);
+            final Component component = groupsLegend.getComponentAt(i);
             final Span label = (Span) component;
             if (listOfTargetCountPerGroup.size() > i) {
                 final Long targetCount = listOfTargetCountPerGroup.get(i);
-                label.setValue(getTargetsInGroupMessage(targetCount,
+                label.setText(getTargetsInGroupMessage(targetCount,
                         i18n.getMessage("textfield.rollout.group.default.name", i + 1)));
                 label.setVisible(true);
             } else {
-                label.setValue("");
+                label.setText("");
                 label.setVisible(false);
             }
         }
 
         showOrHideToBeContinueLabel(listOfTargetCountPerGroup);
 
-        unassignedTargetsLabel.setValue("");
+        unassignedTargetsLabel.setText("");
         unassignedTargetsLabel.setVisible(false);
     }
 
     private void showOrHideToBeContinueLabel(final List<?> listOfTargetCountPerGroup) {
         if (hasMoreGroupsToShowAsLimit(listOfTargetCountPerGroup)) {
-            groupsLegend.getComponent(MAX_GROUPS_TO_BE_DISPLAYED).setVisible(true);
+            groupsLegend.getComponentAt(MAX_GROUPS_TO_BE_DISPLAYED).setVisible(true);
         } else if (hasLessGroupsToShowAsLimit(listOfTargetCountPerGroup)) {
-            groupsLegend.getComponent(groupsLegend.getComponentCount() - 1).setVisible(false);
+            groupsLegend.getComponentAt(groupsLegend.getComponentCount() - 1).setVisible(false);
         }
     }
 
@@ -232,16 +232,16 @@ public class GroupsLegendLayout extends VerticalLayout {
                 : groupsLegend.getComponentCount();
 
         for (int i = 0; i < getGroupsWithoutToBeContinuedLabel(targetsPerGroup.size()); i++) {
-            final Component component = groupsLegend.getComponent(i);
+            final Component component = groupsLegend.getComponentAt(i);
             final Span label = (Span) component;
             if (targetsPerGroup.size() > i && labelsToUpdate > i) {
                 final Long targetCount = targetsPerGroup.get(i);
                 final String groupName = groupNames.get(i);
 
-                label.setValue(getTargetsInGroupMessage(targetCount, groupName));
+                label.setText(getTargetsInGroupMessage(targetCount, groupName));
                 label.setVisible(true);
             } else {
-                label.setValue("");
+                label.setText("");
                 label.setVisible(false);
             }
         }
@@ -249,11 +249,11 @@ public class GroupsLegendLayout extends VerticalLayout {
         showOrHideToBeContinueLabel(targetsPerGroup);
 
         if (remainingTargets > 0) {
-            unassignedTargetsLabel.setValue(
+            unassignedTargetsLabel.setText(
                     getTargetsInGroupMessage(remainingTargets, i18n.getMessage("message.rollout.target.unassigned")));
             unassignedTargetsLabel.setVisible(true);
         } else {
-            unassignedTargetsLabel.setValue("");
+            unassignedTargetsLabel.setText("");
             unassignedTargetsLabel.setVisible(false);
         }
 

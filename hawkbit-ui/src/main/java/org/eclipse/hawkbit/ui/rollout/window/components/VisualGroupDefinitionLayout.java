@@ -20,8 +20,6 @@ import org.eclipse.hawkbit.ui.rollout.groupschart.GroupsPieChart;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.springframework.util.CollectionUtils;
 
-import com.vaadin.ui.GridLayout;
-
 /**
  * Visual group definition layout of pie chat
  */
@@ -165,13 +163,13 @@ public class VisualGroupDefinitionLayout {
      * Add groups pie chart in the group legend layout
      *
      * @param layout
-     *            GridLayout
+     *            CssGridLayout
      * @param lastColumnIdx
      *            Last column index
      * @param heightInRows
      *            Row height
      */
-    public void addChartWithLegendToLayout(final GridLayout layout, final int lastColumnIdx, final int heightInRows) {
+    public void addChartWithLegendToLayout(final CssGridLayout layout, final int lastColumnIdx, final int heightInRows) {
         layout.addComponent(groupsPieChart, lastColumnIdx - 1, 0, lastColumnIdx - 1, heightInRows);
         layout.addComponent(groupsLegendLayout, lastColumnIdx, 0, lastColumnIdx, heightInRows);
     }

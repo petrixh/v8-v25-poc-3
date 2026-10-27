@@ -16,7 +16,7 @@ import org.eclipse.hawkbit.ui.rollout.window.components.RolloutFormLayout;
 import org.eclipse.hawkbit.ui.rollout.window.components.VisualGroupDefinitionLayout;
 
 import com.vaadin.flow.data.binder.ValidationException;
-import com.vaadin.ui.GridLayout;
+import org.eclipse.hawkbit.ui.rollout.window.components.CssGridLayout;
 
 /**
  * Layout builder for Update Rollout window.
@@ -42,7 +42,7 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
     }
 
     @Override
-    protected void addComponents(final GridLayout rootLayout) {
+    protected void addComponents(final CssGridLayout rootLayout) {
         rootLayout.setRows(6);
 
         final int lastColumnIdx = rootLayout.getColumns() - 1;

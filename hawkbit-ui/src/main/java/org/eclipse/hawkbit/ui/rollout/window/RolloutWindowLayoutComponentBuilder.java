@@ -23,7 +23,6 @@ import org.eclipse.hawkbit.ui.rollout.window.components.VisualGroupDefinitionLay
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.tabs.TabSheet;
 
@@ -102,11 +101,11 @@ public final class RolloutWindowLayoutComponentBuilder {
         groupsDefinitionTabs.setClassName(SPUIStyleDefinitions.ROLLOUT_GROUPS);
 
         groupsDefinitionTabs
-                .addTab(simpleGroupDefinitionTab, dependencies.getI18n().getMessage("caption.rollout.tabs.simple"))
+                .add(dependencies.getI18n().getMessage("caption.rollout.tabs.simple"), simpleGroupDefinitionTab)
                 .setId(UIComponentIdProvider.ROLLOUT_SIMPLE_TAB);
 
         groupsDefinitionTabs
-                .addTab(advancedGroupDefinitionTab, dependencies.getI18n().getMessage("caption.rollout.tabs.advanced"))
+                .add(dependencies.getI18n().getMessage("caption.rollout.tabs.advanced"), advancedGroupDefinitionTab)
                 .setId(UIComponentIdProvider.ROLLOUT_ADVANCED_TAB);
 
         return groupsDefinitionTabs;

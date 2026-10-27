@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -33,12 +34,10 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.eclipse.hawkbit.utils.TenantConfigHelper;
 import org.springframework.util.StringUtils;
-import org.springframework.util.concurrent.ListenableFuture;
 
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.UI;
 
@@ -55,7 +54,7 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
 
     private final TargetFilterQueryDataProvider targetFilterQueryDataProvider;
 
-    private final GridLayout layout;
+    private final CssGridLayout layout;
 
     private String targetFilter;
     private Long dsTypeId;
@@ -102,8 +101,8 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
         this.runningValidationsCounter = new AtomicInteger(0);
     }
 
-    private GridLayout buildLayout() {
-        final GridLayout gridLayout = new GridLayout();
+    private CssGridLayout buildLayout() {
+        final CssGridLayout gridLayout = new CssGridLayout();
         gridLayout.setPadding(false);
         gridLayout.setSpacing(true);
         gridLayout.setSizeUndefined();
@@ -123,7 +122,7 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
         return gridLayout;
     }
 
-    private void addHeaderRow(final GridLayout gridLayout, final int headerRow) {
+    private void addHeaderRow(final CssGridLayout gridLayout, final int headerRow) {
         final List<String> headerColumns = new ArrayList<>(Arrays.asList("header.name", "header.target.filter.query",
                 "header.target.percentage", "header.rolloutgroup.threshold", "header.rolloutgroup.threshold.error"));
         if (tenantConfigHelper.isConfirmationFlowEnabled()) {
@@ -261,12 +260,13 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
         if (runningValidationsCounter.incrementAndGet() == 1) {
             final List<RolloutGroupCreate> groupsCreate = getRolloutGroupsCreateFromDefinitions(
                     getAdvancedRolloutGroupDefinitions());
-            final ListenableFuture<RolloutGroupsValidation> validateTargetsInGroups = rolloutManagement
+            final CompletableFuture<RolloutGroupsValidation> validateTargetsInGroups = rolloutManagement
                     .validateTargetsInGroups(groupsCreate, targetFilter, System.currentTimeMillis(), dsTypeId);
 
             final UI ui = UI.getCurrent();
-            validateTargetsInGroups.addCallback(validation -> ui.access(() -> updateGroupsByValidation(validation)),
-                    throwable -> ui.access(() -> updateGroupsByValidation(null)));
+            // was ListenableFuture.addCallback(success, failure)
+            validateTargetsInGroups.whenComplete((validation, throwable) -> ui
+                    .access(() -> updateGroupsByValidation(throwable == null ? validation : null)));
         }
     }
 
@@ -410,7 +410,7 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
     /**
      * @return Advance group layout
      */
-    public GridLayout getLayout() {
+    public CssGridLayout getLayout() {
         return layout;
     }
 
