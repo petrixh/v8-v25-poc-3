@@ -9,7 +9,6 @@
  */
 package org.eclipse.hawkbit.ui.common.data.suppliers;
 
-import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataProvider;
 
 /**
@@ -29,11 +28,8 @@ public interface DataSupplier<T, F> {
      */
     DataProvider<T, F> dataProvider();
 
-    /**
-     * Provides client/server data communicator component.
-     *
-     * @return data communicator
-     */
-    DataCommunicator<T> dataCommunicator();
+    // Vaadin Flow: the data communicator is created by the Grid itself
+    // (Grid#getDataCommunicator()); it is bound to the grid's element and
+    // cannot be created up front, so it is no longer supplied here.
 
 }

@@ -51,10 +51,9 @@ public class LocalizedSystemMessagesProvider implements SystemMessagesProvider {
                 i18n.getMessage(desiredLocale, UIMessageIdProvider.VAADIN_SYSTEM_SESSIONEXPIRED_CAPTION));
         messages.setSessionExpiredMessage(
                 i18n.getMessage(desiredLocale, UIMessageIdProvider.VAADIN_SYSTEM_SESSIONEXPIRED_MESSAGE));
-        messages.setCommunicationErrorCaption(
-                i18n.getMessage(desiredLocale, UIMessageIdProvider.VAADIN_SYSTEM_COMMUNICATIONERROR_CAPTION));
-        messages.setCommunicationErrorMessage(
-                i18n.getMessage(desiredLocale, UIMessageIdProvider.VAADIN_SYSTEM_COMMUNICATIONERROR_MESSAGE));
+        // Vaadin Flow has no communication error system message (a lost
+        // connection shows the reconnect indicator), so
+        // VAADIN_SYSTEM_COMMUNICATIONERROR_CAPTION/_MESSAGE are not set.
         messages.setInternalErrorCaption(
                 i18n.getMessage(desiredLocale, UIMessageIdProvider.VAADIN_SYSTEM_INTERNALERROR_CAPTION));
         messages.setInternalErrorMessage(

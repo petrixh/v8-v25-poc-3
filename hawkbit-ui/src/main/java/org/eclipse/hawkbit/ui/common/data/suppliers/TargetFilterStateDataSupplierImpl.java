@@ -16,7 +16,6 @@ import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 
-import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataProvider;
 
 /**
@@ -28,7 +27,6 @@ public class TargetFilterStateDataSupplierImpl implements TargetFilterStateDataS
     private static final long serialVersionUID = 1L;
 
     private final TargetFilterStateDataProvider dataProvider;
-    private final DataCommunicator<ProxyTarget> dataCommunicator;
 
     /**
      * Constructor.
@@ -41,17 +39,11 @@ public class TargetFilterStateDataSupplierImpl implements TargetFilterStateDataS
     public TargetFilterStateDataSupplierImpl(final TargetManagement targetManagement,
             final TargetToProxyTargetMapper targetToProxyTargetMapper) {
         this.dataProvider = new TargetFilterStateDataProvider(targetManagement, targetToProxyTargetMapper);
-        this.dataCommunicator = new DataCommunicator<>();
     }
 
     @Override
     public DataProvider<ProxyTarget, String> dataProvider() {
         return dataProvider;
-    }
-
-    @Override
-    public DataCommunicator<ProxyTarget> dataCommunicator() {
-        return dataCommunicator;
     }
 
 }
