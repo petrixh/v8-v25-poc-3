@@ -181,9 +181,17 @@ vaadin-grid .joined-header-caption {
     --lumo-size-m: 24px;
 }
 
-/* The header's menu bar keeps its width, so its one item (the cog) is not moved into the overflow "..." (2a-05) */
+/*
+ * The header's menu bar keeps its width and its one item (the cog) is tight, so the item is not moved into the
+ * overflow "..." and the close button still fits next to "Filter by type" in the 148 px filter panels (2a-05)
+ */
 .widget-header vaadin-menu-bar {
     flex-shrink: 0;
+}
+
+.widget-header vaadin-menu-bar vaadin-menu-bar-button {
+    margin: 0;
+    padding: 0 2px;
 }
 
 .header-caption {
