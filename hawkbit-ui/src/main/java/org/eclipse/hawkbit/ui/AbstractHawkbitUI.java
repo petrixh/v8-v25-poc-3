@@ -312,7 +312,7 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
                         : null;
                 // Vaadin 8: the view name is the old address up to the first
                 // "/", read decoded; an empty one (#!//host) opens the start view
-                if (oldState != null && !decode(oldState).startsWith("/")) {
+                if (oldState != null && hasViewName(oldState)) {
                     forwardOldAddress(ui, oldState);
                 } else if (!dashboardMenu.isAccessibleViewsEmpty()) {
                     ui.navigate(dashboardMenu.getInitialViewName());
@@ -320,12 +320,37 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
             });
         }
 
-        private static String decode(final String oldState) {
+        /**
+         * Vaadin 8: the view name is the old address up to the first "/", read
+         * decoded; an address with an empty view name ({@code #!//host},
+         * {@code #!/x}) opens the start view.
+         */
+        static boolean hasViewName(final String oldState) {
+            return !decode(oldState).startsWith("/");
+        }
+
+        static String decode(final String oldState) {
             try {
                 return URLDecoder.decode(oldState.replace("+", "%2B"), StandardCharsets.UTF_8);
             } catch (final IllegalArgumentException e) {
                 return oldState;
             }
+        }
+
+        /**
+         * Whether an old address can be forwarded as a path inside the UI.
+         */
+        static boolean isUiPath(final String oldState) {
+            if (NOT_A_UI_PATH.matcher(oldState).find()) {
+                return false;
+            }
+            try {
+                new Location(oldState);
+            } catch (final InvalidLocationException e) {
+                LOG.debug("Old address {} is not a valid path, showing the error view text", oldState, e);
+                return false;
+            }
+            return true;
         }
 
         /**
@@ -335,14 +360,7 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
          * address cannot be forwarded as a path.
          */
         private void forwardOldAddress(final UI ui, final String oldState) {
-            boolean path = !NOT_A_UI_PATH.matcher(oldState).find();
-            try {
-                new Location(oldState);
-            } catch (final InvalidLocationException e) {
-                LOG.debug("Old address {} is not a valid path, showing the error view text", oldState, e);
-                path = false;
-            }
-            if (!path) {
+            if (!isUiPath(oldState)) {
                 add(new Span(i18n.getMessage("message.error.view", decode(oldState))));
                 return;
             }
