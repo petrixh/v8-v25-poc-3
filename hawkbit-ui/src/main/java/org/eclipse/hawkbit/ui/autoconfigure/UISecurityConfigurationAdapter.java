@@ -42,6 +42,7 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -230,6 +231,10 @@ public class UISecurityConfigurationAdapter {
         // Vaadin configurer, which also requires authentication for any other
         // request
         httpSec.authorizeHttpRequests(requests -> requests.requestMatchers("/UI/login/**").permitAll());
+        // 1B-58: an unknown address below /UI/login/ answers 404 for an
+        // anonymous user, as before, instead of reaching the router (the error
+        // view in the shell needs a logged-in user)
+        httpSec.addFilterBefore(new AnonymousUnknownLoginPathFilter(), AuthorizationFilter.class);
 
         if (enableOidc) {
             // OIDC
