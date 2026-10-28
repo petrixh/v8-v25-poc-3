@@ -59,6 +59,9 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
 
     private final transient MultipartConfigElement multipartConfigElement;
     private final transient Lock uploadLock = new ReentrantLock();
+    // dropped files are streamed one after the other, in the order their
+    // requests arrive
+    private final transient Lock dropQueueLock = new ReentrantLock(true);
 
     private final UploadProgressButtonLayout uploadButtonLayout;
     private VerticalLayout dropAreaLayout;
@@ -180,9 +183,25 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
         return uploadButtonLayout;
     }
 
-    private class UploadFileDropHandler implements UploadHandler {
+    // package-private for UploadDropQueueTest
+    class UploadFileDropHandler implements UploadHandler {
 
         private static final long serialVersionUID = 1L;
+
+        /**
+         * Vaadin 8's modal upload status window did not stop the files of a
+         * drop that started before it opened. The window opens with the first
+         * file and makes the drop zone inert, and Flow refuses requests to an
+         * inert element (403) while the browser still sends the other files of
+         * the drop. They are accepted while uploads are listed in the window;
+         * otherwise a request to the inert drop zone is still refused.
+         *
+         * @return whether a request is handled while the drop zone is inert
+         */
+        @Override
+        public boolean isAllowInert() {
+            return !artifactUploadState.areAllUploadsFinished();
+        }
 
         /**
          * Validates the dropped file and uploads it. Vaadin 8 got all dropped
@@ -208,7 +227,26 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
                 AbstractFileTransferHandler.drainQuietly(event.getInputStream());
                 return;
             }
-            streamFile(event, streamVariable.get());
+
+            // Vaadin 8 sent the dropped files one after the other; the browser
+            // now sends several at once. Each waits here for its turn, listed
+            // in the status window as queued, so leaving the view asks to clear
+            // the upload queue, as in Vaadin 8
+            final boolean removedFromQueue;
+            dropQueueLock.lock();
+            try {
+                removedFromQueue = streamVariable.get().isRemovedFromUploadQueue();
+                if (!removedFromQueue) {
+                    streamFile(event, streamVariable.get());
+                }
+            } finally {
+                dropQueueLock.unlock();
+            }
+            if (removedFromQueue) {
+                // the queue was cleared when leaving the view: Vaadin 8 did not
+                // send such a file
+                AbstractFileTransferHandler.drainQuietly(event.getInputStream());
+            }
         }
 
         private FileTransferHandlerStreamVariable drop(final String fileName, final long fileSize,

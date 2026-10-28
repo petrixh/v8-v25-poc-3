@@ -184,4 +184,15 @@ public class FileTransferHandlerStreamVariable extends AbstractFileTransferHandl
     public boolean isInterrupted() {
         return isUploadInterrupted();
     }
+
+    /**
+     * Whether the file was removed from the upload state while it waited for
+     * its turn: the user confirmed "Clear file upload queue" when leaving the
+     * upload view.
+     *
+     * @return {@code true} if the file is no longer in the upload state
+     */
+    boolean isRemovedFromUploadQueue() {
+        return !getUploadState().isFileInUploadState(fileUploadId);
+    }
 }
