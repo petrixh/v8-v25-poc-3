@@ -28,6 +28,7 @@ import org.eclipse.hawkbit.ui.error.extractors.InvalidDistributionSetErrorExtrac
 import org.eclipse.hawkbit.ui.error.extractors.AssignmentQuotaExceededErrorExtractor;
 import org.eclipse.hawkbit.ui.error.extractors.UiErrorDetailsExtractor;
 import org.eclipse.hawkbit.ui.error.extractors.UploadErrorExtractor;
+import org.eclipse.hawkbit.ui.utils.BrowserTimeZoneServiceInitListener;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -222,6 +223,16 @@ public class MgmtUiConfiguration {
     @Bean
     VaadinServiceInitListener systemMessagesServiceInitListener(final SystemMessagesProvider systemMessagesProvider) {
         return event -> event.getSource().setSystemMessagesProvider(systemMessagesProvider);
+    }
+
+    /**
+     * Dates and times in the browser's time zone (2B-01).
+     *
+     * @return Vaadin service init listener
+     */
+    @Bean
+    BrowserTimeZoneServiceInitListener browserTimeZoneServiceInitListener() {
+        return new BrowserTimeZoneServiceInitListener();
     }
 
     /**
