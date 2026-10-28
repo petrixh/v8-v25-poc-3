@@ -95,6 +95,10 @@ public class UploadProgressInfoWindow extends Dialog {
         if (gridUploadItem.getFileUploadId() == null) {
             gridUploadItem.setFileUploadId(fileUploadId);
             uploads.add(gridUploadItem);
+            // a file that starts while the window is open: Flow's refreshItem
+            // updates only rows the grid already shows
+            uploadProgressGrid.getDataProvider().refreshAll();
+            return;
         }
 
         uploadProgressGrid.getDataProvider().refreshItem(gridUploadItem);
