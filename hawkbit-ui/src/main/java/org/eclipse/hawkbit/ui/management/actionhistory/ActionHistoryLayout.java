@@ -12,13 +12,14 @@ package org.eclipse.hawkbit.ui.management.actionhistory;
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.EventListenersAwareLayout;
-
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import org.eclipse.hawkbit.ui.common.layout.ExpandRatioLayout;
 
 /**
  * Layout responsible for action-history-grid and the corresponding header.
+ * The three grids share the width by the Vaadin 8 expand ratios
+ * ({@link ExpandRatioLayout}).
  */
-public class ActionHistoryLayout extends HorizontalLayout implements EventListenersAwareLayout {
+public class ActionHistoryLayout extends ExpandRatioLayout implements EventListenersAwareLayout {
     private static final long serialVersionUID = 1L;
 
     private final ActionHistoryGridLayout actionHistoryGridLayout;
@@ -55,17 +56,20 @@ public class ActionHistoryLayout extends HorizontalLayout implements EventListen
         setSpacing(true);
     }
 
+    // Vaadin 8 ratios 0.55 / 0.18 / 0.27, times 100: Vaadin 8 shared the
+    // width among the visible components by their ratios, while flex grows
+    // that add up to less than 1 leave space free (the history alone took 55 %)
     private void buildLayout() {
         add(actionHistoryGridLayout);
-        setFlexGrow(0.55F, actionHistoryGridLayout);
+        setFlexGrow(55F, actionHistoryGridLayout);
 
         actionStatusLayout.setVisible(false);
         add(actionStatusLayout);
-        setFlexGrow(0.18F, actionStatusLayout);
+        setFlexGrow(18F, actionStatusLayout);
 
         actionStatusMsgLayout.setVisible(false);
         add(actionStatusMsgLayout);
-        setFlexGrow(0.27F, actionStatusMsgLayout);
+        setFlexGrow(27F, actionStatusMsgLayout);
     }
 
     /**

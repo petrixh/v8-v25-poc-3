@@ -179,6 +179,16 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         ColumnToggleMenu.setHidable(dateAndTimeColumn);
         ColumnToggleMenu.setHidable(statusColumn);
         ColumnToggleMenu.setHidable(maintenanceWindowColumn).setVisible(false);
+
+        shareFreeSpace(dsColumn, dateAndTimeColumn, maintenanceWindowColumn);
+    }
+
+    // Vaadin 8 (commonColumnConfiguration): expand ratio 1 and no minimum
+    // width from the content, so the text columns shared what the icon
+    // columns left; Flow's default width (100 px) does not shrink and pushed
+    // the Actions column out of the panel
+    private static void shareFreeSpace(final Column<?>... columns) {
+        Arrays.stream(columns).forEach(column -> column.setWidth("0px"));
     }
 
     private Column<ProxyAction> addActiveStatusColumn() {
@@ -377,6 +387,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         ColumnToggleMenu.setHidable(statusColumn);
         ColumnToggleMenu.setHidable(maintenanceWindowColumn).setVisible(false);
         ColumnToggleMenu.setHidable(rolloutNameColumn);
+
+        shareFreeSpace(dsColumn, dateAndTimeColumn, maintenanceWindowColumn, rolloutNameColumn);
     }
 
     private Column<ProxyAction> addActionIdColumn() {
