@@ -199,8 +199,11 @@ public class UISecurityConfigurationAdapter {
         // requests (UIDL, push, heartbeat, static resources) through and keeps
         // the navigation access control; no form login (the login view logs in
         // programmatically, as before), CSRF and logout stay as configured here
+        // E006: any other address under /UI needs only a logged-in user (the
+        // configurer's default denies it with 403), so an unknown path reaches
+        // the router and gets the error view with 404
         httpSec.with(VaadinSecurityConfigurer.vaadin(), vaadin -> vaadin.enableCsrfConfiguration(false)
-                .enableLogoutConfiguration(false));
+                .enableLogoutConfiguration(false).anyRequest(anyRequest -> anyRequest.authenticated()));
         // disable as CSRF is handled by Vaadin
         httpSec.csrf(AbstractHttpConfigurer::disable);
         // allow same origin X-Frame-Options for correct file download under

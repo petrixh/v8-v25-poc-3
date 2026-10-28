@@ -97,9 +97,18 @@
       <module>hawkbit-ddi-server</module>
       <module>hawkbit-dmf-server</module>
       <module>hawkbit-mgmt-server</module>
-	  <module>hawkbit-simple-ui</module>
-	  
       <module>hawkbit-vv8-ui</module>
       <module>hawkbit-update-server</module>
    </modules>
+
+   <profiles>
+      <profile>
+         <!-- Vaadin 24 simple UI, opt-in with -Psimple-ui. Out of the migration's scope (E004 A): it is not ported
+            to Java 21 / Spring Boot 4 and does not build with the rest, so it is not in the default build. -->
+         <id>simple-ui</id>
+         <modules>
+            <module>hawkbit-simple-ui</module>
+         </modules>
+      </profile>
+   </profiles>
 </project>
