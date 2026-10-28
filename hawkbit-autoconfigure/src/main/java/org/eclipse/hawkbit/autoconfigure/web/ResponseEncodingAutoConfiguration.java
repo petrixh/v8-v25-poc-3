@@ -54,7 +54,7 @@ public class ResponseEncodingAutoConfiguration {
         @Override
         public ModelAndView resolveException(final HttpServletRequest request, final HttpServletResponse response,
                 final Object handler, final Exception ex) {
-            final CharacterEncodingFilter filter = characterEncodingFilter.getIfAvailable();
+            final CharacterEncodingFilter filter = characterEncodingFilter.getIfUnique();
             if (filter != null && filter.isForceResponseEncoding() && filter.getEncoding() != null) {
                 response.setCharacterEncoding(filter.getEncoding());
             }
