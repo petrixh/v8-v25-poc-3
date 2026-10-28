@@ -115,8 +115,9 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
      * @return Save button
      */
     public Button createSaveButton() {
+        // icon only (Vaadin 8: the ICON_ONLY style hid the caption); the id is not the text
         return SPUIComponentProvider.getButton(UIComponentIdProvider.CUSTOM_FILTER_SAVE_ICON,
-                UIComponentIdProvider.CUSTOM_FILTER_SAVE_ICON, i18n.getMessage(UIMessageIdProvider.TOOLTIP_SAVE), null,
+                "", i18n.getMessage(UIMessageIdProvider.TOOLTIP_SAVE), null,
                 false, VaadinIcon.HARDDRIVE, SPUIButtonStyleNoBorder.class);
     }
 }
