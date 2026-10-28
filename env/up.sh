@@ -133,6 +133,10 @@ docker stop -t 20 "$C_MGMT" >/dev/null || die "stop mgmt-server before the seed 
 running "$C_MGMT" && die "mgmt-server still running: no seed dump taken"
 dump_db > "$COPY_DIR/seed.sql" || die "seed dump"
 say "seed dump: $(grep -c '^INSERT' "$COPY_DIR/seed.sql") INSERT statements, sha256 $(sha256sum < "$COPY_DIR/seed.sql" | cut -c1-12)"
+if have_user_files; then   # mgmt-server gets the test users too, from here on (the seed ran as admin without them)
+  { docker rm "$C_MGMT" >/dev/null && create_mgmt --users; } || die "recreate mgmt-server with the test-user files"
+  say "mgmt-server: recreated with the test-user files"
+fi
 delete_queues
 
 # inbound-only forward 127.0.0.1:$PORT -> vv8-ui:8082
