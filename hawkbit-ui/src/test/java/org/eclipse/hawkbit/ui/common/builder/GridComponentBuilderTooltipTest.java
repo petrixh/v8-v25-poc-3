@@ -63,7 +63,8 @@ class GridComponentBuilderTooltipTest {
 
         assertThat(iconColumn.getTooltipGenerator().apply("a")).isEqualTo("Tip a");
         assertThat(nestedColumn.getTooltipGenerator().apply("a")).isEqualTo("Nested a");
-        assertThat(disabledColumn.getTooltipGenerator().apply("a")).isEmpty();
+        // the cell shows the tooltip of a disabled button, as Vaadin 8 did
+        assertThat(disabledColumn.getTooltipGenerator().apply("a")).isEqualTo("Button a");
         assertThat(noTipColumn.getTooltipGenerator().apply("a")).isEmpty();
         assertThat(textColumn.getTooltipGenerator().apply("a")).isEqualTo("Text a");
     }

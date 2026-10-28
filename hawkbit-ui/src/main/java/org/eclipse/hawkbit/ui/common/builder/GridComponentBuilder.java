@@ -469,8 +469,9 @@ public final class GridComponentBuilder {
      * the pointer from the tooltip of the component inside the cell. So in
      * such a grid each component column without a generator gets one that
      * reads the tooltip text of its component (the first one found, for a cell
-     * with several components; none for a disabled component, which takes no
-     * pointer events). Grids without any generator are left alone: the
+     * with several components). This also shows the tooltip of a disabled
+     * button, as Vaadin 8 did (a disabled Flow button takes no pointer events,
+     * but the cell does). Grids without any generator are left alone: the
      * components' own tooltips work there.
      * <p>
      * The columns of a grid are added one by one and generators set after
@@ -505,7 +506,7 @@ public final class GridComponentBuilder {
     }
 
     private static String firstTooltipText(final Component component) {
-        if (component == null || !component.getElement().isEnabled()) {
+        if (component == null) {
             return "";
         }
         final String text = Tooltip.forComponent(component).getText();
