@@ -226,7 +226,10 @@ public final class SPUIComponentProvider {
             final String placeholder, final boolean isEmptySelectionAllowed,
             final ItemLabelGenerator<T> itemCaptionGenerator) {
         final ComboBox<T> comboBox = new ComboBox<>();
-        comboBox.setId(id);
+        // Vaadin 8 accepted a null id (no id); Flow's setId throws on null
+        if (id != null) {
+            comboBox.setId(id);
+        }
         comboBox.setLabel(caption);
         comboBox.setTooltipText(description);
         comboBox.setPlaceholder(placeholder);
