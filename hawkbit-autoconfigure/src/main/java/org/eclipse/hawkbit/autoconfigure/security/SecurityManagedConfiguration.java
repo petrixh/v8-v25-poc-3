@@ -61,7 +61,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -557,8 +556,14 @@ public class SecurityManagedConfiguration {
 
                 http.addFilterAfter(oidcBearerTokenAuthenticationFilter, BearerTokenAuthenticationFilter.class);
             } else {
+                // Spring Security 7 adds charset="UTF-8" to the challenge by default; null restores the old header
                 final BasicAuthenticationEntryPoint basicAuthEntryPoint = new BasicAuthenticationEntryPoint();
                 basicAuthEntryPoint.setRealmName(securityProperties.getBasicRealm());
+                basicAuthEntryPoint.setCharset(null);
+                // the entry point of the Basic filter itself (bad credentials) keeps Spring Security's default realm
+                final BasicAuthenticationEntryPoint badCredentialsEntryPoint = new BasicAuthenticationEntryPoint();
+                badCredentialsEntryPoint.setRealmName("Realm");
+                badCredentialsEntryPoint.setCharset(null);
 
                 http.addFilterBefore(new Filter() {
                     @Override
@@ -578,7 +583,7 @@ public class SecurityManagedConfiguration {
                     }
                 }, RequestHeaderAuthenticationFilter.class);
                 http
-                        .httpBasic(Customizer.withDefaults())
+                        .httpBasic(configurer -> configurer.authenticationEntryPoint(badCredentialsEntryPoint))
                         .exceptionHandling(configurer -> configurer.authenticationEntryPoint(basicAuthEntryPoint));
             }
 
