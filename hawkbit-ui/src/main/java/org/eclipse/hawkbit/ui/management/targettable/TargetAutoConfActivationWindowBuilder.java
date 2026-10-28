@@ -67,9 +67,10 @@ public class TargetAutoConfActivationWindowBuilder extends AbstractEntityWindowB
 
         final CommonDialogWindow window = createWindow(layout.getRootComponent(), null);
         window.hideMandatoryExplanation();
-        // Vaadin 8: caption with an assistive prefix for screen readers (no
-        // public Flow API for the dialog's aria label)
-        window.setHeaderTitle(entity.getControllerId());
+        // Vaadin 8: the caption was the controller id with the assistive prefix, which the old
+        // theme showed in the title
+        window.setHeaderTitle(getI18n().getMessage("caption.target.auto.confirmation.activate.prefix") + " "
+                + entity.getControllerId());
 
         layout.setSaveCallback(window::setCloseListener);
 

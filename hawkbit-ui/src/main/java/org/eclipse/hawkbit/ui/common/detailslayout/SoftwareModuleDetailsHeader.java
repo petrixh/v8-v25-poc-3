@@ -171,9 +171,10 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
         artifactDtlsWindow.setModality(ModalityMode.STRICT);
         artifactDtlsWindow.addClassNames(SPUIStyleDefinitions.CONFIRMATION_WINDOW_CAPTION);
 
-        // Vaadin 8: caption with an assistive prefix for screen readers (no
-        // public Flow API for the dialog's aria label)
-        artifactDtlsWindow.setHeaderTitle(selectedEntity.getNameAndVersion());
+        // Vaadin 8: the caption was the name and version with the assistive prefix, which the old
+        // theme showed in the title
+        artifactDtlsWindow.setHeaderTitle(
+                i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS_OF) + " " + selectedEntity.getNameAndVersion());
 
         // Vaadin 8: the window's maximize/restore button (WindowMode); Flow
         // dialogs have none, so the header gets a button that does the same
