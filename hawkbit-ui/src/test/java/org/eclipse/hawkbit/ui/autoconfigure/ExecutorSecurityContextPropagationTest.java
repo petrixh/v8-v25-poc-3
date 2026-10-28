@@ -14,6 +14,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -70,6 +72,10 @@ class ExecutorSecurityContextPropagationTest {
             .withUserConfiguration(ExecutorAutoConfiguration.class);
 
     private RecordingStrategy installed;
+
+    // Flow keeps the current VaadinSession only weakly: hold the mocks for the
+    // whole test, or the garbage collector may drop them mid-test
+    private final List<VaadinSession> vaadinSessions = new ArrayList<>();
 
     @BeforeEach
     void defaultStrategyWhileExecutorsAreBuilt() {
@@ -191,8 +197,9 @@ class ExecutorSecurityContextPropagationTest {
         SecurityContextHolder.setContextHolderStrategy(installed);
     }
 
-    private static WrappedSession currentVaadinSession() {
+    private WrappedSession currentVaadinSession() {
         final VaadinSession vaadinSession = mock(VaadinSession.class);
+        vaadinSessions.add(vaadinSession);
         final WrappedSession httpSession = mock(WrappedSession.class);
         when(vaadinSession.getSession()).thenReturn(httpSession);
         VaadinSession.setCurrent(vaadinSession);

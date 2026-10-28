@@ -13,6 +13,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -32,6 +35,10 @@ import io.qameta.allure.Story;
 class ThreadFirstSecurityContextHolderStrategyTest {
 
     private final ThreadFirstSecurityContextHolderStrategy strategy = new ThreadFirstSecurityContextHolderStrategy();
+
+    // Flow keeps the current VaadinSession only weakly: hold the mocks for the
+    // whole test, or the garbage collector may drop them mid-test
+    private final List<VaadinSession> vaadinSessions = new ArrayList<>();
 
     @AfterEach
     void cleanUp() {
@@ -105,8 +112,9 @@ class ThreadFirstSecurityContextHolderStrategyTest {
         assertThat(strategy.getContext()).isSameAs(user);
     }
 
-    private static WrappedSession currentVaadinSession() {
+    private WrappedSession currentVaadinSession() {
         final VaadinSession vaadinSession = mock(VaadinSession.class);
+        vaadinSessions.add(vaadinSession);
         final WrappedSession httpSession = mock(WrappedSession.class);
         when(vaadinSession.getSession()).thenReturn(httpSession);
         VaadinSession.setCurrent(vaadinSession);
