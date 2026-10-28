@@ -82,11 +82,13 @@ public class AnonymousUnknownLoginPathFilter extends OncePerRequestFilter {
     protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response,
             final FilterChain filterChain) throws ServletException, IOException {
         final String path = path(request);
-        if (isUnknownLoginPath(path) && !isFlowSessionRequest(request) && isAnonymous()) {
+        // isAnonymous() comes before anything that reads the request parameters: a logged-in request never has
+        // its parameters read here (on a form POST that parses the body)
+        if (isUnknownLoginPath(path) && isAnonymous() && !isFlowSessionRequest(request)) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        if (isLoginView(path) && hasUnknownRequestType(request) && isAnonymous()) {
+        if (isLoginView(path) && isAnonymous() && hasUnknownRequestType(request)) {
             filterChain.doFilter(new WithoutRequestType(request), response);
             return;
         }
