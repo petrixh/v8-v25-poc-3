@@ -12,6 +12,7 @@ package org.eclipse.hawkbit.autoconfigure.security;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import jakarta.servlet.Filter;
@@ -75,9 +76,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -87,6 +91,7 @@ import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
@@ -564,6 +569,14 @@ public class SecurityManagedConfiguration {
                 final BasicAuthenticationEntryPoint badCredentialsEntryPoint = new BasicAuthenticationEntryPoint();
                 badCredentialsEntryPoint.setRealmName("Realm");
                 badCredentialsEntryPoint.setCharset(null);
+                // as httpBasic's default: XHR requests get a plain 401 (no WWW-Authenticate, so a browser shows no
+                // login dialog), all others the Basic challenge
+                final LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> basicEntryPoints = new LinkedHashMap<>();
+                basicEntryPoints.put(new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"),
+                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+                final DelegatingAuthenticationEntryPoint basicFilterEntryPoint =
+                        new DelegatingAuthenticationEntryPoint(basicEntryPoints);
+                basicFilterEntryPoint.setDefaultEntryPoint(badCredentialsEntryPoint);
 
                 http.addFilterBefore(new Filter() {
                     @Override
@@ -583,7 +596,7 @@ public class SecurityManagedConfiguration {
                     }
                 }, RequestHeaderAuthenticationFilter.class);
                 http
-                        .httpBasic(configurer -> configurer.authenticationEntryPoint(badCredentialsEntryPoint))
+                        .httpBasic(configurer -> configurer.authenticationEntryPoint(basicFilterEntryPoint))
                         .exceptionHandling(configurer -> configurer.authenticationEntryPoint(basicAuthEntryPoint));
             }
 
