@@ -81,3 +81,129 @@ html {
     padding-right: 20px;
     box-sizing: border-box;
 }
+
+/*
+ * View scrolling (common.scss .main-content, .view-content): below the view's minimum size the content
+ * area scrolls inside itself, not the page.
+ */
+.main-content {
+    overflow: auto;
+}
+
+.view-content {
+    min-width: 1000px;
+    min-height: 500px;
+}
+
+/*
+ * Grids (hawkbittheme.scss, grid.scss; E023 option A: one rule for every grid, as the old theme had one
+ * variable): rows and header 31px ($v-table-row-height), 6px cell padding ($v-grid-cell-padding-horizontal),
+ * small icon buttons and icons in cells so they do not set the row height.
+ */
+vaadin-grid {
+    --vaadin-grid-cell-padding: 0 6px;
+    --vaadin-icon-size: 16px;
+}
+
+vaadin-grid::part(body-cell),
+vaadin-grid::part(header-cell) {
+    min-height: 31px;
+}
+
+vaadin-grid vaadin-button {
+    --lumo-size-m: 24px;
+}
+
+/* Selected row: solid $app-selection-color with white text and icons (the checkbox column stays, E007) */
+vaadin-grid::part(selected-row-cell) {
+    background-color: #551f62;
+    color: #fff;
+    --vaadin-button-text-color: #fff;
+    --vaadin-button-tertiary-text-color: #fff;
+}
+
+/*
+ * Panels (table-common.scss, table-content.scss, filter-layout-styles.scss, common.scss): white panels with
+ * a $widget-border-color border, a header band with the caption in $widget-caption-color and small icon
+ * buttons; captions stay on one line, long values are cut with an ellipsis (generic-styles.scss).
+ */
+.table-layout {
+    background: #fff;
+    border-radius: 4px;
+}
+
+.bordered-layout {
+    border: 1px solid #d4d4d4;
+    border-radius: 4px;
+}
+
+.no-border-bottom {
+    border-bottom: none;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.no-border-top {
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.widget-header {
+    color: #551f62;
+    margin-top: 4px;
+    --vaadin-icon-size: 16px;
+}
+
+.widget-header vaadin-button,
+.widget-header vaadin-menu-bar {
+    --lumo-size-m: 24px;
+}
+
+.header-caption {
+    padding-left: 10px;
+}
+
+.header-caption,
+.header-caption > span {
+    white-space: nowrap;
+}
+
+.widget-header > span.header-caption {
+    flex-shrink: 0;
+}
+
+.widget-header > vaadin-horizontal-layout.header-caption {
+    min-width: 0;
+}
+
+.widget-style {
+    background: #fff;
+    border: 1px solid #d4d4d4;
+    border-radius: 4px;
+    line-height: 21px;
+}
+
+.filter-btns-main-layout {
+    background: #fff;
+}
+
+.filter-btns-layout {
+    border: 1px solid #d4d4d4;
+    border-radius: 0 0 4px 4px;
+}
+
+.filter-btns-header-layout {
+    padding-bottom: 14px;
+    border-bottom: 1px solid #d4d4d4;
+}
+
+.text-bold {
+    font-weight: bold;
+}
+
+.text-cut {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
