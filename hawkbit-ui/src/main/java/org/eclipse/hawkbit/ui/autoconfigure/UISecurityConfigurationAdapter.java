@@ -48,6 +48,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.AntPathMatcher;
@@ -308,7 +309,10 @@ public class UISecurityConfigurationAdapter {
 
         public TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler(final String defaultTargetUrl) {
             redirectHandler.setDefaultTargetUrl(defaultTargetUrl);
-            redirectHandler.setRedirectStrategy((request, response, url) -> UI.getCurrent().getPage().setLocation(url));
+            // relative targets get the servlet context path, absolute ones stay
+            // as they are (as vaadin4spring's DefaultVaadinRedirectStrategy did)
+            redirectHandler.setRedirectStrategy((request, response, url) -> UI.getCurrent().getPage()
+                    .setLocation(UrlUtils.isAbsoluteUrl(url) ? url : request.getContextPath() + url));
         }
 
         public void setTargetUrlParameter(final String targetUrlParameter) {
