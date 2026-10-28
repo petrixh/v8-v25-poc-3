@@ -249,6 +249,8 @@ public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements B
         password.addThemeVariants(TextFieldVariant.LUMO_SMALL);
         password.addClassNames(TEXTFIELD_INLINE_ICON, LOGIN_TEXTFIELD);
         password.setId("login-password");
+        // Vaadin 8's password field had no reveal button: hidden for parity
+        password.setRevealButtonVisible(false);
         password.setValueChangeMode(ValueChangeMode.LAZY);
 
         binder.forField(password).asRequired().bind(ProxyLoginCredentials::getPassword,
