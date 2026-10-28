@@ -281,54 +281,67 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     @Override
     public void addColumns() {
         // hidable columns (Vaadin 8 setHidable(true)) go through the shared
-        // column toggle menu; hidden columns start invisible as before
+        // column toggle menu, called after the last column so the toggle sits
+        // at the end; hidden columns start invisible as before
         final Column<ProxyRollout> nameColumn = GridComponentBuilder
                 .addComponentColumn(this, this::buildRolloutLink).setKey(ROLLOUT_LINK_ID)
                 .setHeader(i18n.getMessage("header.name")).setFlexGrow((int) 3);
         GridComponentBuilder.setColumnSortable(nameColumn, "name");
 
-        ColumnToggleMenu.setHidable(GridComponentBuilder.addDescriptionColumn(this, i18n, DESC_ID)).setVisible(false);
+        final Column<ProxyRollout> descriptionColumn = GridComponentBuilder.addDescriptionColumn(this, i18n, DESC_ID);
 
-        ColumnToggleMenu.setHidable(GridComponentBuilder
+        final Column<ProxyRollout> dsColumn = GridComponentBuilder
                 .addColumn(this, ProxyRollout::getDsNameVersion, this::getDistributionCellStyle)
                 .setKey(DIST_NAME_VERSION_ID).setHeader(i18n.getMessage("header.distributionset"))
-                .setTooltipGenerator(this::createDSTooltipText).setFlexGrow((int) 2));
+                .setTooltipGenerator(this::createDSTooltipText).setFlexGrow((int) 2);
 
         final Column<ProxyRollout> statusColumn = GridComponentBuilder
                 .addIconColumn(this, rolloutStatusIconSupplier::getLabel, STATUS_ID, i18n.getMessage("header.status"));
         GridComponentBuilder.setColumnSortable(statusColumn, STATUS_PROPERTY_NAME);
-        ColumnToggleMenu.setHidable(statusColumn);
 
-        ColumnToggleMenu.setHidable(GridComponentBuilder.addIconColumn(this, actionTypeIconSupplier::getLabel,
-                ACTION_TYPE_ID, i18n.getMessage("header.type"))).setVisible(false);
+        final Column<ProxyRollout> actionTypeColumn = GridComponentBuilder.addIconColumn(this,
+                actionTypeIconSupplier::getLabel, ACTION_TYPE_ID, i18n.getMessage("header.type"));
 
         // HtmlRenderer: the same HTML as inner HTML; the HTML tooltip becomes
         // plain text, one line per status
-        ColumnToggleMenu.setHidable(addColumn(LitRenderer.<ProxyRollout> of("<span .innerHTML=${item.html}></span>").withProperty("html",
+        final Column<ProxyRollout> detailStatusColumn = addColumn(LitRenderer.<ProxyRollout> of("<span .innerHTML=${item.html}></span>").withProperty("html",
                 rollout -> DistributionBarHelper.getDistributionBarAsHTMLString(rollout.getStatusTotalCountMap())))
                 .setKey(TOTAL_TARGETS_COUNT_STATUS_ID)
                         .setHeader(i18n.getMessage("header.detail.status"))
                         .setTooltipGenerator(
                                 rollout -> DistributionBarHelper.getTooltip(rollout.getStatusTotalCountMap(), i18n)
                                         .replace("<br>", "\n").trim())
-                        .setFlexGrow((int) 5));
+                        .setFlexGrow((int) 5);
 
-        ColumnToggleMenu.setHidable(GridComponentBuilder.addColumn(this, ProxyRollout::getNumberOfGroups)
-                .setKey(NUMBER_OF_GROUPS_ID).setHeader(i18n.getMessage("header.numberofgroups")));
+        final Column<ProxyRollout> groupsColumn = GridComponentBuilder.addColumn(this, ProxyRollout::getNumberOfGroups)
+                .setKey(NUMBER_OF_GROUPS_ID).setHeader(i18n.getMessage("header.numberofgroups"));
 
-        ColumnToggleMenu.setHidable(GridComponentBuilder.addColumn(this, ProxyRollout::getTotalTargets)
-                .setKey(TOTAL_TARGETS_ID).setHeader(i18n.getMessage("header.total.targets")));
+        final Column<ProxyRollout> totalTargetsColumn = GridComponentBuilder
+                .addColumn(this, ProxyRollout::getTotalTargets).setKey(TOTAL_TARGETS_ID)
+                .setHeader(i18n.getMessage("header.total.targets"));
 
-        ColumnToggleMenu.setHidable(GridComponentBuilder.addColumn(this, ProxyRollout::getApprovalDecidedBy)
-                .setKey(APPROVAL_DECIDED_BY_ID).setHeader(i18n.getMessage("header.approvalDecidedBy")))
-                .setVisible(false);
-        ColumnToggleMenu.setHidable(GridComponentBuilder.addColumn(this, ProxyRollout::getApprovalRemark)
-                .setKey(APPROVAL_REMARK_ID).setHeader(i18n.getMessage("header.approvalRemark"))).setVisible(false);
+        final Column<ProxyRollout> approvalDecidedByColumn = GridComponentBuilder
+                .addColumn(this, ProxyRollout::getApprovalDecidedBy).setKey(APPROVAL_DECIDED_BY_ID)
+                .setHeader(i18n.getMessage("header.approvalDecidedBy"));
+        final Column<ProxyRollout> approvalRemarkColumn = GridComponentBuilder
+                .addColumn(this, ProxyRollout::getApprovalRemark).setKey(APPROVAL_REMARK_ID)
+                .setHeader(i18n.getMessage("header.approvalRemark"));
 
-        GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n)
-                .forEach(col -> ColumnToggleMenu.setHidable(col).setVisible(false));
+        final List<Column<ProxyRollout>> createdAndModifiedColumns = GridComponentBuilder
+                .addCreatedAndModifiedColumns(this, i18n);
 
         addActionColumns();
+
+        ColumnToggleMenu.setHidable(descriptionColumn).setVisible(false);
+        ColumnToggleMenu.setHidable(dsColumn);
+        ColumnToggleMenu.setHidable(statusColumn);
+        ColumnToggleMenu.setHidable(actionTypeColumn).setVisible(false);
+        ColumnToggleMenu.setHidable(detailStatusColumn);
+        ColumnToggleMenu.setHidable(groupsColumn);
+        ColumnToggleMenu.setHidable(totalTargetsColumn);
+        ColumnToggleMenu.setHidable(approvalDecidedByColumn).setVisible(false);
+        ColumnToggleMenu.setHidable(approvalRemarkColumn).setVisible(false);
+        createdAndModifiedColumns.forEach(col -> ColumnToggleMenu.setHidable(col).setVisible(false));
     }
 
     private void addActionColumns() {
