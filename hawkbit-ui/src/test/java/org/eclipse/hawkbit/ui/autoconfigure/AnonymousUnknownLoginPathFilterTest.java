@@ -11,7 +11,11 @@ package org.eclipse.hawkbit.ui.autoconfigure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -97,6 +101,80 @@ class AnonymousUnknownLoginPathFilterTest {
         SecurityContextHolder.getContext().setAuthentication(new AnonymousAuthenticationToken("key", "anonymous",
                 AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
         assertThat(run("/UI/login/zzz").getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    @Description("vm3-004 N3: anonymous /UI/login and /UI/login/ with a v-r that is none of Flow's request types "
+            + "reach the login view without v-r (as without it), other parameters and the query string unchanged")
+    void anonymousLoginViewWithUnknownRequestTypeLosesIt() throws Exception {
+        for (final String path : List.of("/UI/login", "/UI/login/")) {
+            for (final String type : List.of("x", "", "oldbrowser", "UIDL")) {
+                final MockHttpServletRequest login = request(path);
+                login.setParameter("v-r", type);
+                login.setParameter("other", "1");
+                login.setQueryString("v-r=" + type + "&other=1");
+                final MockFilterChain chain = new MockFilterChain();
+                final MockHttpServletResponse response = new MockHttpServletResponse();
+                filter.doFilter(login, response, chain);
+
+                final HttpServletRequest passed = (HttpServletRequest) chain.getRequest();
+                assertThat(response.getStatus()).as("%s v-r=%s", path, type).isEqualTo(200);
+                assertThat(passed).as("%s v-r=%s passed on", path, type).isNotNull();
+                assertThat(passed.getParameter("v-r")).isNull();
+                assertThat(passed.getParameterValues("v-r")).isNull();
+                assertThat(passed.getParameterMap()).doesNotContainKey("v-r").containsKey("other");
+                assertThat(Collections.list(passed.getParameterNames())).containsExactly("other");
+                assertThat(passed.getParameter("other")).isEqualTo("1");
+                assertThat(passed.getQueryString()).isEqualTo("v-r=" + type + "&other=1");
+            }
+        }
+    }
+
+    @Test
+    @Description("vm3-004 N3: Flow's own request types on the login view, a logged-in user and other paths are passed "
+            + "on as they are")
+    void loginViewKnownRequestTypesAndLoggedInUnchanged() throws Exception {
+        for (final String type : List.of("init", "webcomponent-resync", "uidl", "heartbeat", "push", "i18n")) {
+            final MockHttpServletRequest login = request("/UI/login");
+            login.setParameter("v-r", type);
+            final MockFilterChain chain = new MockFilterChain();
+            filter.doFilter(login, new MockHttpServletResponse(), chain);
+            assertThat(chain.getRequest()).as("v-r=%s", type).isSameAs(login);
+        }
+        for (final String path : List.of("/UI/", "/UI/deployment", "/UI/loginx")) {
+            final MockHttpServletRequest other = request(path);
+            other.setParameter("v-r", "x");
+            final MockFilterChain chain = new MockFilterChain();
+            filter.doFilter(other, new MockHttpServletResponse(), chain);
+            assertThat(chain.getRequest()).as(path).isSameAs(other);
+        }
+        SecurityContextHolder.getContext().setAuthentication(
+                UsernamePasswordAuthenticationToken.authenticated("admin", "n/a", AuthorityUtils.createAuthorityList("ROLE_X")));
+        final MockHttpServletRequest login = request("/UI/login");
+        login.setParameter("v-r", "x");
+        final MockFilterChain chain = new MockFilterChain();
+        filter.doFilter(login, new MockHttpServletResponse(), chain);
+        assertThat(chain.getRequest()).isSameAs(login);
+    }
+
+    @Test
+    @Description("R2: the request parameters are read only for a login path (on a form POST that parses the body)")
+    void parametersReadOnlyForLoginPaths() throws Exception {
+        for (final String path : List.of("/UI/", "/UI/deployment", "/UI/loginx", "/UI/VAADIN/x.js")) {
+            final AtomicInteger reads = new AtomicInteger();
+            final MockHttpServletRequest other = new MockHttpServletRequest("POST", path) {
+                @Override
+                public String getParameter(final String name) {
+                    reads.incrementAndGet();
+                    return super.getParameter(name);
+                }
+            };
+            other.setServletPath("");
+            other.setPathInfo(path);
+            other.setParameter("v-r", "x");
+            filter.doFilter(other, new MockHttpServletResponse(), new MockFilterChain());
+            assertThat(reads).as(path).hasValue(0);
+        }
     }
 
     private MockHttpServletResponse run(final String path) throws Exception {
