@@ -761,22 +761,21 @@ vaadin-accordion.filter-btns-layout > vaadin-accordion-panel[opened] {
     flex-direction: column;
 }
 
+/*
+ * The open panel's content part is a one-cell grid, so the panel's content (the app's own .filter-panel-content
+ * component, put into the panel by MultipleTargetFilter) fills it, and the filter grids scroll inside it.
+ * Only the documented content part and the app's own class are styled, not Flow's wrapper around the content.
+ */
 vaadin-accordion.filter-btns-layout > vaadin-accordion-panel[opened]::part(content) {
     flex: 1 1 auto;
     min-height: 0;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
 }
 
-vaadin-accordion.filter-btns-layout > vaadin-accordion-panel[opened] > div {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-vaadin-accordion.filter-btns-layout > vaadin-accordion-panel[opened] > div > * {
-    flex: 1 1 auto;
+vaadin-accordion.filter-btns-layout .filter-panel-content {
+    height: 100%;
     min-height: 0;
 }
 

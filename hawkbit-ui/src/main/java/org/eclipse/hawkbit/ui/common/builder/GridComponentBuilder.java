@@ -287,7 +287,7 @@ public final class GridComponentBuilder {
      */
     public static <E, T> Column<E> addColumn(final Grid<E> grid, final ValueProvider<E, T> valueProvider,
             final SerializableFunction<E, String> styleGenerator) {
-        final Column<E> column = grid.addColumn(valueProvider);
+        final Column<E> column = rememberDefaultTooltipGenerator(grid.addColumn(valueProvider));
         commonColumnConfiguration(column, styleGenerator);
         return column;
     }
@@ -352,7 +352,7 @@ public final class GridComponentBuilder {
      */
     public static <E, T extends Component> Column<E> addComponentColumn(final Grid<E> grid,
             final ValueProvider<E, T> componentProvider, final SerializableFunction<E, String> styleGenerator) {
-        final Column<E> column = grid.addComponentColumn(componentProvider);
+        final Column<E> column = rememberDefaultTooltipGenerator(grid.addComponentColumn(componentProvider));
         commonColumnConfiguration(column, styleGenerator);
         keepComponentTooltips(grid);
         return column;
@@ -444,7 +444,7 @@ public final class GridComponentBuilder {
         final SerializableFunction<T, String> finalStyleGenerator = merge(
                 Arrays.asList(styleGenerator, additionalStyleGenerator));
 
-        final Column<T> column = grid.addComponentColumn(iconProvider).setKey(columnId)
+        final Column<T> column = rememberDefaultTooltipGenerator(grid.addComponentColumn(iconProvider)).setKey(columnId)
                 .setPartNameGenerator(finalStyleGenerator).setWidth(toPixels(60D)).setFlexGrow(0).setResizable(false)
                 .setSortable(false);
         if (!StringUtils.isEmpty(caption)) {
@@ -454,9 +454,9 @@ public final class GridComponentBuilder {
         return column;
     }
 
-    // a column has a tooltip generator from the start (one that gives no text): this is that one
-    private static final SerializableFunction<Object, String> NO_TOOLTIP_GENERATOR = new Grid<Object>()
-            .addColumn(item -> item).getTooltipGenerator();
+    // a column has a tooltip generator from the start (one that gives no text); the column keeps that one here
+    private static final String DEFAULT_TOOLTIP_GENERATOR_KEY = GridComponentBuilder.class.getName()
+            + ".defaultTooltipGenerator";
 
     private static final String COMPONENT_TOOLTIPS_KEY = GridComponentBuilder.class.getName() + ".componentTooltips";
 
@@ -502,8 +502,28 @@ public final class GridComponentBuilder {
         }
     }
 
+    /**
+     * Remembers the tooltip generator a column has when it is created (Flow's
+     * own one, which gives no text), so that a generator set later by the app
+     * can be told from it. Call it right after creating a column, before any
+     * generator is set. The columns added through this builder and through
+     * {@code AbstractGrid} are remembered; a column without a remembered
+     * generator counts as having none.
+     *
+     * @param <E>
+     *            entity type of the grid
+     * @param column
+     *            the newly created column
+     * @return the column
+     */
+    public static <E> Column<E> rememberDefaultTooltipGenerator(final Column<E> column) {
+        ComponentUtil.setData(column, DEFAULT_TOOLTIP_GENERATOR_KEY, column.getTooltipGenerator());
+        return column;
+    }
+
     private static boolean hasTooltipGenerator(final Column<?> column) {
-        return column.getTooltipGenerator() != NO_TOOLTIP_GENERATOR;
+        final Object defaultGenerator = ComponentUtil.getData(column, DEFAULT_TOOLTIP_GENERATOR_KEY);
+        return defaultGenerator != null && column.getTooltipGenerator() != defaultGenerator;
     }
 
     private static String firstTooltipText(final Component component) {

@@ -51,6 +51,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 public class MultipleTargetFilter extends Accordion {
     private static final long serialVersionUID = 1L;
 
+    private static final String FILTER_PANEL_CONTENT = "filter-panel-content";
+
     private final VaadinMessageSource i18n;
     private final transient UIEventBus eventBus;
 
@@ -190,6 +192,10 @@ public class MultipleTargetFilter extends Accordion {
     }
 
     private void addTabs() {
+        // the panels' content fills the open panel (hawkbit.css)
+        simpleFilterTab.addClassNames(FILTER_PANEL_CONTENT);
+        customFilterTab.addClassNames(FILTER_PANEL_CONTENT);
+        targetTypeFilterTab.addClassNames(FILTER_PANEL_CONTENT);
         simpleFilterPanel = add(i18n.getMessage("caption.filter.simple"), simpleFilterTab);
         simpleFilterPanel.setId(UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB);
         customFilterPanel = add(i18n.getMessage(UIMessageIdProvider.CAPTION_FILTER_CUSTOM), customFilterTab);
