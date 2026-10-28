@@ -1,0 +1,83 @@
+/**
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+
+/*
+ * hawkBit global theme settings, on top of Lumo and its compact preset (both loaded before this
+ * file by the app shell). The values come from the Vaadin 8 theme
+ * (VAADIN/themes/hawkbit/customstyles/hawkbitvariables.scss) and the Valo defaults it relied on.
+ * Only global settings live here: colours, font, the app background, and the colours and sizes of
+ * the menu and the view header. Density and sizes are the compact preset's: text 14px, fields and
+ * buttons 32px; Open Sans is not shipped, and with the fallback font 14px text takes about the
+ * width Valo's 16px Open Sans did. Border radius stays Lumo's 0.25em (Valo 4px).
+ */
+html {
+    /* $hawkbit-primary-color, $app-focus-color, $app-selection-color */
+    --lumo-primary-color: #551f62;
+    --lumo-primary-color-50pct: rgba(85, 31, 98, 0.5);
+    --lumo-primary-color-10pct: rgba(85, 31, 98, 0.1);
+    --lumo-primary-text-color: #551f62;
+    --lumo-primary-contrast-color: #fff;
+
+    /* Valo $v-error-indicator-color */
+    --lumo-error-color: #ed473b;
+    --lumo-error-color-50pct: rgba(237, 71, 59, 0.5);
+    --lumo-error-color-10pct: rgba(237, 71, 59, 0.1);
+    --lumo-error-text-color: #ed473b;
+
+    /* Valo $v-friendly-color */
+    --lumo-success-color: #2c9720;
+    --lumo-success-color-50pct: rgba(44, 151, 32, 0.5);
+    --lumo-success-color-10pct: rgba(44, 151, 32, 0.1);
+    --lumo-success-text-color: #2c9720;
+
+    /* $app-font-family, then Lumo's own stack where Open Sans is not installed */
+    --lumo-font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI", Helvetica, Arial,
+        sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+
+    /* $app-background-color; widgets (grids, fields) keep Lumo's white base colour ($widget-bg) */
+    background-color: #fafafa;
+}
+
+/* Menu: $valo-menu-background-color, $menu-text-color; 14px, weight 400 (common.scss .valo-menu) */
+.valo-menu {
+    background-color: #4b4b4b;
+    color: #a5a5a5;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.valo-menu vaadin-button,
+.valo-menu vaadin-menu-bar,
+.valo-menu a {
+    --vaadin-button-background: transparent;
+    --vaadin-button-text-color: #a5a5a5;
+    color: #a5a5a5;
+}
+
+/* the open view's menu item: white, as in Valo's dark menu */
+.valo-menu vaadin-button.selected {
+    --vaadin-button-text-color: #fff;
+    color: #fff;
+}
+
+/* View header: $widget-caption-color, $view-caption-font-style (common.scss .v-caption-header-content) */
+.view-header-layout .header-content {
+    color: #551f62;
+    font-size: 1.6em;
+    font-weight: 400;
+    padding-left: 20px;
+}
+
+/* View content: 20px left and right (common.scss .view-content) */
+.view-content {
+    padding-left: 20px;
+    padding-right: 20px;
+    box-sizing: border-box;
+}
