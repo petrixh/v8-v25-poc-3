@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.grid.ColumnToggleMenu;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.utils.StringHtmlEncoder;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -504,6 +505,10 @@ public final class GridComponentBuilder {
             column.setWidth(toPixels(30D));
             column.setFlexGrow(0);
             column.setResizable(false);
+            // Vaadin 8: the joined cell left the column caption, which the column toggle menu still showed
+            if (!StringUtils.isEmpty(column.getHeaderText())) {
+                ColumnToggleMenu.setToggleCaption(column, column.getHeaderText());
+            }
         });
         // Flow cannot join cells in the first header row (Vaadin 8's default row, the one with the column
         // captions; HeaderRow.join throws): the caption goes into the first column's cell, the others stay empty.
