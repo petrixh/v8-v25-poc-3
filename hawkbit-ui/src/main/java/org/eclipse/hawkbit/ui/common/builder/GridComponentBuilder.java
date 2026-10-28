@@ -30,6 +30,7 @@ import com.cronutils.utils.StringUtils;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -38,6 +39,8 @@ import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.shared.Tooltip;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.ValueProvider;
 
@@ -350,6 +353,7 @@ public final class GridComponentBuilder {
             final ValueProvider<E, T> componentProvider, final SerializableFunction<E, String> styleGenerator) {
         final Column<E> column = grid.addComponentColumn(componentProvider);
         commonColumnConfiguration(column, styleGenerator);
+        keepComponentTooltips(grid);
         return column;
     }
 
@@ -445,7 +449,63 @@ public final class GridComponentBuilder {
         if (!StringUtils.isEmpty(caption)) {
             column.setHeader(caption);
         }
+        keepComponentTooltips(grid);
         return column;
+    }
+
+    private static final String COMPONENT_TOOLTIPS_KEY = GridComponentBuilder.class.getName() + ".componentTooltips";
+
+    /**
+     * Keeps the tooltips of the components in a grid's cells (icons, buttons).
+     * <p>
+     * Vaadin 8 showed the description of the component under the pointer. In
+     * Flow a grid that has a tooltip generator on any column handles the
+     * pointer over <em>every</em> cell and shows the text of the cell's own
+     * column; a column without a generator gives an empty text, which takes
+     * the pointer from the tooltip of the component inside the cell. So in
+     * such a grid each component column without a generator gets one that
+     * reads the tooltip text of its component (the first one found, for a cell
+     * with several components; none for a disabled component, which takes no
+     * pointer events). Grids without any generator are left alone: the
+     * components' own tooltips work there.
+     * <p>
+     * The columns of a grid are added one by one and generators set after
+     * them, so this runs when the grid is attached, and before the next
+     * response when columns are added to an attached grid (maximize/minimize).
+     */
+    private static <E> void keepComponentTooltips(final Grid<E> grid) {
+        if (grid.getUI().isPresent()) {
+            grid.getUI().get().beforeClientResponse(grid, context -> setComponentTooltipGenerators(grid));
+        } else if (ComponentUtil.getData(grid, COMPONENT_TOOLTIPS_KEY) == null) {
+            ComponentUtil.setData(grid, COMPONENT_TOOLTIPS_KEY, Boolean.TRUE);
+            grid.addAttachListener(event -> setComponentTooltipGenerators(grid));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <E> void setComponentTooltipGenerators(final Grid<E> grid) {
+        if (grid.getColumns().stream().noneMatch(column -> column.getTooltipGenerator() != null)) {
+            return;
+        }
+        for (final Column<E> column : grid.getColumns()) {
+            if (column.getTooltipGenerator() == null && column.getRenderer() instanceof ComponentRenderer) {
+                final ComponentRenderer<? extends Component, E> renderer = (ComponentRenderer<? extends Component, E>) column
+                        .getRenderer();
+                column.setTooltipGenerator(item -> firstTooltipText(renderer.createComponent(item)));
+            }
+        }
+    }
+
+    private static String firstTooltipText(final Component component) {
+        if (component == null || !component.getElement().isEnabled()) {
+            return "";
+        }
+        final String text = Tooltip.forComponent(component).getText();
+        if (text != null && !text.isEmpty()) {
+            return text;
+        }
+        return component.getChildren().map(GridComponentBuilder::firstTooltipText).filter(t -> !t.isEmpty()).findFirst()
+                .orElse("");
     }
 
     /**
