@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -173,6 +174,42 @@ class AnonymousUnknownLoginPathFilterTest {
             other.setPathInfo(path);
             other.setParameter("v-r", "x");
             filter.doFilter(other, new MockHttpServletResponse(), new MockFilterChain());
+            assertThat(reads).as(path).hasValue(0);
+        }
+    }
+
+    @Test
+    @Description("A logged-in request's parameters are never read, on an unknown login path or the login view")
+    void parametersNotReadForLoggedInUser() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(
+                UsernamePasswordAuthenticationToken.authenticated("admin", "n/a", AuthorityUtils.createAuthorityList("ROLE_X")));
+        for (final String path : List.of("/UI/login/zzz", "/UI/login", "/UI/login/")) {
+            final AtomicInteger reads = new AtomicInteger();
+            final MockHttpServletRequest loggedIn = new MockHttpServletRequest("POST", path) {
+                @Override
+                public String getParameter(final String name) {
+                    reads.incrementAndGet();
+                    return super.getParameter(name);
+                }
+
+                @Override
+                public String[] getParameterValues(final String name) {
+                    reads.incrementAndGet();
+                    return super.getParameterValues(name);
+                }
+
+                @Override
+                public Map<String, String[]> getParameterMap() {
+                    reads.incrementAndGet();
+                    return super.getParameterMap();
+                }
+            };
+            loggedIn.setServletPath("");
+            loggedIn.setPathInfo(path);
+            loggedIn.setParameter("v-r", "x");
+            final MockFilterChain chain = new MockFilterChain();
+            filter.doFilter(loggedIn, new MockHttpServletResponse(), chain);
+            assertThat(chain.getRequest()).as(path).isSameAs(loggedIn);
             assertThat(reads).as(path).hasValue(0);
         }
     }

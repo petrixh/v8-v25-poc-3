@@ -11,10 +11,10 @@ package org.eclipse.hawkbit.ui.management.targettag.filter;
 
 import java.io.Serializable;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.function.SerializableConsumer;
 
 /**
  * Keeps exactly one panel of an {@link Accordion} open, as the Vaadin 8
@@ -25,7 +25,7 @@ class OneOpenPanelRule implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final Accordion accordion;
-    private final Consumer<AccordionPanel> switchedTo;
+    private final SerializableConsumer<AccordionPanel> switchedTo;
     private AccordionPanel current;
 
     /**
@@ -35,7 +35,7 @@ class OneOpenPanelRule implements Serializable {
      * @param switchedTo
      *            called when the user (or the server) opens another panel
      */
-    OneOpenPanelRule(final Accordion accordion, final Consumer<AccordionPanel> switchedTo) {
+    OneOpenPanelRule(final Accordion accordion, final SerializableConsumer<AccordionPanel> switchedTo) {
         this.accordion = accordion;
         this.switchedTo = switchedTo;
         this.current = accordion.getOpenedPanel().orElse(null);
