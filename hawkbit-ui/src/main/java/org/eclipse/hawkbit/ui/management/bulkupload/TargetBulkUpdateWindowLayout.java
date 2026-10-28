@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.TargetTypeManagement;
+import org.eclipse.hawkbit.ui.common.builder.WindowFormLayout;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyBulkUploadWindow;
@@ -39,7 +40,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.Anchor;
@@ -257,9 +257,7 @@ public class TargetBulkUpdateWindowLayout extends Composite<VerticalLayout> {
         uploaderLayout.setVerticalComponentAlignment(Alignment.END, linkToSystemConfigHelp);
         uploaderLayout.setFlexGrow(1.0F, uploadButton);
 
-        final FormLayout inputsLayout = new FormLayout();
-        // Vaadin 8 FormLayout: one column; Flow has no spacing/margin here
-        inputsLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
+        final FormLayout inputsLayout = new WindowFormLayout();
         inputsLayout.setWidth("400px");
 
         inputsLayout.add(dsCombo, targetTypeCombo, tagsLayout, descTextArea, progressBarCaption, progressBar,

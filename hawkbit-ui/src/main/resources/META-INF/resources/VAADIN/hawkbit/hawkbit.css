@@ -718,3 +718,13 @@ vaadin-grid::part(selected-row-cell) {
 .alump-dbar .status-bar-part-notstarted { background-color: #808080; }
 
 /* ==== end of 2a-06 ==== */
+
+/* ==== Window forms: captions aside (2a-08) ==== */
+
+/* The form of a window is about as wide as the old one (about 400 px with its margins). Without a width the
+   form item's content makes the window as wide as the screen allows. */
+vaadin-form-layout.window-form-layout {
+    width: 360px;
+}
+
+/* ==== end of 2a-08 ==== */
