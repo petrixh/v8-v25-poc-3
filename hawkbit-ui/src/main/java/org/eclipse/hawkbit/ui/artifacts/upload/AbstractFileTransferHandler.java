@@ -78,6 +78,11 @@ public abstract class AbstractFileTransferHandler implements Serializable {
     // Vaadin 8 upload buffer size and progress event interval
     private static final int UPLOAD_BUFFER_SIZE = 4 * 1024;
     private static final long PROGRESS_EVENT_INTERVAL_MS = 500;
+    /** Most bytes read from the body of a refused or failed upload. */
+    static final long MAX_DRAIN_BYTES = 100L * 1024 * 1024;
+    /** Most time spent reading the body of a refused or failed upload. */
+    static final long MAX_DRAIN_MILLIS = 60_000;
+    private static final int DRAIN_BUFFER_SIZE = 64 * 1024;
 
     protected static final RegexCharacterCollection ILLEGAL_FILENAME_CHARACTERS = new RegexCharacterCollection(
             RegexChar.GREATER_THAN, RegexChar.LESS_THAN, RegexChar.SLASHES);
@@ -245,25 +250,55 @@ public abstract class AbstractFileTransferHandler implements Serializable {
 
     /**
      * Reads and discards what is left of a request body whose upload was
-     * refused or failed. Without it the server answers while the browser is
-     * still sending: beyond Tomcat's swallow limit (2 MB) the connection is
-     * closed and the browser gets a 403 error page body (a console error)
-     * instead of the 200 the status window relies on. Vaadin 8 did not read
-     * the rest either, but its connection ended with a reset, which the browser
-     * reports as a console error for a dropped file as well.
+     * refused or failed, up to {@link #MAX_DRAIN_BYTES} bytes and
+     * {@link #MAX_DRAIN_MILLIS} milliseconds. Without it the server answers
+     * while the browser is still sending: beyond Tomcat's swallow limit (2 MB)
+     * the connection is closed and the browser gets a 403 error page body (a
+     * console error) instead of the 200 the status window relies on. Vaadin 8
+     * read the whole body of an over-limit "Upload File" upload and reset the
+     * connection for refused drops and duplicates. Above the bounds the rest is
+     * left unread and the request ends as it does without a drain (403 or
+     * reset): a runaway or hostile client must not hold a request thread.
      *
      * @param inputStream
      *            the request body of the upload
      */
     protected static void drainQuietly(final InputStream inputStream) {
+        drain(inputStream, MAX_DRAIN_BYTES, MAX_DRAIN_MILLIS);
+    }
+
+    /**
+     * Reads and discards the stream until its end, {@code maxBytes} bytes or
+     * {@code maxMillis} milliseconds (checked between reads), whichever comes
+     * first. Never throws: a failing stream (the client is gone) ends the read.
+     *
+     * @param inputStream
+     *            the stream, may be {@code null}
+     * @param maxBytes
+     *            most bytes to read
+     * @param maxMillis
+     *            most time to spend, in milliseconds
+     * @return the number of bytes read
+     */
+    protected static long drain(final InputStream inputStream, final long maxBytes, final long maxMillis) {
         if (inputStream == null) {
-            return;
+            return 0;
         }
+        final byte[] buffer = new byte[DRAIN_BUFFER_SIZE];
+        final long deadline = System.nanoTime() + maxMillis * 1_000_000L;
+        long total = 0;
         try {
-            inputStream.transferTo(OutputStream.nullOutputStream());
-        } catch (final IOException e) {
+            while (total < maxBytes && System.nanoTime() - deadline < 0) {
+                final int read = inputStream.read(buffer);
+                if (read < 0) {
+                    break;
+                }
+                total += read;
+            }
+        } catch (final IOException | RuntimeException e) {
             LOG.debug("Draining the rest of a refused upload stopped (client gone)", e);
         }
+        return total;
     }
 
     protected static void tryToCloseIOStream(final InputStream inputStream) {
