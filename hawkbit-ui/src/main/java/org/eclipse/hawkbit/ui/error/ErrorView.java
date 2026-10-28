@@ -34,6 +34,10 @@ import jakarta.annotation.security.PermitAll;
  *
  * Vaadin Flow: the error target for {@link NotFoundException} (Vaadin 8:
  * {@code Navigator#setErrorView}). The shell reroutes denied views here too.
+ * Flow shows an error target inside a layout only through
+ * {@link com.vaadin.flow.router.ParentLayout}, which needs the concrete layout
+ * class: a runtime shows this view inside its hawkBit UI layout with a
+ * subclass annotated {@code @ParentLayout(<its layout>.class)}.
  */
 @SpringComponent
 @UIScope
@@ -49,7 +53,7 @@ public class ErrorView extends VerticalLayout implements HasErrorParameter<NotFo
     private final DashboardMenu dashboardMenu;
 
     @Autowired
-    ErrorView(final VaadinMessageSource i18n, final DashboardMenu dashboardMenu) {
+    protected ErrorView(final VaadinMessageSource i18n, final DashboardMenu dashboardMenu) {
         this.i18n = i18n;
         this.dashboardMenu = dashboardMenu;
         setPadding(true);
@@ -61,8 +65,9 @@ public class ErrorView extends VerticalLayout implements HasErrorParameter<NotFo
 
     @Override
     public int setErrorParameter(final BeforeEnterEvent event, final ErrorParameter<NotFoundException> parameter) {
-        // Vaadin 8: ViewChangeEvent#getViewName(); Flow: the first path segment
-        final String viewName = event.getLocation().getFirstSegment();
+        // Vaadin 8: ViewChangeEvent#getViewName(), which for the error view was
+        // the whole navigation state (view name and parameters); Flow: the path
+        final String viewName = event.getLocation().getPath();
         final DashboardMenuItem view = dashboardMenu.getByViewName(viewName);
         if (view == null) {
             message.setText(i18n.getMessage("message.error.view", viewName));
