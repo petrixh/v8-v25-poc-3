@@ -25,14 +25,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
-import javax.persistence.metamodel.Attribute;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
+import jakarta.persistence.metamodel.Attribute;
 
 import org.eclipse.hawkbit.repository.DistributionSetFields;
 import org.eclipse.hawkbit.repository.FieldNameProvider;
@@ -56,7 +56,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.vendor.Database;
@@ -66,7 +69,10 @@ import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 
-@ExtendWith(SpringExtension.class)
+// Spring Boot 4 no longer initialises @Mock / @Spy fields (its MockitoTestExecutionListener is gone): MockitoExtension
+// does, leniently as before
+@ExtendWith({ SpringExtension.class, MockitoExtension.class })
+@MockitoSettings(strictness = Strictness.LENIENT)
 @Feature("Component Tests - Repository")
 @Story("RSQL search utility")
 // TODO: fully document tests -> @Description for long text and reasonable
@@ -76,13 +82,13 @@ public class RSQLUtilityTest {
     @Spy
     private final VirtualPropertyResolver macroResolver = new VirtualPropertyResolver();
 
-    @MockBean
+    @MockitoBean
     private TenantConfigurationManagement confMgmt;
 
-    @MockBean
+    @MockitoBean
     private SystemSecurityContext securityContext;
 
-    @MockBean
+    @MockitoBean
     private RsqlVisitorFactory rsqlVisitorFactory;
 
     @Mock
@@ -279,7 +285,9 @@ public class RSQLUtilityTest {
                 .toPredicate(baseSoftwareModuleRootMock, criteriaQueryMock, criteriaBuilderMock);
 
         // verification
-        verify(criteriaBuilderMock, times(1)).and(any(Predicate.class));
+        // Mockito 5: any(Class) no longer matches null; the unstubbed inner and(p1, p2) returns null, so the single vararg
+        // element of the outer and(...) is null (Mockito 4's any(Class) matched it): any() keeps "one call, one element"
+        verify(criteriaBuilderMock, times(1)).and(Mockito.<Predicate> any());
     }
 
     @Test

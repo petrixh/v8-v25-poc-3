@@ -22,7 +22,7 @@ newest() { # newest <glob...>: the most recently modified existing path, or noth
   printf '%s' "$best"
 }
 hosts_of() { # hosts_of <maven log>: "host count; ..." of the downloads, then the total
-  grep -oE 'Downloaded from [^:]+: https?://[^/]+' "$1" 2>/dev/null | sed -E 's#.*https?://##' | sort | uniq -c \
+  grep -oE 'Downloaded from [^:]+: https?://[^/]+|Downloading https?://[^/]+' "$1" 2>/dev/null | sed -E 's#.*https?://##' | sort | uniq -c \
     | awk '{printf "%s %s; ", $2, $1}'
   local n; n="$(grep -c 'Downloaded from' "$1" 2>/dev/null)"; printf '%s downloads' "${n:-0}"
 }

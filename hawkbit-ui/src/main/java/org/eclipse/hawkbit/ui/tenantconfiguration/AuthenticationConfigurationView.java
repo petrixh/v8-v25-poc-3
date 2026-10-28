@@ -23,13 +23,11 @@ import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.TargetSecurityT
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Link;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.springframework.util.StringUtils;
 
 import static org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions.DIST_CHECKBOX_STYLE;
@@ -76,42 +74,40 @@ public class AuthenticationConfigurationView extends BaseConfigurationView<Proxy
 
     private void init() {
 
-        final Panel rootPanel = new Panel();
+        final Div rootPanel = new Div();
         rootPanel.setSizeFull();
 
-        rootPanel.addStyleName("config-panel");
+        rootPanel.addClassNames("config-panel");
 
         final VerticalLayout vLayout = new VerticalLayout();
         vLayout.setSpacing(false);
-        vLayout.setMargin(true);
+        vLayout.setPadding(true);
         vLayout.setSizeFull();
 
-        final Label header = new Label(i18n.getMessage("configuration.authentication.title"));
-        header.addStyleName("config-panel-header");
-        vLayout.addComponent(header);
+        final Span header = new Span(i18n.getMessage("configuration.authentication.title"));
+        header.addClassNames("config-panel-header");
+        vLayout.add(header);
 
-        final GridLayout gridLayout = new GridLayout(3, 4);
-        gridLayout.setSpacing(true);
+        final Div gridLayout = createGridLayout();
 
         gridLayout.setSizeFull();
-        gridLayout.setColumnExpandRatio(1, 1.0F);
 
         initCertificateAuthConfiguration(gridLayout, 0);
         initTargetTokenConfiguration(gridLayout, 1);
         initGatewayTokenConfiguration(gridLayout, 2);
         initAnonymousDownloadConfiguration(gridLayout, 3);
 
-        vLayout.addComponent(gridLayout);
-        rootPanel.setContent(vLayout);
-        setCompositionRoot(rootPanel);
+        vLayout.add(gridLayout);
+        rootPanel.add(vLayout);
+        getContent().add(rootPanel);
     }
 
-    protected void initCertificateAuthConfiguration(GridLayout gridLayout, int row) {
-        final CheckBox certificateAuthCheckbox = FormComponentBuilder.createCheckBox(
+    protected void initCertificateAuthConfiguration(Div gridLayout, int row) {
+        final Checkbox certificateAuthCheckbox = FormComponentBuilder.createCheckbox(
                 UIComponentIdProvider.CERT_AUTH_ALLOWED_CHECKBOX, getBinder(),
                 ProxySystemConfigAuthentication::isCertificateAuth,
                 ProxySystemConfigAuthentication::setCertificateAuth);
-        certificateAuthCheckbox.setStyleName(DIST_CHECKBOX_STYLE);
+        certificateAuthCheckbox.setClassName(DIST_CHECKBOX_STYLE);
         certificateAuthCheckbox.addValueChangeListener(valueChangeEvent -> {
             if (valueChangeEvent.getValue()) {
                 certificateAuthenticationConfigurationItem.showDetails();
@@ -119,25 +115,25 @@ public class AuthenticationConfigurationView extends BaseConfigurationView<Proxy
                 certificateAuthenticationConfigurationItem.hideDetails();
             }
         });
-        gridLayout.addComponent(certificateAuthCheckbox, 0, row);
-        gridLayout.addComponent(certificateAuthenticationConfigurationItem, 1, row);
+        addToGridLayout(gridLayout, certificateAuthCheckbox, 0, row);
+        addToGridLayout(gridLayout, certificateAuthenticationConfigurationItem, 1, row);
     }
 
-    protected void initTargetTokenConfiguration(GridLayout gridLayout, int row) {
-        final CheckBox targetSecTokenCheckBox = FormComponentBuilder.createCheckBox(
+    protected void initTargetTokenConfiguration(Div gridLayout, int row) {
+        final Checkbox targetSecTokenCheckBox = FormComponentBuilder.createCheckbox(
                 UIComponentIdProvider.TARGET_SEC_TOKEN_ALLOWED_CHECKBOX, getBinder(),
                 ProxySystemConfigAuthentication::isTargetSecToken, ProxySystemConfigAuthentication::setTargetSecToken);
-        targetSecTokenCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
-        gridLayout.addComponent(targetSecTokenCheckBox, 0, row);
-        gridLayout.addComponent(targetSecurityTokenAuthenticationConfigurationItem, 1, row);
+        targetSecTokenCheckBox.setClassName(DIST_CHECKBOX_STYLE);
+        addToGridLayout(gridLayout, targetSecTokenCheckBox, 0, row);
+        addToGridLayout(gridLayout, targetSecurityTokenAuthenticationConfigurationItem, 1, row);
     }
 
-    protected void initGatewayTokenConfiguration(GridLayout gridLayout, int row) {
-        final CheckBox gatewaySecTokenCheckBox = FormComponentBuilder.createCheckBox(
+    protected void initGatewayTokenConfiguration(Div gridLayout, int row) {
+        final Checkbox gatewaySecTokenCheckBox = FormComponentBuilder.createCheckbox(
                 UIComponentIdProvider.GATEWAY_SEC_TOKEN_ALLOWED_CHECKBOX, getBinder(),
                 ProxySystemConfigAuthentication::isGatewaySecToken,
                 ProxySystemConfigAuthentication::setGatewaySecToken);
-        gatewaySecTokenCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
+        gatewaySecTokenCheckBox.setClassName(DIST_CHECKBOX_STYLE);
         gatewaySecTokenCheckBox.addValueChangeListener(valueChangeEvent -> {
             if (valueChangeEvent.getValue()) {
                 gatewaySecurityTokenAuthenticationConfigurationItem.showDetails();
@@ -145,23 +141,23 @@ public class AuthenticationConfigurationView extends BaseConfigurationView<Proxy
                 gatewaySecurityTokenAuthenticationConfigurationItem.hideDetails();
             }
         });
-        gridLayout.addComponent(gatewaySecTokenCheckBox, 0, row);
-        gridLayout.addComponent(gatewaySecurityTokenAuthenticationConfigurationItem, 1, row);
+        addToGridLayout(gridLayout, gatewaySecTokenCheckBox, 0, row);
+        addToGridLayout(gridLayout, gatewaySecurityTokenAuthenticationConfigurationItem, 1, row);
     }
 
-    protected void initAnonymousDownloadConfiguration(GridLayout gridLayout, int row) {
-        final CheckBox downloadAnonymousCheckBox = FormComponentBuilder.createCheckBox(
+    protected void initAnonymousDownloadConfiguration(Div gridLayout, int row) {
+        final Checkbox downloadAnonymousCheckBox = FormComponentBuilder.createCheckbox(
                 UIComponentIdProvider.DOWNLOAD_ANONYMOUS_CHECKBOX, getBinder(),
                 ProxySystemConfigAuthentication::isDownloadAnonymous,
                 ProxySystemConfigAuthentication::setDownloadAnonymous);
-        downloadAnonymousCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
-        gridLayout.addComponent(downloadAnonymousCheckBox, 0, row);
-        gridLayout.addComponent(anonymousDownloadAuthenticationConfigurationItem, 1, row);
+        downloadAnonymousCheckBox.setClassName(DIST_CHECKBOX_STYLE);
+        addToGridLayout(gridLayout, downloadAnonymousCheckBox, 0, row);
+        addToGridLayout(gridLayout, anonymousDownloadAuthenticationConfigurationItem, 1, row);
 
-        final Link linkToSecurityHelp = SPUIComponentProvider.getHelpLink(i18n,
+        final Anchor linkToSecurityHelp = SPUIComponentProvider.getHelpLink(i18n,
                 uiProperties.getLinks().getDocumentation().getSecurity());
-        gridLayout.addComponent(linkToSecurityHelp, 2, row);
-        gridLayout.setComponentAlignment(linkToSecurityHelp, Alignment.BOTTOM_RIGHT);
+        addToGridLayout(gridLayout, linkToSecurityHelp, 2, row);
+        alignBottomRight(linkToSecurityHelp);
     }
 
     @Override

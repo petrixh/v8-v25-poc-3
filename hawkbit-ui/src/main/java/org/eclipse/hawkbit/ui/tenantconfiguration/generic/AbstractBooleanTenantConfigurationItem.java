@@ -17,7 +17,7 @@ import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * abstract authentication configuration item.
@@ -53,8 +53,8 @@ public abstract class AbstractBooleanTenantConfigurationItem extends VerticalLay
      */
     protected void init(final String labelText) {
         setSpacing(false);
-        setMargin(false);
-        addComponent(SPUIComponentProvider.generateLabel(i18n, labelText));
+        setPadding(false);
+        add(SPUIComponentProvider.generateLabel(i18n, labelText));
     }
 
     @Override

@@ -84,14 +84,14 @@ public class TargetFilterDetailsGridHeader extends AbstractBreadcrumbGridHeader 
     @Override
     protected void init() {
         super.init();
-        setHeightUndefined();
+        setHeight(null);
     }
 
     @Override
     public void buildHeader() {
         super.buildHeader();
 
-        addComponent(targetFilterAddUpdateLayout.getRootComponent());
+        add(targetFilterAddUpdateLayout.getRootComponent());
     }
 
     private void closeDetails() {
@@ -141,7 +141,7 @@ public class TargetFilterDetailsGridHeader extends AbstractBreadcrumbGridHeader 
     private void showAddUpdateFilterLayout(final String captionMessage,
             final AbstractEntityWindowController<ProxyTargetFilterQuery, ProxyTargetFilterQuery, TargetFilterQuery> controller,
             final ProxyTargetFilterQuery proxyEntity) {
-        headerCaptionDetails.setValue(captionMessage);
+        headerCaptionDetails.setText(captionMessage);
         controller.populateWithData(proxyEntity);
         targetFilterAddUpdateLayout.setSaveCallback(controller.getSaveDialogCloseListener());
     }

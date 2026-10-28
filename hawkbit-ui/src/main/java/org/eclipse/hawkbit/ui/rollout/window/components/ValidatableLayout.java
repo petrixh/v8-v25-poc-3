@@ -9,7 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.components;
 
-import com.vaadin.data.Binder;
+import com.vaadin.flow.data.binder.Binder;
 
 /**
  * Layout for input validation

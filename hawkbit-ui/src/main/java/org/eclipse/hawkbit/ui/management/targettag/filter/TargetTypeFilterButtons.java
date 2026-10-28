@@ -9,11 +9,11 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
-import com.vaadin.ui.Button;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.dnd.DropTargetExtension;
-import com.vaadin.ui.dnd.event.DropEvent;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.dnd.DropEvent;
+import com.vaadin.flow.component.dnd.DropTarget;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTypeManagement;
 import org.eclipse.hawkbit.repository.exception.TargetTypeInUseException;
@@ -27,6 +27,7 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractTargetTypeFilterButtons;
+import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionGridDragSource;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetsToNoTargetTypeAssignmentSupport;
@@ -124,10 +125,10 @@ public class TargetTypeFilterButtons extends AbstractTargetTypeFilterButtons {
 
     @Override
     protected void editButtonClickListener(ProxyTargetType clickedFilter) {
-        final Window updateWindow = targetTypeWindowBuilder.getWindowForUpdate(clickedFilter);
+        final Dialog updateWindow = targetTypeWindowBuilder.getWindowForUpdate(clickedFilter);
 
-        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.type")));
-        UI.getCurrent().addWindow(updateWindow);
+        updateWindow.setHeaderTitle(i18n.getMessage("caption.update", i18n.getMessage("caption.type")));
+        updateWindow.open();
         updateWindow.setVisible(Boolean.TRUE);
     }
 
@@ -171,7 +172,7 @@ public class TargetTypeFilterButtons extends AbstractTargetTypeFilterButtons {
         final TargetsToNoTargetTypeAssignmentSupport targetsToNoTargetTypeAssignmentSupport = new TargetsToNoTargetTypeAssignmentSupport(
                 uiDependencies, targetManagement);
 
-        final DropTargetExtension<Button> dropExtension = new DropTargetExtension<>(getNoTargetTypeButton());
+        final DropTarget<Button> dropExtension = DropTarget.create(getNoTargetTypeButton());
 
         dropExtension.addDropListener(event -> {
             List<ProxyTarget> droppedTargets = getDroppedTargets(event);
@@ -190,9 +191,12 @@ public class TargetTypeFilterButtons extends AbstractTargetTypeFilterButtons {
         draggingListener.subscribe();
     }
 
+    // Flow: the dragged items are kept on the server by the grid drag source
+    // of the drag in progress (RangeSelectionGridDragSource)
     private static List<ProxyTarget> getDroppedTargets(final DropEvent<?> dropEvent) {
         final List<ProxyTarget> list = new ArrayList<>();
-        dropEvent.getDragSourceExtension().ifPresent(dragSource -> {
+        dropEvent.getComponent().getUI().flatMap(RangeSelectionGridDragSource::getActiveDragSource)
+                .ifPresent(dragSource -> {
             final Object dragData = dragSource.getDragData();
             if (dragData instanceof ProxyTarget) {
                 list.add((ProxyTarget) dragData);

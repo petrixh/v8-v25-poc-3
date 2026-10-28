@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.management;
 
 import java.io.Serializable;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import org.eclipse.hawkbit.ui.common.layout.listener.BulkUploadChangedListener;
 import org.eclipse.hawkbit.ui.common.state.TagFilterLayoutUiState;
@@ -22,8 +22,8 @@ import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.vaadin.spring.events.EventBus.SessionEventBus;
 
-import com.vaadin.spring.annotation.SpringComponent;
-import com.vaadin.spring.annotation.VaadinSessionScope;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 
 /**
  * User action on management UI.

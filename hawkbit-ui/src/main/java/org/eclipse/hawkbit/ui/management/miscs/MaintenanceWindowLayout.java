@@ -19,11 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.cronutils.descriptor.CronDescriptor;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * {@link MaintenanceWindowLayout} defines UI layout that is used to specify the
@@ -36,7 +36,7 @@ public class MaintenanceWindowLayout extends VerticalLayout {
 
     private final VaadinMessageSource i18n;
     private final TextField schedule;
-    private final Label scheduleTranslator;
+    private final Span scheduleTranslator;
     private final transient CronDescriptor cronDescriptor;
 
     /**
@@ -56,7 +56,7 @@ public class MaintenanceWindowLayout extends VerticalLayout {
      *
      */
     public MaintenanceWindowLayout(final VaadinMessageSource i18n, final TextField schedule, final TextField duration,
-            final ComboBox<String> timeZone, final Label scheduleTranslator) {
+            final ComboBox<String> timeZone, final Span scheduleTranslator) {
         this.i18n = i18n;
         this.schedule = schedule;
         this.scheduleTranslator = scheduleTranslator;
@@ -67,27 +67,27 @@ public class MaintenanceWindowLayout extends VerticalLayout {
     }
 
     private void buildLayout(final TextField duration, final ComboBox<String> timeZone) {
-        setMargin(false);
+        setPadding(false);
         setSpacing(false);
-        setStyleName("dist-window-maintenance-window-layout");
+        setClassName("dist-window-maintenance-window-layout");
         setId(UIComponentIdProvider.MAINTENANCE_WINDOW_LAYOUT_ID);
 
         final HorizontalLayout maintenanceComponentsContainer = new HorizontalLayout();
-        maintenanceComponentsContainer.setMargin(false);
+        maintenanceComponentsContainer.setPadding(false);
         maintenanceComponentsContainer.setSpacing(false);
 
-        maintenanceComponentsContainer.addComponent(schedule);
-        maintenanceComponentsContainer.addComponent(duration);
-        maintenanceComponentsContainer.addComponent(timeZone);
+        maintenanceComponentsContainer.add(schedule);
+        maintenanceComponentsContainer.add(duration);
+        maintenanceComponentsContainer.add(timeZone);
 
-        addComponent(maintenanceComponentsContainer);
+        add(maintenanceComponentsContainer);
 
-        addComponent(scheduleTranslator);
+        add(scheduleTranslator);
     }
 
     private void addValueChangeListeners() {
         schedule.addValueChangeListener(
-                event -> scheduleTranslator.setValue(translateCronExpression(event.getValue())));
+                event -> scheduleTranslator.setText(translateCronExpression(event.getValue())));
     }
 
     private String translateCronExpression(final String cronExpression) {

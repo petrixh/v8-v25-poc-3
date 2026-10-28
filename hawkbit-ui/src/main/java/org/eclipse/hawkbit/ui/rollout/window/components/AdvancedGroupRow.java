@@ -9,8 +9,6 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.components;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.CheckBox;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
 import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
@@ -22,16 +20,14 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.StatusChangeListener;
-import com.vaadin.data.converter.StringToFloatConverter;
-import com.vaadin.data.validator.FloatRangeValidator;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.server.UserError;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.StatusChangeListener;
+import com.vaadin.flow.data.converter.StringToFloatConverter;
+import com.vaadin.flow.data.validator.FloatRangeValidator;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.textfield.TextField;
 
 import static org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions.DIST_CHECKBOX_STYLE;
 
@@ -50,7 +46,7 @@ public class AdvancedGroupRow {
     private final TextField targetPercentage;
     private final TextField triggerThreshold;
     private final TextField errorThreshold;
-    private final CheckBox requireConfirmationToggle;
+    private final Checkbox requireConfirmationToggle;
     private final boolean isConfirmationFlowEnabled;
 
     /**
@@ -82,9 +78,9 @@ public class AdvancedGroupRow {
         final TextField nameField = new TextFieldBuilder(RolloutGroup.NAME_MAX_SIZE)
                 .prompt(i18n.getMessage("textfield.name")).buildTextComponent();
         nameField.setSizeUndefined();
-        nameField.setStyleName("rollout-group-name");
-        nameField.addStyleName(ValoTheme.TEXTAREA_SMALL);
-        nameField.setWidth(12, Unit.EM);
+        nameField.setClassName("rollout-group-name");
+        nameField.addClassNames("small");
+        nameField.setWidth("12em");
 
         binder.forField(nameField).asRequired(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_NAMEREQUIRED))
                 .bind(ProxyAdvancedRolloutGroup::getGroupName, ProxyAdvancedRolloutGroup::setGroupName);
@@ -103,7 +99,7 @@ public class AdvancedGroupRow {
     private TextField createTargetPercentage() {
         final TextField targetPercentageField = new TextFieldBuilder(32)
                 .prompt(i18n.getMessage("textfield.target.percentage")).buildTextComponent();
-        targetPercentageField.setWidth(5, Unit.EM);
+        targetPercentageField.setWidth("5em");
 
         binder.forField(targetPercentageField).asRequired(i18n.getMessage("textfield.target.percentage.required"))
                 .withConverter(new StringToFloatConverter(i18n.getMessage("textfield.target.percentage.format.error")))
@@ -120,7 +116,7 @@ public class AdvancedGroupRow {
     private TextField createTriggerThreshold() {
         final TextField triggerThresholdField = new TextFieldBuilder(32)
                 .prompt(i18n.getMessage("prompt.trigger.threshold")).buildTextComponent();
-        triggerThresholdField.setWidth(5, Unit.EM);
+        triggerThresholdField.setWidth("5em");
 
         binder.forField(triggerThresholdField).asRequired(i18n.getMessage("prompt.trigger.threshold.required")).bind(
                 ProxyAdvancedRolloutGroup::getTriggerThresholdPercentage,
@@ -132,7 +128,7 @@ public class AdvancedGroupRow {
     private TextField createErrorThreshold() {
         final TextField errorThresholdField = new TextFieldBuilder(32).prompt(i18n.getMessage("prompt.error.threshold"))
               .buildTextComponent();
-        errorThresholdField.setWidth(5, Unit.EM);
+        errorThresholdField.setWidth("5em");
 
         binder.forField(errorThresholdField).asRequired(i18n.getMessage("prompt.error.threshold.required")).bind(
               ProxyAdvancedRolloutGroup::getErrorThresholdPercentage,
@@ -141,10 +137,10 @@ public class AdvancedGroupRow {
         return errorThresholdField;
     }
 
-    public CheckBox createConfirmationToggle() {
-        final CheckBox checkBox = new CheckBox();
-        checkBox.setWidth(5, Unit.EM);
-        checkBox.setStyleName(DIST_CHECKBOX_STYLE);
+    public Checkbox createConfirmationToggle() {
+        final Checkbox checkBox = new Checkbox();
+        checkBox.setWidth("5em");
+        checkBox.setClassName(DIST_CHECKBOX_STYLE);
         binder.forField(checkBox).bind(ProxyAdvancedRolloutGroup::isConfirmationRequired, ProxyAdvancedRolloutGroup::setConfirmationRequired);
         checkBox.setValue(true);
         return checkBox;
@@ -158,7 +154,7 @@ public class AdvancedGroupRow {
      * @param index
      *          Row index
      */
-    public void addRowToLayout(final GridLayout layout, final int index) {
+    public void addRowToLayout(final CssGridLayout layout, final int index) {
         layout.addComponent(groupName, 0, index);
         layout.addComponent(targetFilterQueryCombo, 1, index);
         layout.addComponent(targetPercentage, 2, index);
@@ -166,7 +162,7 @@ public class AdvancedGroupRow {
         layout.addComponent(errorThreshold, 4, index);
         if (isConfirmationFlowEnabled) {
             layout.addComponent(requireConfirmationToggle, 5, index);
-            layout.setComponentAlignment(requireConfirmationToggle, Alignment.MIDDLE_LEFT);
+            layout.setVerticalComponentAlignment(Alignment.CENTER, requireConfirmationToggle);
         }
     }
 
@@ -226,13 +222,16 @@ public class AdvancedGroupRow {
      *          Component error
      */
     public void setError(final String error) {
-        targetPercentage.setComponentError(new UserError(error));
+        // Vaadin 8 component error: the field's error message and invalid state
+        targetPercentage.setErrorMessage(error);
+        targetPercentage.setInvalid(true);
     }
 
     /**
      * Remove the error from the target percentage component
      */
     public void resetError() {
-        targetPercentage.setComponentError(null);
+        targetPercentage.setErrorMessage(null);
+        targetPercentage.setInvalid(false);
     }
 }

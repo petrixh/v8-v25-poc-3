@@ -14,8 +14,8 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.CollectionUtils;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationResult;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
 
 /**
  * Builder for Distribution set type window layout component

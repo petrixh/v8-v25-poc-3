@@ -23,27 +23,27 @@
 # Writes <out>/tests.log, <out>/tests-fetch.log and <out>/counts.env (RUN, FAILURES, ERRORS, SKIPPED).
 # Usage: .github/ci/run-tests.sh <out dir>   with APP_ENV_PROJECT (and APP_ENV_STATE_DIR) of the running copy
 # The copy's names, its network and the Maven image (pinned by digest) come from env/lib.sh, so the tests run on the
-# same Maven and JDK as the image build.
+# same Maven and JDK as the image build, and with the same Node/npm home (BUILD_HOME) as its frontend build.
 out="${1:?usage: run-tests.sh <out dir>}"; mkdir -p "$out"; out="$(cd "$out" && pwd)"
 # shellcheck source=env/lib.sh  # path from the repo root, where shellcheck runs
 source "$(dirname "${BASH_SOURCE[0]}")/../../env/lib.sh"   # sets REPO, PROJECT, COPY_DIR, NET_INT, MAVEN_IMG; set -u -o pipefail
 resolv="$COPY_DIR/resolv.conf"
 m2="${APP_ENV_MAVEN_REPO:-$HOME/.m2/repository}"
 settings="${APP_ENV_MAVEN_SETTINGS:-$ENV_DIR/maven-settings.xml}"
-hosts="${APP_ENV_MAVEN_HOSTS:-repo.maven.apache.org maven.vaadin.com}"
+hosts="${APP_ENV_MAVEN_HOSTS:-$MAVEN_HOSTS_DEFAULT}"
 [ -r "$resolv" ] || { echo "no running copy $PROJECT ($resolv missing): start it with env/up.sh first" >&2; exit 2; }
-mkdir -p "$m2"
+mkdir -p "$m2" "$BUILD_HOME"
 
 mvn() { # mvn <log> <docker args...> -- <maven args...>
   local log="$1"; shift; local dargs=()
   while [ "$1" != -- ]; do dargs+=("$1"); shift; done; shift
-  docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e MAVEN_CONFIG=/tmp/.m2 "${dargs[@]}" \
+  docker run --rm --user "$(id -u):$(id -g)" "${BUILD_HOME_ARGS[@]}" -e MAVEN_CONFIG=/tmp/.m2 "${dargs[@]}" \
     -v "$REPO:$REPO" -w "$REPO" -v "$m2:/m2" -v "$settings:/settings.xml:ro" \
     "$MAVEN_IMG" mvn -B -s /settings.xml -Dmaven.repo.local=/m2 -DskipNexusStaging "$@" >"$log" 2>&1
 }
 check_hosts() { # the same rule as env/up.sh: Maven may download only from $hosts
   local bad
-  bad="$(grep -oE 'Download(ing|ed) from [^:]+: https?://[^/]+' "$1" | sed -E 's#.*https?://##' | sort -u \
+  bad="$(grep -oE 'Download(ing|ed) from [^:]+: https?://[^/]+|Downloading https?://[^/]+' "$1" | sed -E 's#.*https?://##' | sort -u \
          | grep -vxF -f <(tr ' ' '\n' <<<"$hosts" | grep .) || true)"
   [ -z "$bad" ] || { echo "Maven downloaded from hosts outside '$hosts': ${bad//$'\n'/ } ($1)" >&2; return 1; }
 }

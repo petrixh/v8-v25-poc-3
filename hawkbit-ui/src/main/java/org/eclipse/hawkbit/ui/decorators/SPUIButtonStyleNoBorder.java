@@ -9,9 +9,11 @@
  */
 package org.eclipse.hawkbit.ui.decorators;
 
-import com.vaadin.server.Resource;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.themes.ValoTheme;
+import org.springframework.util.StringUtils;
+
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 
 /**
  * Style for button: Small NoBorder.
@@ -32,15 +34,15 @@ public class SPUIButtonStyleNoBorder implements SPUIButtonDecorator {
      * @return Button
      */
     @Override
-    public Button decorate(final Button button, final String style, final boolean setStyle, final Resource icon) {
+    public Button decorate(final Button button, final String style, final boolean setStyle, final VaadinIcon icon) {
         if (style != null && setStyle) {
-            button.addStyleName(style);
+            button.addClassNames(StringUtils.tokenizeToStringArray(style, " "));
         }
-        button.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         if (icon != null) {
-            button.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-            button.addStyleName("button-no-border");
-            button.setIcon(icon);
+            button.addThemeVariants(ButtonVariant.LUMO_ICON);
+            button.addClassName("button-no-border");
+            button.setIcon(icon.create());
         }
 
         return button;

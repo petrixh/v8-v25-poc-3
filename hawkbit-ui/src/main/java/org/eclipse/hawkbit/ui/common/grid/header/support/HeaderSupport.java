@@ -9,7 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.header.support;
 
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.Component;
 
 /**
  * Interface for header support component

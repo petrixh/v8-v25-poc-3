@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.common;
 
 import java.util.Objects;
 
-import javax.validation.ConstraintViolationException;
+import jakarta.validation.ConstraintViolationException;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;

@@ -9,7 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag.targettype;
 
-import com.vaadin.data.Binder;
+import com.vaadin.flow.data.binder.Binder;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetType;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;

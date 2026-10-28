@@ -13,8 +13,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EntityDraggingEventPayload;
@@ -33,11 +34,9 @@ import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.cronutils.utils.StringUtils;
-import com.vaadin.server.AbstractExtension;
-import com.vaadin.shared.ui.grid.DropMode;
-import com.vaadin.ui.components.grid.GridDragSource;
-import com.vaadin.ui.components.grid.GridDragStartEvent;
-import com.vaadin.ui.components.grid.GridDropTarget;
+import com.vaadin.flow.component.grid.dnd.GridDragStartEvent;
+import com.vaadin.flow.component.grid.dnd.GridDropMode;
+import com.vaadin.flow.shared.Registration;
 
 /**
  * Support for dragging items between grids.
@@ -57,8 +56,9 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     private final Map<String, AssignmentSupport<?, T>> sourceTargetAssignmentStrategies;
     private final UIEventBus eventBus;
 
-    private GridDragSource<T> dragSource;
-    private GridDropTarget<T> dropTarget;
+    private RangeSelectionGridDragSource<T> dragSource;
+    // Vaadin 8: GridDropTarget extension; Flow: the grid's own drop listener
+    private Registration dropTarget;
     private EntityDraggingListener draggingListener;
 
     private boolean ignoreSelection;
@@ -128,8 +128,8 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
             eventBus.publish(EventTopics.ENTITY_DRAGGING_CHANGED, this,
                     new EntityDraggingEventPayload(gridId, DraggingEventType.STARTED));
         });
-        dragSource.addGridDragEndListener(event -> {
-            if (event.isCanceled()) {
+        dragSource.addGridDragEndListener(canceled -> {
+            if (Boolean.TRUE.equals(canceled)) {
                 showActionNotAllowedNotification();
             }
             eventBus.publish(EventTopics.ENTITY_DRAGGING_CHANGED, this,
@@ -145,7 +145,7 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
      *
      * @return true if grid supports drag and drop else false
      */
-    private boolean isGridValidForDragOrDrop(final AbstractExtension dragOrDropExtension,
+    private boolean isGridValidForDragOrDrop(final Object dragOrDropExtension,
             final String dragOrDropDescription) {
         if (!ignoreSelection && !grid.hasSelectionSupport()) {
             LOGGER.warn("Can not add {} for non-selectable grid '{}', specify single- or multi-selection model",
@@ -164,7 +164,7 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     }
 
     private List<T> getItemsToDrag(final GridDragStartEvent<T> event) {
-        final List<T> selectedItems = new ArrayList<>(event.getComponent().getSelectedItems());
+        final List<T> selectedItems = new ArrayList<>(event.getSource().getSelectedItems());
         final List<T> draggedVisibleItems = event.getDraggedItems();
 
         if (draggedVisibleItems.size() == 1 && !selectedItems.contains(draggedVisibleItems.get(0))) {
@@ -186,13 +186,13 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
             return;
         }
 
-        dropTarget = new GridDropTarget<>(grid, DropMode.ON_TOP);
+        grid.setDropMode(GridDropMode.ON_TOP);
 
         addGridDropStylingListener();
 
-        dropTarget.addGridDropListener(event -> {
+        dropTarget = grid.addDropListener(event -> {
             final String sourceId = event.getDataTransferData("source_id").orElse("");
-            final T dropTargetItem = event.getDropTargetRow().orElse(null);
+            final T dropTargetItem = event.getDropTargetItem().orElse(null);
             final AssignmentSupport<?, T> assignmentStrategy = sourceTargetAssignmentStrategies.get(sourceId);
 
             if (!isDropValid(sourceId, dropTargetItem, assignmentStrategy)) {
@@ -202,9 +202,14 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
             grid.deselectAll();
             grid.select(dropTargetItem);
 
-            event.getDragSourceExtension().ifPresent(source -> {
-                if (source instanceof GridDragSource) {
-                    assignmentStrategy.assignSourceItemsToTargetItem(source.getDragData(), dropTargetItem);
+            // Vaadin 8: the drag source extension and its drag data; Flow:
+            // the grid drag in progress in this UI (other drag sources set
+            // none)
+            grid.getUI().ifPresent(ui -> {
+                final Optional<RangeSelectionGridDragSource<?>> source = RangeSelectionGridDragSource
+                        .getActiveDragSource(ui);
+                if (source.isPresent()) {
+                    assignmentStrategy.assignSourceItemsToTargetItem(source.get().getDragData(), dropTargetItem);
                 } else {
                     showActionNotAllowedNotification();
                 }
@@ -262,6 +267,7 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     public void removeDropTarget() {
         if (dropTarget != null) {
             dropTarget.remove();
+            grid.setDropMode(null);
             dropTarget = null;
         }
 

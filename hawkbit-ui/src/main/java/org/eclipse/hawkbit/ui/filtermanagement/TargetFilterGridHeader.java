@@ -28,7 +28,7 @@ import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterGridLayoutUiSta
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.Component;
 
 /**
  * Layout for Custom Filter view

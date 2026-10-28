@@ -51,9 +51,9 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.utils.TenantConfigHelper;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.data.ValueProvider;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
+import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.button.Button;
 
 
 /**
@@ -194,7 +194,7 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
     }
 
     private void initStyleGenerator() {
-        setStyleGenerator(this::getRowStyle);
+        setPartNameGenerator(this::getRowStyle);
     }
 
     private String getRowStyle(final ProxyDistributionSet distributionSet) {
@@ -223,13 +223,13 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
         addNameColumn();
         addVersionColumn();
 
-        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
+        GridComponentBuilder.joinToActionColumn(i18n, getHeaderRows().get(0),
                 Arrays.asList(addPinColumn(), addDeleteColumn(), addInvalidateColumn()));
     }
 
-    private Column<ProxyDistributionSet, Button> addPinColumn() {
+    private Column<ProxyDistributionSet> addPinColumn() {
         final ValueProvider<ProxyDistributionSet, Button> buttonProvider = ds -> GridComponentBuilder.buildActionButton(
-                i18n, clickEvent -> pinSupport.changeItemPinning(ds), VaadinIcons.PIN,
+                i18n, clickEvent -> pinSupport.changeItemPinning(ds), VaadinIcon.PIN,
                 UIMessageIdProvider.TOOLTIP_DISTRIBUTION_SET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.DIST_PIN_ICON + "." + ds.getId(), true);
         return GridComponentBuilder.addIconColumn(this, buttonProvider, DS_PIN_BUTTON_ID, null,
@@ -237,10 +237,10 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
     }
 
 
-    private Column<ProxyDistributionSet, Button> addInvalidateColumn() {
+    private Column<ProxyDistributionSet> addInvalidateColumn() {
         final ValueProvider<ProxyDistributionSet, Button> buttonProvider = ds -> GridComponentBuilder.buildActionButton(
                 i18n, clickEvent -> invalidateDistributionSetSupport.openConsequencesWindowOnInvalidateAction(ds),
-                VaadinIcons.BAN, UIMessageIdProvider.TOOLTIP_INVALIDATE_DISTRIBUTIONSET,
+                VaadinIcon.BAN, UIMessageIdProvider.TOOLTIP_INVALIDATE_DISTRIBUTIONSET,
                 SPUIStyleDefinitions.STATUS_ICON_NEUTRAL, UIComponentIdProvider.DIST_INVALIDATE_ICON + "." + ds.getId(),
                 ds.getIsValid() && permissionChecker.hasDistributionSetInvalidatePermission());
         return GridComponentBuilder.addIconColumn(this, buttonProvider, DS_INVALIDATE_BUTTON_ID, null);

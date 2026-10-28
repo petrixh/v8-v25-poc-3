@@ -11,8 +11,8 @@ package org.eclipse.hawkbit.ui.filtermanagement.state;
 
 import java.io.Serializable;
 
-import com.vaadin.spring.annotation.SpringComponent;
-import com.vaadin.spring.annotation.VaadinSessionScope;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 
 /**
  * Filter management ui state

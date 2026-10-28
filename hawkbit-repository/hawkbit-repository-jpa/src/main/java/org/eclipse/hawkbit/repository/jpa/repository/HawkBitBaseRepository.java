@@ -13,9 +13,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.transaction.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
 
 import org.eclipse.hawkbit.repository.BaseRepositoryTypeProvider;
 import org.eclipse.hawkbit.repository.jpa.acm.AccessController;
@@ -23,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
@@ -48,13 +49,53 @@ public class HawkBitBaseRepository<T, ID extends Serializable> extends SimpleJpa
 
     @Override
     public Slice<T> findAllWithoutCount(@Nullable final Specification<T> spec, final Pageable pageable) {
-        final TypedQuery<T> query = getQuery(spec, pageable);
+        final TypedQuery<T> query = getQuery(orUnrestricted(spec), pageable);
         return pageable.isUnpaged() ? new PageImpl<>(query.getResultList()) : readPageWithoutCount(query, pageable);
     }
 
     @Override
     public Slice<T> findAllWithoutCount(final Pageable pageable) {
         return findAllWithoutCount(null, pageable);
+    }
+
+    // Spring Data JPA 4 rejects a null Specification; hawkBit passes null for "no restriction", as Spring Data JPA 2
+    // accepted. These overrides keep that meaning.
+    @Override
+    @NonNull
+    public Optional<T> findOne(@Nullable final Specification<T> spec) {
+        return super.findOne(orUnrestricted(spec));
+    }
+
+    @Override
+    @NonNull
+    public List<T> findAll(@Nullable final Specification<T> spec) {
+        return super.findAll(orUnrestricted(spec));
+    }
+
+    @Override
+    @NonNull
+    public Page<T> findAll(@Nullable final Specification<T> spec, @NonNull final Pageable pageable) {
+        return super.findAll(orUnrestricted(spec), pageable);
+    }
+
+    @Override
+    @NonNull
+    public List<T> findAll(@Nullable final Specification<T> spec, @NonNull final Sort sort) {
+        return super.findAll(orUnrestricted(spec), sort);
+    }
+
+    @Override
+    public long count(@Nullable final Specification<T> spec) {
+        return super.count(orUnrestricted(spec));
+    }
+
+    @Override
+    public boolean exists(@Nullable final Specification<T> spec) {
+        return super.exists(orUnrestricted(spec));
+    }
+
+    private static <S> Specification<S> orUnrestricted(@Nullable final Specification<S> spec) {
+        return spec == null ? Specification.unrestricted() : spec;
     }
 
 

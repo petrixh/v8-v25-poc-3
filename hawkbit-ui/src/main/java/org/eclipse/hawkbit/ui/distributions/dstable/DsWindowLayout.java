@@ -21,12 +21,13 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTypeInfo;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Target add/update window layout.
@@ -41,7 +42,7 @@ public class DsWindowLayout extends AbstractEntityWindowLayout<ProxyDistribution
     private final TextField dsName;
     private final TextField dsVersion;
     private final TextArea dsDescription;
-    private final CheckBox dsMigrationStepRequired;
+    private final Checkbox dsMigrationStepRequired;
 
     /**
      * Constructor for AbstractTagWindowLayout
@@ -81,24 +82,24 @@ public class DsWindowLayout extends AbstractEntityWindowLayout<ProxyDistribution
     }
 
     @Override
-    public ComponentContainer getRootComponent() {
+    public Component getRootComponent() {
         final FormLayout dsWindowLayout = new FormLayout();
 
-        dsWindowLayout.setSpacing(true);
-        dsWindowLayout.setMargin(true);
+        // Vaadin 8 FormLayout: one column; Flow has no spacing/margin here
+        dsWindowLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
         dsWindowLayout.setSizeUndefined();
 
-        dsWindowLayout.addComponent(dsTypeSelect);
+        dsWindowLayout.add(dsTypeSelect);
 
-        dsWindowLayout.addComponent(dsName);
+        dsWindowLayout.add(dsName);
         dsName.focus();
 
-        dsWindowLayout.addComponent(dsVersion);
+        dsWindowLayout.add(dsVersion);
 
-        dsWindowLayout.addComponent(dsDescription);
+        dsWindowLayout.add(dsDescription);
 
         if (dsMigrationStepRequired != null) {
-            dsWindowLayout.addComponent(dsMigrationStepRequired);
+            dsWindowLayout.add(dsMigrationStepRequired);
         }
 
         return dsWindowLayout;

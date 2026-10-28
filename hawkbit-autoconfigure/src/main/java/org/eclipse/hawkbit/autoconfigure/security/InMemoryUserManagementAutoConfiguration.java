@@ -19,7 +19,7 @@ import org.eclipse.hawkbit.im.authentication.PermissionUtils;
 import org.eclipse.hawkbit.im.authentication.TenantAwareAuthenticationDetails;
 import org.eclipse.hawkbit.im.authentication.UserPrincipal;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.boot.security.autoconfigure.SecurityProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,9 +56,9 @@ public class InMemoryUserManagementAutoConfiguration extends GlobalAuthenticatio
     }
 
     @Override
-    public void configure(final AuthenticationManagerBuilder auth) throws Exception {
-        final DaoAuthenticationProvider userDaoAuthenticationProvider = new TenantDaoAuthenticationProvider();
-        userDaoAuthenticationProvider.setUserDetailsService(userDetailsService());
+    public void configure(final AuthenticationManagerBuilder auth) {
+        final DaoAuthenticationProvider userDaoAuthenticationProvider = new TenantDaoAuthenticationProvider(
+                userDetailsService());
         auth.authenticationProvider(userDaoAuthenticationProvider);
     }
 
@@ -146,6 +146,10 @@ public class InMemoryUserManagementAutoConfiguration extends GlobalAuthenticatio
     }
 
     private static class TenantDaoAuthenticationProvider extends DaoAuthenticationProvider {
+
+        private TenantDaoAuthenticationProvider(final UserDetailsService userDetailsService) {
+            super(userDetailsService);
+        }
 
         @Override
         protected Authentication createSuccessAuthentication(final Object principal,

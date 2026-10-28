@@ -9,8 +9,6 @@
  */
 package org.eclipse.hawkbit.ui.utils;
 
-import com.vaadin.ui.themes.ValoTheme;
-
 /**
  * RepositoryConstants required for Style.
  *
@@ -303,19 +301,16 @@ public final class SPUIStyleDefinitions {
     /**
      * Style - Success.
      */
-    public static final String SP_NOTIFICATION_SUCCESS_MESSAGE_STYLE = ValoTheme.NOTIFICATION_SUCCESS + " "
-            + ValoTheme.NOTIFICATION_TRAY;
+    public static final String SP_NOTIFICATION_SUCCESS_MESSAGE_STYLE = "success tray";
     /**
      * Style - Error.
      */
-    public static final String SP_NOTIFICATION_ERROR_MESSAGE_STYLE = ValoTheme.NOTIFICATION_ERROR + " "
-            + ValoTheme.NOTIFICATION_TRAY;
+    public static final String SP_NOTIFICATION_ERROR_MESSAGE_STYLE = "error tray";
 
     /**
      * Style - Warning.
      */
-    public static final String SP_NOTIFICATION_WARNING_MESSAGE_STYLE = ValoTheme.NOTIFICATION_WARNING + " "
-            + ValoTheme.NOTIFICATION_TRAY;
+    public static final String SP_NOTIFICATION_WARNING_MESSAGE_STYLE = "warning tray";
 
     /**
      * Style for the positio of the menu bar to configure tags and types

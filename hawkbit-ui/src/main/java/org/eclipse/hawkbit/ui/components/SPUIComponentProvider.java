@@ -15,19 +15,18 @@ import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
-import com.vaadin.data.provider.DataProvider;
-import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.ExternalResource;
-import com.vaadin.server.Resource;
-import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.ItemCaptionGenerator;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Link;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.component.ItemLabelGenerator;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.ComboBoxVariant;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.shared.Tooltip;
 
 /**
  * Util class to get the Vaadin UI components for the SP-OS main UI. Factory
@@ -65,7 +64,7 @@ public final class SPUIComponentProvider {
      * @return Button as UI
      */
     public static Button getButton(final String id, final String buttonName, final String buttonDesc,
-            final String style, final boolean setStyle, final Resource icon,
+            final String style, final boolean setStyle, final VaadinIcon icon,
             final Class<? extends SPUIButtonDecorator> buttonDecoratorclassName) {
         Button button = null;
         SPUIButtonDecorator buttonDecorator = null;
@@ -101,17 +100,19 @@ public final class SPUIComponentProvider {
      *            should be used
      * @return a link UI component
      */
-    public static Link getLink(final String id, final String name, final String resource, final Resource icon,
+    public static Anchor getLink(final String id, final String name, final String resource, final VaadinIcon icon,
             final String targetOpen, final String style) {
 
-        final Link link = new Link(name, new ExternalResource(resource));
+        final Anchor link = new Anchor(resource, name);
         link.setId(id);
-        link.setIcon(icon);
-        link.setDescription(name);
+        if (icon != null) {
+            link.addComponentAsFirst(icon.create());
+        }
+        Tooltip.forComponent(link).setText(name);
 
-        link.setTargetName(targetOpen);
+        link.setTarget(targetOpen);
         if (style != null) {
-            link.setStyleName(style);
+            link.setClassName(style);
         }
 
         return link;
@@ -128,12 +129,12 @@ public final class SPUIComponentProvider {
      *
      * @return generated link
      */
-    public static Link getHelpLink(final VaadinMessageSource i18n, final String uri) {
+    public static Anchor getHelpLink(final VaadinMessageSource i18n, final String uri) {
 
-        final Link link = new Link("", new ExternalResource(uri));
-        link.setTargetName("_blank");
-        link.setIcon(VaadinIcons.QUESTION_CIRCLE);
-        link.setDescription(i18n.getMessage("tooltip.documentation.link"));
+        final Anchor link = new Anchor(uri, "");
+        link.setTarget("_blank");
+        link.addComponentAsFirst(VaadinIcon.QUESTION_CIRCLE.create());
+        Tooltip.forComponent(link).setText(i18n.getMessage("tooltip.documentation.link"));
         return link;
 
     }
@@ -147,17 +148,20 @@ public final class SPUIComponentProvider {
      *            label ID
      * @return the label
      */
-    public static Label getLabelIcon(final ProxyFontIcon fontIcon, final String id) {
+    public static Span getLabelIcon(final ProxyFontIcon fontIcon, final String id) {
         if (fontIcon == null) {
-            return new Label("");
+            return new Span("");
         }
 
-        final Label labelIcon = new Label(fontIcon.getHtml(), ContentMode.HTML);
+        // Label with ContentMode.HTML: same HTML as inner HTML of a span
+        final Span labelIcon = new Span();
+        labelIcon.getElement().setProperty("innerHTML", fontIcon.getHtml());
         labelIcon.setId(id);
-        labelIcon.setDescription(fontIcon.getDescription());
-        labelIcon.addStyleName("small");
-        labelIcon.addStyleName("font-icon");
-        labelIcon.addStyleName(fontIcon.getStyle());
+        Tooltip.forComponent(labelIcon).setText(fontIcon.getDescription());
+        labelIcon.addClassName("small");
+        labelIcon.addClassName("font-icon");
+        // space-separated and empty style names, as Vaadin 8 accepted them
+        labelIcon.addClassNames(StringUtils.tokenizeToStringArray(fontIcon.getStyle(), " "));
 
         return labelIcon;
     }
@@ -171,7 +175,7 @@ public final class SPUIComponentProvider {
      *            to generate the internationalized name from
      * @return the label
      */
-    public static Label generateLabel(final VaadinMessageSource i18n, final String key) {
+    public static Span generateLabel(final VaadinMessageSource i18n, final String key) {
         return new LabelBuilder().name(i18n.getMessage(key)).buildLabel();
     }
 
@@ -184,7 +188,7 @@ public final class SPUIComponentProvider {
      *            to generate the internationalized name from
      * @return the caption label
      */
-    public static Label generateCaptionLabel(final VaadinMessageSource i18n, final String key) {
+    public static Span generateCaptionLabel(final VaadinMessageSource i18n, final String key) {
         return new LabelBuilder().name(i18n.getMessage(key)).buildCaptionLabel();
     }
 
@@ -210,26 +214,30 @@ public final class SPUIComponentProvider {
      */
     public static <T> ComboBox<T> getComboBox(final String id, final String caption, final String description,
             final String placeholder, final boolean isEmptySelectionAllowed,
-            final ItemCaptionGenerator<T> itemCaptionGenerator, final DataProvider<T, String> dataProvider) {
+            final ItemLabelGenerator<T> itemCaptionGenerator, final DataProvider<T, String> dataProvider) {
         final ComboBox<T> comboBox = getComboBox(id, caption, description, placeholder, isEmptySelectionAllowed,
                 itemCaptionGenerator);
-        comboBox.setDataProvider(dataProvider);
+        comboBox.setItems(dataProvider);
 
         return comboBox;
     }
 
     private static <T> ComboBox<T> getComboBox(final String id, final String caption, final String description,
             final String placeholder, final boolean isEmptySelectionAllowed,
-            final ItemCaptionGenerator<T> itemCaptionGenerator) {
+            final ItemLabelGenerator<T> itemCaptionGenerator) {
         final ComboBox<T> comboBox = new ComboBox<>();
-        comboBox.setId(id);
-        comboBox.setCaption(caption);
-        comboBox.setDescription(description);
+        // Vaadin 8 accepted a null id (no id); Flow's setId throws on null
+        if (id != null) {
+            comboBox.setId(id);
+        }
+        comboBox.setLabel(caption);
+        comboBox.setTooltipText(description);
         comboBox.setPlaceholder(placeholder);
-        comboBox.addStyleName(ValoTheme.COMBOBOX_SMALL);
-        comboBox.setEmptySelectionAllowed(isEmptySelectionAllowed);
+        comboBox.addThemeVariants(ComboBoxVariant.LUMO_SMALL);
+        // Vaadin 8 empty selection item: clearing the value in Flow
+        comboBox.setClearButtonVisible(isEmptySelectionAllowed);
 
-        comboBox.setItemCaptionGenerator(itemCaptionGenerator);
+        comboBox.setItemLabelGenerator(itemCaptionGenerator);
 
         return comboBox;
     }
@@ -256,10 +264,10 @@ public final class SPUIComponentProvider {
      */
     public static <T> ComboBox<T> getComboBox(final String id, final String caption, final String description,
             final String placeholder, final boolean isEmptySelectionAllowed,
-            final ItemCaptionGenerator<T> itemCaptionGenerator, final ListDataProvider<T> dataProvider) {
+            final ItemLabelGenerator<T> itemCaptionGenerator, final ListDataProvider<T> dataProvider) {
         final ComboBox<T> comboBox = getComboBox(id, caption, description, placeholder, isEmptySelectionAllowed,
                 itemCaptionGenerator);
-        comboBox.setDataProvider(dataProvider);
+        comboBox.setItems(dataProvider);
 
         return comboBox;
     }

@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.login;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.eclipse.hawkbit.im.authentication.MultitenancyIndicator;
 import org.eclipse.hawkbit.im.authentication.TenantUserPasswordAuthenticationToken;
@@ -33,56 +34,59 @@ import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.util.UriComponentsBuilder;
-import org.vaadin.spring.security.VaadinSecurity;
 
-import com.vaadin.annotations.Theme;
-import com.vaadin.annotations.Title;
-import com.vaadin.annotations.Widgetset;
-import com.vaadin.data.Binder;
-import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.Page;
-import com.vaadin.server.Responsive;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.WebBrowser;
-import com.vaadin.shared.Position;
-import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.CustomLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Link;
-import com.vaadin.ui.PasswordField;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.PasswordField;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WebBrowser;
 
 /**
  * Login UI window that is independent of the {@link AbstractHawkbitUI} itself.
  *
+ * Vaadin 25: a route of its own ({@code /UI/login}, see the runtime's
+ * subclass) outside the hawkBit UI layout; the Vaadin 8 UI init runs when the
+ * route is entered.
  */
-@Title("hawkBit UI - Login")
-@Widgetset(value = HawkbitTheme.WIDGET_SET_NAME)
-@Theme(HawkbitTheme.THEME_NAME)
-public abstract class AbstractHawkbitLoginUI extends UI {
+public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements BeforeEnterObserver, HasDynamicTitle {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractHawkbitLoginUI.class);
 
     private static final long serialVersionUID = 1L;
 
+    private static final String TITLE = "hawkBit UI - Login";
+
     private static final String USER_PARAMETER = "user";
     private static final String TENANT_PARAMETER = "tenant";
     private static final String LOGIN_TEXTFIELD = "login-textfield";
+    private static final String TEXTFIELD_INLINE_ICON = "inline-icon";
 
     private final transient ApplicationContext context;
 
-    private final transient VaadinSecurity vaadinSecurity;
+    private final transient VaadinLoginSupport vaadinSecurity;
 
     private final VaadinMessageSource i18n;
 
@@ -102,7 +106,7 @@ public abstract class AbstractHawkbitLoginUI extends UI {
     private final Binder<ProxyLoginCredentials> binder;
 
     @Autowired
-    protected AbstractHawkbitLoginUI(final ApplicationContext context, final VaadinSecurity vaadinSecurity,
+    protected AbstractHawkbitLoginUI(final ApplicationContext context, final VaadinLoginSupport vaadinSecurity,
             final VaadinMessageSource i18n, final UiProperties uiProperties,
             final MultitenancyIndicator multiTenancyIndicator) {
         this.context = context;
@@ -115,62 +119,69 @@ public abstract class AbstractHawkbitLoginUI extends UI {
     }
 
     @Override
-    protected void init(final VaadinRequest request) {
-        HawkbitCommonUtil.initLocalization(this, uiProperties.getLocalization(), i18n);
+    public String getPageTitle() {
+        return TITLE;
+    }
 
-        params = UriComponentsBuilder.fromUri(Page.getCurrent().getLocation()).build().getQueryParams();
+    @Override
+    public void beforeEnter(final BeforeEnterEvent event) {
+        init(event);
+    }
 
-        setContent(buildContent());
+    protected void init(final BeforeEnterEvent event) {
+        HawkbitCommonUtil.initLocalization(UI.getCurrent(), uiProperties.getLocalization(), i18n);
+
+        params = new LinkedMultiValueMap<>(event.getLocation().getQueryParameters().getParameters());
+
+        removeAll();
+        buildContent();
 
         final ProxyLoginCredentials credentialsBean = new ProxyLoginCredentials();
         populateCredentials(credentialsBean);
 
-        binder.addStatusChangeListener(event -> signIn.setEnabled(event.getBinder().isValid()));
+        binder.addStatusChangeListener(statusEvent -> signIn.setEnabled(statusEvent.getBinder().isValid()));
         binder.setBean(credentialsBean);
 
     }
 
-    private VerticalLayout buildContent() {
-        final VerticalLayout rootLayout = new VerticalLayout();
+    private void buildContent() {
+        final VerticalLayout rootLayout = this;
         rootLayout.setSpacing(false);
-        rootLayout.setMargin(false);
+        rootLayout.setPadding(false);
         rootLayout.setSizeFull();
-        rootLayout.setStyleName("main-content");
+        rootLayout.setClassName("main-content");
 
-        rootLayout.addComponent(buildHeader());
+        rootLayout.add(buildHeader());
 
         addLoginForm(rootLayout);
 
         addFooter(rootLayout);
-
-        return rootLayout;
     }
 
     private static Component buildHeader() {
-        final CssLayout cssLayout = new CssLayout();
-        cssLayout.setStyleName("view-header");
+        final Div cssLayout = new Div();
+        cssLayout.setClassName("view-header");
         return cssLayout;
     }
 
     private void addLoginForm(final VerticalLayout rootLayout) {
         final Component loginForm = buildLoginForm();
-        rootLayout.addComponent(loginForm);
-        rootLayout.setComponentAlignment(loginForm, Alignment.MIDDLE_CENTER);
+        rootLayout.add(loginForm);
+        rootLayout.setHorizontalComponentAlignment(Alignment.CENTER, loginForm);
     }
 
     protected Component buildLoginForm() {
         final VerticalLayout loginPanel = new VerticalLayout();
-        loginPanel.setMargin(false);
+        loginPanel.setPadding(false);
         loginPanel.setSpacing(true);
         loginPanel.setSizeUndefined();
-        loginPanel.addStyleName("login-panel");
-        Responsive.makeResponsive(loginPanel);
+        loginPanel.addClassName("login-panel");
 
-        loginPanel.addComponent(buildFields());
+        loginPanel.add(buildFields());
         if (isDemo) {
-            loginPanel.addComponent(buildDisclaimer());
+            loginPanel.add(buildDisclaimer());
         }
-        loginPanel.addComponent(buildLinks());
+        loginPanel.add(buildLinks());
 
         checkBrowserSupport(loginPanel);
 
@@ -179,9 +190,9 @@ public abstract class AbstractHawkbitLoginUI extends UI {
 
     protected Component buildFields() {
         final HorizontalLayout fields = new HorizontalLayout();
-        fields.setMargin(false);
+        fields.setPadding(false);
         fields.setSpacing(true);
-        fields.addStyleName("fields");
+        fields.addClassName("fields");
 
         buildTenantField();
         buildUserField();
@@ -189,12 +200,12 @@ public abstract class AbstractHawkbitLoginUI extends UI {
         buildSignInButton();
 
         if (multiTenancyIndicator.isMultiTenancySupported()) {
-            fields.addComponents(tenant, username, password, signIn);
+            fields.add(tenant, username, password, signIn);
         } else {
-            fields.addComponents(username, password, signIn);
+            fields.add(username, password, signIn);
         }
 
-        fields.setComponentAlignment(signIn, Alignment.BOTTOM_LEFT);
+        fields.setVerticalComponentAlignment(Alignment.END, signIn);
 
         return fields;
     }
@@ -202,11 +213,12 @@ public abstract class AbstractHawkbitLoginUI extends UI {
     private void buildTenantField() {
         if (multiTenancyIndicator.isMultiTenancySupported()) {
             tenant = new TextField(i18n.getMessage("label.login.tenant"));
-            tenant.setIcon(VaadinIcons.DATABASE);
-            tenant.addStyleName(
-                    ValoTheme.TEXTFIELD_INLINE_ICON + " " + ValoTheme.TEXTFIELD_SMALL + " " + LOGIN_TEXTFIELD);
-            tenant.addStyleName("uppercase");
+            tenant.setPrefixComponent(VaadinIcon.DATABASE.create());
+            tenant.addThemeVariants(TextFieldVariant.LUMO_SMALL);
+            tenant.addClassNames(TEXTFIELD_INLINE_ICON, LOGIN_TEXTFIELD);
+            tenant.addClassName("uppercase");
             tenant.setId("login-tenant");
+            tenant.setValueChangeMode(ValueChangeMode.LAZY);
 
             binder.forField(tenant).asRequired().bind(ProxyLoginCredentials::getTenant,
                     ProxyLoginCredentials::setTenant);
@@ -215,10 +227,13 @@ public abstract class AbstractHawkbitLoginUI extends UI {
 
     private void buildUserField() {
         username = new TextField(i18n.getMessage("label.login.username"));
-        username.setIcon(VaadinIcons.USER);
-        username.addStyleName(
-                ValoTheme.TEXTFIELD_INLINE_ICON + " " + ValoTheme.TEXTFIELD_SMALL + " " + LOGIN_TEXTFIELD);
+        username.setPrefixComponent(VaadinIcon.USER.create());
+        username.addThemeVariants(TextFieldVariant.LUMO_SMALL);
+        username.addClassNames(TEXTFIELD_INLINE_ICON, LOGIN_TEXTFIELD);
         username.setId("login-username");
+        // Vaadin 8's default (also on tenant and password): the sign-in button follows the binder while typing,
+        // not only when the field loses focus
+        username.setValueChangeMode(ValueChangeMode.LAZY);
 
         binder.forField(username).asRequired().bind(ProxyLoginCredentials::getUsername,
                 ProxyLoginCredentials::setUsername);
@@ -226,10 +241,11 @@ public abstract class AbstractHawkbitLoginUI extends UI {
 
     private void buildPasswordField() {
         password = new PasswordField(i18n.getMessage("label.login.password"));
-        password.setIcon(VaadinIcons.LOCK);
-        password.addStyleName(
-                ValoTheme.TEXTFIELD_INLINE_ICON + " " + ValoTheme.TEXTFIELD_SMALL + " " + LOGIN_TEXTFIELD);
+        password.setPrefixComponent(VaadinIcon.LOCK.create());
+        password.addThemeVariants(TextFieldVariant.LUMO_SMALL);
+        password.addClassNames(TEXTFIELD_INLINE_ICON, LOGIN_TEXTFIELD);
         password.setId("login-password");
+        password.setValueChangeMode(ValueChangeMode.LAZY);
 
         binder.forField(password).asRequired().bind(ProxyLoginCredentials::getPassword,
                 ProxyLoginCredentials::setPassword);
@@ -240,8 +256,9 @@ public abstract class AbstractHawkbitLoginUI extends UI {
                 : i18n.getMessage("button.login.signin");
 
         signIn = new Button(caption);
-        signIn.addStyleName(ValoTheme.BUTTON_PRIMARY + " " + ValoTheme.BUTTON_SMALL + " " + "login-button");
-        signIn.setClickShortcut(KeyCode.ENTER);
+        signIn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
+        signIn.addClassName("login-button");
+        signIn.addClickShortcut(Key.ENTER);
         signIn.focus();
         signIn.setId("login-signin");
 
@@ -255,12 +272,12 @@ public abstract class AbstractHawkbitLoginUI extends UI {
         final String providedPassword = credentialsBean.getPassword();
 
         if (multiTenancyIndicator.isMultiTenancySupported()) {
-            if (!StringUtils.isEmpty(providedTenant) && !StringUtils.isEmpty(providedUsername)
-                    && !StringUtils.isEmpty(providedPassword)) {
+            if (StringUtils.hasLength(providedTenant) && StringUtils.hasLength(providedUsername)
+                    && StringUtils.hasLength(providedPassword)) {
                 login(providedTenant, providedUsername, providedPassword);
             }
-        } else if (!multiTenancyIndicator.isMultiTenancySupported() && !StringUtils.isEmpty(providedUsername)
-                && !StringUtils.isEmpty(providedPassword)) {
+        } else if (!multiTenancyIndicator.isMultiTenancySupported() && StringUtils.hasLength(providedUsername)
+                && StringUtils.hasLength(providedPassword)) {
             login(null, providedUsername, providedPassword);
         }
     }
@@ -293,8 +310,8 @@ public abstract class AbstractHawkbitLoginUI extends UI {
     private void showErrorNotification(final String caption, final String description) {
         final ParallelNotification notification = UINotification.buildNotification(
                 SPUIStyleDefinitions.SP_NOTIFICATION_ERROR_MESSAGE_STYLE, caption, description, null, true);
-        notification.setPosition(Position.BOTTOM_CENTER);
-        notification.show(Page.getCurrent());
+        notification.setPosition(Notification.Position.BOTTOM_CENTER);
+        notification.open();
     }
 
     private void loginAuthenticationFailedNotification() {
@@ -304,50 +321,53 @@ public abstract class AbstractHawkbitLoginUI extends UI {
 
     private Component buildDisclaimer() {
         final HorizontalLayout fields = new HorizontalLayout();
-        fields.setMargin(false);
+        fields.setPadding(false);
         fields.setSpacing(true);
-        fields.addStyleName("disclaimer");
+        fields.addClassName("disclaimer");
 
-        final Label disclaimer = new Label(uiProperties.getDemo().getDisclaimer(), ContentMode.HTML);
-        disclaimer.setCaption(i18n.getMessage("label.login.disclaimer"));
-        disclaimer.setIcon(VaadinIcons.EXCLAMATION_CIRCLE);
+        // Vaadin 8: an HTML label with caption and icon; the caption and icon
+        // go above the text
+        final NativeLabel caption = new NativeLabel(i18n.getMessage("label.login.disclaimer"));
+        final Div captionWithIcon = new Div(VaadinIcon.EXCLAMATION_CIRCLE.create(), caption);
+        final Span disclaimer = new Span();
+        disclaimer.getElement().setProperty("innerHTML", uiProperties.getDemo().getDisclaimer());
         disclaimer.setId("login-disclaimer");
         disclaimer.setWidth("525px");
 
-        fields.addComponent(disclaimer);
+        fields.add(new Div(captionWithIcon, disclaimer));
 
         return fields;
     }
 
     protected Component buildLinks() {
         final HorizontalLayout links = new HorizontalLayout();
-        links.setMargin(false);
+        links.setPadding(false);
         links.setSpacing(true);
-        links.addStyleName("links");
+        links.addClassName("links");
         final String linkStyle = "v-link";
 
         if (!uiProperties.getLinks().getDocumentation().getRoot().isEmpty()) {
-            final Link docuLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_DOCUMENTATION,
+            final Anchor docuLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_DOCUMENTATION,
                     i18n.getMessage("link.documentation.name"), uiProperties.getLinks().getDocumentation().getRoot(),
-                    VaadinIcons.QUESTION_CIRCLE, "_blank", linkStyle);
-            links.addComponent(docuLink);
-            docuLink.addStyleName(ValoTheme.LINK_SMALL);
+                    VaadinIcon.QUESTION_CIRCLE, "_blank", linkStyle);
+            links.add(docuLink);
+            docuLink.addClassName("small");
         }
 
         if (!uiProperties.getLinks().getRequestAccount().isEmpty()) {
-            final Link requestAccountLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_REQUESTACCOUNT,
+            final Anchor requestAccountLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_REQUESTACCOUNT,
                     i18n.getMessage("link.requestaccount.name"), uiProperties.getLinks().getRequestAccount(),
-                    VaadinIcons.CART, "", linkStyle);
-            links.addComponent(requestAccountLink);
-            requestAccountLink.addStyleName(ValoTheme.LINK_SMALL);
+                    VaadinIcon.CART, "", linkStyle);
+            links.add(requestAccountLink);
+            requestAccountLink.addClassName("small");
         }
 
         if (!uiProperties.getLinks().getUserManagement().isEmpty()) {
-            final Link userManagementLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_USERMANAGEMENT,
+            final Anchor userManagementLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_USERMANAGEMENT,
                     i18n.getMessage("link.usermanagement.name"), uiProperties.getLinks().getUserManagement(),
-                    VaadinIcons.USERS, "_blank", linkStyle);
-            links.addComponent(userManagementLink);
-            userManagementLink.addStyleName(ValoTheme.LINK_SMALL);
+                    VaadinIcon.USERS, "_blank", linkStyle);
+            links.add(userManagementLink);
+            userManagementLink.addClassName("small");
         }
 
         return links;
@@ -358,30 +378,31 @@ public abstract class AbstractHawkbitLoginUI extends UI {
         if (isUnsupportedBrowser()) {
             // Disable sign-in button and display a message
             signIn.setEnabled(Boolean.FALSE);
-            loginPanel.addComponent(buildUnsupportedMessage());
+            loginPanel.add(buildUnsupportedMessage());
         }
     }
 
     private static boolean isUnsupportedBrowser() {
-        final WebBrowser webBrowser = Page.getCurrent().getWebBrowser();
+        final WebBrowser webBrowser = VaadinSession.getCurrent().getBrowser();
         return webBrowser.isIE() && webBrowser.getBrowserMajorVersion() < 11;
     }
 
     private Component buildUnsupportedMessage() {
-        final Label label = new Label(i18n.getMessage("label.unsupported.browser.ie"));
-        label.addStyleName(ValoTheme.LABEL_FAILURE);
+        final Span label = new Span(i18n.getMessage("label.unsupported.browser.ie"));
+        label.addClassName("failure");
         return label;
     }
 
     private void addFooter(final VerticalLayout rootLayout) {
         final Resource resource = context
-                .getResource("classpath:/VAADIN/themes/" + UI.getCurrent().getTheme() + "/layouts/footer.html");
+                .getResource("classpath:/VAADIN/themes/" + HawkbitTheme.THEME_NAME + "/layouts/footer.html");
 
+        // Vaadin 8 CustomLayout: the template as it is, inside one element
         try (final InputStream resourceStream = resource.getInputStream()) {
-            final CustomLayout customLayout = new CustomLayout(resourceStream);
-            customLayout.setSizeUndefined();
-            rootLayout.addComponent(customLayout);
-            rootLayout.setComponentAlignment(customLayout, Alignment.BOTTOM_LEFT);
+            final Html customLayout = new Html(
+                    "<div>" + StreamUtils.copyToString(resourceStream, StandardCharsets.UTF_8) + "</div>");
+            rootLayout.add(customLayout);
+            rootLayout.setHorizontalComponentAlignment(Alignment.START, customLayout);
         } catch (final IOException ex) {
             LOG.error("Footer file cannot be loaded", ex);
         }

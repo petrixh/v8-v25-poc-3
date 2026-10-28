@@ -27,18 +27,18 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.cronutils.utils.StringUtils;
-import com.vaadin.data.ValueProvider;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.Resource;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.Grid.Column;
-import com.vaadin.ui.StyleGenerator;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.components.grid.HeaderRow;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.grid.HeaderRow;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.function.SerializableFunction;
+import com.vaadin.flow.function.ValueProvider;
 
 /**
  * Builder class for grid components
@@ -78,17 +78,14 @@ public final class GridComponentBuilder {
      * @return the button
      */
     public static Button buildLink(final String idSuffix, final String idPrefix, final String caption,
-            final boolean enabled, final ClickListener clickListener) {
+            final boolean enabled, final ComponentEventListener<ClickEvent<Button>> clickListener) {
         final Button link = new Button();
         final String id = new StringBuilder(idPrefix).append('.').append(idSuffix).toString();
 
-        link.setCaption(caption);
+        link.setText(caption);
         link.setEnabled(enabled);
         link.setId(id);
-        link.addStyleName("borderless");
-        link.addStyleName("small");
-        link.addStyleName("on-focus-no-border");
-        link.addStyleName("link");
+        link.addClassNames("borderless", "small", "on-focus-no-border", "link");
         if (clickListener != null) {
             link.addClickListener(clickListener);
         }
@@ -112,7 +109,7 @@ public final class GridComponentBuilder {
      * @return the button
      */
     public static <E extends ProxyNamedEntity> Button buildLink(final E entity, final String idPrefix,
-            final String caption, final boolean enabled, final ClickListener clickListener) {
+            final String caption, final boolean enabled, final ComponentEventListener<ClickEvent<Button>> clickListener) {
         final String idSuffix = StringHtmlEncoder.encode(entity.getName());
         return buildLink(idSuffix, idPrefix, caption, enabled, clickListener);
     }
@@ -131,9 +128,9 @@ public final class GridComponentBuilder {
      *            column ID
      * @return the created column
      */
-    public static <E extends ProxyNamedEntity> Column<E, String> addNameColumn(final Grid<E> grid,
+    public static <E extends ProxyNamedEntity> Column<E> addNameColumn(final Grid<E> grid,
             final VaadinMessageSource i18n, final String columnId) {
-        final Column<E, String> nameColumn = addColumn(i18n, grid, E::getName, "header.name", columnId,
+        final Column<E> nameColumn = addColumn(i18n, grid, E::getName, "header.name", columnId,
                 DEFAULT_MIN_WIDTH);
         setColumnSortable(nameColumn, NAME_PROPERTY_NAME);
         return nameColumn;
@@ -151,20 +148,20 @@ public final class GridComponentBuilder {
      *            column ID
      * @return the created column
      */
-    public static Column<ProxyTarget, Button> addControllerIdColumn(final Grid<ProxyTarget> grid,
+    public static Column<ProxyTarget> addControllerIdColumn(final Grid<ProxyTarget> grid,
             final VaadinMessageSource i18n, final String columnId) {
-        final Column<ProxyTarget, Button> column = addComponentColumn(grid,
-                t -> buildControllerIdLink(t, columnId)).setId(columnId)
-                        .setCaption(i18n.getMessage("header.controllerId")).setHidable(false)
-                        .setMinimumWidth(DEFAULT_MIN_WIDTH);
+        final Column<ProxyTarget> column = addComponentColumn(grid,
+                t -> buildControllerIdLink(t, columnId)).setKey(columnId)
+                        .setHeader(i18n.getMessage("header.controllerId"))
+                        .setWidth(toPixels(DEFAULT_MIN_WIDTH));
         setColumnSortable(column, CONTROLLER_ID_PROPERTY_NAME);
         return column;
     }
 
     private static Button buildControllerIdLink(final ProxyTarget target, final String linkIdPrefix) {
         final String idSuffix = StringHtmlEncoder.encode(target.getControllerId());
-        return buildLink(idSuffix, linkIdPrefix, target.getControllerId(), true, clickEvent -> UI.getCurrent()
-                .getNavigator().navigateTo("deployment/target=" + target.getControllerId()));
+        return buildLink(idSuffix, linkIdPrefix, target.getControllerId(), true,
+                clickEvent -> UI.getCurrent().navigate("deployment/target=" + target.getControllerId()));
     }
 
     /**
@@ -180,7 +177,7 @@ public final class GridComponentBuilder {
      *            column ID
      * @return the created column
      */
-    public static <E extends ProxyNamedEntity> Column<E, String> addDescriptionColumn(final Grid<E> grid,
+    public static <E extends ProxyNamedEntity> Column<E> addDescriptionColumn(final Grid<E> grid,
             final VaadinMessageSource i18n, final String columnId) {
         return addColumn(i18n, grid, E::getDescription, "header.description", columnId, DEFAULT_MIN_WIDTH);
     }
@@ -196,24 +193,24 @@ public final class GridComponentBuilder {
      *            message source for internationalization
      * @return the created columns
      */
-    public static <E extends ProxyNamedEntity> List<Column<E, String>> addCreatedAndModifiedColumns(final Grid<E> grid,
+    public static <E extends ProxyNamedEntity> List<Column<E>> addCreatedAndModifiedColumns(final Grid<E> grid,
             final VaadinMessageSource i18n) {
-        final List<Column<E, String>> columns = new ArrayList<>();
+        final List<Column<E>> columns = new ArrayList<>();
 
-        final Column<E, String> createdByColumn = addColumn(i18n, grid, E::getCreatedBy, "header.createdBy",
+        final Column<E> createdByColumn = addColumn(i18n, grid, E::getCreatedBy, "header.createdBy",
                 CREATED_BY_ID, DEFAULT_MIN_WIDTH);
         setColumnSortable(createdByColumn, CREATED_BY_PROPERTY_NAME);
         columns.add(createdByColumn);
 
-        final Column<E, String> createdDate = addColumn(i18n, grid, E::getCreatedDate, "header.createdDate", CREATED_DATE_ID, DEFAULT_MIN_WIDTH);
+        final Column<E> createdDate = addColumn(i18n, grid, E::getCreatedDate, "header.createdDate", CREATED_DATE_ID, DEFAULT_MIN_WIDTH);
         setColumnSortable(createdDate, CREATED_AT_PROPERTY_NAME);
         columns.add(createdDate);
 
-        final Column<E, String> modifiedBy = addColumn(i18n, grid, E::getLastModifiedBy, "header.modifiedBy", MODIFIED_BY_ID, DEFAULT_MIN_WIDTH);
+        final Column<E> modifiedBy = addColumn(i18n, grid, E::getLastModifiedBy, "header.modifiedBy", MODIFIED_BY_ID, DEFAULT_MIN_WIDTH);
         setColumnSortable(modifiedBy, LAST_MODIFIED_BY_PROPERTY_NAME);
         columns.add(modifiedBy);
 
-        final Column<E, String> modifiedDate = addColumn(i18n, grid, E::getModifiedDate, "header.modifiedDate", MODIFIED_DATE_ID, DEFAULT_MIN_WIDTH);
+        final Column<E> modifiedDate = addColumn(i18n, grid, E::getModifiedDate, "header.modifiedDate", MODIFIED_DATE_ID, DEFAULT_MIN_WIDTH);
         setColumnSortable(modifiedDate, LAST_MODIFIED_AT_PROPERTY_NAME);
         columns.add(modifiedDate);
 
@@ -235,21 +232,21 @@ public final class GridComponentBuilder {
      *            column ID
      * @return the created column
      */
-    public static <E> Column<E, String> addVersionColumn(final Grid<E> grid, final VaadinMessageSource i18n,
+    public static <E> Column<E> addVersionColumn(final Grid<E> grid, final VaadinMessageSource i18n,
             final ValueProvider<E, String> valueProvider, final String columnId) {
-        final Column<E, String> column = addColumn(i18n, grid, valueProvider, "header.version", columnId,
+        final Column<E> column = addColumn(i18n, grid, valueProvider, "header.version", columnId,
                 DEFAULT_MIN_WIDTH);
         setColumnSortable(column, VERSION_PROPERTY_NAME);
         return column;
     }
 
-    private static <E, T> Column<E, T> addColumn(final VaadinMessageSource i18n, final Grid<E> grid,
+    private static <E, T> Column<E> addColumn(final VaadinMessageSource i18n, final Grid<E> grid,
             final ValueProvider<E, T> valueProvider, final String caption, final String columnID,
             final double minWidth) {
-        final Column<E, T> col = addColumn(grid, valueProvider).setCaption(i18n.getMessage(caption))
-                .setMinimumWidth(minWidth);
+        final Column<E> col = addColumn(grid, valueProvider).setHeader(i18n.getMessage(caption))
+                .setWidth(toPixels(minWidth));
         if (columnID != null) {
-            col.setId(columnID);
+            col.setKey(columnID);
         }
         return col;
 
@@ -266,7 +263,7 @@ public final class GridComponentBuilder {
      *            providing the content
      * @return the created column
      */
-    public static <E, T> Column<E, T> addColumn(final Grid<E> grid, final ValueProvider<E, T> valueProvider) {
+    public static <E, T> Column<E> addColumn(final Grid<E> grid, final ValueProvider<E, T> valueProvider) {
         return addColumn(grid, valueProvider, null);
     }
 
@@ -283,9 +280,9 @@ public final class GridComponentBuilder {
      *            providing additional styles
      * @return the created column
      */
-    public static <E, T> Column<E, T> addColumn(final Grid<E> grid, final ValueProvider<E, T> valueProvider,
-            final StyleGenerator<E> styleGenerator) {
-        final Column<E, T> column = grid.addColumn(valueProvider);
+    public static <E, T> Column<E> addColumn(final Grid<E> grid, final ValueProvider<E, T> valueProvider,
+            final SerializableFunction<E, String> styleGenerator) {
+        final Column<E> column = grid.addColumn(valueProvider);
         commonColumnConfiguration(column, styleGenerator);
         return column;
     }
@@ -301,7 +298,7 @@ public final class GridComponentBuilder {
      *            entity type of the grid
      */
     public static <E> void removeColumn(final Grid<E> grid, final String columnId) {
-        grid.removeColumn(columnId);
+        grid.removeColumnByKey(columnId);
     }
 
     /**
@@ -316,7 +313,7 @@ public final class GridComponentBuilder {
      * @return if the column is present
      */
     public static <E> boolean isColumnPresent(final Grid<E> grid, final String columnId) {
-        return grid.getColumn(columnId) != null;
+        return grid.getColumnByKey(columnId) != null;
     }
 
     /**
@@ -330,7 +327,7 @@ public final class GridComponentBuilder {
      *            providing the content
      * @return the created column
      */
-    public static <E, T extends Component> Column<E, T> addComponentColumn(final Grid<E> grid,
+    public static <E, T extends Component> Column<E> addComponentColumn(final Grid<E> grid,
             final ValueProvider<E, T> componentProvider) {
         return addComponentColumn(grid, componentProvider, null);
     }
@@ -348,21 +345,20 @@ public final class GridComponentBuilder {
      *            providing additional styles
      * @return the created column
      */
-    public static <E, T extends Component> Column<E, T> addComponentColumn(final Grid<E> grid,
-            final ValueProvider<E, T> componentProvider, final StyleGenerator<E> styleGenerator) {
-        final Column<E, T> column = grid.addComponentColumn(componentProvider);
+    public static <E, T extends Component> Column<E> addComponentColumn(final Grid<E> grid,
+            final ValueProvider<E, T> componentProvider, final SerializableFunction<E, String> styleGenerator) {
+        final Column<E> column = grid.addComponentColumn(componentProvider);
         commonColumnConfiguration(column, styleGenerator);
         return column;
     }
 
-    private static <E, T> Column<E, T> commonColumnConfiguration(final Column<E, T> column,
-            final StyleGenerator<E> styleGenerator) {
-        column.setMinimumWidthFromContent(false);
-        column.setExpandRatio(1);
+    private static <E, T> Column<E> commonColumnConfiguration(final Column<E> column,
+            final SerializableFunction<E, String> styleGenerator) {
+        column.setFlexGrow(1);
         column.setSortable(false);
 
         if (styleGenerator != null) {
-            column.setStyleGenerator(styleGenerator);
+            column.setPartNameGenerator(styleGenerator);
         }
         return column;
     }
@@ -386,15 +382,15 @@ public final class GridComponentBuilder {
      *            is the button enabled
      * @return the created column
      */
-    public static <E extends ProxyIdentifiableEntity> Column<E, Button> addDeleteColumn(final Grid<E> grid,
+    public static <E extends ProxyIdentifiableEntity> Column<E> addDeleteColumn(final Grid<E> grid,
             final VaadinMessageSource i18n, final String columnId, final DeleteSupport<E> deleteSupport,
             final String buttonIdPrefix, final Predicate<E> buttonEnabled) {
         final ValueProvider<E, Button> getDelButton = entity -> buildActionButton(i18n,
-                clickEvent -> deleteSupport.openConfirmationWindowDeleteAction(entity), VaadinIcons.TRASH,
+                clickEvent -> deleteSupport.openConfirmationWindowDeleteAction(entity), VaadinIcon.TRASH,
                 UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 buttonIdPrefix + "." + entity.getId(), buttonEnabled.test(entity));
-        return addIconColumn(grid, getDelButton, columnId, i18n.getMessage("header.action.delete")).setWidth(60D)
-                .setHidingToggleCaption(i18n.getMessage("header.action.delete"));
+        return addIconColumn(grid, getDelButton, columnId, i18n.getMessage("header.action.delete"))
+                .setWidth(toPixels(60D));
     }
 
     /**
@@ -412,7 +408,7 @@ public final class GridComponentBuilder {
      *            caption of the column
      * @return the created column
      */
-    public static <T, V extends Component> Column<T, V> addIconColumn(final Grid<T> grid,
+    public static <T, V extends Component> Column<T> addIconColumn(final Grid<T> grid,
             final ValueProvider<T, V> iconProvider, final String columnId, final String caption) {
         return addIconColumn(grid, iconProvider, columnId, caption, null);
     }
@@ -434,17 +430,19 @@ public final class GridComponentBuilder {
      *            caption of the column
      * @return the created column
      */
-    public static <T, V extends Component> Column<T, V> addIconColumn(final Grid<T> grid,
+    public static <T, V extends Component> Column<T> addIconColumn(final Grid<T> grid,
             final ValueProvider<T, V> iconProvider, final String columnId, final String caption,
-            final StyleGenerator<T> styleGenerator) {
-        final StyleGenerator<T> additionalStyleGenerator = entity -> SPUIStyleDefinitions.ICON_CELL;
+            final SerializableFunction<T, String> styleGenerator) {
+        final SerializableFunction<T, String> additionalStyleGenerator = entity -> SPUIStyleDefinitions.ICON_CELL;
 
-        final StyleGenerator<T> finalStyleGenerator = merge(Arrays.asList(styleGenerator, additionalStyleGenerator));
+        final SerializableFunction<T, String> finalStyleGenerator = merge(
+                Arrays.asList(styleGenerator, additionalStyleGenerator));
 
-        final Column<T, V> column = grid.addComponentColumn(iconProvider).setId(columnId)
-                .setStyleGenerator(finalStyleGenerator).setWidth(60D).setResizable(false).setSortable(false);
+        final Column<T> column = grid.addComponentColumn(iconProvider).setKey(columnId)
+                .setPartNameGenerator(finalStyleGenerator).setWidth(toPixels(60D)).setFlexGrow(0).setResizable(false)
+                .setSortable(false);
         if (!StringUtils.isEmpty(caption)) {
-            column.setCaption(caption);
+            column.setHeader(caption);
         }
         return column;
     }
@@ -462,13 +460,14 @@ public final class GridComponentBuilder {
      *            the jpa property name to sort by
      * @return the provided column
      */
-    public static <T, V> Column<T, V> setColumnSortable(final Column<T, V> column,
+    public static <T, V> Column<T> setColumnSortable(final Column<T> column,
             final String sortPropertyName) {
         column.setSortable(true).setSortProperty(sortPropertyName);
         return column;
     }
 
-    private static <T> StyleGenerator<T> merge(final Collection<StyleGenerator<T>> generators) {
+    private static <T> SerializableFunction<T, String> merge(
+            final Collection<SerializableFunction<T, String>> generators) {
         return item -> generators.stream().filter(Objects::nonNull).map(gen -> gen.apply(item)).filter(Objects::nonNull)
                 .collect(Collectors.joining(" "));
     }
@@ -484,7 +483,7 @@ public final class GridComponentBuilder {
      *            columns to join
      */
     public static void joinToActionColumn(final VaadinMessageSource i18n, final HeaderRow headerRow,
-            final List<Column<?, ?>> columns) {
+            final List<Column<?>> columns) {
         joinToIconColumn(headerRow, i18n.getMessage("header.action"), columns);
     }
 
@@ -499,13 +498,16 @@ public final class GridComponentBuilder {
      *            columns to join
      */
     public static void joinToIconColumn(final HeaderRow headerRow, final String headerCaption,
-            final List<Column<?, ?>> columns) {
+            final List<Column<?>> columns) {
         columns.forEach(column -> {
-            column.setWidth(30D);
+            column.setWidth(toPixels(30D));
+            column.setFlexGrow(0);
             column.setResizable(false);
         });
-        final Column<?, ?>[] columnArray = columns.toArray(new Column<?, ?>[columns.size()]);
-        headerRow.join(columnArray).setText(headerCaption);
+        // Flow cannot join cells in the first header row (Vaadin 8's default row, the one with the column
+        // captions; HeaderRow.join throws): the caption goes into the first column's cell, the others stay empty
+        headerRow.getCell(columns.get(0)).setText(headerCaption);
+        columns.stream().skip(1).forEach(column -> headerRow.getCell(column).setText(""));
     }
 
     /**
@@ -527,22 +529,28 @@ public final class GridComponentBuilder {
      *            is the button enabled
      * @return the button
      */
-    public static Button buildActionButton(final VaadinMessageSource i18n, final ClickListener clickListener,
-            final Resource icon, final String descriptionMsgProperty, final String style, final String buttonId,
+    public static Button buildActionButton(final VaadinMessageSource i18n, final ComponentEventListener<ClickEvent<Button>> clickListener,
+            final VaadinIcon icon, final String descriptionMsgProperty, final String style, final String buttonId,
             final boolean enabled) {
         final Button actionButton = new Button();
 
         actionButton.addClickListener(clickListener);
-        actionButton.setIcon(icon, i18n.getMessage(descriptionMsgProperty));
-        actionButton.setDescription(i18n.getMessage(descriptionMsgProperty));
+        actionButton.setIcon(icon.create());
+        actionButton.setAriaLabel(i18n.getMessage(descriptionMsgProperty));
+        actionButton.setTooltipText(i18n.getMessage(descriptionMsgProperty));
         actionButton.setEnabled(enabled);
         actionButton.setId(buttonId);
-        actionButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-        actionButton.addStyleName("button-no-border");
-        actionButton.addStyleName("action-type-padding");
-        actionButton.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-        actionButton.addStyleName(style);
+        actionButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
+        actionButton.addClassNames("borderless-colored", "button-no-border", "action-type-padding", "icon-only");
+        if (!StringUtils.isEmpty(style)) {
+            actionButton.addClassNames(style.trim().split("\\s+"));
+        }
 
         return actionButton;
+    }
+
+    // Vaadin 8 column widths were numbers of pixels
+    private static String toPixels(final double width) {
+        return ((int) width) + "px";
     }
 }

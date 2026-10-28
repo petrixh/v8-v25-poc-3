@@ -35,13 +35,15 @@ import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.management.targettag.targettype.TargetTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Accordion;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.accordion.Accordion;
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Target filter tabsheet with 'simple' and 'complex' filter options.
@@ -61,6 +63,11 @@ public class MultipleTargetFilter extends Accordion {
     private final TargetTypeFilterButtons targetTypeFilterButtons;
     private final FilterByStatusLayout filterByStatusFooter;
     private final TargetFilterQueryButtons customFilterTab;
+
+    // Flow accordion: the tab captions and ids belong to the panels
+    private AccordionPanel simpleFilterPanel;
+    private AccordionPanel customFilterPanel;
+    private AccordionPanel targetTypeFilterPanel;
 
     private final transient GridActionsVisibilityListener targetTagGridActionsVisibilityListener;
     private final transient GridActionsVisibilityListener targetTypeGridActionsVisibilityListener;
@@ -106,33 +113,32 @@ public class MultipleTargetFilter extends Accordion {
 
         init();
         addTabs();
-        addSelectedTabChangeListener(event -> selectedTabChanged());
+        addOpenedChangeListener(event -> selectedTabChanged());
     }
 
     private VerticalLayout buildSimpleFilterTab() {
         final VerticalLayout simpleTab = new VerticalLayout();
         simpleTab.setSpacing(false);
-        simpleTab.setMargin(false);
+        simpleTab.setPadding(false);
         simpleTab.setSizeFull();
-        simpleTab.setCaption(i18n.getMessage("caption.filter.simple"));
-        simpleTab.addStyleName(SPUIStyleDefinitions.SIMPLE_FILTER_HEADER);
+        simpleTab.addClassNames(SPUIStyleDefinitions.SIMPLE_FILTER_HEADER);
 
         final VerticalLayout targetTagGridLayout = new VerticalLayout();
         targetTagGridLayout.setSpacing(false);
-        targetTagGridLayout.setMargin(false);
+        targetTagGridLayout.setPadding(false);
         targetTagGridLayout.setSizeFull();
         targetTagGridLayout.setId(UIComponentIdProvider.TARGET_TAG_DROP_AREA_ID);
 
-        targetTagGridLayout.addComponent(filterByButtons.getNoTagButton());
-        targetTagGridLayout.addComponent(filterByButtons);
-        targetTagGridLayout.setComponentAlignment(filterByButtons, Alignment.MIDDLE_CENTER);
-        targetTagGridLayout.setExpandRatio(filterByButtons, 1.0F);
+        targetTagGridLayout.add(filterByButtons.getNoTagButton());
+        targetTagGridLayout.add(filterByButtons);
+        targetTagGridLayout.setHorizontalComponentAlignment(Alignment.CENTER, filterByButtons);
+        targetTagGridLayout.setFlexGrow(1.0F, filterByButtons);
 
-        simpleTab.addComponent(targetTagGridLayout);
-        simpleTab.setExpandRatio(targetTagGridLayout, 1.0F);
+        simpleTab.add(targetTagGridLayout);
+        simpleTab.setFlexGrow(1.0F, targetTagGridLayout);
 
-        simpleTab.addComponent(filterByStatusFooter);
-        simpleTab.setComponentAlignment(filterByStatusFooter, Alignment.MIDDLE_CENTER);
+        simpleTab.add(filterByStatusFooter);
+        simpleTab.setHorizontalComponentAlignment(Alignment.CENTER, filterByStatusFooter);
 
         return simpleTab;
     }
@@ -140,23 +146,22 @@ public class MultipleTargetFilter extends Accordion {
     private VerticalLayout buildTargetTypeFilterTab() {
         final VerticalLayout targetTypeTab = new VerticalLayout();
         targetTypeTab.setSpacing(false);
-        targetTypeTab.setMargin(false);
+        targetTypeTab.setPadding(false);
         targetTypeTab.setSizeFull();
-        targetTypeTab.setCaption(i18n.getMessage("caption.filter.type"));
-        targetTypeTab.addStyleName(SPUIStyleDefinitions.TARGET_TYPE_FILTER_HEADER);
+        targetTypeTab.addClassNames(SPUIStyleDefinitions.TARGET_TYPE_FILTER_HEADER);
 
         final VerticalLayout targetTypeGridLayout = new VerticalLayout();
         targetTypeGridLayout.setSpacing(false);
-        targetTypeGridLayout.setMargin(false);
+        targetTypeGridLayout.setPadding(false);
         targetTypeGridLayout.setSizeFull();
         targetTypeGridLayout.setId(UIComponentIdProvider.TARGET_TYPE_DROP_AREA_ID);
-        targetTypeGridLayout.addComponent(targetTypeFilterButtons.getNoTargetTypeButton());
-        targetTypeGridLayout.addComponent(targetTypeFilterButtons);
-        targetTypeGridLayout.setComponentAlignment(targetTypeFilterButtons, Alignment.MIDDLE_CENTER);
-        targetTypeGridLayout.setExpandRatio(targetTypeFilterButtons, 1.0F);
+        targetTypeGridLayout.add(targetTypeFilterButtons.getNoTargetTypeButton());
+        targetTypeGridLayout.add(targetTypeFilterButtons);
+        targetTypeGridLayout.setHorizontalComponentAlignment(Alignment.CENTER, targetTypeFilterButtons);
+        targetTypeGridLayout.setFlexGrow(1.0F, targetTypeFilterButtons);
 
-        targetTypeTab.addComponent(targetTypeGridLayout);
-        targetTypeTab.setExpandRatio(targetTypeGridLayout, 1.0F);
+        targetTypeTab.add(targetTypeGridLayout);
+        targetTypeTab.setFlexGrow(1.0F, targetTypeGridLayout);
 
         return targetTypeTab;
     }
@@ -180,20 +185,23 @@ public class MultipleTargetFilter extends Accordion {
 
     private void init() {
         setSizeFull();
-        addStyleName(ValoTheme.ACCORDION_BORDERLESS);
+        addClassNames("borderless");
     }
 
     private void addTabs() {
-        addTab(simpleFilterTab).setId(UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB);
-        addTab(customFilterTab).setId(UIComponentIdProvider.CUSTOM_FILTER_ACCORDION_TAB);
-        addTab(targetTypeFilterTab).setId(UIComponentIdProvider.TARGET_TYPE_FILTER_ACCORDION_TAB);
+        simpleFilterPanel = add(i18n.getMessage("caption.filter.simple"), simpleFilterTab);
+        simpleFilterPanel.setId(UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB);
+        customFilterPanel = add(i18n.getMessage(UIMessageIdProvider.CAPTION_FILTER_CUSTOM), customFilterTab);
+        customFilterPanel.setId(UIComponentIdProvider.CUSTOM_FILTER_ACCORDION_TAB);
+        targetTypeFilterPanel = add(i18n.getMessage("caption.filter.type"), targetTypeFilterTab);
+        targetTypeFilterPanel.setId(UIComponentIdProvider.TARGET_TYPE_FILTER_ACCORDION_TAB);
     }
 
     /**
      * Update target filter ui state on tab changed
      */
     public void selectedTabChanged() {
-        final String selectedTabId = getTab(getSelectedTab()).getId();
+        final String selectedTabId = getOpenedPanel().flatMap(Component::getId).orElse(null);
 
         if (UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB.equals(selectedTabId)) {
             customFilterTab.clearAppliedTargetFilterQuery();
@@ -233,14 +241,14 @@ public class MultipleTargetFilter extends Accordion {
     public void restoreState() {
         if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {
             customFilterTab.restoreState();
-            setSelectedTab(customFilterTab);
+            open(customFilterPanel);
         } else if (targetTagFilterLayoutUiState.isTargetTypeFilterTabSelected()){
             targetTypeFilterButtons.restoreState();
-            setSelectedTab(targetTypeFilterTab);
+            open(targetTypeFilterPanel);
         } else {
             filterByButtons.restoreState();
             filterByStatusFooter.restoreState();
-            setSelectedTab(simpleFilterTab);
+            open(simpleFilterPanel);
         }
     }
 

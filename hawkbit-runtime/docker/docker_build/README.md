@@ -12,7 +12,7 @@ For every flavour there are two build types:
 
 ## Build overview
 Building images supports the following build arguments (i.e. ARG-s which could be passed using _--build-arg_):
-* _JAVA_VERSION_ - **[OPTIONAL, if not set a default is used]** the Java version of the eclipse-temurin jre-alpine base image to be used.   
+* _JAVA_VERSION_ - **[OPTIONAL, if not set a default is used]** the Java version of the eclipse-temurin jre-alpine base image (Java 21 or later) to be used.   
 * _HAWKBIT_APP_ - **[OPTIONAL, if not set _hawkbit-update-server_ is used]** the application to be build. Currently, there is just _hawkbit-update-server_ but in future, if hawkBit is split to micro-services, there could be different micro-service apps.
 * _HAWKBIT_VERSION_ - **[OPTIONAL, if not set a default, should be the last officially released version, is used]** the application version
 * _CONTAINER_PORT_ - **[OPTIONAL, if not set 8080 is used]** on which the app opens the http server (if available)

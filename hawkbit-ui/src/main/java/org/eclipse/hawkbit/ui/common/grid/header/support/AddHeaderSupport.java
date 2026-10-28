@@ -16,9 +16,9 @@ import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.Component;
 
 /**
  * Add header support for Grid component
@@ -57,7 +57,7 @@ public class AddHeaderSupport implements HeaderSupport {
 
     private Button createAddButton() {
         final Button addButton = SPUIComponentProvider.getButton(addIconId, "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_ADD), null, false, VaadinIcons.PLUS,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_ADD), null, false, VaadinIcon.PLUS,
                 SPUIButtonStyleNoBorder.class);
 
         addButton.addClickListener(event -> addItemCallback.run());

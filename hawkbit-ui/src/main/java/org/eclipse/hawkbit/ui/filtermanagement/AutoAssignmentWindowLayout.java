@@ -19,11 +19,11 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAutoAssignmentLayout;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.eclipse.hawkbit.utils.TenantConfigHelper;
 
 /**
@@ -32,9 +32,9 @@ import org.eclipse.hawkbit.utils.TenantConfigHelper;
 public class AutoAssignmentWindowLayout extends AbstractEntityWindowLayout<ProxyTargetFilterQuery> {
     private final AutoAssignmentWindowLayoutComponentBuilder autoAssignComponentBuilder;
 
-    private final Label descriptionLabel;
-    private final CheckBox enableCheckBox;
-    private final CheckBox confirmationCheckBox;
+    private final Span descriptionLabel;
+    private final Checkbox enableCheckBox;
+    private final Checkbox confirmationCheckBox;
     private final ActionTypeOptionGroupAutoAssignmentLayout actionTypeOptionGroupLayout;
     private final BoundComponent<ComboBox<ProxyDistributionSet>> autoAssignDsComboBox;
     
@@ -68,18 +68,18 @@ public class AutoAssignmentWindowLayout extends AbstractEntityWindowLayout<Proxy
     }
 
     @Override
-    public ComponentContainer getRootComponent() {
+    public Component getRootComponent() {
         final VerticalLayout autoAssignmentLayout = new VerticalLayout();
         autoAssignmentLayout.setSpacing(true);
-        autoAssignmentLayout.setMargin(true);
+        autoAssignmentLayout.setPadding(true);
 
-        autoAssignmentLayout.addComponent(descriptionLabel);
-        autoAssignmentLayout.addComponent(enableCheckBox);
-        autoAssignmentLayout.addComponent(actionTypeOptionGroupLayout);
-        autoAssignmentLayout.addComponent(autoAssignDsComboBox.getComponent());
+        autoAssignmentLayout.add(descriptionLabel);
+        autoAssignmentLayout.add(enableCheckBox);
+        autoAssignmentLayout.add(actionTypeOptionGroupLayout);
+        autoAssignmentLayout.add(autoAssignDsComboBox.getComponent());
         
         if (configHelper.isConfirmationFlowEnabled()) {
-            autoAssignmentLayout.addComponent(confirmationCheckBox);
+            autoAssignmentLayout.add(confirmationCheckBox);
         }
         
         return autoAssignmentLayout;

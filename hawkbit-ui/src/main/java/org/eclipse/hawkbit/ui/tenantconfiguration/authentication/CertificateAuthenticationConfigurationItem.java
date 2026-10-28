@@ -16,11 +16,12 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigAuthenticatio
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.shared.Tooltip;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * This class represents the UI item for the certificate authenticated by an
@@ -44,30 +45,30 @@ public class CertificateAuthenticationConfigurationItem extends VerticalLayout {
     public CertificateAuthenticationConfigurationItem(final VaadinMessageSource i18n,
             final Binder<ProxySystemConfigAuthentication> binder) {
         this.setSpacing(false);
-        this.setMargin(false);
-        addComponent(SPUIComponentProvider.generateLabel(i18n, "label.configuration.auth.header"));
+        this.setPadding(false);
+        add(SPUIComponentProvider.generateLabel(i18n, "label.configuration.auth.header"));
         detailLayout = new VerticalLayout();
-        detailLayout.setMargin(false);
+        detailLayout.setPadding(false);
         detailLayout.setSpacing(false);
 
         final HorizontalLayout caRootAuthorityLayout = new HorizontalLayout();
         caRootAuthorityLayout.setSpacing(true);
 
-        final Label caRootAuthorityLabel = new LabelBuilder()
+        final Span caRootAuthorityLabel = new LabelBuilder()
                 .name(i18n.getMessage("label.configuration.auth.hashField")).buildLabel();
-        caRootAuthorityLabel.setDescription(i18n.getMessage("label.configuration.auth.hashField.tooltip"));
-        caRootAuthorityLabel.setWidthUndefined();
+        Tooltip.forComponent(caRootAuthorityLabel).setText(i18n.getMessage("label.configuration.auth.hashField.tooltip"));
+        caRootAuthorityLabel.setWidth(null);
 
         caRootAuthorityTextField = new TextFieldBuilder(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
         caRootAuthorityTextField.setWidth("100%");
         binder.bind(caRootAuthorityTextField, ProxySystemConfigAuthentication::getCaRootAuthority,
                 ProxySystemConfigAuthentication::setCaRootAuthority);
-        caRootAuthorityLayout.addComponent(caRootAuthorityLabel);
-        caRootAuthorityLayout.setExpandRatio(caRootAuthorityLabel, 0);
-        caRootAuthorityLayout.addComponent(caRootAuthorityTextField);
-        caRootAuthorityLayout.setExpandRatio(caRootAuthorityTextField, 1);
+        caRootAuthorityLayout.add(caRootAuthorityLabel);
+        caRootAuthorityLayout.setFlexGrow(0, caRootAuthorityLabel);
+        caRootAuthorityLayout.add(caRootAuthorityTextField);
+        caRootAuthorityLayout.setFlexGrow(1, caRootAuthorityTextField);
         caRootAuthorityLayout.setWidth("100%");
-        detailLayout.addComponent(caRootAuthorityLayout);
+        detailLayout.add(caRootAuthorityLayout);
         if (binder.getBean().isCertificateAuth()) {
             showDetails();
         }
@@ -77,13 +78,13 @@ public class CertificateAuthenticationConfigurationItem extends VerticalLayout {
      * Show Certificate detail
      */
     public void showDetails() {
-        addComponent(detailLayout);
+        add(detailLayout);
     }
 
     /**
      * Hide Certificate detail
      */
     public void hideDetails() {
-        removeComponent(detailLayout);
+        remove(detailLayout);
     }
 }

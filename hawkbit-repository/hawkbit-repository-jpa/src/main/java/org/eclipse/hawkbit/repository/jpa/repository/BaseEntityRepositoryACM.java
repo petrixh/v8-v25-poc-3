@@ -19,11 +19,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.DeleteSpecification;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.domain.UpdateSpecification;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor.SpecificationFluentQuery;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -32,6 +35,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 public class BaseEntityRepositoryACM<T extends AbstractJpaTenantAwareBaseEntity> implements BaseEntityRepository<T> {
 
@@ -122,7 +126,7 @@ public class BaseEntityRepositoryACM<T extends AbstractJpaTenantAwareBaseEntity>
 
     @Override
     public long count() {
-        return count(null);
+        return count((Specification<T>) null);
     }
 
     @Override
@@ -307,6 +311,31 @@ public class BaseEntityRepositoryACM<T extends AbstractJpaTenantAwareBaseEntity>
         } else {
             return repository.findAllWithoutCount(accessController.appendAccessRules(operation, spec), pageable);
         }
+    }
+
+    // Spring Data JPA 4 adds these methods to JpaSpecificationExecutor. hawkBit never calls them (they did not exist
+    // before), and they would bypass the access rules: not supported, like deleteAll()
+    @Override
+    @NonNull
+    public Page<T> findAll(final Specification<T> spec, final Specification<T> countSpec,
+            @NonNull final Pageable pageable) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <S extends T, R> R findBy(final Specification<T> spec,
+            final Function<? super SpecificationFluentQuery<S>, R> queryFunction) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long update(final UpdateSpecification<T> spec) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long delete(final DeleteSpecification<T> spec) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

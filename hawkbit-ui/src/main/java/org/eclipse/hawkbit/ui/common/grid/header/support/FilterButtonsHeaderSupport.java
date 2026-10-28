@@ -16,9 +16,9 @@ import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.Component;
 
 /**
  * Header support for filter button
@@ -57,7 +57,7 @@ public class FilterButtonsHeaderSupport implements HeaderSupport {
 
     private Button createfilterButtonsIcon() {
         final Button filterButtonsButton = SPUIComponentProvider.getButton(filterButtonsIconId, null,
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SHOW_TAGS), null, false, VaadinIcons.TAGS,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SHOW_TAGS), null, false, VaadinIcon.TAGS,
                 SPUIButtonStyleNoBorder.class);
 
         // Hidden by default.

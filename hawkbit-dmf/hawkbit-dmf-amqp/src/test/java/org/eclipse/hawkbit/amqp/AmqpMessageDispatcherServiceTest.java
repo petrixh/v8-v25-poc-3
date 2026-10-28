@@ -96,7 +96,7 @@ class AmqpMessageDispatcherServiceTest extends AbstractIntegrationTest {
                 .securityToken(TEST_TOKEN).address(AMQP_URI.toString()));
 
         this.rabbitTemplate = Mockito.mock(RabbitTemplate.class);
-        when(rabbitTemplate.getMessageConverter()).thenReturn(new Jackson2JsonMessageConverter());
+        when(rabbitTemplate.getMessageConverter()).thenReturn(new Jackson2JsonMessageConverter("*"));
 
         senderService = Mockito.mock(DefaultAmqpMessageSenderService.class);
 

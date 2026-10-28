@@ -16,14 +16,13 @@ import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleSmall;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.ReadOnlyHasValue;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ReadOnlyHasValue;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * This class represents the UI item for the gateway security token section in
@@ -52,30 +51,30 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Vertica
         this.securityTokenGenerator = securityTokenGenerator;
         this.binder = binder;
         this.setSpacing(false);
-        this.setMargin(false);
-        addComponent(SPUIComponentProvider.generateLabel(i18n, "label.configuration.auth.gatewaytoken"));
+        this.setPadding(false);
+        add(SPUIComponentProvider.generateLabel(i18n, "label.configuration.auth.gatewaytoken"));
 
         detailLayout = new VerticalLayout();
-        detailLayout.setMargin(false);
+        detailLayout.setPadding(false);
         detailLayout.setSpacing(false);
 
         final Button gatewaytokenBtn = SPUIComponentProvider.getButton(null,
-                i18n.getMessage("configuration.button.regenerateKey"), "", ValoTheme.BUTTON_TINY + " " + "redicon",
+                i18n.getMessage("configuration.button.regenerateKey"), "", "tiny" + " " + "redicon",
                 true, null, SPUIButtonStyleSmall.class);
 
-        gatewaytokenBtn.setIcon(VaadinIcons.REFRESH);
+        gatewaytokenBtn.setIcon(VaadinIcon.REFRESH.create());
         gatewaytokenBtn.addClickListener(event -> refreshGatewayToken());
 
-        final Label gatewayTokenLabel = new LabelBuilder().id("gatewaysecuritytokenkey").name("").buildLabel();
-        gatewayTokenLabel.addStyleName("gateway-token-label");
-        final ReadOnlyHasValue<String> gatewayTokenFieldBindable = new ReadOnlyHasValue<>(gatewayTokenLabel::setValue);
+        final Span gatewayTokenLabel = new LabelBuilder().id("gatewaysecuritytokenkey").name("").buildLabel();
+        gatewayTokenLabel.addClassNames("gateway-token-label");
+        final ReadOnlyHasValue<String> gatewayTokenFieldBindable = new ReadOnlyHasValue<>(gatewayTokenLabel::setText);
         binder.bind(gatewayTokenFieldBindable, ProxySystemConfigAuthentication::getGatewaySecurityToken, null);
 
         final HorizontalLayout keyGenerationLayout = new HorizontalLayout();
         keyGenerationLayout.setSpacing(true);
-        keyGenerationLayout.addComponent(gatewayTokenLabel);
-        keyGenerationLayout.addComponent(gatewaytokenBtn);
-        detailLayout.addComponent(keyGenerationLayout);
+        keyGenerationLayout.add(gatewayTokenLabel);
+        keyGenerationLayout.add(gatewaytokenBtn);
+        detailLayout.add(keyGenerationLayout);
         if (binder.getBean().isGatewaySecToken()) {
             showDetails();
         }
@@ -85,14 +84,14 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Vertica
      * Show gateway token detail
      */
     public void showDetails() {
-        addComponent(detailLayout);
+        add(detailLayout);
     }
 
     /**
      * Hide gateway token detail
      */
     public void hideDetails() {
-        removeComponent(detailLayout);
+        remove(detailLayout);
     }
 
     private void refreshGatewayToken() {

@@ -8,18 +8,24 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-# CI of the migration (.github/CI.md): build the Vaadin 8 UI path, start one isolated copy, smoke-log-in every test
-# user, run the test suite. One job, so the build is never passed between jobs through artifact storage; diagnostics
-# are uploaded only on failure (a step over its time limit is a failure). Downloads only from Maven Central, maven.vaadin.com, official Docker Hub images, npm
-# and the Playwright browser download.
+# CI of the migration (.github/CI.md): build the UI path on Java 21 and Vaadin 25, start one isolated copy, smoke-log-in
+# every test user, run the test suite. One job, so the build is never passed between jobs through artifact storage;
+# diagnostics are uploaded only on failure (a step over its time limit is a failure). Downloads only from Maven
+# Central, nodejs.org (Node for the frontend build), the npm registry, official Docker Hub images and the Playwright
+# browser download.
+# Runs once per commit: no pull_request trigger (the checks of a push show on its PR), and the first job ends the run
+# at once, as a success, when the commit already has a successful run of this workflow (.github/CI.md "When it runs").
 name: CI
 
 on:
   push:
     branches: [main, mig-dev, 'stage/**', 'stabilise/**', 'fix/**']
-  pull_request:
-    branches: [main, mig-dev]
   workflow_dispatch:
+    inputs:
+      force:
+        description: Run even if this commit already has a successful run of CI
+        type: boolean
+        default: false
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -36,12 +42,45 @@ env:
   APP_ENV_USERS_PROPERTIES: /home/runner/.config/mig-ci/test-users.properties
   APP_ENV_USERS_ENV: /home/runner/.config/mig-ci/test-users.env
   APP_ENV_MAVEN_REPO: /home/runner/.m2/repository
+  # Node (Vaadin's frontend build) and the npm cache, kept between runs
+  APP_ENV_BUILD_HOME: /home/runner/.cache/mig-env-build-home
   CI_OUT: /home/runner/ci-out
   # build logs and the logs env/down.sh saves (app, DNS), next to the step output for the diagnostics upload
   APP_ENV_LOG_DIR: /home/runner/ci-out/env-logs
 
 jobs:
+  already-green:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    # the only job with this permission; it reads run metadata of this repository with the job's own token
+    permissions:
+      actions: read
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - name: Has this commit a successful CI run already
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FORCE: ${{ inputs.force }}
+        run: |
+          skip=false
+          if [ "$FORCE" = true ]; then
+            echo "force was set: running"
+          else
+            n=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$GITHUB_SHA&status=success&per_page=1" --jq .total_count)
+            if [ "$n" -gt 0 ]; then
+              skip=true
+              echo "::notice::Commit $GITHUB_SHA already has a successful CI run: skipping. Run the workflow by hand with force to run it again."
+            else
+              echo "no successful run of this commit yet: running"
+            fi
+          fi
+          echo "skip=$skip" >> "$GITHUB_OUTPUT"
+
   build-test-smoke:
+    needs: already-green
+    if: ${{ needs.already-green.outputs.skip != 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     defaults:
@@ -60,6 +99,13 @@ jobs:
           key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
           restore-keys: maven-${{ runner.os }}-
 
+      - name: Restore Node and npm cache of the frontend build
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /home/runner/.cache/mig-env-build-home
+          key: build-home-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: build-home-${{ runner.os }}-
+
       - name: Restore Playwright browser
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -72,9 +118,9 @@ jobs:
       - name: Build and start (env/up.sh)
         id: up
         timeout-minutes: 20
-        # Maven package of -pl hawkbit-vv8-ui,hawkbit-mgmt-server -am in Docker with env/maven-settings.xml and
-        # -DskipNexusStaging; fails if Maven downloaded from any host but repo.maven.apache.org and maven.vaadin.com.
-        # Then one copy on an internal Docker network, seeded, UI at 127.0.0.1:18081.
+        # Maven package of -pl hawkbit-vv8-ui,hawkbit-mgmt-server -am in Docker (JDK 21) with env/maven-settings.xml and
+        # -DskipNexusStaging; fails if Maven or the frontend build downloaded from any host but repo.maven.apache.org,
+        # nodejs.org and registry.npmjs.org. Then one copy on an internal Docker network, seeded, UI at 127.0.0.1:18081.
         run: |
           mkdir -p "$CI_OUT"
           env/up.sh 2>&1 | tee "$CI_OUT/up.log"
@@ -89,7 +135,7 @@ jobs:
         timeout-minutes: 10
         env:
           PW: /home/runner/pw/node_modules/playwright
-        run: node .github/ci/smoke/smoke.cjs .github/ci/smoke/old-app.json "http://127.0.0.1:$APP_ENV_PORT" "$CI_OUT/smoke"
+        run: node .github/ci/smoke/smoke.cjs .github/ci/smoke/new-app.json "http://127.0.0.1:$APP_ENV_PORT" "$CI_OUT/smoke"
 
       - name: Tests (vv8-ui path, offline, with RabbitMQ)
         if: ${{ !cancelled() && steps.up.outcome == 'success' }}

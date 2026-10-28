@@ -24,8 +24,8 @@ import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehav
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Class for defining the type filter buttons.
@@ -162,10 +162,10 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
 
     @Override
     protected void editButtonClickListener(final ProxyType clickedFilter) {
-        final Window updateWindow = getUpdateWindow(clickedFilter);
+        final Dialog updateWindow = getUpdateWindow(clickedFilter);
 
-        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.type")));
-        UI.getCurrent().addWindow(updateWindow);
+        updateWindow.setHeaderTitle(i18n.getMessage("caption.update", i18n.getMessage("caption.type")));
+        updateWindow.open();
         updateWindow.setVisible(Boolean.TRUE);
     }
 
@@ -176,7 +176,7 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
      *            type to update
      * @return update window
      */
-    protected abstract Window getUpdateWindow(final ProxyType clickedFilter);
+    protected abstract Dialog getUpdateWindow(final ProxyType clickedFilter);
 
     @Override
     public void restoreState() {

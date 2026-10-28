@@ -26,6 +26,7 @@ import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.ColumnToggleMenu;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
@@ -33,7 +34,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 
-import com.vaadin.ui.Button;
+import com.vaadin.flow.component.button.Button;
 
 /**
  * Abstract class of distribution set grid
@@ -81,7 +82,7 @@ public abstract class AbstractDsGrid<F extends DsFilterParams> extends AbstractG
     public void init() {
         super.init();
 
-        addStyleName("grid-row-border");
+        addClassNames("grid-row-border");
     }
 
     /**
@@ -115,10 +116,10 @@ public abstract class AbstractDsGrid<F extends DsFilterParams> extends AbstractG
         return true;
     }
 
-    protected Column<ProxyDistributionSet, String> addNameColumn() {
-        final Column<ProxyDistributionSet, String> nameColumn = GridComponentBuilder.addNameColumn(this, i18n,
+    protected Column<ProxyDistributionSet> addNameColumn() {
+        final Column<ProxyDistributionSet> nameColumn = GridComponentBuilder.addNameColumn(this, i18n,
                 DS_NAME_ID);
-        nameColumn.setDescriptionGenerator(this::createTooltipText);
+        nameColumn.setTooltipGenerator(this::createTooltipText);
         return nameColumn;
     }
 
@@ -135,28 +136,28 @@ public abstract class AbstractDsGrid<F extends DsFilterParams> extends AbstractG
         return tooltipText.toString();
     }
 
-    protected Column<ProxyDistributionSet, String> addVersionColumn() {
-        final Column<ProxyDistributionSet, String> versionColumn = GridComponentBuilder.addVersionColumn(this, i18n,
+    protected Column<ProxyDistributionSet> addVersionColumn() {
+        final Column<ProxyDistributionSet> versionColumn = GridComponentBuilder.addVersionColumn(this, i18n,
                 ProxyDistributionSet::getVersion, DS_VERSION_ID);
-        versionColumn.setDescriptionGenerator(this::createTooltipText);
+        versionColumn.setTooltipGenerator(this::createTooltipText);
         return versionColumn;
     }
 
-    protected Column<ProxyDistributionSet, Button> addDeleteColumn() {
+    protected Column<ProxyDistributionSet> addDeleteColumn() {
         return GridComponentBuilder.addDeleteColumn(this, i18n, DS_DELETE_BUTTON_ID, distributionDeleteSupport,
                 UIComponentIdProvider.DIST_DELET_ICON, e -> permissionChecker.hasDeleteRepositoryPermission());
     }
 
     @Override
     protected void addMaxColumns() {
-        addNameColumn().setExpandRatio(7);
+        addNameColumn().setFlexGrow((int) 7);
         addVersionColumn();
 
-        GridComponentBuilder.addDescriptionColumn(this, i18n, DS_DESC_ID).setExpandRatio(5);
+        GridComponentBuilder.addDescriptionColumn(this, i18n, DS_DESC_ID).setFlexGrow((int) 5);
         GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n);
 
         addDeleteColumn();
 
-        getColumns().forEach(column -> column.setHidable(true));
+        ColumnToggleMenu.setAllHidable(this);
     }
 }

@@ -29,10 +29,10 @@ import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridR
 import org.eclipse.hawkbit.ui.common.state.TagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Layout for Distribution Tags
@@ -94,12 +94,12 @@ public class DistributionTagLayout extends AbstractFilterLayout {
     }
 
     @Override
-    protected ComponentContainer getFilterContent() {
+    protected Component getFilterContent() {
         final VerticalLayout filterButtonsLayout = wrapFilterContent(distributionTagButtons);
 
         final Button noTagButton = distributionTagButtons.getNoTagButton();
-        filterButtonsLayout.addComponent(noTagButton, 0);
-        filterButtonsLayout.setComponentAlignment(noTagButton, Alignment.TOP_LEFT);
+        filterButtonsLayout.addComponentAtIndex(0, noTagButton);
+        filterButtonsLayout.setHorizontalComponentAlignment(Alignment.START, noTagButton);
 
         return filterButtonsLayout;
     }

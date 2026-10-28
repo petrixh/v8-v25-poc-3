@@ -19,7 +19,7 @@ import org.eclipse.hawkbit.ui.UiProperties;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;

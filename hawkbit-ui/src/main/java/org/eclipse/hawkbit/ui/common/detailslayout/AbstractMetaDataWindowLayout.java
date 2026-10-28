@@ -26,8 +26,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 /**
  * Class for metadata add/update window layout.
@@ -198,18 +198,18 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
 
     protected void buildLayout() {
         setSpacing(true);
-        setMargin(false);
+        setPadding(false);
         setSizeFull();
 
         final MetaDataWindowGridLayout metaDataWindowGridLayout = new MetaDataWindowGridLayout(metadataWindowGridHeader,
                 getMetaDataWindowGrid());
-        final ComponentContainer addUpdateWindowLayout = getMetaDataAddUpdateWindowLayout().getRootComponent();
+        final Component addUpdateWindowLayout = getMetaDataAddUpdateWindowLayout().getRootComponent();
 
-        addComponent(metaDataWindowGridLayout);
-        addComponent(addUpdateWindowLayout);
+        add(metaDataWindowGridLayout);
+        add(addUpdateWindowLayout);
 
-        setExpandRatio(metaDataWindowGridLayout, 0.5F);
-        setExpandRatio(addUpdateWindowLayout, 0.5F);
+        setFlexGrow(0.5F, metaDataWindowGridLayout);
+        setFlexGrow(0.5F, addUpdateWindowLayout);
     }
 
     protected void addGridSelectionListener() {

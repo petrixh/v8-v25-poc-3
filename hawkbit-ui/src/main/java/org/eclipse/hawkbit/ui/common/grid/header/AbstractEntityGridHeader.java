@@ -32,9 +32,9 @@ import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
 import org.eclipse.hawkbit.ui.common.state.HidableLayoutUiState;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Abstract header for entity grids.
@@ -177,10 +177,10 @@ public abstract class AbstractEntityGridHeader extends AbstractGridHeader {
     protected abstract String getAddIconId();
 
     private void addNewItem() {
-        final Window addWindow = entityWindowBuilder.getWindowForAdd();
+        final Dialog addWindow = entityWindowBuilder.getWindowForAdd();
 
-        addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage(getAddWindowCaptionMsg())));
-        UI.getCurrent().addWindow(addWindow);
+        addWindow.setHeaderTitle(i18n.getMessage("caption.create.new", i18n.getMessage(getAddWindowCaptionMsg())));
+        addWindow.open();
         addWindow.setVisible(Boolean.TRUE);
     }
 

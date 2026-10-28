@@ -13,7 +13,7 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.ui.error.UiErrorDetails;
 
-import com.vaadin.server.UploadException;
+import com.vaadin.flow.server.UploadException;
 
 /**
  * UI error details extractor for {@link UploadException}.

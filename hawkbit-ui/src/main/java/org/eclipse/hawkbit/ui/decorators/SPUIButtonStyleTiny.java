@@ -9,9 +9,11 @@
  */
 package org.eclipse.hawkbit.ui.decorators;
 
-import com.vaadin.server.Resource;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.themes.ValoTheme;
+import org.springframework.util.StringUtils;
+
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 
 /**
  * Style for button: Small.
@@ -20,20 +22,20 @@ import com.vaadin.ui.themes.ValoTheme;
 public class SPUIButtonStyleTiny implements SPUIButtonDecorator {
 
     @Override
-    public Button decorate(final Button button, final String style, final boolean setStyle, final Resource icon) {
-        button.addStyleName(ValoTheme.BUTTON_TINY);
+    public Button decorate(final Button button, final String style, final boolean setStyle, final VaadinIcon icon) {
+        button.addThemeVariants(ButtonVariant.LUMO_SMALL);
         // Set Style
         if (null != style) {
             if (setStyle) {
-                button.setStyleName(style);
+                button.setClassName(style);
             } else {
-                button.addStyleName(style);
+                button.addClassNames(StringUtils.tokenizeToStringArray(style, " "));
             }
         }
         // Set icon
         if (null != icon) {
-            button.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-            button.setIcon(icon);
+            button.addThemeVariants(ButtonVariant.LUMO_ICON);
+            button.setIcon(icon.create());
         }
         return button;
     }

@@ -9,88 +9,60 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.upload;
 
-import java.io.OutputStream;
-
-import com.vaadin.server.StreamVariable;
-import com.vaadin.ui.Upload;
+import com.vaadin.flow.component.upload.UploadButton;
+import com.vaadin.flow.component.upload.UploadManager;
 
 /**
- * The {@link Upload} class has a bug.The lifecycle methods of the registered
- * handler
- * com.vaadin.ui.Upload.StartedListener#uploadStarted(com.vaadin.ui.Upload.StartedEvent)
- * etc are called even the upload was interrupted. This bug is fixed in this
- * class.
+ * Vaadin 8: the Upload class had a bug: the lifecycle methods of the
+ * registered handler (started, progress, ...) were called even when the upload
+ * was interrupted. This class fixed it by not listening to progress and reporting the stream as
+ * interrupted once {@link #interruptUpload()} was called, until the streaming
+ * failed.
+ *
+ * Flow: the upload button of an {@link UploadManager}. Its handler
+ * ({@link FileTransferHandlerVaadinUpload}) runs the lifecycle itself and asks
+ * this class whether the upload is interrupted, so the fix keeps its meaning:
+ * only {@link #interruptUpload()} stops the stream.
  *
  */
-public class UploadFixed extends Upload {
+public class UploadFixed extends UploadButton {
 
     private static final long serialVersionUID = 1L;
 
-    private boolean uploadInterrupted;
+    private volatile boolean uploadInterrupted;
+
+    /**
+     * Constructor.
+     *
+     * @param caption
+     *            button caption
+     * @param uploadManager
+     *            the upload manager whose file picker the button opens
+     */
+    public UploadFixed(final String caption, final UploadManager uploadManager) {
+        super(caption, uploadManager);
+    }
 
     /**
      * Stops the file upload
      */
-    @Override
     public void interruptUpload() {
-        super.interruptUpload();
         uploadInterrupted = true;
     }
 
-    @Override
-    protected StreamVariable getStreamVariable() {
-        return new StreamVariableFixed(super.getStreamVariable());
+    /**
+     * @return whether the current upload is interrupted (no more progress is
+     *         listened to and the stream stops)
+     */
+    public boolean isInterrupted() {
+        return uploadInterrupted;
     }
 
-    private class StreamVariableFixed implements StreamVariable {
-        private static final long serialVersionUID = 1L;
-        private final StreamVariable originalStreamVariable;
-
-        /**
-         * Constructor for StreamVariableFixed
-         *
-         * @param originalStreamVariable
-         *          StreamVariable
-         */
-        public StreamVariableFixed(final StreamVariable originalStreamVariable) {
-            this.originalStreamVariable = originalStreamVariable;
-        }
-
-        @Override
-        public boolean listenProgress() {
-            // this fixes the vaadin bug
-            return originalStreamVariable.listenProgress() && !uploadInterrupted;
-        }
-
-        @Override
-        public void onProgress(final StreamingProgressEvent event) {
-            originalStreamVariable.onProgress(event);
-        }
-
-        @Override
-        public boolean isInterrupted() {
-            return uploadInterrupted;
-        }
-
-        @Override
-        public OutputStream getOutputStream() {
-            return originalStreamVariable.getOutputStream();
-        }
-
-        @Override
-        public void streamingStarted(final StreamingStartEvent event) {
-            originalStreamVariable.streamingStarted(event);
-        }
-
-        @Override
-        public void streamingFinished(final StreamingEndEvent event) {
-            originalStreamVariable.streamingFinished(event);
-        }
-
-        @Override
-        public void streamingFailed(final StreamingErrorEvent event) {
-            originalStreamVariable.streamingFailed(event);
-            uploadInterrupted = false;
-        }
+    /**
+     * The streaming failed: the next upload is not interrupted (Vaadin 8:
+     * StreamVariableFixed.streamingFailed).
+     */
+    void streamingFailed() {
+        uploadInterrupted = false;
     }
 }

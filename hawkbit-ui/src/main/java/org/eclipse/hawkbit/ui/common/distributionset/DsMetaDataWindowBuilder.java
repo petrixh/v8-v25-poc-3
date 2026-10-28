@@ -15,7 +15,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetaDataWindowLayout;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Builder for DistributionSet meta data window
@@ -48,7 +48,7 @@ public class DsMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<Long>
      *
      * @return Dialog window
      */
-    public Window getWindowForShowDsMetaData(final Long dsId, final String name) {
+    public Dialog getWindowForShowDsMetaData(final Long dsId, final String name) {
         return getWindowForShowDsMetaData(dsId, name, null);
     }
 
@@ -64,7 +64,7 @@ public class DsMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<Long>
      *
      * @return Dialog window
      */
-    public Window getWindowForShowDsMetaData(final Long dsId, final String name, final ProxyMetaData proxyMetaData) {
+    public Dialog getWindowForShowDsMetaData(final Long dsId, final String name, final ProxyMetaData proxyMetaData) {
         return getWindowForShowMetaData(new DsMetaDataWindowLayout(uiDependencies, dsManagement), dsId, name, proxyMetaData);
     }
 }

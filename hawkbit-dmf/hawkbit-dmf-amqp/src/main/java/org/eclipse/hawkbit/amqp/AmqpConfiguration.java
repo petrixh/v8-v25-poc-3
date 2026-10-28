@@ -42,15 +42,15 @@ import org.springframework.amqp.rabbit.listener.RabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer;
+import org.springframework.boot.amqp.autoconfigure.SimpleRabbitListenerContainerFactoryConfigurer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.bus.ServiceMatcher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.retry.backoff.ExponentialBackOffPolicy;
-import org.springframework.retry.support.RetryTemplate;
+import org.springframework.core.retry.RetryPolicy;
+import org.springframework.core.retry.RetryTemplate;
 import org.springframework.util.ErrorHandler;
 
 import java.time.Duration;
@@ -148,8 +148,10 @@ public class AmqpConfiguration {
         final RabbitTemplate rabbitTemplate = new RabbitTemplate(rabbitConnectionFactory);
         rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
 
-        final RetryTemplate retryTemplate = new RetryTemplate();
-        retryTemplate.setBackOffPolicy(new ExponentialBackOffPolicy());
+        // Spring AMQP 4 takes Spring Framework's RetryTemplate. Same policy as the spring-retry defaults used before:
+        // 3 attempts in total on any Exception, exponential back-off 100 ms, x2, at most 30 s
+        final RetryTemplate retryTemplate = new RetryTemplate(RetryPolicy.builder().includes(Exception.class)
+                .maxRetries(2).delay(Duration.ofMillis(100)).multiplier(2).maxDelay(Duration.ofSeconds(30)).build());
         rabbitTemplate.setRetryTemplate(retryTemplate);
 
         rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {

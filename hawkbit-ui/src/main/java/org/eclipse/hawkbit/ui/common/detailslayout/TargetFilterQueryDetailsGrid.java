@@ -20,8 +20,6 @@ import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.shared.ui.grid.HeightMode;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * DistributionSet TargetFilterQuery table
@@ -57,18 +55,18 @@ public class TargetFilterQueryDetailsGrid extends AbstractGrid<ProxyTargetFilter
     public void init() {
         super.init();
 
-        setHeightMode(HeightMode.UNDEFINED);
+        setAllRowsVisible(true);
 
-        addStyleName(ValoTheme.TABLE_NO_STRIPES);
-        addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
+        addClassNames("no-stripes");
+        addClassNames("no-horizontal-lines");
     }
 
     @Override
     public void addColumns() {
-        GridComponentBuilder.addColumn(this, ProxyTargetFilterQuery::getName).setId(TFQ_NAME_ID)
-                .setCaption(i18n.getMessage("header.target.filter.name")).setExpandRatio(2);
-        GridComponentBuilder.addColumn(this, ProxyTargetFilterQuery::getQuery).setId(TFQ_QUERY_ID)
-                .setCaption(i18n.getMessage("header.target.filter.query")).setExpandRatio(3);
+        GridComponentBuilder.addColumn(this, ProxyTargetFilterQuery::getName).setKey(TFQ_NAME_ID)
+                .setHeader(i18n.getMessage("header.target.filter.name")).setFlexGrow((int) 2);
+        GridComponentBuilder.addColumn(this, ProxyTargetFilterQuery::getQuery).setKey(TFQ_QUERY_ID)
+                .setHeader(i18n.getMessage("header.target.filter.query")).setFlexGrow((int) 3);
     }
 
     @Override

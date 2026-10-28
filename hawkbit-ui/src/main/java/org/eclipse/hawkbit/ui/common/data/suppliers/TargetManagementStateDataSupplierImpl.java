@@ -17,8 +17,7 @@ import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetManagementStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 
-import com.vaadin.data.provider.DataCommunicator;
-import com.vaadin.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.DataProvider;
 
 /**
  * Target backend data retrieval provider for Management View default
@@ -29,7 +28,6 @@ public class TargetManagementStateDataSupplierImpl implements TargetManagementSt
     private static final long serialVersionUID = 1L;
 
     private final TargetManagementStateDataProvider dataProvider;
-    private final DataCommunicator<ProxyTarget> dataCommunicator;
 
     /**
      * Constructor.
@@ -42,17 +40,11 @@ public class TargetManagementStateDataSupplierImpl implements TargetManagementSt
     public TargetManagementStateDataSupplierImpl(final TargetManagement targetManagement,
             final TargetToProxyTargetMapper targetToProxyTargetMapper) {
         this.dataProvider = new TargetManagementStateDataProvider(targetManagement, targetToProxyTargetMapper);
-        this.dataCommunicator = new DataCommunicator<>();
     }
 
     @Override
     public DataProvider<ProxyTarget, TargetManagementFilterParams> dataProvider() {
         return dataProvider;
-    }
-
-    @Override
-    public DataCommunicator<ProxyTarget> dataCommunicator() {
-        return dataCommunicator;
     }
 
 }

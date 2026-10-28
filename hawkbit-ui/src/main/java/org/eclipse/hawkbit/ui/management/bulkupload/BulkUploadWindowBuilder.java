@@ -23,7 +23,7 @@ import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Builder for bulk upload window
@@ -83,7 +83,7 @@ public class BulkUploadWindowBuilder {
     /**
      * @return Target bulk upload window
      */
-    public Window getWindowForTargetBulkUpload() {
+    public Dialog getWindowForTargetBulkUpload() {
         if (!targetBulkUploadUiState.isInProgress() || targetBulkUpdateWindowLayout == null) {
             targetBulkUpdateWindowLayout = new TargetBulkUpdateWindowLayout(uiDependencies, targetManagement,
                     deploymentManagement, targetTypeManagement, tagManagement, distributionSetManagement, uiproperties, uiExecutor,
@@ -91,17 +91,17 @@ public class BulkUploadWindowBuilder {
             targetBulkUpdateWindowLayout.clearUiState();
         }
 
-        final Window bulkUploadWindow = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW)
+        final Dialog bulkUploadWindow = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW)
                 .id(UIComponentIdProvider.BULK_UPLOAD_POPUP_ID).caption("").content(targetBulkUpdateWindowLayout)
                 .buildWindow();
-        bulkUploadWindow.addStyleName("bulk-upload-window");
+        bulkUploadWindow.addClassNames("bulk-upload-window");
 
         targetBulkUpdateWindowLayout.setCloseCallback(() -> closePopup(bulkUploadWindow));
 
         return bulkUploadWindow;
     }
 
-    private void closePopup(final Window bulkUploadWindow) {
+    private void closePopup(final Dialog bulkUploadWindow) {
         if (!targetBulkUploadUiState.isInProgress() && targetBulkUpdateWindowLayout != null) {
             targetBulkUpdateWindowLayout.clearUiState();
             targetBulkUpdateWindowLayout = null;

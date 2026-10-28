@@ -9,8 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag.targettype;
 
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.grid.Grid;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
@@ -42,23 +41,23 @@ public class DsTypeSourceGrid extends Grid<ProxyType> {
 
     private void init() {
         setSizeFull();
-        setHeightUndefined();
-        addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        addStyleName(ValoTheme.TABLE_NO_STRIPES);
-        addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-        addStyleName(ValoTheme.TABLE_SMALL);
+        setHeight(null);
+        addClassNames("no-horizontal-lines");
+        addClassNames("no-stripes");
+        addClassNames("no-vertical-lines");
+        addClassNames("small");
         // used to deactivate cell text selection by user
-        addStyleName(AbstractGrid.MULTI_SELECT_STYLE);
+        addClassNames(AbstractGrid.MULTI_SELECT_STYLE);
 
         setId(SPUIDefinitions.TWIN_TABLE_SOURCE_ID);
-        setSelectionModel(new RangeSelectionModel<>(i18n));
+        new RangeSelectionModel<ProxyType>(i18n).extend(this);
 
         addColumns();
     }
 
     private void addColumns() {
-        GridComponentBuilder.addColumn(this, ProxyType::getName).setId(UIComponentIdProvider.DIST_TYPE_TABLE_SOURCE_ID)
-                .setCaption(i18n.getMessage("header.dt.twintable.available"))
-                .setDescriptionGenerator(ProxyType::getDescription);
+        GridComponentBuilder.addColumn(this, ProxyType::getName).setKey(UIComponentIdProvider.DIST_TYPE_TABLE_SOURCE_ID)
+                .setHeader(i18n.getMessage("header.dt.twintable.available"))
+                .setTooltipGenerator(ProxyType::getDescription);
     }
 }

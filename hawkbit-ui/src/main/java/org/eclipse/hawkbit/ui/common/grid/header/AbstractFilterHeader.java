@@ -25,9 +25,9 @@ import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Abstract filter header.
@@ -70,14 +70,14 @@ public abstract class AbstractFilterHeader extends AbstractGridHeader {
     protected abstract String getCrudMenuBarId();
 
     private void addNewItem() {
-        final Window addWindow = getWindowForAdd();
+        final Dialog addWindow = getWindowForAdd();
 
-        addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage(getAddEntityWindowCaptionMsgKey())));
-        UI.getCurrent().addWindow(addWindow);
+        addWindow.setHeaderTitle(i18n.getMessage("caption.create.new", i18n.getMessage(getAddEntityWindowCaptionMsgKey())));
+        addWindow.open();
         addWindow.setVisible(Boolean.TRUE);
     }
 
-    protected abstract Window getWindowForAdd();
+    protected abstract Dialog getWindowForAdd();
 
     protected abstract String getAddEntityWindowCaptionMsgKey();
 

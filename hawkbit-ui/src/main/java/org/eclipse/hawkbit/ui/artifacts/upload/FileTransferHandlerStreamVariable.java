@@ -24,17 +24,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
-import com.vaadin.server.StreamVariable;
 
 /**
- * {@link StreamVariable} implementation to read and upload a file. One instance
- * per file stream is used.
+ * Stream variable to read and upload a dropped file. One instance per file
+ * stream is used.
  *
  * The handler manages the output to the user and at the same time ensures that
  * the upload does not exceed the configured max file size.
  *
+ * Vaadin 8: a {@code com.vaadin.server.StreamVariable} that the framework
+ * called for each dropped file. Flow has no stream variables: the drop zone's
+ * upload handler ({@link UploadDropAreaLayout}) calls the same methods in the
+ * same order, each with the session lock held as Vaadin 8 did.
+ *
  */
-public class FileTransferHandlerStreamVariable extends AbstractFileTransferHandler implements StreamVariable {
+public class FileTransferHandlerStreamVariable extends AbstractFileTransferHandler {
 
     private static final long serialVersionUID = 1L;
 
@@ -63,14 +67,13 @@ public class FileTransferHandlerStreamVariable extends AbstractFileTransferHandl
     /**
      * Checks for duplication and invalid file name during file upload process
      * 
-     * @param event
-     *            StreamingStartEvent
+     * @param fileName
+     *            name of the dropped file
      */
-    @Override
-    public void streamingStarted(final StreamingStartEvent event) {
-        assertStateConsistency(fileUploadId, event.getFileName());
+    public void streamingStarted(final String fileName) {
+        assertStateConsistency(fileUploadId, fileName);
 
-        if (RegexCharacterCollection.stringContainsCharacter(event.getFileName(), ILLEGAL_FILENAME_CHARACTERS)) {
+        if (RegexCharacterCollection.stringContainsCharacter(fileName, ILLEGAL_FILENAME_CHARACTERS)) {
             LOG.debug("Filename contains illegal characters {} for upload {}", fileUploadId.getFilename(),
                     fileUploadId);
             interruptUploadDueToIllegalFilename();
@@ -86,7 +89,6 @@ public class FileTransferHandlerStreamVariable extends AbstractFileTransferHandl
      *
      * @return OutputStream
      */
-    @Override
     public final OutputStream getOutputStream() {
         if (isUploadInterrupted()) {
             return ByteStreams.nullOutputStream();
@@ -116,58 +118,61 @@ public class FileTransferHandlerStreamVariable extends AbstractFileTransferHandl
      * 
      * @return boolean
      */
-    @Override
     public boolean listenProgress() {
         return true;
     }
 
     /**
-     * Reports progress in {@link StreamVariable} variant. Interrupts
+     * Reports progress. Interrupts when the file is too large.
      *
-     * @see com.vaadin.server.StreamVariable#onProgress(com.vaadin.server.StreamVariable.StreamingProgressEvent)
+     * @param fileName
+     *            name of the dropped file
+     * @param bytesReceived
+     *            bytes received so far
+     * @param contentLength
+     *            size of the file
      */
-    @Override
-    public void onProgress(final StreamingProgressEvent event) {
-        assertStateConsistency(fileUploadId, event.getFileName());
+    public void onProgress(final String fileName, final long bytesReceived, final long contentLength) {
+        assertStateConsistency(fileUploadId, fileName);
 
         if (isUploadInterrupted()) {
             publishUploadFailedAndFinishedEvent(fileUploadId);
             return;
         }
 
-        if (event.getBytesReceived() > maxSize || event.getContentLength() > maxSize) {
+        if (bytesReceived > maxSize || contentLength > maxSize) {
             interruptUploadDueToFileSizeQuotaExceeded(SizeConversionHelper.byteValueToReadableString(maxSize));
             return;
         }
 
-        publishUploadProgressEvent(fileUploadId, event.getBytesReceived(), event.getContentLength());
+        publishUploadProgressEvent(fileUploadId, bytesReceived, contentLength);
     }
 
     /**
-     * Upload finished for {@link StreamVariable} variant. Called only in good
-     * case.
+     * Upload finished. Called only in good case.
      *
-     * @see com.vaadin.server.StreamVariable#streamingFinished(com.vaadin.server.StreamVariable.StreamingEndEvent)
+     * @param fileName
+     *            name of the dropped file
      */
-    @Override
-    public void streamingFinished(final StreamingEndEvent event) {
-        assertStateConsistency(fileUploadId, event.getFileName());
+    public void streamingFinished(final String fileName) {
+        assertStateConsistency(fileUploadId, fileName);
     }
 
     /**
-     * Upload failed for{@link StreamVariable} variant.
+     * Upload failed.
      *
-     * @param event
-     *            StreamingEndEvent
+     * @param fileName
+     *            name of the dropped file
+     * @param exception
+     *            the exception that ended the upload
      */
-    @Override
-    public void streamingFailed(final StreamingErrorEvent event) {
-        assertStateConsistency(fileUploadId, event.getFileName());
+    public void streamingFailed(final String fileName, final Exception exception) {
+        assertStateConsistency(fileUploadId, fileName);
 
         if (!isUploadInterrupted()) {
             interruptUploadDueToUploadFailed();
         }
-        LOG.debug("Streaming of file {} failed due to following exception: {}", fileUploadId, event.getException());
+        LOG.debug("Streaming of file {} failed due to following exception: {}", fileUploadId, exception);
         publishUploadFailedAndFinishedEvent(fileUploadId);
     }
 
@@ -176,7 +181,6 @@ public class FileTransferHandlerStreamVariable extends AbstractFileTransferHandl
      *
      * @return boolean
      */
-    @Override
     public boolean isInterrupted() {
         return isUploadInterrupted();
     }

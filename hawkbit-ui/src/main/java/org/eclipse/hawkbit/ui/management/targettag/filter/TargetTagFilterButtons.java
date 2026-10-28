@@ -30,7 +30,7 @@ import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Target Tag filter buttons table.
@@ -107,7 +107,7 @@ public class TargetTagFilterButtons extends AbstractTagFilterButtons {
     }
 
     @Override
-    protected Window getUpdateWindow(final ProxyTag clickedFilter) {
+    protected Dialog getUpdateWindow(final ProxyTag clickedFilter) {
         return targetTagWindowBuilder.getWindowForUpdate(clickedFilter);
     }
 

@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.UI;
 
 /**
  * Support for deleting the items in grid.
@@ -116,8 +116,8 @@ public class DeleteSupport<T extends ProxyIdentifiableEntity> {
                 confirmationCaption, confirmationQuestionBuilder.toString(), successNotificationText,
                 failureNotificationText);
 
-        UI.getCurrent().addWindow(confirmDeleteDialog.getWindow());
-        confirmDeleteDialog.getWindow().bringToFront();
+        // a Flow dialog opened last is on top (Vaadin 8: bringToFront)
+        confirmDeleteDialog.getWindow().open();
     }
 
     private Set<T> getItemsForDeletion(final T clickedItem) {

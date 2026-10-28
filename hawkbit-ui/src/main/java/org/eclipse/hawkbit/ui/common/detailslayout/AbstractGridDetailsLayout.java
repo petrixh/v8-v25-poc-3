@@ -24,12 +24,11 @@ import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.tabs.TabSheet;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Abstract Layout to show the entity details.
@@ -72,12 +71,12 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
     }
 
     private void init() {
-        setWidth(98, Unit.PERCENTAGE);
-        setHeight(90, Unit.PERCENTAGE);
+        setWidth("98%");
+        setHeight("90%");
 
-        addStyleName(ValoTheme.TABSHEET_COMPACT_TABBAR);
-        addStyleName(ValoTheme.TABSHEET_FRAMED);
-        addStyleName(SPUIStyleDefinitions.DETAILS_LAYOUT_STYLE);
+        addClassNames("compact-tabbar");
+        addClassNames("framed");
+        addClassNames(SPUIStyleDefinitions.DETAILS_LAYOUT_STYLE);
 
         setId(getTabSheetId());
     }
@@ -99,11 +98,11 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
 
         description.setId(getDetailsDescriptionId());
         description.setReadOnly(true);
-        description.setWordWrap(true);
+        // Vaadin 8 setWordWrap(true): a Flow text area wraps by default
         description.setSizeFull();
-        description.setStyleName(ValoTheme.TEXTAREA_BORDERLESS);
-        description.addStyleName(ValoTheme.TEXTAREA_SMALL);
-        description.addStyleName("details-description");
+        description.setClassName("borderless");
+        description.addClassNames("small");
+        description.addClassNames("details-description");
 
         binder.forField(description).bind(ProxyNamedEntity::getDescription, null);
 
@@ -155,17 +154,17 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
             final String detailsComponentCaption = detailsComponentEntry.getKey();
             final Component detailsComponent = detailsComponentEntry.getValue();
 
-            addTab(buildTabWrapperDetailsLayout(detailsComponent), detailsComponentCaption);
+            add(detailsComponentCaption, buildTabWrapperDetailsLayout(detailsComponent));
         });
     }
 
     protected static VerticalLayout buildTabWrapperDetailsLayout(final Component detailsComponent) {
         final VerticalLayout tabWrapperDetailsLayout = new VerticalLayout();
         tabWrapperDetailsLayout.setSpacing(false);
-        tabWrapperDetailsLayout.setMargin(false);
-        tabWrapperDetailsLayout.setStyleName("details-layout");
+        tabWrapperDetailsLayout.setPadding(false);
+        tabWrapperDetailsLayout.setClassName("details-layout");
 
-        tabWrapperDetailsLayout.addComponent(detailsComponent);
+        tabWrapperDetailsLayout.add(detailsComponent);
 
         return tabWrapperDetailsLayout;
     }

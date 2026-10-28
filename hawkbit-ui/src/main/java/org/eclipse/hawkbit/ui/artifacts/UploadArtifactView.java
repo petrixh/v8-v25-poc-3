@@ -15,13 +15,13 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 
-import javax.servlet.MultipartConfigElement;
+import jakarta.annotation.security.PermitAll;
+import jakarta.servlet.MultipartConfigElement;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
-import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleGridLayout;
@@ -48,20 +48,23 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.navigator.ViewBeforeLeaveEvent;
-import com.vaadin.server.Page;
-import com.vaadin.server.Page.BrowserWindowResizeEvent;
-import com.vaadin.server.Page.BrowserWindowResizeListener;
-import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.page.BrowserWindowResizeEvent;
+import com.vaadin.flow.component.page.BrowserWindowResizeListener;
+import com.vaadin.flow.router.BeforeLeaveEvent;
+import com.vaadin.flow.router.BeforeLeaveEvent.ContinueNavigationAction;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 
 /**
  * Display artifacts upload view.
  */
+@Route(UploadArtifactView.VIEW_NAME)
+@SpringComponent
 @UIScope
-@SpringView(name = UploadArtifactView.VIEW_NAME, ui = AbstractHawkbitUI.class)
+@PermitAll
 public class UploadArtifactView extends AbstractEventListenersAwareView implements BrowserWindowResizeListener {
     private static final long serialVersionUID = 1L;
 
@@ -134,35 +137,35 @@ public class UploadArtifactView extends AbstractEventListenersAwareView implemen
     protected void init() {
         if (permChecker.hasReadRepositoryPermission()) {
             super.init();
-            Page.getCurrent().addBrowserWindowResizeListener(this);
+            UI.getCurrent().getPage().addBrowserWindowResizeListener(this);
         }
     }
 
     @Override
     protected void buildLayout() {
-        setMargin(false);
+        setPadding(false);
         setSpacing(false);
         setSizeFull();
 
         createMainLayout();
 
-        addComponent(mainLayout);
-        setExpandRatio(mainLayout, 1.0F);
+        add(mainLayout);
+        setFlexGrow(1.0F, mainLayout);
     }
 
     private void createMainLayout() {
         mainLayout = new HorizontalLayout();
         mainLayout.setSizeFull();
-        mainLayout.setMargin(false);
+        mainLayout.setPadding(false);
         mainLayout.setSpacing(true);
 
-        mainLayout.addComponent(smTypeFilterLayout);
-        mainLayout.addComponent(smGridLayout);
-        mainLayout.addComponent(artifactDetailsGridLayout);
+        mainLayout.add(smTypeFilterLayout);
+        mainLayout.add(smGridLayout);
+        mainLayout.add(artifactDetailsGridLayout);
 
-        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(smGridLayout, 0.5F);
-        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
+        mainLayout.setFlexGrow(0F, smTypeFilterLayout);
+        mainLayout.setFlexGrow(0.5F, smGridLayout);
+        mainLayout.setFlexGrow(0.5F, artifactDetailsGridLayout);
     }
 
     @Override
@@ -207,9 +210,9 @@ public class UploadArtifactView extends AbstractEventListenersAwareView implemen
     private void maximizeSmGridLayout() {
         artifactDetailsGridLayout.setVisible(false);
 
-        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(smGridLayout, 1.0F);
-        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0F);
+        mainLayout.setFlexGrow(0F, smTypeFilterLayout);
+        mainLayout.setFlexGrow(1.0F, smGridLayout);
+        mainLayout.setFlexGrow(0F, artifactDetailsGridLayout);
 
         smGridLayout.maximize();
     }
@@ -217,9 +220,9 @@ public class UploadArtifactView extends AbstractEventListenersAwareView implemen
     private void minimizeSmGridLayout() {
         artifactDetailsGridLayout.setVisible(true);
 
-        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(smGridLayout, 0.5F);
-        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
+        mainLayout.setFlexGrow(0F, smTypeFilterLayout);
+        mainLayout.setFlexGrow(0.5F, smGridLayout);
+        mainLayout.setFlexGrow(0.5F, artifactDetailsGridLayout);
 
         smGridLayout.minimize();
     }
@@ -228,9 +231,9 @@ public class UploadArtifactView extends AbstractEventListenersAwareView implemen
         smTypeFilterLayout.setVisible(false);
         smGridLayout.setVisible(false);
 
-        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(smGridLayout, 0F);
-        mainLayout.setExpandRatio(artifactDetailsGridLayout, 1.0F);
+        mainLayout.setFlexGrow(0F, smTypeFilterLayout);
+        mainLayout.setFlexGrow(0F, smGridLayout);
+        mainLayout.setFlexGrow(1.0F, artifactDetailsGridLayout);
 
         artifactDetailsGridLayout.maximize();
     }
@@ -241,9 +244,9 @@ public class UploadArtifactView extends AbstractEventListenersAwareView implemen
         }
         smGridLayout.setVisible(true);
 
-        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(smGridLayout, 0.5F);
-        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
+        mainLayout.setFlexGrow(0F, smTypeFilterLayout);
+        mainLayout.setFlexGrow(0.5F, smGridLayout);
+        mainLayout.setFlexGrow(0.5F, artifactDetailsGridLayout);
 
         artifactDetailsGridLayout.minimize();
     }
@@ -301,8 +304,11 @@ public class UploadArtifactView extends AbstractEventListenersAwareView implemen
     }
 
     @Override
-    public void beforeLeave(final ViewBeforeLeaveEvent event) {
+    public void beforeLeave(final BeforeLeaveEvent event) {
         if (isAnyUploadInUploadQueue()) {
+            // Vaadin 8 navigated on event.navigate(); Flow: postpone, then
+            // proceed
+            final ContinueNavigationAction navigationAction = event.postpone();
             final ConfirmationDialog confirmDeleteDialog = ConfirmationDialog
                     .newBuilder(i18n, UIComponentIdProvider.UPLOAD_QUEUE_CLEAR_CONFIRMATION_DIALOG)
                     .caption(i18n.getMessage(UIMessageIdProvider.CAPTION_CLEAR_FILE_UPLOAD_QUEUE))
@@ -311,6 +317,7 @@ public class UploadArtifactView extends AbstractEventListenersAwareView implemen
                         // Clear all queued file uploads
                         artifactUploadState.clearFileStates();
                         super.beforeLeave(event);
+                        navigationAction.proceed();
                     }).onCancel(() -> {
                         // Send a PostViewChangeEvent to the DashboardMenu
                         // as if the navigation actually
@@ -319,8 +326,8 @@ public class UploadArtifactView extends AbstractEventListenersAwareView implemen
                         final DashboardMenuItem dashboardMenuItem = dashboardMenu.getByViewName(VIEW_NAME);
                         dashboardMenu.postViewChange(DashboardEvent.createPostViewChangeEvent(dashboardMenuItem));
                     }).build();
-            UI.getCurrent().addWindow(confirmDeleteDialog.getWindow());
-            confirmDeleteDialog.getWindow().bringToFront();
+            // Vaadin 8 bringToFront(): the dialog opened last is on top
+            confirmDeleteDialog.getWindow().open();
         } else {
             super.beforeLeave(event);
         }

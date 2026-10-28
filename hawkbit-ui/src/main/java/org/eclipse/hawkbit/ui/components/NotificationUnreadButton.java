@@ -22,16 +22,17 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.event.FieldEvents.BlurEvent;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.spring.annotation.SpringComponent;
-import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.ModalityMode;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 
 /**
  * Button which shows all notification in a popup.
@@ -53,7 +54,7 @@ public class NotificationUnreadButton extends Button {
     private final transient UIEventBus eventBus;
 
     private int unreadNotificationCounter;
-    private Window notificationsWindow;
+    private Dialog notificationsWindow;
     private final transient Map<EventNotificationType, EntityModifiedEventPayload> remotelyOriginatedEventsStore;
 
     /**
@@ -70,82 +71,89 @@ public class NotificationUnreadButton extends Button {
         this.remotelyOriginatedEventsStore = new ConcurrentHashMap<>();
 
         setId(UIComponentIdProvider.NOTIFICATION_UNREAD_ID);
-        setIcon(VaadinIcons.BELL);
-        setCaptionAsHtml(true);
+        setIcon(VaadinIcon.BELL.create());
         setEnabled(false);
-        addStyleName(ValoTheme.BUTTON_SMALL);
-        addStyleName(STYLE);
+        addThemeVariants(ButtonVariant.LUMO_SMALL);
+        addClassName(STYLE);
 
         createNotificationWindow();
         addClickListener(this::dispatchRemotelyOriginatedEvents);
     }
 
     private void createNotificationWindow() {
-        notificationsWindow = new Window();
+        notificationsWindow = new Dialog();
 
         notificationsWindow.setId(UIComponentIdProvider.NOTIFICATION_UNREAD_POPUP_ID);
-        notificationsWindow.setWidth(300.0F, Unit.PIXELS);
-        notificationsWindow.setClosable(true);
+        notificationsWindow.setWidth("300px");
+        notificationsWindow.setCloseOnEsc(true);
         notificationsWindow.setResizable(false);
         notificationsWindow.setDraggable(false);
-        notificationsWindow.addStyleName(STYLE_POPUP);
-        notificationsWindow.addStyleName(STYLE_NO_CLOSEBOX);
+        notificationsWindow.addClassName(STYLE_POPUP);
+        notificationsWindow.addClassName(STYLE_NO_CLOSEBOX);
 
-        notificationsWindow.addCloseListener(event -> refreshCaption());
-        notificationsWindow.addBlurListener(this::closeWindow);
+        notificationsWindow.addOpenedChangeListener(event -> {
+            if (!event.isOpened()) {
+                refreshCaption();
+            }
+        });
+        // Vaadin 8 closed the window when it lost focus; a Flow dialog has no
+        // blur event: it closes on a click outside instead
+        notificationsWindow.setModality(ModalityMode.MODELESS);
+        notificationsWindow.setCloseOnOutsideClick(true);
     }
 
     private void refreshCaption() {
-        setCaption(null);
-        setEnabled(notificationsWindow.isAttached());
+        setSuffixComponent(null);
+        setEnabled(notificationsWindow.isOpened());
         if (unreadNotificationCounter > 0) {
             setVisible(true);
             setEnabled(true);
-            setCaption("<div class='" + STYLE_UNREAD_COUNTER + "'>" + unreadNotificationCounter + "</div>");
+            // was the HTML caption <div class='unread'>counter</div>
+            final Span counter = new Span(String.valueOf(unreadNotificationCounter));
+            counter.addClassName(STYLE_UNREAD_COUNTER);
+            setSuffixComponent(counter);
         }
-        setDescription(i18n.getMessage(DESCRIPTION, unreadNotificationCounter));
+        setTooltipText(i18n.getMessage(DESCRIPTION, unreadNotificationCounter));
     }
 
-    private void closeWindow(final BlurEvent event) {
-        getUI().removeWindow((Window) event.getComponent());
-    }
-
-    private void dispatchRemotelyOriginatedEvents(final ClickEvent event) {
-        if (notificationsWindow.isAttached()) {
-            getUI().removeWindow(notificationsWindow);
+    private void dispatchRemotelyOriginatedEvents(final ClickEvent<Button> event) {
+        if (notificationsWindow.isOpened()) {
+            notificationsWindow.close();
             return;
         }
 
-        notificationsWindow.setContent(buildNotificationsWindowLayout());
-        notificationsWindow.setPositionY(event.getClientY() - event.getRelativeY() + 40);
-        getUI().addWindow(notificationsWindow);
+        notificationsWindow.removeAll();
+        notificationsWindow.add(buildNotificationsWindowLayout());
+        // Vaadin 8: button top (clientY - relativeY) + 40 px; Flow click events
+        // have no relative position, so the click position is used
+        notificationsWindow.setTop((event.getClientY() + 40) + "px");
+        notificationsWindow.open();
 
         dispatchEntityModifiedEvents();
 
         clear();
-        notificationsWindow.focus();
     }
 
     private VerticalLayout buildNotificationsWindowLayout() {
         final VerticalLayout notificationsLayout = new VerticalLayout();
-        notificationsLayout.setMargin(true);
+        notificationsLayout.setPadding(true);
         notificationsLayout.setSpacing(true);
 
-        final Label title = new Label(i18n.getMessage(TITLE));
-        title.addStyleName(ValoTheme.LABEL_H3);
-        title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
+        final Span title = new Span(i18n.getMessage(TITLE));
+        title.addClassName("h3");
+        title.addClassName("no-margin");
 
-        notificationsLayout.addComponent(title);
+        notificationsLayout.add(title);
 
-        final Label[] eventNotificationLabels = remotelyOriginatedEventsStore.entrySet().stream()
-                .map(this::buildEventNotificationLabel).toArray(Label[]::new);
+        final Span[] eventNotificationLabels = remotelyOriginatedEventsStore.entrySet().stream()
+                .map(this::buildEventNotificationLabel).toArray(Span[]::new);
 
-        notificationsLayout.addComponents(eventNotificationLabels);
+        notificationsLayout.add(eventNotificationLabels);
 
         return notificationsLayout;
     }
 
-    private Label buildEventNotificationLabel(
+    private Span buildEventNotificationLabel(
             final Entry<EventNotificationType, EntityModifiedEventPayload> remotelyOriginatedEvent) {
         final EventNotificationType notificationType = remotelyOriginatedEvent.getKey();
         final int modifiedEntitiesCount = remotelyOriginatedEvent.getValue().getEntityIds().size();
@@ -156,7 +164,7 @@ public class NotificationUnreadButton extends Button {
             message = i18n.getMessage(notificationType.getNotificationMessageKeyPlur(),
                     String.valueOf(modifiedEntitiesCount));
         }
-        return new Label(message);
+        return new Span(message);
     }
 
     private void dispatchEntityModifiedEvents() {

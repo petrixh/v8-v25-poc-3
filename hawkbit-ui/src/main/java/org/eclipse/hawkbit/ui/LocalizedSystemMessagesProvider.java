@@ -15,10 +15,10 @@ import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.server.CustomizedSystemMessages;
-import com.vaadin.server.SystemMessages;
-import com.vaadin.server.SystemMessagesInfo;
-import com.vaadin.server.SystemMessagesProvider;
+import com.vaadin.flow.server.CustomizedSystemMessages;
+import com.vaadin.flow.server.SystemMessages;
+import com.vaadin.flow.server.SystemMessagesInfo;
+import com.vaadin.flow.server.SystemMessagesProvider;
 
 /**
  * {@link SystemMessagesProvider} that localizes Vaadin system messages.
@@ -51,10 +51,9 @@ public class LocalizedSystemMessagesProvider implements SystemMessagesProvider {
                 i18n.getMessage(desiredLocale, UIMessageIdProvider.VAADIN_SYSTEM_SESSIONEXPIRED_CAPTION));
         messages.setSessionExpiredMessage(
                 i18n.getMessage(desiredLocale, UIMessageIdProvider.VAADIN_SYSTEM_SESSIONEXPIRED_MESSAGE));
-        messages.setCommunicationErrorCaption(
-                i18n.getMessage(desiredLocale, UIMessageIdProvider.VAADIN_SYSTEM_COMMUNICATIONERROR_CAPTION));
-        messages.setCommunicationErrorMessage(
-                i18n.getMessage(desiredLocale, UIMessageIdProvider.VAADIN_SYSTEM_COMMUNICATIONERROR_MESSAGE));
+        // Vaadin Flow has no communication error system message (a lost
+        // connection shows the reconnect indicator), so
+        // VAADIN_SYSTEM_COMMUNICATIONERROR_CAPTION/_MESSAGE are not set.
         messages.setInternalErrorCaption(
                 i18n.getMessage(desiredLocale, UIMessageIdProvider.VAADIN_SYSTEM_INTERNALERROR_CAPTION));
         messages.setInternalErrorMessage(

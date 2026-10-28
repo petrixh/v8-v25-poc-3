@@ -31,7 +31,7 @@ import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Class for defining the tag buttons of the distribution sets on the Deployment
@@ -125,7 +125,7 @@ public class DistributionTagButtons extends AbstractTagFilterButtons {
     }
 
     @Override
-    protected Window getUpdateWindow(final ProxyTag clickedFilter) {
+    protected Dialog getUpdateWindow(final ProxyTag clickedFilter) {
         return dsTagWindowBuilder.getWindowForUpdate(clickedFilter);
     }
 

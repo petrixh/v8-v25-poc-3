@@ -18,21 +18,20 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.AbstractComponent;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Link;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.ModalityMode;
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  *
@@ -40,7 +39,7 @@ import com.vaadin.ui.themes.ValoTheme;
  * corner and a save and cancel button at the bottom. Is not intended to reuse.
  *
  */
-public class CommonDialogWindow extends Window {
+public class CommonDialogWindow extends Dialog {
     private static final long serialVersionUID = 1L;
 
     private final VaadinMessageSource i18n;
@@ -54,10 +53,10 @@ public class CommonDialogWindow extends Window {
     private Button confirmButton;
     private Button cancelButton;
     private HorizontalLayout buttonsLayout;
-    private Label mandatoryLabel;
+    private Span mandatoryLabel;
 
-    private final ClickListener cancelButtonClickListener;
-    private final ClickListener closeClickListener;
+    private final ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener;
+    private final ComponentEventListener<ClickEvent<Button>> closeClickListener;
 
     private transient SaveDialogCloseListener closeListener;
 
@@ -89,7 +88,7 @@ public class CommonDialogWindow extends Window {
      *            internationalization
      */
     public CommonDialogWindow(final String caption, final Component content, final String helpLink,
-            final SaveDialogCloseListener closeListener, final ClickListener cancelButtonClickListener,
+            final SaveDialogCloseListener closeListener, final ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             final ConfirmStyle confirmStyle, final Class<? extends SPUIButtonDecorator> buttonDecorator,
             final VaadinMessageSource i18n) {
         this.caption = caption;
@@ -107,8 +106,8 @@ public class CommonDialogWindow extends Window {
         init();
     }
 
-    private void onCloseEvent(final ClickEvent clickEvent) {
-        if (!clickEvent.getButton().equals(confirmButton)) {
+    private void onCloseEvent(final ClickEvent<Button> clickEvent) {
+        if (!clickEvent.getSource().equals(confirmButton)) {
             close();
             return;
         }
@@ -131,31 +130,46 @@ public class CommonDialogWindow extends Window {
     }
 
     private final void init() {
-        mainLayout.setMargin(false);
+        mainLayout.setPadding(false);
         mainLayout.setSpacing(false);
 
-        if (content instanceof GridLayout) {
-            addStyleName("marginTop");
-        }
+        // Vaadin 8 added the style "marginTop" for GridLayout content; Flow
+        // has no GridLayout (styling is stage 2a)
 
         if (content != null) {
-            mainLayout.addComponent(content);
-            mainLayout.setExpandRatio(content, 1.0F);
+            mainLayout.add(content);
+            mainLayout.setFlexGrow(1.0F, content);
         }
 
         createMandatoryLabel();
 
         final HorizontalLayout buttonLayout = createActionButtonsLayout();
-        mainLayout.addComponent(buttonLayout);
-        mainLayout.setComponentAlignment(buttonLayout, Alignment.TOP_CENTER);
+        mainLayout.add(buttonLayout);
+        mainLayout.setHorizontalComponentAlignment(Alignment.CENTER, buttonLayout);
 
-        setCaptionAsHtml(false);
-        setCaption(caption);
-        setContent(mainLayout);
+        setHeaderTitle(caption);
+        add(mainLayout);
         setResizable(false);
-        center();
-        setModal(true);
-        addStyleName("fontsize");
+        setModality(ModalityMode.STRICT);
+        // Vaadin 8 modal windows closed on Esc but not on a click outside
+        setCloseOnEsc(true);
+        setCloseOnOutsideClick(false);
+        addCloseButton(this);
+        addClassNames("fontsize");
+    }
+
+    /**
+     * Adds the close (X) button of a closable Vaadin 8 window to the dialog
+     * header: Flow dialogs have none.
+     *
+     * @param dialog
+     *            the dialog
+     */
+    public static void addCloseButton(final Dialog dialog) {
+        final Button closeButton = new Button(VaadinIcon.CLOSE.create(), event -> dialog.close());
+        closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
+        closeButton.addClassName("v-window-closebox");
+        dialog.getHeader().add(closeButton);
     }
 
     protected void addCloseListenerForSaveButton() {
@@ -170,7 +184,7 @@ public class CommonDialogWindow extends Window {
 
         buttonsLayout = new HorizontalLayout();
         buttonsLayout.setSizeFull();
-        buttonsLayout.addStyleName("actionButtonsMargin");
+        buttonsLayout.addClassNames("actionButtonsMargin");
 
         createSaveButton();
         createCancelButton();
@@ -182,10 +196,10 @@ public class CommonDialogWindow extends Window {
 
     private void createMandatoryLabel() {
 
-        mandatoryLabel = new Label(i18n.getMessage("label.mandatory.field"));
-        mandatoryLabel.addStyleName(SPUIStyleDefinitions.SP_TEXTFIELD_ERROR + " " + ValoTheme.LABEL_TINY);
+        mandatoryLabel = new Span(i18n.getMessage("label.mandatory.field"));
+        mandatoryLabel.addClassNames(SPUIStyleDefinitions.SP_TEXTFIELD_ERROR, "tiny");
 
-        mainLayout.addComponent(mandatoryLabel);
+        mainLayout.add(mandatoryLabel);
     }
 
     /**
@@ -194,52 +208,52 @@ public class CommonDialogWindow extends Window {
      */
     public void hideMandatoryExplanation() {
         if (mandatoryLabel != null) {
-            mainLayout.removeComponent(mandatoryLabel);
+            mainLayout.remove(mandatoryLabel);
         }
     }
 
     private void createCancelButton() {
         cancelButton = SPUIComponentProvider.getButton(UIComponentIdProvider.CANCEL_BUTTON,
-                i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL), "", "", true, VaadinIcons.CLOSE,
+                i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL), "", "", true, VaadinIcon.CLOSE,
                 SPUIButtonStyleNoBorderWithIcon.class);
         cancelButton.setSizeUndefined();
-        cancelButton.addStyleName("default-color");
+        cancelButton.addClassNames("default-color");
         addCloseListenerForCancelButton();
         if (cancelButtonClickListener != null) {
             cancelButton.addClickListener(cancelButtonClickListener);
         }
 
-        buttonsLayout.addComponent(cancelButton);
-        buttonsLayout.setComponentAlignment(cancelButton, Alignment.MIDDLE_LEFT);
-        buttonsLayout.setExpandRatio(cancelButton, 1.0F);
+        buttonsLayout.add(cancelButton);
+        buttonsLayout.setVerticalComponentAlignment(Alignment.CENTER, cancelButton);
+        buttonsLayout.setFlexGrow(1.0F, cancelButton);
     }
 
     private void createSaveButton() {
         if (confirmStyle == ConfirmStyle.SAVE) {
             confirmButton = SPUIComponentProvider.getButton(UIComponentIdProvider.SAVE_BUTTON,
-                    i18n.getMessage(UIMessageIdProvider.BUTTON_SAVE), "", "", true, VaadinIcons.HARDDRIVE,
+                    i18n.getMessage(UIMessageIdProvider.BUTTON_SAVE), "", "", true, VaadinIcon.HARDDRIVE,
                     buttonDecorator);
         } else if (confirmStyle == ConfirmStyle.NEXT) {
             confirmButton = SPUIComponentProvider.getButton(UIComponentIdProvider.OK_BUTTON,
-                    i18n.getMessage(UIMessageIdProvider.BUTTON_NEXT), "", ValoTheme.BUTTON_PRIMARY, false, null,
+                    i18n.getMessage(UIMessageIdProvider.BUTTON_NEXT), "", "primary", false, null,
                     buttonDecorator);
         } else if (confirmStyle == ConfirmStyle.CONFIRM) {
             confirmButton = SPUIComponentProvider.getButton(UIComponentIdProvider.OK_BUTTON,
-                    i18n.getMessage(UIMessageIdProvider.BUTTON_CONFIRM), "", ValoTheme.BUTTON_PRIMARY, false, null,
+                    i18n.getMessage(UIMessageIdProvider.BUTTON_CONFIRM), "", "primary", false, null,
                     buttonDecorator);
         } else {
             confirmButton = SPUIComponentProvider.getButton(UIComponentIdProvider.OK_BUTTON,
-                    i18n.getMessage(UIMessageIdProvider.BUTTON_OK), "", ValoTheme.BUTTON_PRIMARY, false, null,
+                    i18n.getMessage(UIMessageIdProvider.BUTTON_OK), "", "primary", false, null,
                     buttonDecorator);
         }
         confirmButton.setSizeUndefined();
-        confirmButton.addStyleName("default-color");
+        confirmButton.addClassNames("default-color");
         addCloseListenerForSaveButton();
         confirmButton.setEnabled(false);
-        confirmButton.setClickShortcut(KeyCode.ENTER);
-        buttonsLayout.addComponent(confirmButton);
-        buttonsLayout.setComponentAlignment(confirmButton, Alignment.MIDDLE_RIGHT);
-        buttonsLayout.setExpandRatio(confirmButton, 1.0F);
+        confirmButton.addClickShortcut(Key.ENTER).listenOn(this);
+        buttonsLayout.add(confirmButton);
+        buttonsLayout.setVerticalComponentAlignment(Alignment.CENTER, confirmButton);
+        buttonsLayout.setFlexGrow(1.0F, confirmButton);
     }
 
     private void addHelpLink() {
@@ -247,12 +261,12 @@ public class CommonDialogWindow extends Window {
         if (StringUtils.isEmpty(helpLink)) {
             return;
         }
-        final Link helpLinkComponent = SPUIComponentProvider.getHelpLink(i18n, helpLink);
-        buttonsLayout.addComponent(helpLinkComponent);
-        buttonsLayout.setComponentAlignment(helpLinkComponent, Alignment.MIDDLE_RIGHT);
+        final Anchor helpLinkComponent = SPUIComponentProvider.getHelpLink(i18n, helpLink);
+        buttonsLayout.add(helpLinkComponent);
+        buttonsLayout.setVerticalComponentAlignment(Alignment.CENTER, helpLinkComponent);
     }
 
-    public AbstractComponent getButtonsLayout() {
+    public Component getButtonsLayout() {
         return this.buttonsLayout;
     }
 

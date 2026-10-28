@@ -24,7 +24,7 @@ import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.management.targettag.targettype.TargetTypeWindowBuilder;
 
-import com.vaadin.ui.ComponentContainer;
+import com.vaadin.flow.component.Component;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 
 /**
@@ -91,7 +91,7 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
     }
 
     @Override
-    protected ComponentContainer getFilterContent() {
+    protected Component getFilterContent() {
         return multipleTargetFilter;
     }
 
@@ -123,6 +123,6 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
     }
 
     public void minimize() {
-        setWidth(SPUIDefinitions.FILTER_BY_TYPE_WIDTH, Unit.PIXELS);
+        setWidth(SPUIDefinitions.FILTER_BY_TYPE_WIDTH + "px");
     }
 }

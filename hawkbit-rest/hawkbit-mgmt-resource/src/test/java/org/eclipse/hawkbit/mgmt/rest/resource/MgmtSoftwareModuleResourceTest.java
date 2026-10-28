@@ -393,7 +393,7 @@ class MgmtSoftwareModuleResourceTest extends AbstractManagementApiIntegrationTes
                 .andReturn();
 
         final ExceptionInfo exceptionInfo = ResourceUtility.convertException(mvcResult.getResponse().getContentAsString());
-        assertEquals("javax.validation.ValidationException", exceptionInfo.getExceptionClass());
+        assertEquals("jakarta.validation.ValidationException", exceptionInfo.getExceptionClass());
         assertTrue(exceptionInfo.getMessage().contains("Software Module Type already deleted"));
     }
 
@@ -560,7 +560,10 @@ class MgmtSoftwareModuleResourceTest extends AbstractManagementApiIntegrationTes
                 .perform(
                         get("/rest/v1/softwaremodules/{smId}/artifacts/{artId}/download", sm.getId(), artifact.getId()))
                 .andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
-                .andExpect(header().string("ETag", artifact.getSha1Hash())).andReturn();
+                // E011: a full download may send the ETag quoted (RFC form) as well as the bare SHA1 hash
+                .andExpect(header().string("ETag", Matchers.anyOf(
+                        Matchers.equalTo(artifact.getSha1Hash()), Matchers.equalTo("\"" + artifact.getSha1Hash() + "\""))))
+                .andReturn();
 
         assertTrue(Arrays.equals(result.getResponse().getContentAsByteArray(), random), "Wrong response content");
     }

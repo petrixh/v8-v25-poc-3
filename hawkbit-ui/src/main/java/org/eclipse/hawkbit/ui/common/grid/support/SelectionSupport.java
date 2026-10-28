@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 import java.util.function.LongFunction;
 import java.util.function.Supplier;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
@@ -28,13 +28,15 @@ import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.Selectio
 import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.shared.Registration;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.Grid.SelectionMode;
-import com.vaadin.ui.components.grid.MultiSelectionModel;
-import com.vaadin.ui.components.grid.MultiSelectionModel.SelectAllCheckBoxVisibility;
-import com.vaadin.ui.components.grid.NoSelectionModel;
-import com.vaadin.ui.components.grid.SingleSelectionModel;
+import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.GridMultiSelectionModel;
+import com.vaadin.flow.component.grid.GridMultiSelectionModel.SelectAllCheckboxVisibility;
+import com.vaadin.flow.component.grid.GridNoneSelectionModel;
+import com.vaadin.flow.component.grid.GridSingleSelectionModel;
+import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.Query;
 
 /**
  * Support for selection on the grid.
@@ -126,7 +128,8 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
     public final void enableSingleSelection() {
         grid.setSelectionMode(SelectionMode.SINGLE);
 
-        singleSelectListenerRegistration = grid.asSingleSelect().addSingleSelectionListener(event -> {
+        singleSelectListenerRegistration = ((GridSingleSelectionModel<T>) grid.getSelectionModel())
+                .addSingleSelectionListener(event -> {
             final SelectionChangedEventType selectionType = event.getSelectedItem().isPresent()
                     ? SelectionChangedEventType.ENTITY_SELECTED
                     : SelectionChangedEventType.ENTITY_DESELECTED;
@@ -176,8 +179,9 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
     public final void enableMultiSelection() {
         grid.setSelectionMode(SelectionMode.MULTI);
 
-        grid.asMultiSelect().setSelectAllCheckBoxVisibility(SelectAllCheckBoxVisibility.VISIBLE);
-        multiSelectListenerRegistration = grid.asMultiSelect().addMultiSelectionListener(event -> {
+        final GridMultiSelectionModel<T> multiSelectionModel = (GridMultiSelectionModel<T>) grid.getSelectionModel();
+        multiSelectionModel.setSelectAllCheckboxVisibility(SelectAllCheckboxVisibility.VISIBLE);
+        multiSelectListenerRegistration = multiSelectionModel.addMultiSelectionListener(event -> {
             if (event.getAllSelectedItems().size() == 1) {
                 sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_SELECTED,
                         event.getAllSelectedItems().iterator().next());
@@ -192,18 +196,18 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
      * @return true if grid selection model is not enable else false
      */
     public boolean isNoSelectionModel() {
-        return grid.getSelectionModel() instanceof NoSelectionModel;
+        return grid.getSelectionModel() instanceof GridNoneSelectionModel;
     }
 
     public boolean isSingleSelectionModel() {
-        return grid.getSelectionModel() instanceof SingleSelectionModel;
+        return grid.getSelectionModel() instanceof GridSingleSelectionModel;
     }
 
     /**
      * @return true if grid selection model is multi selection else false
      */
     public boolean isMultiSelectionModel() {
-        return grid.getSelectionModel() instanceof MultiSelectionModel;
+        return grid.getSelectionModel() instanceof GridMultiSelectionModel;
     }
 
     /**
@@ -251,7 +255,7 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
             return false;
         }
 
-        final List<T> firstItem = grid.getDataCommunicator().fetchItemsWithRange(0, 1);
+        final List<T> firstItem = fetchFirstItem();
 
         if (!CollectionUtils.isEmpty(firstItem)) {
             grid.select(firstItem.get(0));
@@ -262,6 +266,14 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         grid.deselectAll();
 
         return false;
+    }
+
+    // Vaadin 8: DataCommunicator#fetchItemsWithRange(0, 1); Flow: the grid's
+    // query (filter, sort) for the first row
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private List<T> fetchFirstItem() {
+        final Query<T, Object> query = grid.getDataCommunicator().buildQuery(0, 1);
+        return ((DataProvider<T, Object>) grid.getDataProvider()).fetch(query).toList();
     }
 
     /**
@@ -304,7 +316,7 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
             return;
         }
 
-        grid.asMultiSelect().selectAll();
+        ((GridMultiSelectionModel<T>) grid.getSelectionModel()).selectAll();
     }
 
     /**

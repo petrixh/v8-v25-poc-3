@@ -9,9 +9,9 @@
  */
 package org.eclipse.hawkbit.ui.common.builder;
 
-import com.vaadin.shared.ui.ValueChangeMode;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextAreaVariant;
 
 /**
  * TextArea builder.
@@ -33,7 +33,7 @@ public class TextAreaBuilder extends AbstractTextFieldBuilder<TextAreaBuilder, T
     @Override
     protected TextArea createTextComponent() {
         final TextArea textArea = new TextArea();
-        textArea.addStyleName(ValoTheme.TEXTAREA_SMALL);
+        textArea.addThemeVariants(TextAreaVariant.LUMO_SMALL);
         textArea.setValueChangeMode(ValueChangeMode.LAZY);
         textArea.setValueChangeTimeout(INPUT_DEBOUNCE_TIMEOUT);
 

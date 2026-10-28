@@ -11,12 +11,12 @@ package org.eclipse.hawkbit.app.vv8ui;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
-import org.springframework.boot.web.servlet.error.ErrorAttributes;
+import org.springframework.boot.autoconfigure.web.WebProperties;
+import org.springframework.boot.webmvc.autoconfigure.error.BasicErrorController;
+import org.springframework.boot.webmvc.error.ErrorAttributes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -39,11 +39,11 @@ public class ErrorController extends BasicErrorController {
      * 
      * @param errorAttributes
      *            the error attributes
-     * @param serverProperties
-     *            configuration properties
+     * @param webProperties
+     *            configuration properties (the error properties moved here from the server properties in Boot 4)
      */
-    public ErrorController(final ErrorAttributes errorAttributes, final ServerProperties serverProperties) {
-        super(errorAttributes, serverProperties.getError());
+    public ErrorController(final ErrorAttributes errorAttributes, final WebProperties webProperties) {
+        super(errorAttributes, webProperties.getError());
     }
 
     @RequestMapping(produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)

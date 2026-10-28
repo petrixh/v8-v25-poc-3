@@ -20,6 +20,12 @@
    <name>hawkBit :: Spring Boot Autoconfigure</name>
 
    <dependencies>
+      <!-- Spring Security 7 moved the legacy method-security infrastructure behind @EnableGlobalMethodSecurity
+           (kept for parity here and in the runtimes' start classes) into this module -->
+      <dependency>
+         <groupId>org.springframework.security</groupId>
+         <artifactId>spring-security-access</artifactId>
+      </dependency>
       <dependency>
          <groupId>org.eclipse.hawkbit</groupId>
          <artifactId>hawkbit-core</artifactId>
@@ -87,12 +93,8 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.vaadin.spring.extensions</groupId>
-         <artifactId>vaadin-spring-ext-security</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>javax.servlet-api</artifactId>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
         <scope>provided</scope>
       </dependency>     
    </dependencies>

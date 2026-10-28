@@ -18,10 +18,9 @@ import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.grid.Grid;
 
 /**
  * Software Module Selected Type grid which is shown on the Distribution Type
@@ -54,35 +53,35 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
 
     private void init() {
         setSizeFull();
-        setHeightUndefined();
-        addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        addStyleName(ValoTheme.TABLE_NO_STRIPES);
-        addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-        addStyleName(ValoTheme.TABLE_SMALL);
+        setHeight(null);
+        addClassNames("no-horizontal-lines");
+        addClassNames("no-stripes");
+        addClassNames("no-vertical-lines");
+        addClassNames("small");
         // used to deactivate cell text selection by user
-        addStyleName(AbstractGrid.MULTI_SELECT_STYLE);
+        addClassNames(AbstractGrid.MULTI_SELECT_STYLE);
 
         setId(SPUIDefinitions.TWIN_TABLE_SELECTED_ID);
-        setSelectionModel(new RangeSelectionModel<>(i18n));
+        new RangeSelectionModel<ProxyType>(i18n).extend(this);
 
         addColumns();
     }
 
     private void addColumns() {
-        GridComponentBuilder.addColumn(this, ProxyType::getName).setId(SM_TYPE_SELECTED_NAME_ID)
-                .setCaption(i18n.getMessage("header.dist.twintable.selected"))
-                .setDescriptionGenerator(ProxyType::getDescription);
+        GridComponentBuilder.addColumn(this, ProxyType::getName).setKey(SM_TYPE_SELECTED_NAME_ID)
+                .setHeader(i18n.getMessage("header.dist.twintable.selected"))
+                .setTooltipGenerator(ProxyType::getDescription);
 
         GridComponentBuilder.addIconColumn(this, this::buildMandatoryTypeCheckBox, SM_TYPE_SELECTED_MANDATORY, STAR)
-                .setDescriptionGenerator(smType -> i18n.getMessage(UIMessageIdProvider.TOOLTIP_CHECK_FOR_MANDATORY));
+                .setTooltipGenerator(smType -> i18n.getMessage(UIMessageIdProvider.TOOLTIP_CHECK_FOR_MANDATORY));
     }
 
-    private CheckBox buildMandatoryTypeCheckBox(final ProxyType smType) {
+    private Checkbox buildMandatoryTypeCheckBox(final ProxyType smType) {
         final Binder<ProxyType> binder = new Binder<>();
         binder.setBean(smType);
         binder.addValueChangeListener(event -> mandatoryPropertyChangedCallback.run());
 
         final String id = "selected.sm.type." + smType.getId();
-        return FormComponentBuilder.createCheckBox(id, binder, ProxyType::isMandatory, ProxyType::setMandatory);
+        return FormComponentBuilder.createCheckbox(id, binder, ProxyType::isMandatory, ProxyType::setMandatory);
     }
 }

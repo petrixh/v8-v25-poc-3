@@ -9,23 +9,24 @@
  */
 package org.eclipse.hawkbit.ui.common;
 
-import com.vaadin.shared.ui.colorpicker.Color;
-import com.vaadin.ui.AbstractColorPicker.Coordinates2Color;
+import java.awt.Color;
+import java.io.Serializable;
 
 /**
  * Converts 2d-coordinates to a Color.
  */
-public class CoordinatesToColor implements Coordinates2Color {
+public class CoordinatesToColor implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Override
+    // Vaadin 8: implemented Coordinates2Color of the colour picker gradient;
+    // Vaadin 25 has no colour picker (A10), the colour is java.awt.Color
+
     public Color calculate(final int x, final int y) {
         return calculateHSVColor(x, y);
     }
 
-    @Override
     public int[] calculate(final Color color) {
-        final float[] hsv = color.getHSV();
+        final float[] hsv = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
         final int x = (int) Math.round(hsv[0] * 220.0);
         final int y = calculateYCoordinateOfColor(hsv);
         return new int[] { x, y };
@@ -40,7 +41,7 @@ public class CoordinatesToColor implements Coordinates2Color {
         } else if (y > 110) {
             v = (float) (1.0 - (y - 110.0) / 110.0);
         }
-        return new Color(Color.HSVtoRGB(h, s, v));
+        return new Color(Color.HSBtoRGB(h, s, v));
     }
 
     private static int calculateYCoordinateOfColor(final float[] hsv) {

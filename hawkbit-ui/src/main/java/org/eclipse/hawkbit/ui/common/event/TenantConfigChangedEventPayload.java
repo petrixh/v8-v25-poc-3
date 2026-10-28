@@ -11,8 +11,8 @@ package org.eclipse.hawkbit.ui.common.event;
 
 import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 
 /**

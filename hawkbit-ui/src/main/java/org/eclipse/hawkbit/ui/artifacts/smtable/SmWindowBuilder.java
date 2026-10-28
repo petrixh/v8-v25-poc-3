@@ -17,7 +17,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Builder for Software module windows
@@ -60,7 +60,7 @@ public class SmWindowBuilder extends AbstractEntityWindowBuilder<ProxySoftwareMo
      * @return add window for software module
      */
     @Override
-    public Window getWindowForAdd() {
+    public Dialog getWindowForAdd() {
         return getWindowForNewEntity(new AddSmWindowController(uiDependencies, smManagement,
                 new SmWindowLayout(getI18n(), smTypeManagement), view));
 
@@ -73,7 +73,7 @@ public class SmWindowBuilder extends AbstractEntityWindowBuilder<ProxySoftwareMo
      * @return update window for software module
      */
     @Override
-    public Window getWindowForUpdate(final ProxySoftwareModule proxySm) {
+    public Dialog getWindowForUpdate(final ProxySoftwareModule proxySm) {
         return getWindowForEntity(proxySm, new UpdateSmWindowController(uiDependencies, smManagement,
                 new SmWindowLayout(getI18n(), smTypeManagement)));
     }

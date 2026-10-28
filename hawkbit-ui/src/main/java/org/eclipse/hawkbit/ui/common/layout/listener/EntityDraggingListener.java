@@ -19,7 +19,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.Component;
 
 /**
  * Event listener for entity dragging
@@ -54,9 +54,9 @@ public class EntityDraggingListener extends TopicEventListener {
         }
 
         if (eventPayload.getDraggingEventType() == DraggingEventType.STARTED) {
-            dropComponent.addStyleName(DROP_HINT_STYLE);
+            dropComponent.addClassNames(DROP_HINT_STYLE);
         } else {
-            dropComponent.removeStyleName(DROP_HINT_STYLE);
+            dropComponent.removeClassNames(DROP_HINT_STYLE);
         }
     }
 }

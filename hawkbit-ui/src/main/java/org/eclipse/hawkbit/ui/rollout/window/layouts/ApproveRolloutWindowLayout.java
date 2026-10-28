@@ -13,8 +13,8 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.rollout.window.components.ApprovalLayout;
 
-import com.vaadin.data.ValidationException;
-import com.vaadin.ui.GridLayout;
+import com.vaadin.flow.data.binder.ValidationException;
+import org.eclipse.hawkbit.ui.rollout.window.components.CssGridLayout;
 
 /**
  * Layout builder for Approve Rollout window.
@@ -39,7 +39,7 @@ public class ApproveRolloutWindowLayout extends UpdateRolloutWindowLayout {
     }
 
     @Override
-    protected void addComponents(final GridLayout rootLayout) {
+    protected void addComponents(final CssGridLayout rootLayout) {
         super.addComponents(rootLayout);
 
         rootLayout.insertRow(rootLayout.getRows());

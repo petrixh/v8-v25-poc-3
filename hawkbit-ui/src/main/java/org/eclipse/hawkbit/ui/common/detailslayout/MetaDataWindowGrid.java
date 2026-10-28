@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.AbstractMetaDataDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.ColumnToggleMenu;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
@@ -80,11 +81,11 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> implem
 
     @Override
     public void addColumns() {
-        GridComponentBuilder.addColumn(this, ProxyMetaData::getKey).setId(META_DATA_KEY_ID)
-                .setCaption(i18n.getMessage("header.key"));
+        GridComponentBuilder.addColumn(this, ProxyMetaData::getKey).setKey(META_DATA_KEY_ID)
+                .setHeader(i18n.getMessage("header.key"));
 
-        GridComponentBuilder.addColumn(this, ProxyMetaData::getValue).setId(META_DATA_VALUE_ID)
-                .setCaption(i18n.getMessage("header.value")).setHidden(true).setHidable(true);
+        ColumnToggleMenu.setHidable(GridComponentBuilder.addColumn(this, ProxyMetaData::getValue)
+                .setKey(META_DATA_VALUE_ID).setHeader(i18n.getMessage("header.value"))).setVisible(false);
 
         GridComponentBuilder.addDeleteColumn(this, i18n, META_DATA_DELETE_BUTTON_ID, metaDataDeleteSupport,
                 UIComponentIdProvider.META_DATA_DELET_ICON, e -> hasMetadataChangePermission.getAsBoolean());

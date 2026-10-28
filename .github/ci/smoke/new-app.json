@@ -1,0 +1,99 @@
+{
+  "loginPath": "/UI/login",
+  "login": {
+    "user": "#login-username input",
+    "password": "#login-password input",
+    "submit": "#login-signin"
+  },
+  "loggedInSelector": "#dashboard-menu",
+  "navSelector": "#dashboard-menu vaadin-button.valo-menu-item",
+  "settleMs": 3000,
+  "maxScrollFactor": 4,
+  "exactNav": false,
+  "ignoreScrollSelectors": [
+    "vaadin-grid"
+  ],
+  "errorTexts": [
+    "There was an exception while trying to navigate to",
+    "No such view: ",
+    "No access to view: "
+  ],
+  "users": [
+    {
+      "name": "admin",
+      "username": "admin",
+      "passwordFile": "~/.config/mig-ci/test-users.env",
+      "passwordKey": "MIG_TU_ADMIN_PW",
+      "routes": [
+        "/UI/",
+        "/UI/deployment",
+        "/UI/rollout",
+        "/UI/targetFilters",
+        "/UI/distributions",
+        "/UI/spUpload",
+        "/UI/spSystemConfig"
+      ],
+      "views": [
+        "Deployment",
+        "Rollout",
+        "Target Filters",
+        "Distributions",
+        "Upload",
+        "System Config"
+      ]
+    },
+    {
+      "name": "readonly",
+      "username": "readonly",
+      "passwordFile": "~/.config/mig-ci/test-users.env",
+      "passwordKey": "MIG_TU_READONLY_PW",
+      "routes": [
+        "/UI/",
+        "/UI/deployment",
+        "/UI/rollout",
+        "/UI/targetFilters",
+        "/UI/distributions",
+        "/UI/spUpload"
+      ],
+      "views": [
+        "Deployment",
+        "Rollout",
+        "Target Filters",
+        "Distributions",
+        "Upload"
+      ]
+    },
+    {
+      "name": "targets",
+      "username": "targets",
+      "passwordFile": "~/.config/mig-ci/test-users.env",
+      "passwordKey": "MIG_TU_TARGETS_PW",
+      "routes": [
+        "/UI/",
+        "/UI/deployment",
+        "/UI/targetFilters"
+      ],
+      "views": [
+        "Deployment",
+        "Target Filters"
+      ]
+    },
+    {
+      "name": "repository",
+      "username": "repository",
+      "passwordFile": "~/.config/mig-ci/test-users.env",
+      "passwordKey": "MIG_TU_REPOSITORY_PW",
+      "routes": [
+        "/UI/",
+        "/UI/deployment",
+        "/UI/distributions",
+        "/UI/spUpload"
+      ],
+      "views": [
+        "Deployment",
+        "Distributions",
+        "Upload"
+      ]
+    }
+  ]
+}

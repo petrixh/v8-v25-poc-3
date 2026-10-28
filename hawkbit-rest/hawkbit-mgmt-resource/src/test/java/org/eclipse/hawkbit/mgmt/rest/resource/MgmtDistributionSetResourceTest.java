@@ -357,7 +357,7 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
                 .andExpect(status().isBadRequest()).andReturn();
 
         final ExceptionInfo exceptionInfo = ResourceUtility.convertException(mvcResult.getResponse().getContentAsString());
-        assertEquals("javax.validation.ValidationException", exceptionInfo.getExceptionClass());
+        assertEquals("jakarta.validation.ValidationException", exceptionInfo.getExceptionClass());
         assertTrue(exceptionInfo.getMessage().contains("Distribution Set Type already deleted"));
     }
 

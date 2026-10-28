@@ -11,9 +11,9 @@ package org.eclipse.hawkbit.ui.decorators;
 
 import org.springframework.util.StringUtils;
 
-import com.vaadin.server.Resource;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 
 /**
  * Decorator class for a borderless Button with an icon.
@@ -23,13 +23,13 @@ public class SPUIButtonStyleNoBorderWithIcon implements SPUIButtonDecorator {
     private Button button;
 
     @Override
-    public Button decorate(final Button button, final String style, final boolean setStyle, final Resource icon) {
+    public Button decorate(final Button button, final String style, final boolean setStyle, final VaadinIcon icon) {
 
         this.button = button;
         button.setSizeFull();
 
-        button.addStyleName(ValoTheme.LABEL_SMALL);
-        button.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+        button.addClassName("small");
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         setOrAddButtonStyle(style, setStyle);
 
         setButtonIcon(icon);
@@ -45,17 +45,17 @@ public class SPUIButtonStyleNoBorderWithIcon implements SPUIButtonDecorator {
 
         if (setStyle) {
             // overwrite all other styles
-            button.setStyleName(style);
+            button.setClassName(style);
         } else {
-            button.addStyleName(style);
+            button.addClassNames(StringUtils.tokenizeToStringArray(style, " "));
         }
     }
 
-    private void setButtonIcon(final Resource icon) {
+    private void setButtonIcon(final VaadinIcon icon) {
 
         if (icon == null) {
             return;
         }
-        button.setIcon(icon);
+        button.setIcon(icon.create());
     }
 }

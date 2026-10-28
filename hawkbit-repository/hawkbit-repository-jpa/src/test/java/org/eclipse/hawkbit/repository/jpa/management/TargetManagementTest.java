@@ -25,7 +25,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.validation.ConstraintViolationException;
+import jakarta.validation.ConstraintViolationException;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.awaitility.Awaitility;
@@ -1076,6 +1076,22 @@ class TargetManagementTest extends AbstractJpaIntegrationTest {
         assertThat(targetFound2).isPresent();
         assertThat(targetFound2.get().getOptLockRevision()).isEqualTo(3);
         assertThat(targetFound2.get().getTargetType()).isNull();
+    }
+
+    @Test
+    @WithUser(allSpPermissions = true)
+    @Description("Checks that the target type of several targets can be unassigned in one call.")
+    void unassignTargetTypeOfSeveralTargets() {
+        final TargetType targetType = testdataFactory.createTargetTypes("targettype", 1).get(0);
+        final Target target1 = testdataFactory.createTarget("target1", "testtarget1", targetType.getId());
+        final Target target2 = testdataFactory.createTarget("target2", "testtarget2", targetType.getId());
+
+        targetManagement.unassignType(List.of(target1.getControllerId(), target2.getControllerId()));
+
+        assertThat(targetRepository.findById(target1.getId())).hasValueSatisfying(
+                target -> assertThat(target.getTargetType()).isNull());
+        assertThat(targetRepository.findById(target2.getId())).hasValueSatisfying(
+                target -> assertThat(target.getTargetType()).isNull());
     }
 
     @Test

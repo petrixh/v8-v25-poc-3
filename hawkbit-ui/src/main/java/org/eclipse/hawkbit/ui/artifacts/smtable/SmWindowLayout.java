@@ -17,12 +17,13 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTypeInfo;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Target add/update window layout.
@@ -35,7 +36,7 @@ public class SmWindowLayout extends AbstractEntityWindowLayout<ProxySoftwareModu
     private final TextField smVersion;
     private final TextField smVendor;
     private final TextArea smDescription;
-    private final CheckBox artifactEncryption;
+    private final Checkbox artifactEncryption;
 
     /**
      * Constructor for AbstractTagWindowLayout
@@ -64,25 +65,25 @@ public class SmWindowLayout extends AbstractEntityWindowLayout<ProxySoftwareModu
      * @return software module window layout
      */
     @Override
-    public ComponentContainer getRootComponent() {
+    public Component getRootComponent() {
         final FormLayout smWindowLayout = new FormLayout();
 
-        smWindowLayout.setSpacing(true);
-        smWindowLayout.setMargin(true);
+        // Vaadin 8 FormLayout: one column; Flow has no spacing/margin here
+        smWindowLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
         smWindowLayout.setSizeUndefined();
 
-        smWindowLayout.addComponent(smTypeSelect);
+        smWindowLayout.add(smTypeSelect);
 
-        smWindowLayout.addComponent(smName);
+        smWindowLayout.add(smName);
         smName.focus();
 
-        smWindowLayout.addComponent(smVersion);
+        smWindowLayout.add(smVersion);
 
-        smWindowLayout.addComponent(smVendor);
+        smWindowLayout.add(smVendor);
 
-        smWindowLayout.addComponent(smDescription);
+        smWindowLayout.add(smDescription);
 
-        smWindowLayout.addComponent(artifactEncryption);
+        smWindowLayout.add(artifactEncryption);
 
         return smWindowLayout;
     }

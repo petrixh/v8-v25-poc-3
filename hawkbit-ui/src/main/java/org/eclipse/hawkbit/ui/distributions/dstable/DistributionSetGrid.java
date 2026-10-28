@@ -100,7 +100,7 @@ public class DistributionSetGrid extends AbstractDsGrid<DsDistributionsFilterPar
     }
 
     private void initStyleGenerator() {
-        setStyleGenerator(DistributionSetGrid::getRowStyle);
+        setPartNameGenerator(DistributionSetGrid::getRowStyle);
     }
 
     private static String getRowStyle(final ProxyDistributionSet ds) {
@@ -122,7 +122,7 @@ public class DistributionSetGrid extends AbstractDsGrid<DsDistributionsFilterPar
 
     @Override
     public void addColumns() {
-        addNameColumn().setExpandRatio(2);
+        addNameColumn().setFlexGrow(2);
         addVersionColumn();
         addDeleteColumn();
     }

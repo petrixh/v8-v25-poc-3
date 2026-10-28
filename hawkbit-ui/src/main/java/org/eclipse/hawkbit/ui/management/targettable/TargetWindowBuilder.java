@@ -18,7 +18,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 
 /**
  * Builder for target window
@@ -62,14 +62,14 @@ public class TargetWindowBuilder extends AbstractEntityWindowBuilder<ProxyTarget
     }
 
     @Override
-    public Window getWindowForAdd() {
+    public Dialog getWindowForAdd() {
         return getWindowForNewEntity(new AddTargetWindowController(uiDependencies, targetManagement,
                 new TargetWindowLayout(getI18n(), targetTypeManagement), view, contextAware));
 
     }
 
     @Override
-    public Window getWindowForUpdate(final ProxyTarget proxyTarget) {
+    public Dialog getWindowForUpdate(final ProxyTarget proxyTarget) {
         return getWindowForEntity(proxyTarget, new UpdateTargetWindowController(uiDependencies, targetManagement,
                 new TargetWindowLayout(getI18n(), targetTypeManagement), contextAware));
     }

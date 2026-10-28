@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
@@ -32,16 +32,16 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.dnd.DropTargetExtension;
-import com.vaadin.ui.dnd.event.DropEvent;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.dnd.DropTarget;
+
+import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionGridDragSource;
 
 /**
  * Allows to drop a Distribution Set in order to filter for it
@@ -90,7 +90,7 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
         final HorizontalLayout dropArea = new HorizontalLayout();
 
         dropArea.setId(UIComponentIdProvider.TARGET_DROP_FILTER_ICON);
-        dropArea.setStyleName("target-dist-filter-info");
+        dropArea.setClassName("target-dist-filter-info");
         dropArea.setSizeUndefined();
 
         return dropArea;
@@ -99,12 +99,12 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
     private HorizontalLayout buildDsDropArea() {
         final HorizontalLayout hintDropFilterLayout = new HorizontalLayout();
 
-        hintDropFilterLayout.addStyleName("filter-drop-hint-layout");
-        hintDropFilterLayout.setWidth(100, Unit.PERCENTAGE);
+        hintDropFilterLayout.addClassNames("filter-drop-hint-layout");
+        hintDropFilterLayout.setWidth("100%");
 
-        final DropTargetExtension<HorizontalLayout> dropExtension = new DropTargetExtension<>(hintDropFilterLayout);
+        final DropTarget<HorizontalLayout> dropExtension = DropTarget.create(hintDropFilterLayout);
         dropExtension.addDropListener(event -> {
-            final List<ProxyDistributionSet> dSets = getDroppedDistributionSets(event);
+            final List<ProxyDistributionSet> dSets = getDroppedDistributionSets();
             if (dSets.size() == 1) {
                 final ProxyDistributionSet droppedDs = dSets.get(0);
                 addDsFilterDropAreaTextField(droppedDs.getNameVersion());
@@ -117,16 +117,18 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
             }
         });
 
-        hintDropFilterLayout.addComponent(currentDsFilterInfo);
-        hintDropFilterLayout.setComponentAlignment(currentDsFilterInfo, Alignment.TOP_CENTER);
-        hintDropFilterLayout.setExpandRatio(currentDsFilterInfo, 1.0F);
+        hintDropFilterLayout.add(currentDsFilterInfo);
+        hintDropFilterLayout.setVerticalComponentAlignment(Alignment.START, currentDsFilterInfo);
+        hintDropFilterLayout.setFlexGrow(1.0F, currentDsFilterInfo);
 
         return hintDropFilterLayout;
     }
 
-    private static List<ProxyDistributionSet> getDroppedDistributionSets(final DropEvent<?> dropEvent) {
+    // Vaadin 8: the drop event's drag source extension; Flow: the grid drag in
+    // progress in this UI (RangeSelectionGridDragSource keeps its drag data)
+    private static List<ProxyDistributionSet> getDroppedDistributionSets() {
         final List<ProxyDistributionSet> list = new ArrayList<>();
-        dropEvent.getDragSourceExtension().ifPresent(dragSource -> {
+        RangeSelectionGridDragSource.getActiveDragSource(UI.getCurrent()).ifPresent(dragSource -> {
             final Object dragData = dragSource.getDragData();
             if (dragData instanceof ProxyDistributionSet) {
                 list.add((ProxyDistributionSet) dragData);
@@ -142,19 +144,19 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
 
     private void addDsFilterDropAreaTextField(final String dsNameAndVersion) {
         final Button filterLabelClose = SPUIComponentProvider.getButton("drop.filter.close", "", "", "", true,
-                VaadinIcons.CLOSE_CIRCLE, SPUIButtonStyleNoBorder.class);
+                VaadinIcon.CLOSE_CIRCLE, SPUIButtonStyleNoBorder.class);
         filterLabelClose.addClickListener(event -> removeFilter());
 
-        final Label filteredDistLabel = new Label();
-        filteredDistLabel.setStyleName(ValoTheme.LABEL_COLORED + " " + ValoTheme.LABEL_SMALL);
-        filteredDistLabel.setValue(sanitizeDsNameVersion(dsNameAndVersion));
+        final Span filteredDistLabel = new Span();
+        filteredDistLabel.setClassName("colored" + " " + "small");
+        filteredDistLabel.setText(sanitizeDsNameVersion(dsNameAndVersion));
         filteredDistLabel.setSizeUndefined();
 
-        currentDsFilterInfo.removeAllComponents();
+        currentDsFilterInfo.removeAll();
         currentDsFilterInfo.setSizeFull();
-        currentDsFilterInfo.addComponent(filteredDistLabel);
-        currentDsFilterInfo.addComponent(filterLabelClose);
-        currentDsFilterInfo.setExpandRatio(filteredDistLabel, 1.0F);
+        currentDsFilterInfo.add(filteredDistLabel);
+        currentDsFilterInfo.add(filterLabelClose);
+        currentDsFilterInfo.setFlexGrow(1.0F, filteredDistLabel);
     }
 
     private void removeFilter() {
@@ -167,7 +169,7 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
      * Remove the components from current distribution set filter info
      */
     public void reset() {
-        currentDsFilterInfo.removeAllComponents();
+        currentDsFilterInfo.removeAll();
         currentDsFilterInfo.setSizeUndefined();
 
         targetGridLayoutUiState.setFilterDsInfo(null);

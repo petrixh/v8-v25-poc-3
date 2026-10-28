@@ -9,7 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag.targettype;
 
-import com.vaadin.ui.Window;
+import com.vaadin.flow.component.dialog.Dialog;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.TargetTypeManagement;
 import org.eclipse.hawkbit.ContextAware;
@@ -56,7 +56,7 @@ public class TargetTypeWindowBuilder extends AbstractEntityWindowBuilder<ProxyTa
     }
 
     @Override
-    public Window getWindowForAdd() {
+    public Dialog getWindowForAdd() {
         CommonDialogWindow window = getWindowForNewEntity(new AddTargetTypeWindowController(uiDependencies,
                 targetTypeManagement, new TargetTypeWindowLayout(uiDependencies, dsTypeManagement), contextAware));
         window.hideMandatoryExplanation();
@@ -64,7 +64,7 @@ public class TargetTypeWindowBuilder extends AbstractEntityWindowBuilder<ProxyTa
     }
 
     @Override
-    public Window getWindowForUpdate(final ProxyTargetType proxyType) {
+    public Dialog getWindowForUpdate(final ProxyTargetType proxyType) {
         CommonDialogWindow window = getWindowForEntity(proxyType, new UpdateTargetTypeWindowController(uiDependencies,
                 targetTypeManagement, new TargetTypeWindowLayout(uiDependencies, dsTypeManagement), contextAware));
         window.hideMandatoryExplanation();

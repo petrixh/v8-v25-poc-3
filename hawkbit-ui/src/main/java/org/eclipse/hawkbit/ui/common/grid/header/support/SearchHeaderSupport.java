@@ -20,12 +20,12 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Header support for search functionality
@@ -81,7 +81,7 @@ public class SearchHeaderSupport implements HeaderSupport {
         searchInput.addValueChangeListener(event -> {
             // we do not want to send the event during state restore, so we
             // react only on user input
-            if (event.isUserOriginated()) {
+            if (event.isFromClient()) {
                 searchByCallback.accept(event.getValue());
             }
         });
@@ -91,7 +91,7 @@ public class SearchHeaderSupport implements HeaderSupport {
 
     private Button createSearchResetIcon() {
         final Button searchResetButton = SPUIComponentProvider.getButton(searchResetIconId, "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH), null, false, VaadinIcons.SEARCH,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH), null, false, VaadinIcon.SEARCH,
                 SPUIButtonStyleNoBorder.class);
 
         searchResetButton.addClickListener(event -> onSearchResetClick());
@@ -110,9 +110,9 @@ public class SearchHeaderSupport implements HeaderSupport {
     }
 
     private void openSearchTextField() {
-        searchResetIcon.setIcon(VaadinIcons.CLOSE);
-        searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_RESET));
-        searchResetIcon.addStyleNames(SPUIDefinitions.FILTER_RESET_ICON, MODE_SEARCH_INPUT);
+        searchResetIcon.setIcon(VaadinIcon.CLOSE.create());
+        searchResetIcon.setTooltipText(i18n.getMessage(UIMessageIdProvider.TOOLTIP_RESET));
+        searchResetIcon.addClassNames(SPUIDefinitions.FILTER_RESET_ICON, MODE_SEARCH_INPUT);
 
         searchField.setVisible(true);
         searchField.focus();
@@ -121,9 +121,9 @@ public class SearchHeaderSupport implements HeaderSupport {
     }
 
     private void closeSearchTextField() {
-        searchResetIcon.setIcon(VaadinIcons.SEARCH);
-        searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH));
-        searchResetIcon.removeStyleNames(SPUIDefinitions.FILTER_RESET_ICON, MODE_SEARCH_INPUT);
+        searchResetIcon.setIcon(VaadinIcon.SEARCH.create());
+        searchResetIcon.setTooltipText(i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH));
+        searchResetIcon.removeClassNames(SPUIDefinitions.FILTER_RESET_ICON, MODE_SEARCH_INPUT);
 
         searchField.setValue("");
         searchField.setVisible(false);
@@ -183,17 +183,17 @@ public class SearchHeaderSupport implements HeaderSupport {
     @Override
     public Component getHeaderComponent() {
         final HorizontalLayout headerIconLayout = new HorizontalLayout();
-        headerIconLayout.setMargin(false);
+        headerIconLayout.setPadding(false);
         headerIconLayout.setSpacing(false);
         headerIconLayout.setWidthFull();
 
-        headerIconLayout.addComponent(searchField);
-        headerIconLayout.setComponentAlignment(searchField, Alignment.TOP_RIGHT);
-        headerIconLayout.setExpandRatio(searchField, 1.0F);
+        headerIconLayout.add(searchField);
+        headerIconLayout.setVerticalComponentAlignment(Alignment.START, searchField);
+        headerIconLayout.setFlexGrow(1.0F, searchField);
 
-        headerIconLayout.addComponent(searchResetIcon);
-        headerIconLayout.setComponentAlignment(searchResetIcon, Alignment.TOP_RIGHT);
-        headerIconLayout.setExpandRatio(searchResetIcon, 0F);
+        headerIconLayout.add(searchResetIcon);
+        headerIconLayout.setVerticalComponentAlignment(Alignment.START, searchResetIcon);
+        headerIconLayout.setFlexGrow(0F, searchResetIcon);
 
         // hidden by default
         searchField.setVisible(false);
