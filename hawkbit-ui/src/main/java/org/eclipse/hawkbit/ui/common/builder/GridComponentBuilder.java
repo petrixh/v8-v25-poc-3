@@ -36,6 +36,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.HeaderRow;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.ValueProvider;
@@ -505,8 +506,12 @@ public final class GridComponentBuilder {
             column.setResizable(false);
         });
         // Flow cannot join cells in the first header row (Vaadin 8's default row, the one with the column
-        // captions; HeaderRow.join throws): the caption goes into the first column's cell, the others stay empty
-        headerRow.getCell(columns.get(0)).setText(headerCaption);
+        // captions; HeaderRow.join throws): the caption goes into the first column's cell, the others stay empty.
+        // The cell clips its text to the 30 px column, so the caption is a component the theme lets out over the
+        // next columns (hawkbit.css .joined-header-caption)
+        final Span caption = new Span(headerCaption);
+        caption.addClassName("joined-header-caption");
+        headerRow.getCell(columns.get(0)).setComponent(caption);
         columns.stream().skip(1).forEach(column -> headerRow.getCell(column).setText(""));
     }
 

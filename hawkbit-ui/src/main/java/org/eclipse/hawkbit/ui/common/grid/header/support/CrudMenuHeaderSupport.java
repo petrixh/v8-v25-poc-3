@@ -15,6 +15,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.shared.Registration;
 
@@ -90,6 +91,9 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
         menuBar.setId(crudMenuBarId);
         menuBar.setClassName("borderless");
         menuBar.addClassNames("crud-menubar");
+        // Vaadin 8: a borderless icon menu; with the default variant the item is wider than the header leaves and
+        // moves into the overflow "..."
+        menuBar.addThemeVariants(MenuBarVariant.LUMO_TERTIARY, MenuBarVariant.LUMO_ICON);
 
         return menuBar;
     }
