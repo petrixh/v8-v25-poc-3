@@ -45,6 +45,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.HasErrorParameter;
 import com.vaadin.flow.router.InvalidLocationException;
+import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
@@ -305,12 +306,24 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
          * becomes one encoded path segment that matches no route.
          */
         private static void forwardOldAddress(final UI ui, final String oldState) {
+            String path = oldState;
             try {
-                ui.navigate(oldState);
+                new Location(oldState);
             } catch (final InvalidLocationException e) {
                 LOG.debug("Old address {} is not a valid path, showing the error view", oldState, e);
-                ui.navigate(URLEncoder.encode(oldState, StandardCharsets.UTF_8));
+                path = URLEncoder.encode(oldState, StandardCharsets.UTF_8);
             }
+            // A page load of the new address, not ui.navigate: the page is loaded with the server-side navigation
+            // (eagerServerLoad, E006), and a client navigation sent in its first response is overridden by the
+            // client's own initial navigation to /UI/. The page load also answers 404 for an unknown view.
+            // An address that would leave the UI (another origin, a scheme, a path outside /UI/) is made one encoded segment.
+            ui.getPage().executeJs("""
+                    const base = new URL(document.baseURI);
+                    let target = new URL($0, base);
+                    if (target.origin !== base.origin || !target.pathname.startsWith(base.pathname)) {
+                        target = new URL(encodeURIComponent($0), base);
+                    }
+                    window.location.replace(target);""", path);
         }
     }
 }
