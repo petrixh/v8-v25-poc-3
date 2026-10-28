@@ -10,6 +10,7 @@
 package org.eclipse.hawkbit.ui.artifacts.smtable;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
+import org.eclipse.hawkbit.ui.common.builder.WindowFormLayout;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToTypeInfoMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleTypeDataProvider;
@@ -21,7 +22,6 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 
@@ -66,10 +66,8 @@ public class SmWindowLayout extends AbstractEntityWindowLayout<ProxySoftwareModu
      */
     @Override
     public Component getRootComponent() {
-        final FormLayout smWindowLayout = new FormLayout();
+        final FormLayout smWindowLayout = new WindowFormLayout();
 
-        // Vaadin 8 FormLayout: one column; Flow has no spacing/margin here
-        smWindowLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
         smWindowLayout.setSizeUndefined();
 
         smWindowLayout.add(smTypeSelect);

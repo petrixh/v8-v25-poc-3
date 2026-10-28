@@ -14,6 +14,7 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
+import org.eclipse.hawkbit.ui.common.builder.WindowFormLayout;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToTypeInfoMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
@@ -25,7 +26,6 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 
@@ -83,10 +83,8 @@ public class DsWindowLayout extends AbstractEntityWindowLayout<ProxyDistribution
 
     @Override
     public Component getRootComponent() {
-        final FormLayout dsWindowLayout = new FormLayout();
+        final FormLayout dsWindowLayout = new WindowFormLayout();
 
-        // Vaadin 8 FormLayout: one column; Flow has no spacing/margin here
-        dsWindowLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
         dsWindowLayout.setSizeUndefined();
 
         dsWindowLayout.add(dsTypeSelect);

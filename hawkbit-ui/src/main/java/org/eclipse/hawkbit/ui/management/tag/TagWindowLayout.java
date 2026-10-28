@@ -9,6 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.management.tag;
 
+import org.eclipse.hawkbit.ui.common.builder.WindowFormLayout;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyFilterButton;
@@ -16,7 +17,6 @@ import org.eclipse.hawkbit.ui.components.ColorPickerComponent;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
@@ -69,9 +69,7 @@ public class TagWindowLayout<T extends ProxyFilterButton> extends AbstractEntity
     }
 
     protected FormLayout buildFormLayout() {
-        final FormLayout formLayout = new FormLayout();
-        // Vaadin 8 FormLayout: one column; Flow has no spacing/margin here
-        formLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
+        final FormLayout formLayout = new WindowFormLayout();
 
         formLayout.add(tagName);
         tagName.focus();

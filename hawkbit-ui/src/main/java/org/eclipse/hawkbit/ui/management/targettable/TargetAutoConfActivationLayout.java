@@ -13,6 +13,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.UI;
 import org.eclipse.hawkbit.repository.ConfirmationManagement;
+import org.eclipse.hawkbit.ui.common.builder.WindowFormLayout;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
@@ -23,7 +24,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 
@@ -65,9 +65,7 @@ public class TargetAutoConfActivationLayout extends AbstractEntityWindowLayout<P
 
     @Override
     public Component getRootComponent() {
-        final FormLayout autoConfirmationLayout = new FormLayout();
-        // Vaadin 8 FormLayout: one column; Flow has no spacing/margin here
-        autoConfirmationLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
+        final FormLayout autoConfirmationLayout = new WindowFormLayout();
         autoConfirmationLayout.setSizeUndefined();
 
         autoConfirmationLayout.add(initiator);
