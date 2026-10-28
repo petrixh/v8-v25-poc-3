@@ -76,7 +76,7 @@ public interface TargetTagManagement {
      *             {@link TagCreate} for field constraints.
      */
     @PreAuthorize(SpringEvalExpressions.HAS_AUTH_CREATE_TARGET)
-    List<TargetTag> create(@NotNull @Valid Collection<TagCreate> creates);
+    List<TargetTag> create(@NotNull Collection<@Valid TagCreate> creates);
 
     /**
      * Deletes {@link TargetTag} with given name.

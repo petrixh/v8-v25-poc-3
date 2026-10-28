@@ -81,7 +81,7 @@ public interface SoftwareModuleManagement
      *             entries is exceeded for the addressed {@link SoftwareModule}
      */
     @PreAuthorize(SpringEvalExpressions.HAS_AUTH_UPDATE_REPOSITORY)
-    List<SoftwareModuleMetadata> createMetaData(@NotNull @Valid Collection<SoftwareModuleMetadataCreate> metadata);
+    List<SoftwareModuleMetadata> createMetaData(@NotNull Collection<@Valid SoftwareModuleMetadataCreate> metadata);
 
     /**
      * Creates or updates a single software module meta data entry.

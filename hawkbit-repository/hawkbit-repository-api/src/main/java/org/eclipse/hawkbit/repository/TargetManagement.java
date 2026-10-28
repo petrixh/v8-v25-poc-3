@@ -238,7 +238,7 @@ public interface TargetManagement {
      *             for field constraints.
      */
     @PreAuthorize(SpringEvalExpressions.HAS_AUTH_CREATE_TARGET)
-    List<Target> create(@NotNull @Valid Collection<TargetCreate> creates);
+    List<Target> create(@NotNull Collection<@Valid TargetCreate> creates);
 
     /**
      * Deletes all targets with the given IDs.
