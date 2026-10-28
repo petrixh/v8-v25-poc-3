@@ -1074,7 +1074,7 @@ public class RepositoryApplicationConfiguration extends JpaBaseConfiguration {
     }
 
     @Bean
-    public BeanPostProcessor entityManagerBeanPostProcessor(
+    public static BeanPostProcessor entityManagerBeanPostProcessor(
             @Autowired(required = false) final AccessController<JpaArtifact> artifactAccessController,
             @Autowired(required = false) final AccessController<JpaSoftwareModuleType> softwareModuleTypeAccessController,
             @Autowired(required = false) final AccessController<JpaSoftwareModule> softwareModuleAccessController,
