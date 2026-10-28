@@ -14,6 +14,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +33,7 @@ import org.eclipse.hawkbit.im.authentication.TenantAwareAuthenticationDetails;
 import org.eclipse.hawkbit.security.SecurityContextTenantAware;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -70,6 +73,10 @@ class ExecutorSecurityContextPropagationTest {
             .withUserConfiguration(ExecutorAutoConfiguration.class);
 
     private RecordingStrategy installed;
+
+    // Flow keeps the current VaadinSession only weakly: hold the mocks for the
+    // whole test, or the garbage collector may drop them mid-test
+    private final List<VaadinSession> vaadinSessions = new ArrayList<>();
 
     @BeforeEach
     void defaultStrategyWhileExecutorsAreBuilt() {
@@ -164,6 +171,117 @@ class ExecutorSecurityContextPropagationTest {
         });
     }
 
+    @Test
+    @Description("1B-32: on a uiExecutor thread a bulk upload left a Vaadin session on (BR-011(d)), later tasks see their own submitter, never that session's user")
+    void uiExecutorThreadWithStaleVaadinSession() {
+        contextRunner.run(ctx -> {
+            installUiStrategy();
+            final Executor uiExecutor = ctx.getBean("uiExecutor", Executor.class);
+            final VaadinSession sessionA = vaadinSessionHolding(new AtomicReference<>(context("userA")));
+            final AtomicReference<Thread> worker = new AtomicReference<>();
+            try {
+                // as BulkUploadHandler.UploadAsync: the task makes the
+                // submitter's Vaadin session current and leaves it there
+                VaadinSession.setCurrent(sessionA);
+                runAndWait(uiExecutor, () -> {
+                    worker.set(Thread.currentThread());
+                    VaadinSession.setCurrent(sessionA);
+                });
+
+                assertLaterTasksSeeOnlyTheirSubmitter(uiExecutor, worker.get());
+            } finally {
+                runAndWait(uiExecutor, () -> VaadinSession.setCurrent(null));
+            }
+        });
+    }
+
+    @Test
+    @Description("1B-29: the same browser session logs in again while a pooled thread runs a switched block; the thread keeps the old user until the task ends, as the old thread-local holder did, and no later task sees it")
+    void uiExecutorThreadAfterReloginDuringSwitch() {
+        contextRunner.run(ctx -> {
+            installUiStrategy();
+            final Executor uiExecutor = ctx.getBean("uiExecutor", Executor.class);
+            final SecurityContext userA = context("userA");
+            final AtomicReference<SecurityContext> sessionContext = new AtomicReference<>(userA);
+            final VaadinSession session = vaadinSessionHolding(sessionContext);
+            final AtomicReference<Thread> worker = new AtomicReference<>();
+            final AtomicReference<String> afterSwitch = new AtomicReference<>();
+            try {
+                VaadinSession.setCurrent(session);
+                runAndWait(uiExecutor, () -> {
+                    worker.set(Thread.currentThread());
+                    // as the artifact and bulk uploads: the session is current on the worker
+                    VaadinSession.setCurrent(session);
+                    // as SystemSecurityContext.runAsSystem
+                    final SecurityContext before = SecurityContextHolder.getContext();
+                    SecurityContextHolder.setContext(context(SecurityContextTenantAware.SYSTEM_USER));
+                    try {
+                        // another tab of the same browser session logs in as userB
+                        sessionContext.set(context("userB"));
+                    } finally {
+                        SecurityContextHolder.setContext(before);
+                    }
+                    afterSwitch.set(SecurityContextHolder.getContext().getAuthentication().getName());
+                });
+                assertThat(afterSwitch.get()).as("rest of the task after the switch (old app: userA, thread-local)")
+                        .isEqualTo("userA");
+
+                assertLaterTasksSeeOnlyTheirSubmitter(uiExecutor, worker.get());
+
+                VaadinSession.setCurrent(session);
+                assertThat(userSeenBy(uiExecutor, worker.get())).as("task submitted from the re-logged-in session")
+                        .isEqualTo("userB");
+            } finally {
+                runAndWait(uiExecutor, () -> VaadinSession.setCurrent(null));
+            }
+        });
+    }
+
+    /**
+     * Tasks from another user's request, from a thread with no user and from a
+     * switched (system) context, on the given worker thread, see exactly their
+     * submitter.
+     */
+    private void assertLaterTasksSeeOnlyTheirSubmitter(final Executor executor, final Thread worker)
+            throws Exception {
+        VaadinSession.setCurrent(vaadinSessionHolding(new AtomicReference<>(context("userC"))));
+        assertThat(userSeenBy(executor, worker)).as("task of another user's request").isEqualTo("userC");
+
+        VaadinSession.setCurrent(null);
+        SecurityContextHolder.clearContext();
+        assertThat(userSeenBy(executor, worker)).as("task of a submitter with no user").isNull();
+
+        SecurityContextHolder.setContext(context(SecurityContextTenantAware.SYSTEM_USER));
+        try {
+            assertThat(userSeenBy(executor, worker)).as("task submitted inside runAsSystem")
+                    .isEqualTo(SecurityContextTenantAware.SYSTEM_USER);
+        } finally {
+            SecurityContextHolder.clearContext();
+        }
+    }
+
+    private static String userSeenBy(final Executor executor, final Thread expectedWorker) throws Exception {
+        final AtomicReference<Thread> worker = new AtomicReference<>();
+        final AtomicReference<String> seenUser = new AtomicReference<>();
+        runAndWait(executor, () -> {
+            worker.set(Thread.currentThread());
+            final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            seenUser.set(authentication == null ? null : authentication.getName());
+        });
+        assertThat(worker.get()).as("task ran on the same pooled thread").isSameAs(expectedWorker);
+        return seenUser.get();
+    }
+
+    private VaadinSession vaadinSessionHolding(final AtomicReference<SecurityContext> sessionContext) {
+        final VaadinSession vaadinSession = mock(VaadinSession.class);
+        vaadinSessions.add(vaadinSession);
+        final WrappedSession httpSession = mock(WrappedSession.class);
+        when(vaadinSession.getSession()).thenReturn(httpSession);
+        when(httpSession.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY))
+                .thenAnswer(invocation -> sessionContext.get());
+        return vaadinSession;
+    }
+
     private void assertTaskSeesAndCleansUp(final ApplicationContext ctx, final Submitter submitter,
             final String expectedUser) throws Exception {
         final AtomicReference<String> seenUser = new AtomicReference<>();
@@ -191,8 +309,9 @@ class ExecutorSecurityContextPropagationTest {
         SecurityContextHolder.setContextHolderStrategy(installed);
     }
 
-    private static WrappedSession currentVaadinSession() {
+    private WrappedSession currentVaadinSession() {
         final VaadinSession vaadinSession = mock(VaadinSession.class);
+        vaadinSessions.add(vaadinSession);
         final WrappedSession httpSession = mock(WrappedSession.class);
         when(vaadinSession.getSession()).thenReturn(httpSession);
         VaadinSession.setCurrent(vaadinSession);
