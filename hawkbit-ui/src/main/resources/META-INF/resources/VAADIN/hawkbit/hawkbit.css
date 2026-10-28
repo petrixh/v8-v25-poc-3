@@ -433,3 +433,259 @@ html {
     --vaadin-input-field-required-indicator-color: #ed473b;
 }
 /* ==== end of 2a-04 ==== */
+
+/*
+ * ==== Detail tabs, rollout groups chart, status icons and bars (2a-06) ====
+ * Values from table-common.scss, common.scss, rollout.scss, others.scss, grid.scss, statusprogressbar.scss and
+ * hawkbitvariables.scss, and Valo's framed tab sheet as the old app drew it. Only the app's own class names,
+ * part names from the grids' part name generators, documented parts and custom properties.
+ */
+
+/*
+ * Detail tabs (table-common.scss .details-tab, .details-layout; common.scss tab captions; Valo framed and
+ * compact tab bar): framed tabs in $tab-sheet-caption-color on a bordered content box, captions at
+ * $details-tab-caption-font-scale, detail text in $table-details-tab-font-color, and every tab's content
+ * 116px high with 12px padding, scrolling inside itself.
+ */
+.details-tab {
+    margin: 5px;
+    color: #551f62;
+}
+
+vaadin-tabsheet.framed::part(tabs-container) {
+    padding: 0;
+    box-shadow: inset 0 -1px 0 0 #dfdfdf;
+}
+
+vaadin-tabsheet.framed > vaadin-tabs {
+    margin: 0;
+    min-height: 0;
+}
+
+vaadin-tabsheet.framed vaadin-tab {
+    border: 1px solid #dfdfdf;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    background-color: #fafafa;
+    font-weight: 400;
+    padding: 4px 12px;
+    margin-right: 2px;
+}
+
+vaadin-tabsheet.framed vaadin-tab[selected] {
+    background-color: #fff;
+}
+
+vaadin-tabsheet.framed::part(content) {
+    border: 1px solid #dfdfdf;
+    border-top: none;
+    --vaadin-scroller-padding-block: 0px;
+    --vaadin-scroller-padding-inline: 0px;
+}
+
+vaadin-tabsheet vaadin-tab {
+    color: #551f62;
+}
+
+.details-tab vaadin-tab {
+    font-size: var(--lumo-font-size-s);
+}
+
+.details-layout {
+    height: 116px;
+    padding: 12px;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+/* key-value rows: one text line apart (a custom field is as high as an input field by default) */
+.details-layout vaadin-custom-field {
+    color: inherit;
+    line-height: var(--lumo-line-height-m);
+    --vaadin-vertical-layout-gap: calc(var(--lumo-space-s) + var(--lumo-space-xs));
+}
+
+/*
+ * Rollout window: groups pie chart, its legend and the advanced group names (rollout.scss). The first slice
+ * is the unassigned targets; the group colours repeat after 16 groups.
+ */
+.groups-pie-chart svg .pie { stroke: #fff; }
+.groups-pie-chart svg .pie:nth-child(1) { fill: #cbcbcb; }
+.groups-pie-chart svg .pie:nth-child(16n+2) { fill: #e20015; }
+.groups-pie-chart svg .pie:nth-child(16n+3) { fill: #b90276; }
+.groups-pie-chart svg .pie:nth-child(16n+4) { fill: #50237f; }
+.groups-pie-chart svg .pie:nth-child(16n+5) { fill: #005691; }
+.groups-pie-chart svg .pie:nth-child(16n+6) { fill: #008ecf; }
+.groups-pie-chart svg .pie:nth-child(16n+7) { fill: #00a8b0; }
+.groups-pie-chart svg .pie:nth-child(16n+8) { fill: #78be20; }
+.groups-pie-chart svg .pie:nth-child(16n+9) { fill: #006249; }
+.groups-pie-chart svg .pie:nth-child(16n+10) { fill: #f07f8a; }
+.groups-pie-chart svg .pie:nth-child(16n+11) { fill: #dc80ba; }
+.groups-pie-chart svg .pie:nth-child(16n+12) { fill: #a791bf; }
+.groups-pie-chart svg .pie:nth-child(16n+13) { fill: #7faac8; }
+.groups-pie-chart svg .pie:nth-child(16n+14) { fill: #7fc6e7; }
+.groups-pie-chart svg .pie:nth-child(16n+15) { fill: #7fd3d7; }
+.groups-pie-chart svg .pie:nth-child(16n+16) { fill: #bbde8f; }
+.groups-pie-chart svg .pie:nth-child(16n+17) { fill: #7fb0a4; }
+
+.groups-pie-chart svg .pie-info rect { fill: rgba(255, 255, 255, 0.6); }
+.groups-pie-chart svg .pie-info text { font-size: 12px; font-weight: bold; fill: #551f62; }
+
+.rollout-target-count-message { color: #b8b8b8; }
+.rollout-target-count-loading { color: #ed473b; }
+
+.rollout-group-unassigned {
+    border-left: 5px solid #cbcbcb;
+    padding-left: 5px;
+    margin-bottom: 2px;
+    font-size: var(--lumo-font-size-xs);
+}
+
+.groups-legend > .rollout-group-count {
+    border-left: 5px solid transparent;
+    padding-left: 5px;
+    font-size: var(--lumo-font-size-xs);
+}
+
+.groups-legend > .rollout-group-count:nth-child(16n+1) { border-left-color: #e20015; }
+.groups-legend > .rollout-group-count:nth-child(16n+2) { border-left-color: #b90276; }
+.groups-legend > .rollout-group-count:nth-child(16n+3) { border-left-color: #50237f; }
+.groups-legend > .rollout-group-count:nth-child(16n+4) { border-left-color: #005691; }
+.groups-legend > .rollout-group-count:nth-child(16n+5) { border-left-color: #008ecf; }
+.groups-legend > .rollout-group-count:nth-child(16n+6) { border-left-color: #00a8b0; }
+.groups-legend > .rollout-group-count:nth-child(16n+7) { border-left-color: #78be20; }
+.groups-legend > .rollout-group-count:nth-child(16n+8) { border-left-color: #006249; }
+.groups-legend > .rollout-group-count:nth-child(16n+9) { border-left-color: #f07f8a; }
+.groups-legend > .rollout-group-count:nth-child(16n+10) { border-left-color: #dc80ba; }
+.groups-legend > .rollout-group-count:nth-child(16n+11) { border-left-color: #a791bf; }
+.groups-legend > .rollout-group-count:nth-child(16n+12) { border-left-color: #7faac8; }
+.groups-legend > .rollout-group-count:nth-child(16n+13) { border-left-color: #7fc6e7; }
+.groups-legend > .rollout-group-count:nth-child(16n+14) { border-left-color: #7fd3d7; }
+.groups-legend > .rollout-group-count:nth-child(16n+15) { border-left-color: #bbde8f; }
+.groups-legend > .rollout-group-count:nth-child(16n+16) { border-left-color: #7fb0a4; }
+
+/* advanced group definition: the n-th group's name field, in the same grid positions as the old theme */
+.rollout-groups .rollout-group-name { border-left: 5px solid #000; }
+.rollout-groups .rollout-group-name:nth-child(16n+8) { border-left-color: #e20015; }
+.rollout-groups .rollout-group-name:nth-child(16n+14) { border-left-color: #b90276; }
+.rollout-groups .rollout-group-name:nth-child(16n+20) { border-left-color: #50237f; }
+.rollout-groups .rollout-group-name:nth-child(16n+26) { border-left-color: #005691; }
+.rollout-groups .rollout-group-name:nth-child(16n+32) { border-left-color: #008ecf; }
+.rollout-groups .rollout-group-name:nth-child(16n+38) { border-left-color: #00a8b0; }
+.rollout-groups .rollout-group-name:nth-child(16n+44) { border-left-color: #78be20; }
+.rollout-groups .rollout-group-name:nth-child(16n+50) { border-left-color: #006249; }
+.rollout-groups .rollout-group-name:nth-child(16n+56) { border-left-color: #f07f8a; }
+.rollout-groups .rollout-group-name:nth-child(16n+62) { border-left-color: #dc80ba; }
+.rollout-groups .rollout-group-name:nth-child(16n+68) { border-left-color: #a791bf; }
+.rollout-groups .rollout-group-name:nth-child(16n+74) { border-left-color: #7faac8; }
+.rollout-groups .rollout-group-name:nth-child(16n+80) { border-left-color: #7fc6e7; }
+.rollout-groups .rollout-group-name:nth-child(16n+86) { border-left-color: #7fd3d7; }
+.rollout-groups .rollout-group-name:nth-child(16n+92) { border-left-color: #bbde8f; }
+.rollout-groups .rollout-group-name:nth-child(16n+98) { border-left-color: #7fb0a4; }
+
+/*
+ * Status icons and grid action icons (others.scss, grid.scss, table-common.scss). Status labels carry the
+ * status colour; action buttons take the cell's text colour (white in a selected row), the force-quit
+ * button is red. An unpinned target or set shows its pin turned by 90 degrees.
+ */
+.statusIconRed { color: #f00; }
+.statusIconBlue { color: #d5d5d5; }
+.statusIconYellow { color: #ff0; }
+.statusIconGreen { color: #6eb553; }
+.statusIconLightBlue { color: #3085cb; }
+
+vaadin-button.borderless-colored {
+    --vaadin-button-tertiary-text-color: currentColor;
+}
+
+vaadin-button.statusIconRed[disabled] {
+    opacity: 0.5;
+}
+
+vaadin-grid::part(rotate-widget-90-deg) {
+    --hawkbit-icon-rotate: 90deg;
+}
+
+vaadin-grid vaadin-button.icon-only > vaadin-icon {
+    rotate: var(--hawkbit-icon-rotate, 0deg);
+}
+
+/* status spinners (Valo valo-spinner): running, creating, starting and deleting rollouts, active actions */
+.redSpinner,
+.greySpinner,
+.yellowSpinner,
+.blueSpinner,
+.statusIconActive {
+    display: inline-block;
+    box-sizing: border-box;
+    width: 13px;
+    height: 13px;
+    vertical-align: middle;
+    border: 2px solid transparent;
+    border-radius: 100%;
+    border-top-color: var(--hawkbit-spinner-color);
+    border-right-color: var(--hawkbit-spinner-color);
+    animation: hawkbit-rotate-360 500ms infinite linear;
+}
+
+.redSpinner { --hawkbit-spinner-color: #f00; }
+.greySpinner { --hawkbit-spinner-color: #808080; }
+.yellowSpinner { --hawkbit-spinner-color: #ff0; }
+.blueSpinner { --hawkbit-spinner-color: #3085cb; }
+
+.statusIconActive {
+    width: 16px;
+    height: 16px;
+    animation-duration: 1200ms;
+    --hawkbit-spinner-color: var(--hawkbit-active-spinner-color, #551f62);
+}
+
+vaadin-grid::part(selected-row-cell) {
+    --hawkbit-active-spinner-color: #d5d5d5;
+}
+
+@keyframes hawkbit-rotate-360 {
+    to { transform: rotate(360deg); }
+}
+
+/*
+ * Rollout and group progress bar (statusprogressbar.scss; the dbar add-on's own styles are gone with the
+ * add-on, A1): one rounded bar, a part per status in the status colour, the count in white.
+ */
+.alump-dbar {
+    display: flex;
+    min-height: 24px;
+    margin-bottom: 3px;
+    white-space: nowrap;
+}
+
+.alump-dbar-part {
+    box-sizing: border-box;
+    min-width: 30px;
+    overflow: hidden;
+    color: #fff;
+    text-shadow: 1px 1px 1px #000, -0.5px -0.5px 0.5px #000;
+}
+
+.alump-dbar-left { border-radius: 15px 0 0 15px; }
+.alump-dbar-right { border-radius: 0 15px 15px 0; }
+.alump-dbar-only { border-radius: 15px; }
+
+.alump-dbar-value {
+    display: inline-block;
+    box-sizing: border-box;
+    max-width: 100%;
+    padding: 4px 5px 0 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: normal;
+}
+
+.alump-dbar .status-bar-part-scheduled { background-color: #3085cb; }
+.alump-dbar .status-bar-part-running { background-color: #ff0; }
+.alump-dbar .status-bar-part-error { background-color: #f00; }
+.alump-dbar .status-bar-part-finished { background-color: #6eb553; }
+.alump-dbar .status-bar-part-cancelled { background-color: #d5d5d5; }
+.alump-dbar .status-bar-part-notstarted { background-color: #808080; }
+
+/* ==== end of 2a-06 ==== */
