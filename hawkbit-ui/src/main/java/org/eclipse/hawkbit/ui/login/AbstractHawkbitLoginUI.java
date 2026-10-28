@@ -21,6 +21,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyLoginCredentials;
 import org.eclipse.hawkbit.ui.common.notification.ParallelNotification;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.themes.HawkbitTheme;
+import org.eclipse.hawkbit.ui.utils.FocusOnShow;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -146,6 +147,15 @@ public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements B
         binder.addStatusChangeListener(statusEvent -> signIn.setEnabled(statusEvent.getBinder().isValid()));
         binder.setBean(credentialsBean);
 
+        focusUsername();
+    }
+
+    /**
+     * The login page opens with the focus on the Username field (Vaadin 8 focused the disabled Sign in button, which
+     * a Flow button cannot take without a workaround; decision E024: the field, so typing works at once).
+     */
+    private void focusUsername() {
+        FocusOnShow.focus(username);
     }
 
     private void buildContent() {
@@ -265,7 +275,6 @@ public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements B
         signIn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
         signIn.addClassName("login-button");
         signIn.addClickShortcut(Key.ENTER);
-        signIn.focus();
         signIn.setId("login-signin");
 
         signIn.addClickListener(event -> handleLogin());

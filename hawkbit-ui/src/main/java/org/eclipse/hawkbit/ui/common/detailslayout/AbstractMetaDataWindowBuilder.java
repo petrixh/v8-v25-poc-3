@@ -44,9 +44,9 @@ public abstract class AbstractMetaDataWindowBuilder<F> extends AbstractEntityWin
             final F selectedEntityFilter, final String selectedEntityName, final ProxyMetaData proxyMetaData) {
         final CommonDialogWindow window = createWindow(metaDataWindowLayout, null);
 
-        // Vaadin 8: caption with an assistive prefix for screen readers (no
-        // public Flow API for the dialog's aria label)
-        window.setHeaderTitle(selectedEntityName);
+        // Vaadin 8: the caption was the name with the assistive prefix "Metadata of", which the
+        // old theme showed in the title
+        window.setHeaderTitle(getI18n().getMessage("caption.metadata.popup") + " " + selectedEntityName);
 
         metaDataWindowLayout.addValidationListener(window::setSaveButtonEnabled);
         metaDataWindowLayout.setSaveCallback(window::setCloseListener);

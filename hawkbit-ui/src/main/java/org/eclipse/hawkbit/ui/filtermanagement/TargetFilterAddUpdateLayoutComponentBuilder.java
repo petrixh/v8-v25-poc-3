@@ -115,8 +115,12 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
      * @return Save button
      */
     public Button createSaveButton() {
-        return SPUIComponentProvider.getButton(UIComponentIdProvider.CUSTOM_FILTER_SAVE_ICON,
-                UIComponentIdProvider.CUSTOM_FILTER_SAVE_ICON, i18n.getMessage(UIMessageIdProvider.TOOLTIP_SAVE), null,
+        // icon only (Vaadin 8: the ICON_ONLY style hid the caption); the id is not the text; the tooltip text is
+        // the accessible name
+        final Button saveButton = SPUIComponentProvider.getButton(UIComponentIdProvider.CUSTOM_FILTER_SAVE_ICON,
+                "", i18n.getMessage(UIMessageIdProvider.TOOLTIP_SAVE), null,
                 false, VaadinIcon.HARDDRIVE, SPUIButtonStyleNoBorder.class);
+        saveButton.setAriaLabel(i18n.getMessage(UIMessageIdProvider.TOOLTIP_SAVE));
+        return saveButton;
     }
 }
