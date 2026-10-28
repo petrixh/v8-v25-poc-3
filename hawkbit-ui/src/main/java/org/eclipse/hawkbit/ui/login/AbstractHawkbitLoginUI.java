@@ -21,6 +21,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyLoginCredentials;
 import org.eclipse.hawkbit.ui.common.notification.ParallelNotification;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.themes.HawkbitTheme;
+import org.eclipse.hawkbit.ui.utils.FocusOnShow;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -160,10 +161,7 @@ public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements B
         }
         final Binder<ProxyLoginCredentials> currentBinder = binder;
         signIn.setEnabled(true);
-        signIn.getElement().executeJs(
-                "return customElements.whenDefined('vaadin-button').then(() => this.updateComplete)"
-                        + ".then(() => new Promise(resolve => setTimeout(() => { this.focus(); resolve(); }, 0)));")
-                .then(result -> signIn.setEnabled(currentBinder.isValid()));
+        FocusOnShow.focus(signIn).then(result -> signIn.setEnabled(currentBinder.isValid()));
     }
 
     private void buildContent() {
