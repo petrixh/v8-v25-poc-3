@@ -9,8 +9,9 @@
  */
 package org.eclipse.hawkbit.ui;
 
-import java.net.URLEncoder;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Pattern;
 
 import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
 import org.eclipse.hawkbit.ui.menu.DashboardEvent.PostViewChangeEvent;
@@ -283,11 +284,21 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
 
         private static final String OLD_FRAGMENT_PREFIX = "!";
 
+        /**
+         * An old address that is no path inside the UI: a scheme, an empty,
+         * {@code .} or {@code ..} segment, a backslash, a semicolon or an encoded
+         * {@code / \ . % ;} (the server's firewall rejects such a path with 400).
+         */
+        private static final Pattern NOT_A_UI_PATH = Pattern
+                .compile("(?i)^[^/]*:|//|\\\\|;|%2f|%5c|%2e|%25|%3b|(^|/)\\.{1,2}(/|$)");
+
         private final DashboardMenu dashboardMenu;
+        private final VaadinMessageSource i18n;
 
         @Autowired
-        EmptyView(final DashboardMenu dashboardMenu) {
+        EmptyView(final DashboardMenu dashboardMenu, final VaadinMessageSource i18n) {
             this.dashboardMenu = dashboardMenu;
+            this.i18n = i18n;
         }
 
         @Override
@@ -296,27 +307,44 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
             // the fragment is never sent to the server: ask the browser
             ui.getPage().fetchCurrentURL(url -> {
                 final String fragment = url.getRef();
-                if (fragment != null && fragment.startsWith(OLD_FRAGMENT_PREFIX)) {
-                    forwardOldAddress(ui, fragment.substring(OLD_FRAGMENT_PREFIX.length()));
+                final String oldState = fragment != null && fragment.startsWith(OLD_FRAGMENT_PREFIX)
+                        ? fragment.substring(OLD_FRAGMENT_PREFIX.length())
+                        : null;
+                // Vaadin 8: the view name is the old address up to the first
+                // "/", read decoded; an empty one (#!//host) opens the start view
+                if (oldState != null && !decode(oldState).startsWith("/")) {
+                    forwardOldAddress(ui, oldState);
                 } else if (!dashboardMenu.isAccessibleViewsEmpty()) {
                     ui.navigate(dashboardMenu.getInitialViewName());
                 }
             });
         }
 
+        private static String decode(final String oldState) {
+            try {
+                return URLDecoder.decode(oldState.replace("+", "%2B"), StandardCharsets.UTF_8);
+            } catch (final IllegalArgumentException e) {
+                return oldState;
+            }
+        }
+
         /**
-         * An old address the router does not accept as a path (for example
-         * {@code #!//host} or {@code #!../x}) goes to the error view, as
-         * Vaadin 8 showed it for an unknown view name: the whole old state
-         * becomes one encoded path segment that matches no route.
+         * An old address that is no path inside the UI (for example
+         * {@code #!http://x} or {@code #!../x}) shows the error view's text here,
+         * in the shell, as Vaadin 8 showed it for an unknown view name: such an
+         * address cannot be forwarded as a path.
          */
-        private static void forwardOldAddress(final UI ui, final String oldState) {
-            String path = oldState;
+        private void forwardOldAddress(final UI ui, final String oldState) {
+            boolean path = !NOT_A_UI_PATH.matcher(oldState).find();
             try {
                 new Location(oldState);
             } catch (final InvalidLocationException e) {
-                LOG.debug("Old address {} is not a valid path, showing the error view", oldState, e);
-                path = URLEncoder.encode(oldState, StandardCharsets.UTF_8);
+                LOG.debug("Old address {} is not a valid path, showing the error view text", oldState, e);
+                path = false;
+            }
+            if (!path) {
+                add(new Span(i18n.getMessage("message.error.view", decode(oldState))));
+                return;
             }
             // A page load of the new address, not ui.navigate: the page is loaded with the server-side navigation
             // (eagerServerLoad, E006), and a client navigation sent in its first response is overridden by the
@@ -328,7 +356,7 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
                     if (target.origin !== base.origin || !target.pathname.startsWith(base.pathname)) {
                         target = new URL(encodeURIComponent($0), base);
                     }
-                    window.location.replace(target);""", path);
+                    window.location.replace(target);""", oldState);
         }
     }
 }
