@@ -444,12 +444,13 @@ public class RepositoryApplicationConfiguration extends JpaBaseConfiguration {
     }
 
     /**
-     * Defines the validation processor bean.
+     * Defines the validation processor bean. Static, so that the configuration class is not created early and stays
+     * eligible for all bean post processors (1B-63).
      *
      * @return the {@link MethodValidationPostProcessor}
      */
     @Bean
-    public MethodValidationPostProcessor methodValidationPostProcessor() {
+    public static MethodValidationPostProcessor methodValidationPostProcessor() {
         final MethodValidationPostProcessor processor = new MethodValidationPostProcessor();
         // ValidatorFactory shall NOT be closed because after closing the generated Validator
         // methods shall not be called - we need the validator in future
@@ -1073,7 +1074,7 @@ public class RepositoryApplicationConfiguration extends JpaBaseConfiguration {
     }
 
     @Bean
-    public BeanPostProcessor entityManagerBeanPostProcessor(
+    public static BeanPostProcessor entityManagerBeanPostProcessor(
             @Autowired(required = false) final AccessController<JpaArtifact> artifactAccessController,
             @Autowired(required = false) final AccessController<JpaSoftwareModuleType> softwareModuleTypeAccessController,
             @Autowired(required = false) final AccessController<JpaSoftwareModule> softwareModuleAccessController,
