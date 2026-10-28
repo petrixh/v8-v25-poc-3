@@ -16,20 +16,14 @@ import com.vaadin.flow.component.page.PendingJavaScriptResult;
 /**
  * Focus for a component that may not be on screen yet. On a fresh page load (login, a deep link) Flow runs the
  * focus call while the page is still hidden until its styles are loaded, and the browser ignores it. This waits
- * until the component is rendered (at most five seconds), then focuses it. A disabled component is enabled in the
- * browser for the call only (a disabled Flow component takes no focus; Vaadin 8's disabled Sign in button did):
- * the server's enabled state is not touched and the focus stays.
+ * until the component is rendered (at most five seconds), then focuses it. It needs {@code executeJs}, so a
+ * Content-Security-Policy without {@code 'unsafe-eval'} loses the focus (nothing else).
  */
 public final class FocusOnShow {
 
-    private static final String SCRIPT = "const el = this; const wait = (tries) => new Promise(resolve => {"
-            + " const check = (n) => { if (el.getClientRects().length > 0 || n > 100) { resolve(); } else { setTimeout(() => check(n + 1), 50); } };"
-            + " check(tries); });"
-            + " return wait(0).then(async () => {"
-            + " const wasDisabled = el.disabled === true;"
-            + " if (wasDisabled) { el.disabled = false; if (el.updateComplete) { await el.updateComplete; } }"
-            + " el.focus();"
-            + " if (wasDisabled) { el.disabled = true; } });";
+    private static final String SCRIPT = "return new Promise(resolve => { let tries = 0; const focusWhenShown = () => {"
+            + " if (this.getClientRects().length > 0 || ++tries > 100) { this.focus(); resolve(); }"
+            + " else { setTimeout(focusWhenShown, 50); } }; focusWhenShown(); });";
 
     private FocusOnShow() {
     }

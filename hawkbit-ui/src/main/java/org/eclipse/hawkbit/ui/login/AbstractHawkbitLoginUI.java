@@ -147,17 +147,15 @@ public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements B
         binder.addStatusChangeListener(statusEvent -> signIn.setEnabled(statusEvent.getBinder().isValid()));
         binder.setBean(credentialsBean);
 
-        focusSignIn();
+        focusUsername();
     }
 
     /**
-     * Vaadin 8 opened the login page with the focus on the Sign in button, though the button is disabled until both
-     * fields are filled.
+     * The login page opens with the focus on the Username field (Vaadin 8 focused the disabled Sign in button, which
+     * a Flow button cannot take without a workaround; decision E024: the field, so typing works at once).
      */
-    private void focusSignIn() {
-        if (!isUnsupportedBrowser()) {
-            FocusOnShow.focus(signIn);
-        }
+    private void focusUsername() {
+        FocusOnShow.focus(username);
     }
 
     private void buildContent() {
