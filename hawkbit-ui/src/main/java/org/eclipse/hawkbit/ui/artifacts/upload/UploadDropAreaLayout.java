@@ -205,6 +205,7 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
             // the upload status window shows the reason, and a rejection
             // (422) would only add a browser console error
             if (streamVariable.get() == null) {
+                AbstractFileTransferHandler.drainQuietly(event.getInputStream());
                 return;
             }
             streamFile(event, streamVariable.get());
@@ -273,6 +274,7 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
                 final Exception reason = failure;
                 AbstractFileTransferHandler.accessLocked(event,
                         () -> streamVariable.streamingFailed(fileName, reason));
+                AbstractFileTransferHandler.drainQuietly(event.getInputStream());
             }
         }
 
