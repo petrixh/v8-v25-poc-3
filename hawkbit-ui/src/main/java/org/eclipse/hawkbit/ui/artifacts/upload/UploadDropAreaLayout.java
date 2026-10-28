@@ -193,14 +193,19 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
          * drop that started before it opened. The window opens with the first
          * file and makes the drop zone inert, and Flow refuses requests to an
          * inert element (403) while the browser still sends the other files of
-         * the drop. They are accepted while uploads are listed in the window;
-         * otherwise a request to the inert drop zone is still refused.
+         * the drop: up to three at once, each further one when an earlier one
+         * ends, also after the listed ones have finished and while the window
+         * is still open. A modal dialog's curtain keeps a new drop from
+         * reaching the drop zone, so a request that arrives while it is inert
+         * belongs to a drop the user made before: always accepted. The other
+         * checks of the request stay: its security key, and a drop zone that
+         * is attached, visible and enabled.
          *
-         * @return whether a request is handled while the drop zone is inert
+         * @return {@code true}
          */
         @Override
         public boolean isAllowInert() {
-            return !artifactUploadState.areAllUploadsFinished();
+            return true;
         }
 
         /**
@@ -235,10 +240,7 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
             final boolean removedFromQueue;
             dropQueueLock.lock();
             try {
-                removedFromQueue = streamVariable.get().isRemovedFromUploadQueue();
-                if (!removedFromQueue) {
-                    streamFile(event, streamVariable.get());
-                }
+                removedFromQueue = !streamFile(event, streamVariable.get());
             } finally {
                 dropQueueLock.unlock();
             }
@@ -278,16 +280,27 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
          * What the Vaadin 8 framework did with the stream variable of a
          * dropped file: started, output stream, progress, then finished or
          * failed.
+         *
+         * @return {@code false} if the file was removed from the upload queue
+         *         while it waited, and nothing was streamed
          */
-        private void streamFile(final UploadEvent event, final FileTransferHandlerStreamVariable streamVariable) {
+        private boolean streamFile(final UploadEvent event, final FileTransferHandlerStreamVariable streamVariable) {
             final String fileName = event.getFileName();
             final long contentLength = event.getFileSize();
 
             final AtomicReference<OutputStream> receiverStream = new AtomicReference<>();
             AbstractFileTransferHandler.accessLocked(event, () -> {
+                // under the session lock, as the queue is cleared under it:
+                // either the file is gone, or it starts and counts as running
+                if (streamVariable.isRemovedFromUploadQueue()) {
+                    return;
+                }
                 streamVariable.streamingStarted(fileName);
                 receiverStream.set(streamVariable.getOutputStream());
             });
+            if (receiverStream.get() == null) {
+                return false;
+            }
 
             final OutputStream outputStream = receiverStream.get();
             Exception failure = null;
@@ -314,6 +327,7 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
                         () -> streamVariable.streamingFailed(fileName, reason));
                 AbstractFileTransferHandler.drainQuietly(event.getInputStream());
             }
+            return true;
         }
 
         private boolean validate() {

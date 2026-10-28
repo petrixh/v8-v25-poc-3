@@ -61,9 +61,9 @@ import com.vaadin.flow.server.streams.UploadEvent;
 /**
  * 1b-14: several files dropped together. The browser sends up to three upload
  * requests at once; the status window, opened by the first, makes the drop
- * zone inert. The drop handler accepts the others while uploads are listed,
- * streams the files one after the other, keeps the waiting ones queued (the
- * "Clear file upload queue" prompt), and skips a file removed from the queue.
+ * zone inert. The drop handler accepts every request of the drop, streams the
+ * files one after the other, keeps the waiting ones queued (the "Clear file
+ * upload queue" prompt), and skips a file removed from the queue.
  */
 @Feature("Unit Tests - Management UI")
 @Story("Upload: multi-file drop")
@@ -135,16 +135,17 @@ class UploadDropQueueTest {
     }
 
     @Test
-    void inertDropZoneAcceptsRequestsOnlyWhileUploadsAreListed() {
-        assertThat(handler.isAllowInert()).as("no upload listed").isFalse();
-
+    void inertDropZoneAcceptsEveryRequestOfADrop() {
+        // a file the browser sends after the listed ones have finished, while
+        // the status window is still open (1b-14 review finding 1)
         final FileUploadId id = new FileUploadId("a.bin", softwareModule());
-        state.updateFileUploadProgress(id, new FileUploadProgress(id, FileUploadStatus.UPLOAD_STARTED));
-        assertThat(handler.isAllowInert()).as("an upload is queued").isTrue();
-
         state.updateFileUploadProgress(id,
                 new FileUploadProgress(id, FileUploadStatus.UPLOAD_SUCCESSFUL, FILE_SIZE, FILE_SIZE));
-        assertThat(handler.isAllowInert()).as("all uploads ended").isFalse();
+        assertThat(state.areAllUploadsFinished()).isTrue();
+        assertThat(handler.isAllowInert()).as("all listed uploads finished").isTrue();
+
+        state.clearFileStates();
+        assertThat(handler.isAllowInert()).as("nothing listed").isTrue();
     }
 
     @Test
@@ -187,6 +188,33 @@ class UploadDropQueueTest {
         assertThat(stored).as("the running file ends, the queued one is not sent on").containsExactly("a.bin");
         assertThat(secondBody.available()).as("the skipped body is read to its end (200, no error)").isZero();
         assertThat(state.isFileInUploadState(new FileUploadId("b.bin", softwareModule()))).isFalse();
+    }
+
+    @Test
+    void removedRequestStaysRemovedWhenTheSameFileIsDroppedAgain() throws Exception {
+        final CountDownLatch releaseFirst = new CountDownLatch(1);
+        final Future<?> first = requests.submit(() -> upload("a.bin", new HeldStream(releaseFirst)));
+        awaitTrue(() -> status("a.bin") == FileUploadStatus.UPLOAD_IN_PROGRESS);
+
+        final ByteArrayInputStream removedBody = new ByteArrayInputStream(new byte[FILE_SIZE]);
+        final Future<?> removed = requests.submit(() -> upload("b.bin", removedBody));
+        awaitTrue(() -> dropQueueLock().getQueueLength() == 1);
+
+        // "Clear file upload queue" confirmed, then the same file dropped again
+        state.clearFileStates();
+        final ByteArrayInputStream againBody = new ByteArrayInputStream(new byte[FILE_SIZE]);
+        final Future<?> again = requests.submit(() -> upload("b.bin", againBody));
+        awaitTrue(() -> dropQueueLock().getQueueLength() == 2);
+
+        releaseFirst.countDown();
+        first.get(10, TimeUnit.SECONDS);
+        removed.get(10, TimeUnit.SECONDS);
+        again.get(10, TimeUnit.SECONDS);
+
+        awaitTrue(() -> stored.size() == 2);
+        assertThat(stored).as("b.bin once, from the new drop").containsExactly("a.bin", "b.bin");
+        awaitTrue(() -> status("b.bin") == FileUploadStatus.UPLOAD_SUCCESSFUL);
+        assertThat(removedBody.available()).as("the removed request is drained, not uploaded").isZero();
     }
 
     private Void upload(final String fileName, final InputStream body) throws IOException {
