@@ -728,3 +728,111 @@ vaadin-form-layout.window-form-layout {
 }
 
 /* ==== end of 2a-08 ==== */
+
+/* ==== Filter panels: tag lists and status filters (2a-11, 2A-09) ==== */
+
+/*
+ * Tag and type lists (filter-layout-styles.scss .type-button-layout): no header row (Vaadin 8 setHeaderVisible(false);
+ * a Flow grid always has one).
+ */
+vaadin-grid.type-button-layout::part(header-cell) {
+    display: none;
+    min-height: 0;
+}
+
+/*
+ * The Deployment filter accordion fills the height of the panel: the open section takes what the closed ones leave,
+ * its list scrolls inside itself and the status filters sit at the bottom of the Simple Filter section
+ * (the Vaadin 8 accordion tab was as high as the layout). The panel's content is the wrapper div Flow puts around it.
+ */
+vaadin-accordion.filter-btns-layout {
+    display: flex;
+    flex-direction: column;
+}
+
+vaadin-accordion.filter-btns-layout > vaadin-accordion-panel {
+    flex: 0 0 auto;
+}
+
+vaadin-accordion.filter-btns-layout > vaadin-accordion-panel[opened] {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+vaadin-accordion.filter-btns-layout > vaadin-accordion-panel[opened]::part(content) {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+vaadin-accordion.filter-btns-layout > vaadin-accordion-panel[opened] > div {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+vaadin-accordion.filter-btns-layout > vaadin-accordion-panel[opened] > div > * {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* a tag or type name starts at the left, next to its colour dot (the Lumo button centres its text) */
+vaadin-button.button-tag-no-border {
+    justify-content: flex-start;
+    text-align: left;
+}
+
+/*
+ * Filter by status (filter-status.scss): 21 px squares in the status colours ($status-unknown-color,
+ * $signal-green-color, $signal-yellow-color, $signal-red-color, $signal-light-blue-color) and overdue in
+ * $signal-dark-blue-color; a clicked one is white with its colour as border.
+ */
+.target-status-filters {
+    margin-top: 6px;
+    border-top: 1px solid #d4d4d4;
+    overflow: auto;
+}
+
+.target-status-filters-title {
+    padding-left: 10px;
+}
+
+.status-button-layout,
+.overdue-button-layout {
+    height: 40px;
+    align-items: center;
+}
+
+vaadin-button.targetStatusBtn {
+    width: 21px;
+    height: 21px;
+    min-width: 0;
+    padding: 0;
+    margin: 2px 4px;
+    box-sizing: border-box;
+    border: 3px solid;
+    border-radius: 4px;
+    color: transparent;
+    transition: background-color 0.5s ease;
+}
+
+vaadin-button.targetStatusBtn vaadin-icon {
+    display: none;
+}
+
+vaadin-button.unknownBtn { background: #d5d5d5; border-color: #d5d5d5; }
+vaadin-button.inSynchBtn { background: #6eb553; border-color: #6eb553; }
+vaadin-button.pendingBtn { background: #ff0; border-color: #ff0; }
+vaadin-button.errorBtn { background: #f00; border-color: #f00; }
+vaadin-button.registeredBtn { background: #3085cb; border-color: #3085cb; }
+vaadin-button.overdueBtn { background: #26547a; border-color: #26547a; }
+
+vaadin-button.targetStatusBtn.btnClicked {
+    background: #fff;
+}
+
+/* ==== end of 2a-11 ==== */
