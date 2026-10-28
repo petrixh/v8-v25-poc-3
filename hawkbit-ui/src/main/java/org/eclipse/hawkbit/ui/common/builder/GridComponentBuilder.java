@@ -453,6 +453,10 @@ public final class GridComponentBuilder {
         return column;
     }
 
+    // a column has a tooltip generator from the start (one that gives no text): this is that one
+    private static final SerializableFunction<Object, String> NO_TOOLTIP_GENERATOR = new Grid<Object>()
+            .addColumn(item -> item).getTooltipGenerator();
+
     private static final String COMPONENT_TOOLTIPS_KEY = GridComponentBuilder.class.getName() + ".componentTooltips";
 
     /**
@@ -484,16 +488,20 @@ public final class GridComponentBuilder {
 
     @SuppressWarnings("unchecked")
     private static <E> void setComponentTooltipGenerators(final Grid<E> grid) {
-        if (grid.getColumns().stream().noneMatch(column -> column.getTooltipGenerator() != null)) {
+        if (grid.getColumns().stream().noneMatch(GridComponentBuilder::hasTooltipGenerator)) {
             return;
         }
         for (final Column<E> column : grid.getColumns()) {
-            if (column.getTooltipGenerator() == null && column.getRenderer() instanceof ComponentRenderer) {
+            if (!hasTooltipGenerator(column) && column.getRenderer() instanceof ComponentRenderer) {
                 final ComponentRenderer<? extends Component, E> renderer = (ComponentRenderer<? extends Component, E>) column
                         .getRenderer();
                 column.setTooltipGenerator(item -> firstTooltipText(renderer.createComponent(item)));
             }
         }
+    }
+
+    private static boolean hasTooltipGenerator(final Column<?> column) {
+        return column.getTooltipGenerator() != NO_TOOLTIP_GENERATOR;
     }
 
     private static String firstTooltipText(final Component component) {
