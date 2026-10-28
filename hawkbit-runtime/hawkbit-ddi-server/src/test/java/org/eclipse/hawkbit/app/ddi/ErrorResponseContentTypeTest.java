@@ -25,6 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
@@ -48,19 +49,32 @@ class ErrorResponseContentTypeTest {
     private int port;
 
     @Test
-    @Description("An error response of the DDI API keeps the charset forced by spring.servlet.encoding.force")
-    void errorResponseContainsCharset() throws Exception {
-        final HttpRequest request = HttpRequest
-                .newBuilder(URI.create("http://localhost:" + port
-                        + "/DEFAULT/controller/v1/content-type-test/deploymentBase/" + Long.MAX_VALUE))
-                .header(HttpHeaders.AUTHORIZATION, "GatewayToken " + GATEWAY_TOKEN)
-                .header(HttpHeaders.ACCEPT, MediaTypes.HAL_JSON_VALUE).build();
-
-        final HttpResponse<String> response = HttpClient.newHttpClient().send(request, BodyHandlers.ofString());
+    @Description("An error response of hawkBit's REST exception handler keeps the charset forced by spring.servlet.encoding.force")
+    void restExceptionHandlerErrorContainsCharset() throws Exception {
+        final HttpResponse<String> response = get(
+                "/DEFAULT/controller/v1/content-type-test/deploymentBase/" + Long.MAX_VALUE, MediaTypes.HAL_JSON_VALUE);
 
         assertThat(response.statusCode()).as(response.body()).isBetween(400, 499);
         assertThat(response.body()).contains("\"errorCode\"");
         assertThat(response.headers().firstValue(HttpHeaders.CONTENT_TYPE))
                 .hasValue(MediaTypes.HAL_JSON_VALUE + ";charset=UTF-8");
+    }
+
+    @Test
+    @Description("Spring Boot's error JSON (unknown path) keeps the charset forced by spring.servlet.encoding.force")
+    void bootErrorJsonContainsCharset() throws Exception {
+        final HttpResponse<String> response = get("/DEFAULT/controller/nosuch", MediaType.APPLICATION_JSON_VALUE);
+
+        assertThat(response.statusCode()).as(response.body()).isEqualTo(404);
+        assertThat(response.body()).contains("\"status\"");
+        assertThat(response.headers().firstValue(HttpHeaders.CONTENT_TYPE))
+                .hasValue(MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8");
+    }
+
+    private HttpResponse<String> get(final String path, final String accept) throws Exception {
+        final HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + path))
+                .header(HttpHeaders.AUTHORIZATION, "GatewayToken " + GATEWAY_TOKEN).header(HttpHeaders.ACCEPT, accept)
+                .build();
+        return HttpClient.newHttpClient().send(request, BodyHandlers.ofString());
     }
 }

@@ -9,7 +9,6 @@
  */
 package org.eclipse.hawkbit.rest;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.eclipse.hawkbit.rest.exception.ResponseExceptionHandler;
@@ -18,7 +17,6 @@ import org.eclipse.hawkbit.rest.util.FilterHttpResponse;
 import org.eclipse.hawkbit.rest.util.HttpResponseFactoryBean;
 import org.eclipse.hawkbit.rest.util.RequestResponseContextHolder;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,10 +27,7 @@ import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.filter.UrlHandlerFilter;
-import org.springframework.web.servlet.HandlerExceptionResolver;
-import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Configuration for Rest api.
@@ -73,45 +68,6 @@ public class RestConfiguration {
     @Bean
     ResponseExceptionHandler responseExceptionHandler() {
         return new ResponseExceptionHandler();
-    }
-
-    /**
-     * Spring Framework 6.2+ clears the response Content-Type before it handles
-     * an exception; on Tomcat that also clears the charset the
-     * {@link CharacterEncodingFilter} forced. Error responses (e.g. of
-     * {@link ResponseExceptionHandler}) then lost {@code ;charset=UTF-8}. This
-     * resolver runs first and forces the filter's encoding again, as before.
-     */
-    @Bean
-    HandlerExceptionResolver forcedResponseEncodingExceptionResolver(
-            final ObjectProvider<CharacterEncodingFilter> characterEncodingFilter) {
-        return new ForcedResponseEncodingExceptionResolver(characterEncodingFilter);
-    }
-
-    private static final class ForcedResponseEncodingExceptionResolver implements HandlerExceptionResolver, Ordered {
-
-        private final ObjectProvider<CharacterEncodingFilter> characterEncodingFilter;
-
-        private ForcedResponseEncodingExceptionResolver(
-                final ObjectProvider<CharacterEncodingFilter> characterEncodingFilter) {
-            this.characterEncodingFilter = characterEncodingFilter;
-        }
-
-        @Override
-        public ModelAndView resolveException(final HttpServletRequest request, final HttpServletResponse response,
-                final Object handler, final Exception ex) {
-            final CharacterEncodingFilter filter = characterEncodingFilter.getIfAvailable();
-            if (filter != null && filter.isForceResponseEncoding() && filter.getEncoding() != null) {
-                response.setCharacterEncoding(filter.getEncoding());
-            }
-            // not resolved: the next resolvers handle the exception
-            return null;
-        }
-
-        @Override
-        public int getOrder() {
-            return Ordered.HIGHEST_PRECEDENCE;
-        }
     }
 
     /**
