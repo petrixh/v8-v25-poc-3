@@ -51,6 +51,9 @@ public class FileTransferHandlerStreamVariable extends AbstractFileTransferHandl
 
     private final SoftwareModule selectedSoftwareModule;
 
+    // the upload state entry this file got when its request arrived
+    private final FileUploadProgress startedProgress;
+
     FileTransferHandlerStreamVariable(final String fileName, final long fileSize, final long maxSize,
             final String mimeType, final SoftwareModule selectedSw, final ArtifactManagement artifactManagement,
             final VaadinMessageSource i18n, final Lock uploadLock) {
@@ -62,6 +65,7 @@ public class FileTransferHandlerStreamVariable extends AbstractFileTransferHandl
         this.fileUploadId = new FileUploadId(fileName, selectedSw);
 
         publishUploadStarted(fileUploadId);
+        this.startedProgress = getUploadState().getFileUploadProgress(fileUploadId);
     }
 
     /**
@@ -183,5 +187,18 @@ public class FileTransferHandlerStreamVariable extends AbstractFileTransferHandl
      */
     public boolean isInterrupted() {
         return isUploadInterrupted();
+    }
+
+    /**
+     * Whether the file was removed from the upload state while it waited for
+     * its turn: the user confirmed "Clear file upload queue" when leaving the
+     * upload view. Compares this request's own state entry, so a later drop
+     * of the same file does not make an earlier, removed request upload.
+     *
+     * @return {@code true} if this request's entry is no longer in the upload
+     *         state
+     */
+    boolean isRemovedFromUploadQueue() {
+        return getUploadState().getFileUploadProgress(fileUploadId) != startedProgress;
     }
 }
