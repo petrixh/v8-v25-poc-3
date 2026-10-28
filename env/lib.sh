@@ -81,12 +81,17 @@ JAVA_ARGS=(-Dspring.profiles.active=mysql -Xms768m -Xmx768m -Dloader.path=/drive
 abs_path() { echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"; }
 
 create_mgmt() { # mgmt-server: Flyway schema owner, Management API (seed), rollout and auto-assign schedulers
-  # its admin password comes from a mounted properties file, so it is not in the container's config (docker inspect)
+  # its admin password comes from a mounted properties file, so it is not in the container's config (docker inspect).
+  # --users: also the test-user files, as for vv8-ui (the rollout scheduler looks up a rollout's creator). up.sh
+  # creates it without them for the seed, which logs in as admin with the copy's password, and again with them after.
+  local locs=() mounts=()
+  if [ "${1:-}" = --users ]; then user_files; mounts=("${USER_MOUNTS[@]}"); locs=("${USER_LOCS[@]}"); fi
+  locs+=(file:/run/secrets/mgmt-admin.properties)   # last, so its spring.security.user.password wins
   docker create --name "$C_MGMT" --hostname "$C_MGMT" --label "$LABEL" --network "$NET_INT" \
     -v "$COPY_DIR/resolv.conf:/etc/resolv.conf:ro" -v "$V_ART:/artifactrepo" \
-    -v "$COPY_DIR/mgmt-admin.properties:/run/secrets/mgmt-admin.properties:ro" "${APP_ENV_ARGS[@]}" \
+    -v "$COPY_DIR/mgmt-admin.properties:/run/secrets/mgmt-admin.properties:ro" "${APP_ENV_ARGS[@]}" "${mounts[@]}" \
     "$(image_tag_in_use)" java -cp /app/mgmt-server.jar "${JAVA_ARGS[@]}" \
-    --spring.config.additional-location=file:/run/secrets/mgmt-admin.properties >/dev/null
+    "--spring.config.additional-location=$(IFS=,; echo "${locs[*]}")" >/dev/null
 }
 check_user_files() { # up.sh, before it starts anything. The env file is read by Spring as properties: KEY=value
   # lines, values without '\' or leading blanks, so that both formats give the same values. Values are never shown.
@@ -101,21 +106,25 @@ check_user_files() { # up.sh, before it starts anything. The env file is read by
   fi
   return 0
 }
-create_ui() { # vv8-ui: the Vaadin 8 UI, the app under migration; test users only here (as the pre-check)
-  # Both test-user files (checked by check_user_files) are mounted read-only and loaded as Spring config, so no password is in the container's
-  # config. The env file's KEY=value lines are read as properties: they resolve ${KEY} in the properties file.
-  local mounts=() locs=()
+user_files() { # sets USER_MOUNTS and USER_LOCS for the test-user files given (checked by check_user_files)
+  # Both files are mounted read-only and loaded as Spring config, so no password is in the container's config.
+  # The env file's KEY=value lines are read as properties: they resolve ${KEY} in the properties file.
+  USER_MOUNTS=(); USER_LOCS=()
   if [ -n "${APP_ENV_USERS_PROPERTIES:-}" ]; then
-    mounts+=(-v "$(abs_path "$APP_ENV_USERS_PROPERTIES"):/run/users/users.properties:ro"); locs+=(file:/run/users/users.properties)
+    USER_MOUNTS+=(-v "$(abs_path "$APP_ENV_USERS_PROPERTIES"):/run/users/users.properties:ro"); USER_LOCS+=(file:/run/users/users.properties)
   fi
   if [ -n "${APP_ENV_USERS_ENV:-}" ]; then
-    mounts+=(-v "$(abs_path "$APP_ENV_USERS_ENV"):/run/users/users-env.properties:ro"); locs+=(file:/run/users/users-env.properties)
+    USER_MOUNTS+=(-v "$(abs_path "$APP_ENV_USERS_ENV"):/run/users/users-env.properties:ro"); USER_LOCS+=(file:/run/users/users-env.properties)
   fi
+}
+have_user_files() { [ -n "${APP_ENV_USERS_PROPERTIES:-}${APP_ENV_USERS_ENV:-}" ]; }
+create_ui() { # vv8-ui: the Vaadin 8 UI, the app under migration; with the test-user files (user_files)
+  user_files
   local extra=()
-  [ ${#locs[@]} -eq 0 ] || extra+=("--spring.config.additional-location=$(IFS=,; echo "${locs[*]}")")
+  [ ${#USER_LOCS[@]} -eq 0 ] || extra+=("--spring.config.additional-location=$(IFS=,; echo "${USER_LOCS[*]}")")
   docker create --name "$APP_CONTAINER" --hostname "$APP_CONTAINER" --label "$LABEL" --network "$NET_INT" \
     -v "$COPY_DIR/resolv.conf:/etc/resolv.conf:ro" -v "$V_ART:/artifactrepo" \
-    "${APP_ENV_ARGS[@]}" "${mounts[@]}" \
+    "${APP_ENV_ARGS[@]}" "${USER_MOUNTS[@]}" \
     "$(image_tag_in_use)" java -cp /app/vv8-ui.jar "${JAVA_ARGS[@]}" "${extra[@]}" >/dev/null
 }
 image_tag_in_use() { cat "$COPY_DIR/image" 2>/dev/null || image_tag; }
