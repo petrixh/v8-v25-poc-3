@@ -160,7 +160,9 @@ public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements B
         }
         final Binder<ProxyLoginCredentials> currentBinder = binder;
         signIn.setEnabled(true);
-        signIn.getElement().executeJs("return customElements.whenDefined('vaadin-button').then(() => this.focus());")
+        signIn.getElement().executeJs(
+                "return customElements.whenDefined('vaadin-button').then(() => this.updateComplete)"
+                        + ".then(() => new Promise(resolve => setTimeout(() => { this.focus(); resolve(); }, 0)));")
                 .then(result -> signIn.setEnabled(currentBinder.isValid()));
     }
 

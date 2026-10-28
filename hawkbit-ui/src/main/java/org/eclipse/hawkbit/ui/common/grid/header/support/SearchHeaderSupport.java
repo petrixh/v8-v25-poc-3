@@ -115,8 +115,10 @@ public class SearchHeaderSupport implements HeaderSupport {
         searchResetIcon.addClassNames(SPUIDefinitions.FILTER_RESET_ICON, MODE_SEARCH_INPUT);
 
         searchField.setVisible(true);
-        // on a fresh page load (deep link) the text field is not defined in the browser yet when a plain focus() runs
-        searchField.getElement().executeJs("customElements.whenDefined('vaadin-text-field').then(() => this.focus());");
+        // on a fresh page load (deep link) the text field is not defined and rendered in the browser yet when a plain focus() runs
+        searchField.getElement().executeJs(
+                "customElements.whenDefined('vaadin-text-field').then(() => this.updateComplete)"
+                        + ".then(() => setTimeout(() => this.focus(), 0));");
 
         isSearchInputActive = true;
     }
