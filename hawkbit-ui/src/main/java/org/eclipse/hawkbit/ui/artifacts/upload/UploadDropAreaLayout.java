@@ -201,8 +201,10 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
             AbstractFileTransferHandler.accessLocked(event,
                     () -> streamVariable.set(drop(event.getFileName(), event.getFileSize(), event.getContentType())));
 
+            // a refused or failed upload is answered with 200, as in Vaadin 8:
+            // the upload status window shows the reason, and a rejection
+            // (422) would only add a browser console error
             if (streamVariable.get() == null) {
-                event.reject();
                 return;
             }
             streamFile(event, streamVariable.get());
@@ -271,7 +273,6 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
                 final Exception reason = failure;
                 AbstractFileTransferHandler.accessLocked(event,
                         () -> streamVariable.streamingFailed(fileName, reason));
-                event.reject();
             }
         }
 
