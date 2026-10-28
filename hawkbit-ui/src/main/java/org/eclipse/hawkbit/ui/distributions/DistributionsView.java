@@ -33,6 +33,7 @@ import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.EventViewAware;
+import org.eclipse.hawkbit.ui.common.layout.ExpandRatioLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.LayoutResizeListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.LayoutResizeListener.ResizeHandler;
 import org.eclipse.hawkbit.ui.common.layout.listener.LayoutVisibilityListener;
@@ -162,7 +163,7 @@ public class DistributionsView extends AbstractEventListenersAwareView implement
     }
 
     private void createMainLayout() {
-        mainLayout = new HorizontalLayout();
+        mainLayout = new ExpandRatioLayout();
         mainLayout.setSizeFull();
         mainLayout.setPadding(false);
         mainLayout.setSpacing(true);
