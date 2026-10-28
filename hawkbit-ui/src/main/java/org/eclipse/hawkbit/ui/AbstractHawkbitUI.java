@@ -230,6 +230,13 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
     /**
      * Vaadin 8: ManagementViewProvider#getStartView. A view that exists but
      * that the user may not open goes to the error view.
+     * <p>
+     * A layout built without the shell (1B-60) shows only an error view: it
+     * stays in its UI, and Flow reuses it for later navigations, also after the
+     * same session has logged in (in another tab). Any other route fails closed
+     * there: for a logged-in user the address is loaded as a new page, whose new
+     * UI builds the shell and checks the view as above (in the Vaadin 8 app the
+     * login and the main UI were separate pages); otherwise the error view.
      */
     @Override
     public void beforeEnter(final BeforeEnterEvent event) {
@@ -237,6 +244,12 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
             return;
         }
         if (!shellBuilt) {
+            if (isLoggedIn()) {
+                // relative to the page's base, which is the UI root: never leaves the UI
+                event.forwardToUrl("./" + event.getLocation().getPathWithQueryParameters());
+            } else {
+                event.rerouteToError(NotFoundException.class);
+            }
             return;
         }
         final String viewName = event.getLocation().getFirstSegment();
