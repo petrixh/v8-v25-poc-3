@@ -1099,11 +1099,14 @@ class ControllerManagementTest extends AbstractJpaIntegrationTest {
 
         final Long actionId = getFirstAssignedActionId(assignDistributionSet(testDs, testTarget));
 
+        // the messages are returned newest first by occurredAt: the second status must be strictly later
+        // (two System.currentTimeMillis() calls back to back can return the same millisecond, 1B-70)
+        final long firstOccurredAt = System.currentTimeMillis();
         controllerManagement.addUpdateActionStatus(entityFactory.actionStatus().create(actionId)
-                .status(Action.Status.RUNNING).occurredAt(System.currentTimeMillis())
+                .status(Action.Status.RUNNING).occurredAt(firstOccurredAt)
                 .messages(Lists.newArrayList("proceeding message 1")));
         controllerManagement.addUpdateActionStatus(entityFactory.actionStatus().create(actionId)
-                .status(Action.Status.RUNNING).occurredAt(System.currentTimeMillis())
+                .status(Action.Status.RUNNING).occurredAt(firstOccurredAt + 1)
                 .messages(Lists.newArrayList("proceeding message 2")));
 
         final List<String> messages = controllerManagement.getActionHistoryMessages(actionId, 2);
