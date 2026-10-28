@@ -12,3 +12,4 @@ org.eclipse.hawkbit.autoconfigure.security.SecurityAutoConfiguration
 org.eclipse.hawkbit.autoconfigure.security.InMemoryUserManagementAutoConfiguration
 org.eclipse.hawkbit.autoconfigure.security.OidcUserManagementAutoConfiguration
 org.eclipse.hawkbit.autoconfigure.PropertyHostnameResolverAutoConfiguration
+org.eclipse.hawkbit.autoconfigure.web.ResponseEncodingAutoConfiguration

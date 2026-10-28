@@ -76,7 +76,7 @@ public interface TargetTypeManagement {
      * @return List of targetType
      */
     @PreAuthorize(SpPermission.SpringEvalExpressions.HAS_AUTH_CREATE_TARGET)
-    List<TargetType> create(@NotEmpty @Valid Collection<TargetTypeCreate> creates);
+    List<TargetType> create(@NotEmpty Collection<@Valid TargetTypeCreate> creates);
 
     /**
      * @param id
