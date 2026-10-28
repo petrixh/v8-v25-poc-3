@@ -10,6 +10,7 @@
 package org.eclipse.hawkbit.ui.autoconfigure;
 
 import java.io.IOException;
+import java.util.Set;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,6 +22,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.vaadin.flow.shared.ApplicationConstants;
 
 /**
  * 1B-58: an unknown address below {@code /UI/login/} (for example
@@ -35,14 +38,25 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * an anonymous user, so these requests are answered here, before the router.
  * <p>
  * Passed on: the login view itself ({@code /UI/login} and {@code /UI/login/}),
- * Flow's own requests (they carry the {@code v-r} parameter) and everything
- * from a logged-in user (the error view in the shell, 1b-01).
+ * Flow's session requests ({@code v-r} is {@code uidl}, {@code heartbeat},
+ * {@code push} or {@code i18n}) and everything from a logged-in user (the
+ * error view in the shell, 1b-01). Any other {@code v-r} value, and
+ * {@code v-r=init}, is an address request like one without {@code v-r}: Flow
+ * answers an unknown value with its session-expired 403, which the container
+ * turns into a 500, and {@code init} reaches the error view (1B-60).
  */
 public class AnonymousUnknownLoginPathFilter extends OncePerRequestFilter {
 
     private static final String LOGIN_PREFIX = "/UI/login/";
 
-    private static final String FLOW_REQUEST_PARAMETER = "v-r";
+    /**
+     * The request types of Flow's session requests (the client of a page that is open): they carry
+     * {@code v-r}, and Flow answers them itself. Every other request, with no {@code v-r} or with any other value
+     * (including {@code init}, which loads the page), is a request for an address (1B-60).
+     */
+    private static final Set<String> FLOW_SESSION_REQUEST_TYPES = Set.of(ApplicationConstants.REQUEST_TYPE_UIDL,
+            ApplicationConstants.REQUEST_TYPE_HEARTBEAT, ApplicationConstants.REQUEST_TYPE_PUSH,
+            ApplicationConstants.REQUEST_TYPE_TRANSLATION_FILE);
 
     @Override
     protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response,
@@ -60,8 +74,9 @@ public class AnonymousUnknownLoginPathFilter extends OncePerRequestFilter {
         final String servletPath = request.getServletPath();
         final String pathInfo = request.getPathInfo();
         final String path = (servletPath == null ? "" : servletPath) + (pathInfo == null ? "" : pathInfo);
+        final String requestType = request.getParameter(ApplicationConstants.REQUEST_TYPE_PARAMETER);
         return path.startsWith(LOGIN_PREFIX) && path.length() > LOGIN_PREFIX.length()
-                && request.getParameter(FLOW_REQUEST_PARAMETER) == null;
+                && (requestType == null || !FLOW_SESSION_REQUEST_TYPES.contains(requestType));
     }
 
     private static boolean isAnonymous() {

@@ -28,6 +28,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.ObjectUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -87,6 +91,8 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
 
     private Span viewTitle;
     private Div content;
+    // false for a request without a logged-in user: only the routed content, no menu, header or push (1B-60)
+    private boolean shellBuilt;
 
     private final DashboardMenu dashboardMenu;
     private final NotificationUnreadButton notificationUnreadButton;
@@ -120,7 +126,7 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
 
         entityEventsListener.unsubscribeListeners();
 
-        if (pushStrategy != null) {
+        if (pushStrategy != null && shellBuilt) {
             pushStrategy.clean();
             clearContextListener();
         }
@@ -138,9 +144,32 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
         }
     }
 
+    /**
+     * @return {@code true} if the current request belongs to a logged-in user
+     *         (not anonymous, no authentication at all, or no security context)
+     */
+    private static boolean isLoggedIn() {
+        final SecurityContext securityContext = SecurityContextHolder.getContext();
+        final Authentication authentication = securityContext == null ? null : securityContext.getAuthentication();
+        return authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken);
+    }
+
     private void init() {
         final UI ui = UI.getCurrent();
         LOG.debug("ManagementUI init starts uiid - {}", ui.getUIId());
+        if (!isLoggedIn()) {
+            // 1B-60: the shell (menu, user, tenant) needs a logged-in user. An error view can reach this layout
+            // without one (Flow's own requests to an unknown /UI/login/... address are open to everyone): show only
+            // the routed content, never the menu or any data.
+            setPadding(false);
+            setSpacing(false);
+            setSizeFull();
+            content = buildContent();
+            add(content);
+            return;
+        }
+        shellBuilt = true;
         if (pushStrategy != null) {
             pushStrategy.init(ui);
         }
@@ -207,6 +236,9 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
         if (HasErrorParameter.class.isAssignableFrom(event.getNavigationTarget())) {
             return;
         }
+        if (!shellBuilt) {
+            return;
+        }
         final String viewName = event.getLocation().getFirstSegment();
         if (dashboardMenu.getByViewName(viewName) != null && dashboardMenu.isAccessDenied(viewName)) {
             event.rerouteToError(NotFoundException.class);
@@ -220,6 +252,9 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
      */
     @Override
     public void afterNavigation(final AfterNavigationEvent event) {
+        if (!shellBuilt) {
+            return;
+        }
         final boolean errorView = !event.getActiveChain().isEmpty()
                 && event.getActiveChain().get(0) instanceof HasErrorParameter;
         final String viewName = errorView ? event.getLocation().getPath() : event.getLocation().getFirstSegment();

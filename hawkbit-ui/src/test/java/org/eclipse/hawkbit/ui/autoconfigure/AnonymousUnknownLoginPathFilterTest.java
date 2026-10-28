@@ -59,11 +59,27 @@ class AnonymousUnknownLoginPathFilterTest {
             assertThat(run(path).getStatus()).as(path).isEqualTo(200);
             assertThat(chainCalled(path)).as("passed on %s", path).isTrue();
         }
-        final MockHttpServletRequest uidl = request("/UI/login/zzz");
-        uidl.setParameter("v-r", "uidl");
-        final MockFilterChain chain = new MockFilterChain();
-        filter.doFilter(uidl, new MockHttpServletResponse(), chain);
-        assertThat(chain.getRequest()).isNotNull();
+        for (final String type : List.of("uidl", "heartbeat", "push", "i18n")) {
+            final MockHttpServletRequest flowRequest = request("/UI/login/zzz");
+            flowRequest.setParameter("v-r", type);
+            final MockFilterChain chain = new MockFilterChain();
+            filter.doFilter(flowRequest, new MockHttpServletResponse(), chain);
+            assertThat(chain.getRequest()).as("v-r=%s passed on", type).isNotNull();
+        }
+    }
+
+    @Test
+    @Description("1B-60: an anonymous address request with v-r=init or an unknown v-r value answers 404 like one without v-r")
+    void anonymousUnknownPathWithOtherRequestTypeAnswers404() throws Exception {
+        for (final String type : List.of("x", "init", "webcomponent-resync", "oldbrowser", "")) {
+            final MockHttpServletRequest address = request("/UI/login/zzz");
+            address.setParameter("v-r", type);
+            final MockFilterChain chain = new MockFilterChain();
+            final MockHttpServletResponse response = new MockHttpServletResponse();
+            filter.doFilter(address, response, chain);
+            assertThat(response.getStatus()).as("v-r=%s", type).isEqualTo(404);
+            assertThat(chain.getRequest()).as("router reached for v-r=%s", type).isNull();
+        }
     }
 
     @Test
