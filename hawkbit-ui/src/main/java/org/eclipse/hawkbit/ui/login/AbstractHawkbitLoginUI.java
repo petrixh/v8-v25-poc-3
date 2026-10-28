@@ -152,16 +152,12 @@ public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements B
 
     /**
      * Vaadin 8 opened the login page with the focus on the Sign in button, though the button is disabled until both
-     * fields are filled. A disabled Flow button cannot take focus, so it is focused while enabled and disabled in the
-     * round trip after (the focus stays).
+     * fields are filled.
      */
     private void focusSignIn() {
-        if (isUnsupportedBrowser()) {
-            return;
+        if (!isUnsupportedBrowser()) {
+            FocusOnShow.focus(signIn);
         }
-        final Binder<ProxyLoginCredentials> currentBinder = binder;
-        signIn.setEnabled(true);
-        FocusOnShow.focus(signIn).then(result -> signIn.setEnabled(currentBinder.isValid()));
     }
 
     private void buildContent() {
