@@ -120,6 +120,27 @@ vaadin-grid::part(selected-row-cell) {
     color: #fff;
     --vaadin-button-text-color: #fff;
     --vaadin-button-tertiary-text-color: #fff;
+    /* the focus ring of the cell's buttons and checkbox: the primary 50 % is invisible on the purple (2a-05) */
+    --lumo-primary-color-50pct: #fff;
+}
+
+/* Keyboard focus on a selected row: the grid's own ring is --lumo-primary-color-50pct on the cell, invisible on the purple (2a-05) */
+vaadin-grid[navigating]::part(selected-row-cell focused-cell) {
+    outline: 2px solid #fff;
+    outline-offset: -2px;
+}
+
+/*
+ * A caption over several joined icon columns (Status, Actions, Type; Vaadin 8 joined the header cells): it sits in the
+ * first column's header cell and is let out over the next ones (GridComponentBuilder.joinToIconColumn) (2a-05)
+ */
+vaadin-grid .joined-header-caption {
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    white-space: nowrap;
 }
 
 /*
@@ -160,6 +181,19 @@ vaadin-grid::part(selected-row-cell) {
     --lumo-size-m: 24px;
 }
 
+/*
+ * The header's menu bar keeps its width and its one item (the cog) is tight, so the item is not moved into the
+ * overflow "..." and the close button still fits next to "Filter by type" in the 148 px filter panels (2a-05)
+ */
+.widget-header vaadin-menu-bar {
+    flex-shrink: 0;
+}
+
+.widget-header vaadin-menu-bar vaadin-menu-bar-button {
+    margin: 0;
+    padding: 0 2px;
+}
+
 .header-caption {
     padding-left: 10px;
 }
@@ -191,11 +225,6 @@ vaadin-grid::part(selected-row-cell) {
 .filter-btns-layout {
     border: 1px solid #d4d4d4;
     border-radius: 0 0 4px 4px;
-}
-
-.filter-btns-header-layout {
-    padding-bottom: 14px;
-    border-bottom: 1px solid #d4d4d4;
 }
 
 .text-bold {
