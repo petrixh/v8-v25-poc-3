@@ -213,11 +213,16 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
     }
 
     /**
-     * Vaadin 8: the Navigator's afterViewChange listener.
+     * Vaadin 8: the Navigator's afterViewChange listener. Its view name was the
+     * whole navigation state when the error view was shown, so a denied view
+     * with parameters has no title.
      */
     @Override
     public void afterNavigation(final AfterNavigationEvent event) {
-        final DashboardMenuItem view = dashboardMenu.getByViewName(event.getLocation().getFirstSegment());
+        final boolean errorView = !event.getActiveChain().isEmpty()
+                && event.getActiveChain().get(0) instanceof HasErrorParameter;
+        final String viewName = errorView ? event.getLocation().getPath() : event.getLocation().getFirstSegment();
+        final DashboardMenuItem view = dashboardMenu.getByViewName(viewName);
         dashboardMenu.postViewChange(new PostViewChangeEvent(view));
         UI.getCurrent().getPage().setTitle(TITLE);
         if (view == null) {
