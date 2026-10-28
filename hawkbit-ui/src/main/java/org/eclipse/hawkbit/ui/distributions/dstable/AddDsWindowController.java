@@ -12,6 +12,7 @@ package org.eclipse.hawkbit.ui.distributions.dstable;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
+import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.common.AbstractAddNamedEntityWindowController;
 import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
 import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
@@ -73,9 +74,10 @@ public class AddDsWindowController
         // empty object, that we can populate with defaults
         final ProxyDistributionSet newDs = new ProxyDistributionSet();
 
-        final ProxyTypeInfo newType = new ProxyTypeInfo();
-        newType.setId(systemManagement.getTenantMetadata().getDefaultDsType().getId());
-        newDs.setTypeInfo(newType);
+        // Flow's ComboBox rejects a null item label, so the default type carries its name and key
+        // (Vaadin 8 showed the label of the matching list item; the key is what is persisted)
+        final DistributionSetType defaultType = systemManagement.getTenantMetadata().getDefaultDsType();
+        newDs.setTypeInfo(new ProxyTypeInfo(defaultType.getId(), defaultType.getName(), defaultType.getKey()));
 
         return newDs;
     }
