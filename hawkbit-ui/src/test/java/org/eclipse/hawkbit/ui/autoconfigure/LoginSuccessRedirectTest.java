@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026 Contributors to the Eclipse Foundation
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,6 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.autoconfigure;
 
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,9 +27,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.page.Page;
+import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinServletResponse;
-import com.vaadin.flow.internal.CurrentInstance;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
@@ -48,6 +49,7 @@ class LoginSuccessRedirectTest {
     private Page page;
     private VaadinServletRequest vaadinRequest;
     private VaadinServletResponse vaadinResponse;
+    private VaadinService service;
     private Authentication authentication;
 
     @BeforeEach
@@ -63,7 +65,10 @@ class LoginSuccessRedirectTest {
     @AfterEach
     void clear() {
         UI.setCurrent(null);
-        CurrentInstance.clearAll();
+        if (service != null) {
+            service.setCurrentInstances(null, null);
+        }
+        VaadinService.setCurrent(null);
     }
 
     @Test
@@ -107,8 +112,8 @@ class LoginSuccessRedirectTest {
         when(vaadinRequest.getHttpServletRequest()).thenReturn(request);
         vaadinResponse = mock(VaadinServletResponse.class);
         when(vaadinResponse.getHttpServletResponse()).thenReturn(response);
-        CurrentInstance.set(com.vaadin.flow.server.VaadinRequest.class, vaadinRequest);
-        CurrentInstance.set(com.vaadin.flow.server.VaadinResponse.class, vaadinResponse);
+        service = mock(VaadinService.class, CALLS_REAL_METHODS);
+        service.setCurrentInstances(vaadinRequest, vaadinResponse);
 
         final UISecurityConfigurationAdapter adapter = new UISecurityConfigurationAdapter();
         final UISecurityConfigurationAdapter.TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler handler = adapter.new TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler(

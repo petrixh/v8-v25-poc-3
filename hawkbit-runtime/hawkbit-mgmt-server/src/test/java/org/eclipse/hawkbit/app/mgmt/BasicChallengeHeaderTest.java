@@ -40,4 +40,12 @@ class BasicChallengeHeaderTest extends AbstractSecurityTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Realm\""));
     }
+
+    @Test
+    @Description("A request with wrong credentials sent as XHR gets a plain 401 without WWW-Authenticate (no browser login dialog)")
+    void badCredentialsXhrHasNoChallenge() throws Exception {
+        mvc.perform(get(MgmtRestConstants.BASE_V1_REQUEST_MAPPING + "/targets").with(httpBasic("admin", "wrong"))
+                .header("X-Requested-With", "XMLHttpRequest")).andExpect(status().isUnauthorized())
+                .andExpect(header().doesNotExist(HttpHeaders.WWW_AUTHENTICATE));
+    }
 }
