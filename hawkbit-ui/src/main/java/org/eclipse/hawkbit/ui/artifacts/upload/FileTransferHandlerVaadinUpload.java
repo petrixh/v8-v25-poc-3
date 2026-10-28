@@ -116,6 +116,10 @@ public class FileTransferHandlerVaadinUpload extends AbstractFileTransferHandler
             // browser console error
         }
         accessLocked(event, () -> uploadFinished(fileName));
+        if (failure != null) {
+            // after the status is up to date: the browser may still be sending
+            drainQuietly(event.getInputStream());
+        }
     }
 
     /**

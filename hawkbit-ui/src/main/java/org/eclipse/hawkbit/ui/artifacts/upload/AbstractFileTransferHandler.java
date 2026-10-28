@@ -243,6 +243,29 @@ public abstract class AbstractFileTransferHandler implements Serializable {
 
     }
 
+    /**
+     * Reads and discards what is left of a request body whose upload was
+     * refused or failed. Without it the server answers while the browser is
+     * still sending: beyond Tomcat's swallow limit (2 MB) the connection is
+     * closed and the browser gets a 403 error page body (a console error)
+     * instead of the 200 the status window relies on. Vaadin 8 did not read
+     * the rest either, but its connection ended with a reset, which the browser
+     * reports as a console error for a dropped file as well.
+     *
+     * @param inputStream
+     *            the request body of the upload
+     */
+    protected static void drainQuietly(final InputStream inputStream) {
+        if (inputStream == null) {
+            return;
+        }
+        try {
+            inputStream.transferTo(OutputStream.nullOutputStream());
+        } catch (final IOException e) {
+            LOG.debug("Draining the rest of a refused upload stopped (client gone)", e);
+        }
+    }
+
     protected static void tryToCloseIOStream(final InputStream inputStream) {
         if (inputStream != null) {
             try {
