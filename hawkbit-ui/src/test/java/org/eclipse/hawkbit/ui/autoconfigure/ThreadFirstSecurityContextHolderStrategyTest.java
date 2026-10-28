@@ -15,13 +15,18 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
@@ -110,6 +115,49 @@ class ThreadFirstSecurityContextHolderStrategyTest {
         strategy.setContext(context("system"));
         strategy.clearContext();
         assertThat(strategy.getContext()).isSameAs(user);
+    }
+
+    @Test
+    @Description("1B-29: a re-login of the same browser session during a switch leaves the old user on the request thread only until the request ends")
+    void contextLeftByReloginDuringSwitchEndsWithTheRequest() throws Exception {
+        final SecurityContextHolderFilter filter = new SecurityContextHolderFilter(
+                new HttpSessionSecurityContextRepository());
+        filter.setSecurityContextHolderStrategy(strategy);
+        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final MockHttpSession session = new MockHttpSession();
+        request.setSession(session);
+        final SecurityContext userA = context("userA");
+        final SecurityContext userB = context("userB");
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, userA);
+        final AtomicReference<String> afterSwitch = new AtomicReference<>();
+
+        filter.doFilter(request, new MockHttpServletResponse(), (req, res) -> {
+            final WrappedSession httpSession = currentVaadinSession();
+            when(httpSession.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY))
+                    .thenAnswer(invocation -> session
+                            .getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY));
+            try {
+                // as SystemSecurityContext.runAsSystem
+                final SecurityContext before = strategy.getContext();
+                strategy.setContext(context("system"));
+                try {
+                    // another tab of the same browser session logs in as userB
+                    session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, userB);
+                } finally {
+                    strategy.setContext(before);
+                }
+                afterSwitch.set(strategy.getContext().getAuthentication().getName());
+            } finally {
+                // the Vaadin servlet ends the request
+                VaadinSession.setCurrent(null);
+            }
+        });
+
+        assertThat(afterSwitch.get()).as("rest of the request after the switch (old app: userA, thread-local)")
+                .isEqualTo("userA");
+        assertThat(strategy.getContext().getAuthentication()).as("request thread after the request").isNull();
+        setSessionContext(currentVaadinSession(), userB);
+        assertThat(strategy.getContext()).as("next request of the session on this thread").isSameAs(userB);
     }
 
     private WrappedSession currentVaadinSession() {
