@@ -188,6 +188,11 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         if (artifactUploadState.areAllUploadsFinished()) {
             hideUploadProgressButton();
             upload.setEnabled(true);
+            // Vaadin 8 Upload took the next file once enabled again. Flow:
+            // empty the manager's file list, or its button stays at max
+            // files. Done from the server: the client's all-finished event
+            // is dropped while the modal upload status window is open.
+            uploadManager.clearFileList();
             artifactUploadState.clearUploadTempData();
         }
     }
