@@ -32,7 +32,7 @@ The step "Build and start" is the deployable artefact per commit: the image `mig
 
 ## State on the new app
 
-Stage 1a ticket 1a-05 moved the build and run images to Java 21; ticket 1a-06 (green build) switched the smoke to the new UI's selectors and routes (`.github/ci/smoke/new-app.json`). Not yet run on GitHub (remote writes are off). Known state, from the same checks run locally on the stage branch with the test-sources tickets merged:
+Stage 1a ticket 1a-05 moved the build and run images to Java 21; ticket 1a-06 (green build) switched the smoke to the new UI's selectors and routes (`.github/ci/smoke/new-app.json`). CI runs on GitHub on pushes to `petrixh/v8-v25-poc-3`. This note does not copy the state of the latest run: see `gh run list -R petrixh/v8-v25-poc-3 -b stage/1a-compile`. Dated anchor: the first full run on the new stack (1a-11 merge, run 40543187946, 2026-10-27) built, started and passed the smoke; the step "Tests" failed on `MgmtSoftwareModuleResourceTest.downloadArtifact`. Known state, from the same checks run locally on the stage branch with the test-sources tickets merged:
 
 - The build is green with the test-source tickets merged (1a-06): `-DskipTests` still compiles the test sources, so a branch without them has a red "Build and start".
 - Smoke: run locally with the same routes, views and `errorTexts` for these four users (and four more migration test users), every check passes, error pages counted as failures: 13 + 11 + 5 + 7 = 36 for the CI users. Before ticket 1a-10 (non-admin access), `readonly` stopped at its login on Flow's error page.
