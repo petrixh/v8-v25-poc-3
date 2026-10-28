@@ -103,7 +103,7 @@ public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements B
 
     private MultiValueMap<String, String> params;
 
-    private final Binder<ProxyLoginCredentials> binder;
+    private Binder<ProxyLoginCredentials> binder;
 
     @Autowired
     protected AbstractHawkbitLoginUI(final ApplicationContext context, final VaadinLoginSupport vaadinSecurity,
@@ -115,7 +115,6 @@ public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements B
         this.uiProperties = uiProperties;
         this.multiTenancyIndicator = multiTenancyIndicator;
         this.isDemo = !uiProperties.getDemo().getDisclaimer().isEmpty();
-        this.binder = new Binder<>();
     }
 
     @Override
@@ -134,6 +133,11 @@ public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements B
         params = new LinkedMultiValueMap<>(event.getLocation().getQueryParameters().getParameters());
 
         removeAll();
+        // Vaadin 8 ran init once per UI; Flow reuses this route instance when
+        // the login view is entered again in the same UI, so the fields built
+        // below get a binder of their own (no bindings or listeners kept from
+        // the fields removed above)
+        binder = new Binder<>();
         buildContent();
 
         final ProxyLoginCredentials credentialsBean = new ProxyLoginCredentials();
