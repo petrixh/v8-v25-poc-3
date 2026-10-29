@@ -14,7 +14,7 @@ For every flavour there are two build types:
 Building images supports the following build arguments (i.e. ARG-s which could be passed using _--build-arg_):
 * _JAVA_VERSION_ - **[OPTIONAL, if not set a default is used]** the Java version of the eclipse-temurin jre-alpine base image (Java 21 or later) to be used.   
 * _HAWKBIT_APP_ - **[OPTIONAL, if not set _hawkbit-update-server_ is used]** the application to be build. Currently, there is just _hawkbit-update-server_ but in future, if hawkBit is split to micro-services, there could be different micro-service apps.
-* _HAWKBIT_JAR_SOURCE_ - **[OPTIONAL, if not set _local_ is used]** _local_ copies the jar named by _HAWKBIT_JAR_ from the build context. _download_ fetches the released _HAWKBIT_APP_-_HAWKBIT_VERSION_ jar from https://repo1.maven.org instead. A release downloaded this way must itself be built on the migrated stack (Java 21, Spring Boot 4): the default _HAWKBIT_VERSION_ 0.3.0 is not, and its extract step fails.
+* _HAWKBIT_JAR_SOURCE_ - **[OPTIONAL, if not set _local_ is used]** _local_ copies the jar named by _HAWKBIT_JAR_ from the build context. _download_ fetches the released _HAWKBIT_APP_-_HAWKBIT_VERSION_ jar from https://repo1.maven.org instead. A release downloaded this way must itself be built on the migrated stack (Java 21, Spring Boot 4): the default _HAWKBIT_VERSION_ 0.3.0 is not, and its extract step is expected to fail (not run).
 * _HAWKBIT_JAR_ - **[OPTIONAL, if not set _HAWKBIT_APP_.jar is used]** (_local_ only) the path of the application jar in the build context
 * _HAWKBIT_VERSION_ - **[OPTIONAL, if not set 0.3.0 is used]** (_download_ only) the released application version. Set it to a release built on the migrated stack.
 * _CONTAINER_PORT_ - **[OPTIONAL, if not set 8080 is used]** on which the app opens the http server (if available)
@@ -29,6 +29,8 @@ cp <your build>/hawkbit-update-server-<version>.jar hawkbit-update-server.jar
 docker build -t hawkbit_update_server:<version> . -f Dockerfile
 ```
 having that docker uses by default _Dockerfile_ and the _hawkbit-update-server_ is the default _HAWKBIT_APP_. To take the jar from another file name use `--build-arg HAWKBIT_JAR=<file in the context>`.
+
+The local jar is not checked (no checksum, no signature): whoever builds from a local jar owns its provenance, e.g. a CI job builds the jar and passes it to `docker build` in the same job. Making the local jar the default is the stage 2b proposal in escalation E026.
 
 To download a release instead:
 ```shell
