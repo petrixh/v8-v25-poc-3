@@ -34,6 +34,12 @@ import com.microsoft.playwright.options.KeyboardModifier;
  * read through the slots of the grid's cells, rows selected and dragged with the mouse. A grid shows only the rows in
  * view (virtual scrolling): reading all rows pages through it with the grid's own {@code scrollToIndex}, the way a user
  * scrolls. The grid's table has the role {@code treegrid}; rows, cells and headers have their ARIA roles.
+ * <p>
+ * Not public Vaadin API: the helpers rely on the internal table structure of {@code vaadin-grid}'s shadow DOM: the
+ * {@code table} (whether the grid scrolls), {@code thead} and {@code tbody} (headers and rows), and the {@code td}
+ * cells with their slotted content (cell text and components), as well as the grid's {@code #scroller}, whose
+ * {@code scrolling} attribute {@link HawkbitUi} reads. The other non-public dependencies are listed in {@link HawkbitUi}.
+ * Check all of them after a Vaadin update.
  */
 final class Grids {
 
