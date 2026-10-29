@@ -22,7 +22,10 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.HasValidator;
 import com.vaadin.flow.data.binder.Result;
@@ -37,8 +40,9 @@ import com.vaadin.flow.data.binder.Validator;
  * Vaadin 25: Flow has no date-time field with a free text format and a server
  * side parse fallback. The field is a {@link CustomField} around a
  * {@link TextField} that parses and formats {@code HH:mm:ss} on the server,
- * with the same fallback and error message; the popup with the time selects
- * is gone.
+ * with the same fallback and error message. The popup with the time selects
+ * is a {@link DurationPicker} that opens from a calendar button at the start of
+ * the text field, as the old field's calendar button did.
  */
 public class DurationField extends CustomField<LocalDateTime> implements HasValidator<LocalDateTime> {
     private static final long serialVersionUID = 1L;
@@ -56,6 +60,8 @@ public class DurationField extends CustomField<LocalDateTime> implements HasVali
     private transient LocalDateTime maximumDuration;
 
     private final TextField textField = new TextField();
+    private final Button pickerButton = new Button(VaadinIcon.CALENDAR.create());
+    private final DurationPicker picker;
     private String parseErrorMessage;
 
     /**
@@ -67,6 +73,14 @@ public class DurationField extends CustomField<LocalDateTime> implements HasVali
         this.setWidth("100px");
         textField.setWidth("100%");
         add(textField);
+
+        // the button is disabled with the field, so the popup opens only while
+        // the field can be edited
+        pickerButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_ICON);
+        pickerButton.addClassName("duration-picker-button");
+        textField.setPrefixComponent(pickerButton);
+        picker = new DurationPicker(this);
+        picker.setTarget(pickerButton);
 
         // Vaadin 8 parsed the text with the date format and the fallback
         // below, and wrote the (sanitized) value back in HH:mm:ss
@@ -98,9 +112,51 @@ public class DurationField extends CustomField<LocalDateTime> implements HasVali
         return sanitizeValue(result.getOrThrow(IllegalStateException::new));
     }
 
+    /**
+     * Takes a time chosen in the popup as if the user had typed it: same
+     * parsing, limits and value change from the user as typed text.
+     *
+     * @param time
+     *            the chosen time
+     */
+    void pickTime(final LocalTime time) {
+        textField.setValue(time.format(DateTimeFormatter.ofPattern(DURATION_FORMAT_STIRNG)));
+        updateValue();
+        if (parseErrorMessage == null) {
+            setPresentationValue(getValue());
+        }
+    }
+
+    /**
+     * Names the popup button and the popup for assistive technology (the
+     * field's caption is a separate label).
+     *
+     * @param caption
+     *            the caption of the field
+     */
+    public void setPickerCaption(final String caption) {
+        pickerButton.setAriaLabel(caption);
+        picker.setAriaLabel(caption);
+    }
+
+    TextField getTextField() {
+        return textField;
+    }
+
+    Button getPickerButton() {
+        return pickerButton;
+    }
+
+    DurationPicker getPicker() {
+        return picker;
+    }
+
     @Override
     protected void setPresentationValue(final LocalDateTime value) {
         textField.setValue(value == null ? "" : value.format(DateTimeFormatter.ofPattern(DURATION_FORMAT_STIRNG)));
+        if (picker != null) {
+            picker.showValue(value);
+        }
     }
 
     /**
