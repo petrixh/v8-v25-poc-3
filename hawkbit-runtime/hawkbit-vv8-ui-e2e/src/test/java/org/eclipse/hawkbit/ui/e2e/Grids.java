@@ -351,8 +351,9 @@ final class Grids {
 
     /**
      * An HTML5 drag with the mouse: press on the source, start with a small move, glide to the target, release. A drag
-     * that ended without a drop (the browser reports the drop effect "none") is repeated, as a user drags again: the
-     * browser now and then cancels the first drag onto a row right after the page opened.
+     * that ended without a drop (the browser reports the drop effect "none") is repeated, as a user drags again (each repeat is
+     * printed): the browser now and then cancels the first drag onto a row right after the page opened. When every
+     * attempt ends without a drop, the drag fails with an {@link IllegalStateException}.
      */
     void mouseDrag(final Supplier<Locator> getFrom, final Supplier<Locator> getTo) {
         page.evaluate("() => { window.__e2eDrops = 0; if (!window.__e2eDropHook) { window.__e2eDropHook = true;"
@@ -386,8 +387,11 @@ final class Grids {
             if (ui.waitFor(() -> ((Number) page.evaluate("() => window.__e2eDrops")).intValue() > 0, 800, 100)) {
                 return;
             }
+            System.out.println("drag " + (attempt + 1) + " of " + (DRAG_RETRIES + 1) + " ended without a drop"
+                    + (attempt < DRAG_RETRIES ? ", dragging again" : ""));
             page.waitForTimeout(500);
         }
+        throw new IllegalStateException("drag ended without a drop, " + (DRAG_RETRIES + 1) + " attempts");
     }
 
     /** Whether the pointer at (x, y) reaches the element: the topmost element there is it or inside it. */
