@@ -20,6 +20,7 @@ import jakarta.servlet.MultipartConfigElement;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
+import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
@@ -91,7 +92,7 @@ public class UploadArtifactView extends AbstractEventListenersAwareView implemen
             final EntityFactory entityFactory, final SoftwareModuleManagement softwareModuleManagement,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement,
             final MultipartConfigElement multipartConfigElement, final ArtifactManagement artifactManagement,
-            final DashboardMenu dashboardMenu) {
+            final QuotaManagement quotaManagement, final DashboardMenu dashboardMenu) {
         this.permChecker = permChecker;
         this.artifactUploadState = artifactUploadState;
         this.i18n = i18n;
@@ -108,7 +109,7 @@ public class UploadArtifactView extends AbstractEventListenersAwareView implemen
                     artifactUploadState.getSmGridLayoutUiState());
             this.artifactDetailsGridLayout = new ArtifactDetailsGridLayout(uiDependencies, artifactUploadState,
                     artifactUploadState.getArtifactDetailsGridLayoutUiState(), artifactManagement,
-                    softwareModuleManagement, multipartConfigElement);
+                    softwareModuleManagement, multipartConfigElement, quotaManagement);
 
             addEventAwareLayouts(Arrays.asList(smTypeFilterLayout, smGridLayout, artifactDetailsGridLayout));
 
