@@ -64,6 +64,8 @@ abstract class AbstractUiE2eTest {
     protected Page page;
     /** The app as a user sees it, on {@link #page}. */
     protected HawkbitUi ui;
+    /** The app's lists on {@link #page}. */
+    protected Grids grids;
     private final List<String> browserErrors = Collections.synchronizedList(new ArrayList<>());
     private final List<String> blockedRequests = Collections.synchronizedList(new ArrayList<>());
     private String testName;
@@ -121,6 +123,7 @@ abstract class AbstractUiE2eTest {
             }
         });
         ui = new HawkbitUi(page, BASE_URL);
+        grids = new Grids(page, ui);
     }
 
     @AfterEach
