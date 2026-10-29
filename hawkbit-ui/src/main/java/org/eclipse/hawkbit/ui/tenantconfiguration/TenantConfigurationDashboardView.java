@@ -118,12 +118,14 @@ public class TenantConfigurationDashboardView extends Composite<Div>
                 "", true, VaadinIcon.HARDDRIVE, SPUIButtonStyleNoBorder.class);
         saveConfigurationBtn.setEnabled(false);
         saveConfigurationBtn.addClickListener(event -> saveConfiguration());
+        saveConfigurationBtn.setAriaLabel(i18n.getMessage("configuration.savebutton.tooltip"));
         hlayout.add(withTooltip(saveConfigurationBtn, i18n.getMessage("configuration.savebutton.tooltip")));
 
         undoConfigurationBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.SYSTEM_CONFIGURATION_CANCEL, "",
                 "", "", true, VaadinIcon.ARROW_BACKWARD, SPUIButtonStyleNoBorder.class);
         undoConfigurationBtn.setEnabled(false);
         undoConfigurationBtn.addClickListener(event -> undoConfiguration());
+        undoConfigurationBtn.setAriaLabel(i18n.getMessage("configuration.cancellbutton.tooltip"));
         hlayout.add(withTooltip(undoConfigurationBtn, i18n.getMessage("configuration.cancellbutton.tooltip")));
 
         final Anchor linkToSystemConfigHelp = SPUIComponentProvider.getHelpLink(i18n,
