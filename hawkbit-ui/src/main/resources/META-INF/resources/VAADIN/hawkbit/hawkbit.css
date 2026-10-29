@@ -124,6 +124,15 @@ vaadin-grid::part(selected-row-cell) {
     --lumo-primary-color-50pct: #fff;
 }
 
+/*
+ * An invalidated distribution set: grey and struck through, also when selected (others.scss .invalid-distribution,
+ * $disabled-row-color-grey with !important); the part name comes from the grids' setPartNameGenerator (2B-12)
+ */
+vaadin-grid::part(invalid-distribution) {
+    color: #c8c8c8;
+    text-decoration: line-through;
+}
+
 /* Keyboard focus on a selected row: the grid's own ring is --lumo-primary-color-50pct on the cell, invisible on the purple (2a-05) */
 vaadin-grid[navigating]::part(selected-row-cell focused-cell) {
     outline: 2px solid #fff;
