@@ -44,6 +44,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -158,13 +159,16 @@ public final class DashboardMenu extends Composite<Div> implements HasStyle, Has
         links.setSpacing(true);
         links.setPadding(false);
         links.addClassName("links");
+        // Vaadin 8 aligned each link BOTTOM_CENTER in this expanded layout, and a full-size component in a layout
+        // of undefined height had its own height: the links sit at the bottom of the menu, each as high as its text
+        links.setJustifyContentMode(JustifyContentMode.END);
         final String linkStyle = "v-link";
 
         if (!uiProperties.getLinks().getDocumentation().getRoot().isEmpty()) {
             final Anchor docuLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_DOCUMENTATION,
                     i18n.getMessage("link.documentation.name"), uiProperties.getLinks().getDocumentation().getRoot(),
                     VaadinIcon.QUESTION_CIRCLE, "_blank", linkStyle);
-            docuLink.setSizeFull();
+            docuLink.setWidthFull();
             links.add(docuLink);
             links.setHorizontalComponentAlignment(Alignment.CENTER, docuLink);
         }
@@ -174,7 +178,7 @@ public final class DashboardMenu extends Composite<Div> implements HasStyle, Has
                     i18n.getMessage("link.usermanagement.name"), uiProperties.getLinks().getUserManagement(),
                     VaadinIcon.USERS, "_blank", linkStyle);
             links.add(userManagementLink);
-            userManagementLink.setSizeFull();
+            userManagementLink.setWidthFull();
             links.setHorizontalComponentAlignment(Alignment.CENTER, userManagementLink);
         }
 
@@ -182,7 +186,7 @@ public final class DashboardMenu extends Composite<Div> implements HasStyle, Has
             final Anchor supportLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_SUPPORT,
                     i18n.getMessage("link.support.name"), uiProperties.getLinks().getSupport(), VaadinIcon.ENVELOPE_O,
                     "", linkStyle);
-            supportLink.setSizeFull();
+            supportLink.setWidthFull();
             links.add(supportLink);
             links.setHorizontalComponentAlignment(Alignment.CENTER, supportLink);
 
@@ -313,7 +317,7 @@ public final class DashboardMenu extends Composite<Div> implements HasStyle, Has
 
     private Component buildVersionInfo() {
         final Span label = new Span();
-        label.setSizeFull();
+        label.setWidthFull();
         label.setClassName("version-layout");
         label.setText(serverProperties.getBuild().getVersion());
         return label;

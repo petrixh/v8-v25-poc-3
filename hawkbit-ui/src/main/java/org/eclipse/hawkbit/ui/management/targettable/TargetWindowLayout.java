@@ -12,10 +12,10 @@ package org.eclipse.hawkbit.ui.management.targettable;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import org.eclipse.hawkbit.repository.TargetTypeManagement;
+import org.eclipse.hawkbit.ui.common.builder.WindowFormLayout;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetTypeToTypeInfoMapper;
@@ -58,9 +58,7 @@ public class TargetWindowLayout extends AbstractEntityWindowLayout<ProxyTarget> 
 
     @Override
     public Component getRootComponent() {
-        final FormLayout targetWindowLayout = new FormLayout();
-        // Vaadin 8 FormLayout: one column; Flow has no spacing/margin here
-        targetWindowLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
+        final FormLayout targetWindowLayout = new WindowFormLayout();
         targetWindowLayout.setSizeUndefined();
 
         targetWindowLayout.add(targetControllerId);

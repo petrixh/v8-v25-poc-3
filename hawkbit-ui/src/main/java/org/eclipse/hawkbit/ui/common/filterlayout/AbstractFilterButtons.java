@@ -27,6 +27,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.button.Button;
@@ -74,6 +75,8 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
         addClassNames("no-vertical-lines");
         addClassNames("borderless");
         addClassNames("compact");
+        // no frame and no lines between the entries, as the Vaadin 8 list had none (2A-09)
+        addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS);
     }
 
     protected abstract String getMessageKeyEntityTypeSing();

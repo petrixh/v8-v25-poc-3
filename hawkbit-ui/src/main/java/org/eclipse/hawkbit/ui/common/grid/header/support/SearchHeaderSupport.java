@@ -15,6 +15,7 @@ import java.util.function.Supplier;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
+import org.eclipse.hawkbit.ui.utils.FocusOnShow;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -115,7 +116,8 @@ public class SearchHeaderSupport implements HeaderSupport {
         searchResetIcon.addClassNames(SPUIDefinitions.FILTER_RESET_ICON, MODE_SEARCH_INPUT);
 
         searchField.setVisible(true);
-        searchField.focus();
+        // on a fresh page load (deep link) a plain focus() runs while the page is still hidden and does nothing
+        FocusOnShow.focus(searchField);
 
         isSearchInputActive = true;
     }

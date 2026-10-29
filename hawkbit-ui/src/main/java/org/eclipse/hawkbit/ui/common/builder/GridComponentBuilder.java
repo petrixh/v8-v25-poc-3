@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.grid.ColumnToggleMenu;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.utils.StringHtmlEncoder;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -30,13 +31,17 @@ import com.cronutils.utils.StringUtils;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.HeaderRow;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.shared.Tooltip;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.ValueProvider;
 
@@ -282,7 +287,7 @@ public final class GridComponentBuilder {
      */
     public static <E, T> Column<E> addColumn(final Grid<E> grid, final ValueProvider<E, T> valueProvider,
             final SerializableFunction<E, String> styleGenerator) {
-        final Column<E> column = grid.addColumn(valueProvider);
+        final Column<E> column = rememberDefaultTooltipGenerator(grid.addColumn(valueProvider));
         commonColumnConfiguration(column, styleGenerator);
         return column;
     }
@@ -347,8 +352,9 @@ public final class GridComponentBuilder {
      */
     public static <E, T extends Component> Column<E> addComponentColumn(final Grid<E> grid,
             final ValueProvider<E, T> componentProvider, final SerializableFunction<E, String> styleGenerator) {
-        final Column<E> column = grid.addComponentColumn(componentProvider);
+        final Column<E> column = rememberDefaultTooltipGenerator(grid.addComponentColumn(componentProvider));
         commonColumnConfiguration(column, styleGenerator);
+        keepComponentTooltips(grid);
         return column;
     }
 
@@ -438,13 +444,98 @@ public final class GridComponentBuilder {
         final SerializableFunction<T, String> finalStyleGenerator = merge(
                 Arrays.asList(styleGenerator, additionalStyleGenerator));
 
-        final Column<T> column = grid.addComponentColumn(iconProvider).setKey(columnId)
+        final Column<T> column = rememberDefaultTooltipGenerator(grid.addComponentColumn(iconProvider)).setKey(columnId)
                 .setPartNameGenerator(finalStyleGenerator).setWidth(toPixels(60D)).setFlexGrow(0).setResizable(false)
                 .setSortable(false);
         if (!StringUtils.isEmpty(caption)) {
             column.setHeader(caption);
         }
+        keepComponentTooltips(grid);
         return column;
+    }
+
+    // a column has a tooltip generator from the start (one that gives no text); the column keeps that one here
+    private static final String DEFAULT_TOOLTIP_GENERATOR_KEY = GridComponentBuilder.class.getName()
+            + ".defaultTooltipGenerator";
+
+    private static final String COMPONENT_TOOLTIPS_KEY = GridComponentBuilder.class.getName() + ".componentTooltips";
+
+    /**
+     * Keeps the tooltips of the components in a grid's cells (icons, buttons).
+     * <p>
+     * Vaadin 8 showed the description of the component under the pointer. In
+     * Flow a grid that has a tooltip generator on any column handles the
+     * pointer over <em>every</em> cell and shows the text of the cell's own
+     * column; a column without a generator gives an empty text, which takes
+     * the pointer from the tooltip of the component inside the cell. So in
+     * such a grid each component column without a generator gets one that
+     * reads the tooltip text of its component (the first one found, for a cell
+     * with several components). This also shows the tooltip of a disabled
+     * button, as Vaadin 8 did (a disabled Flow button takes no pointer events,
+     * but the cell does). Grids without any generator are left alone: the
+     * components' own tooltips work there.
+     * <p>
+     * The columns of a grid are added one by one and generators set after
+     * them, so this runs when the grid is attached, and before the next
+     * response when columns are added to an attached grid (maximize/minimize).
+     */
+    private static <E> void keepComponentTooltips(final Grid<E> grid) {
+        if (grid.getUI().isPresent()) {
+            grid.getUI().get().beforeClientResponse(grid, context -> setComponentTooltipGenerators(grid));
+        } else if (ComponentUtil.getData(grid, COMPONENT_TOOLTIPS_KEY) == null) {
+            ComponentUtil.setData(grid, COMPONENT_TOOLTIPS_KEY, Boolean.TRUE);
+            grid.addAttachListener(event -> setComponentTooltipGenerators(grid));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <E> void setComponentTooltipGenerators(final Grid<E> grid) {
+        if (grid.getColumns().stream().noneMatch(GridComponentBuilder::hasTooltipGenerator)) {
+            return;
+        }
+        for (final Column<E> column : grid.getColumns()) {
+            if (!hasTooltipGenerator(column) && column.getRenderer() instanceof ComponentRenderer) {
+                final ComponentRenderer<? extends Component, E> renderer = (ComponentRenderer<? extends Component, E>) column
+                        .getRenderer();
+                column.setTooltipGenerator(item -> firstTooltipText(renderer.createComponent(item)));
+            }
+        }
+    }
+
+    /**
+     * Remembers the tooltip generator a column has when it is created (Flow's
+     * own one, which gives no text), so that a generator set later by the app
+     * can be told from it. Call it right after creating a column, before any
+     * generator is set. The columns added through this builder and through
+     * {@code AbstractGrid} are remembered; a column without a remembered
+     * generator counts as having none.
+     *
+     * @param <E>
+     *            entity type of the grid
+     * @param column
+     *            the newly created column
+     * @return the column
+     */
+    public static <E> Column<E> rememberDefaultTooltipGenerator(final Column<E> column) {
+        ComponentUtil.setData(column, DEFAULT_TOOLTIP_GENERATOR_KEY, column.getTooltipGenerator());
+        return column;
+    }
+
+    private static boolean hasTooltipGenerator(final Column<?> column) {
+        final Object defaultGenerator = ComponentUtil.getData(column, DEFAULT_TOOLTIP_GENERATOR_KEY);
+        return defaultGenerator != null && column.getTooltipGenerator() != defaultGenerator;
+    }
+
+    private static String firstTooltipText(final Component component) {
+        if (component == null) {
+            return "";
+        }
+        final String text = Tooltip.forComponent(component).getText();
+        if (text != null && !text.isEmpty()) {
+            return text;
+        }
+        return component.getChildren().map(GridComponentBuilder::firstTooltipText).filter(t -> !t.isEmpty()).findFirst()
+                .orElse("");
     }
 
     /**
@@ -503,10 +594,18 @@ public final class GridComponentBuilder {
             column.setWidth(toPixels(30D));
             column.setFlexGrow(0);
             column.setResizable(false);
+            // Vaadin 8: the joined cell left the column caption, which the column toggle menu still showed
+            if (!StringUtils.isEmpty(column.getHeaderText())) {
+                ColumnToggleMenu.setToggleCaption(column, column.getHeaderText());
+            }
         });
         // Flow cannot join cells in the first header row (Vaadin 8's default row, the one with the column
-        // captions; HeaderRow.join throws): the caption goes into the first column's cell, the others stay empty
-        headerRow.getCell(columns.get(0)).setText(headerCaption);
+        // captions; HeaderRow.join throws): the caption goes into the first column's cell, the others stay empty.
+        // The cell clips its text to the 30 px column, so the caption is a component the theme lets out over the
+        // next columns (hawkbit.css .joined-header-caption)
+        final Span caption = new Span(headerCaption);
+        caption.addClassName("joined-header-caption");
+        headerRow.getCell(columns.get(0)).setComponent(caption);
         columns.stream().skip(1).forEach(column -> headerRow.getCell(column).setText(""));
     }
 

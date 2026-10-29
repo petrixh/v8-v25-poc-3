@@ -12,6 +12,7 @@ package org.eclipse.hawkbit.ui.common.grid;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionModel;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
@@ -173,17 +174,18 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
 
     @Override
     public Column<T> addColumn(final ValueProvider<T, ?> valueProvider) {
-        return super.addColumn(valueProvider).setSortable(false);
+        return GridComponentBuilder.rememberDefaultTooltipGenerator(super.addColumn(valueProvider)).setSortable(false);
     }
 
     @Override
     public Column<T> addColumn(final Renderer<T> renderer) {
-        return super.addColumn(renderer).setSortable(false);
+        return GridComponentBuilder.rememberDefaultTooltipGenerator(super.addColumn(renderer)).setSortable(false);
     }
 
     @Override
     public <V extends Component> Column<T> addComponentColumn(final ValueProvider<T, V> componentProvider) {
-        return super.addComponentColumn(componentProvider).setSortable(false);
+        return GridComponentBuilder.rememberDefaultTooltipGenerator(super.addComponentColumn(componentProvider))
+                .setSortable(false);
     }
 
     /**

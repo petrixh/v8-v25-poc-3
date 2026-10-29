@@ -36,11 +36,16 @@ import com.vaadin.flow.component.icon.VaadinIcon;
  * to the end), in place of {@code setHidable(true)}:
  *
  * <pre>
- * ColumnToggleMenu.setHidable(column); // caption: the column's header text
+ * ColumnToggleMenu.setHidable(column); // caption: the toggle caption, else the header text
  * ColumnToggleMenu.setHidable(column, caption); // Vaadin 8 setHidingToggleCaption
  * ColumnToggleMenu.setAllHidable(grid); // getColumns().forEach(c -> c.setHidable(true))
  * </pre>
  *
+ * Vaadin 8 kept a column's caption apart from its header cell: a joined header
+ * cell or a header component did not change the caption the toggle showed.
+ * Code that puts a component into the header gives the column its toggle
+ * caption first ({@link #setToggleCaption(Column, String)}).
+ * <p>
  * {@code setHidable(false)} needs no call (not hidable is the default).
  * Hidden columns ({@code setVisible(false)}) show unchecked. When the grid's
  * columns are removed and added again (maximize/minimize), the hidable columns
@@ -57,6 +62,8 @@ public final class ColumnToggleMenu<T> implements Serializable {
     public static final String TOGGLE_COLUMN_KEY = "column-toggle";
 
     private static final String TOGGLE_STYLE = "column-toggle-button";
+
+    private static final String TOGGLE_CAPTION_KEY = "column-toggle-caption";
 
     private final Grid<T> grid;
     private final ContextMenu menu = new ContextMenu();
@@ -76,15 +83,32 @@ public final class ColumnToggleMenu<T> implements Serializable {
     }
 
     /**
-     * Makes a column hidable by the user, with its header text as the caption
-     * in the menu.
+     * Makes a column hidable by the user, with its toggle caption as the
+     * caption in the menu, or its header text when it has none.
      *
      * @param column
      *            the column, already added to its grid
      * @return the column
      */
     public static <T> Column<T> setHidable(final Column<T> column) {
-        return setHidable(column, column.getHeaderText());
+        final Object toggleCaption = ComponentUtil.getData(column, TOGGLE_CAPTION_KEY);
+        return setHidable(column, toggleCaption != null ? toggleCaption.toString() : column.getHeaderText());
+    }
+
+    /**
+     * Sets the caption the column has in the menu when it is made hidable
+     * with {@link #setHidable(Column)}, whatever its header shows (Vaadin 8:
+     * the column caption, which a joined header cell did not change).
+     *
+     * @param column
+     *            the column
+     * @param toggleCaption
+     *            the caption in the menu
+     * @return the column
+     */
+    public static <T> Column<T> setToggleCaption(final Column<T> column, final String toggleCaption) {
+        ComponentUtil.setData(column, TOGGLE_CAPTION_KEY, toggleCaption);
+        return column;
     }
 
     /**
@@ -116,6 +140,14 @@ public final class ColumnToggleMenu<T> implements Serializable {
      */
     public static <T> void setAllHidable(final Grid<T> grid) {
         new ArrayList<>(grid.getColumns()).forEach(ColumnToggleMenu::setHidable);
+    }
+
+    /**
+     * @return the captions in the grid's menu, in menu order (for tests)
+     */
+    static List<String> getToggleCaptions(final Grid<?> grid) {
+        final ColumnToggleMenu<?> toggleMenu = ComponentUtil.getData(grid, ColumnToggleMenu.class);
+        return toggleMenu == null ? List.of() : toggleMenu.menu.getItems().stream().map(MenuItem::getText).toList();
     }
 
     @SuppressWarnings("unchecked")

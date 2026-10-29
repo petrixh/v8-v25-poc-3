@@ -42,6 +42,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.DeploymentConfiguration;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -67,8 +68,24 @@ class AnonymousShellTest {
     private final EventPushStrategy pushStrategy = mock(EventPushStrategy.class);
     private final DashboardMenu dashboardMenu = mock(DashboardMenu.class);
     private final NotificationUnreadButton notificationUnreadButton = mock(NotificationUnreadButton.class);
+    // the session and page the UI reports: public API (UI.getSession(),
+    // UI.getPage()) instead of UI.getInternals()
+    private VaadinSession uiSession;
+    private final Page page = mock(Page.class);
     // Vaadin holds the current UI weakly: keep a reference
-    private final UI ui = new UI();
+    private final UI ui = new UI() {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public VaadinSession getSession() {
+            return uiSession;
+        }
+
+        @Override
+        public Page getPage() {
+            return page;
+        }
+    };
 
     @BeforeEach
     void setUp() {
@@ -215,7 +232,7 @@ class AnonymousShellTest {
         when(session.hasLock()).thenReturn(true);
         when(session.getConfiguration()).thenReturn(mock(DeploymentConfiguration.class));
         VaadinSession.setCurrent(session);
-        ui.getInternals().setSession(session);
+        uiSession = session;
         when(dashboardMenu.getElement()).thenReturn(new Element("div"));
         when(notificationUnreadButton.getElement()).thenReturn(new Element("div"));
         final DashboardMenuItem rollout = mock(DashboardMenuItem.class);

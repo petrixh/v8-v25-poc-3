@@ -24,8 +24,10 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Maps;
+import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.page.ExtendedClientDetails;
+import com.vaadin.flow.server.VaadinSession;
 
 /**
  * Common Util to get date/time related information.
@@ -35,6 +37,9 @@ public final class SPDateTimeUtil {
     private static final String DURATION_FORMAT = "y','M','d','H','m','s";
     private static final Map<Integer, CalendarI18N> DURATION_I18N = Maps.newHashMapWithExpectedSize(6);
     private static String fixedTimeZoneProperty;
+    // the browser's raw offset (ms), kept in the session; the zone a UI formatted dates with before its details came
+    static final String BROWSER_RAW_OFFSET_ATTRIBUTE = SPDateTimeUtil.class.getName() + ".browserRawTimezoneOffset";
+    static final String RENDERED_ZONE_ID = SPDateTimeUtil.class.getName() + ".renderedZoneId";
 
     static {
         DURATION_I18N.put(0, CalendarI18N.YEAR);
@@ -71,17 +76,79 @@ public final class SPDateTimeUtil {
             return TimeZone.getTimeZone(fixedTimeZoneProperty);
         }
 
-        // Flow: the browser's time zone offset is in the extended client details
-        final ExtendedClientDetails webBrowser = UI.getCurrent().getPage().getExtendedClientDetails();
-        final String[] timeZones = TimeZone.getAvailableIDs(webBrowser.getRawTimezoneOffset());
+        // Vaadin 8 kept the browser details per session and had them before the first view rendered. Flow has
+        // them per UI, and with vaadin.eagerServerLoad (the UI is built in the request for the page) only after a
+        // round trip: until then the offset an earlier UI of the session received is used (trackBrowserTimeZone)
+        final UI ui = UI.getCurrent();
+        if (ui != null) {
+            final ExtendedClientDetails details = ui.getPage().getExtendedClientDetails();
+            if (isReceived(details)) {
+                return getTimeZoneForRawOffset(details.getRawTimezoneOffset());
+            }
+        }
+        final VaadinSession session = ui != null ? ui.getSession() : VaadinSession.getCurrent();
+        final TimeZone tz = getTimeZoneForRawOffset(
+                session != null ? (Integer) session.getAttribute(BROWSER_RAW_OFFSET_ATTRIBUTE) : null);
+        if (ui != null && ComponentUtil.getData(ui, RENDERED_ZONE_ID) == null) {
+            ComponentUtil.setData(ui, RENDERED_ZONE_ID, tz.getID());
+        }
+        return tz;
+    }
+
+    /**
+     * The zone Vaadin 8 picked for the browser's raw (non-DST) offset: the last
+     * zone id with that raw offset; the JVM default zone if the offset is not
+     * known.
+     *
+     * @param rawOffset
+     *            raw offset in milliseconds, or {@code null} if not known
+     * @return TimeZone
+     */
+    static TimeZone getTimeZoneForRawOffset(final Integer rawOffset) {
         TimeZone tz = TimeZone.getDefault();
-        for (final String string : timeZones) {
+        if (rawOffset == null) {
+            return tz;
+        }
+        for (final String string : TimeZone.getAvailableIDs(rawOffset)) {
             final TimeZone t = TimeZone.getTimeZone(string);
-            if (t.getRawOffset() == webBrowser.getRawTimezoneOffset()) {
+            if (t.getRawOffset() == rawOffset) {
                 tz = t;
             }
         }
         return tz;
+    }
+
+    /**
+     * Keeps the browser's raw time zone offset in the session, for the UIs
+     * that render before their own browser details arrive, and fetches the
+     * details if this UI has none yet. If this UI formatted a date before they
+     * arrived, in another zone than theirs (the first UI of a session that did
+     * not start at the login view), the page is loaded again, so no date stays
+     * in the server's zone.
+     *
+     * @param ui
+     *            a UI being initialised
+     */
+    public static void trackBrowserTimeZone(final UI ui) {
+        final ExtendedClientDetails details = ui.getPage().getExtendedClientDetails();
+        if (isReceived(details)) {
+            ui.getSession().setAttribute(BROWSER_RAW_OFFSET_ATTRIBUTE, details.getRawTimezoneOffset());
+            return;
+        }
+        details.refresh(received -> {
+            ui.getSession().setAttribute(BROWSER_RAW_OFFSET_ATTRIBUTE, received.getRawTimezoneOffset());
+            final Object renderedZoneId = ComponentUtil.getData(ui, RENDERED_ZONE_ID);
+            if (renderedZoneId != null
+                    && !renderedZoneId.equals(getTimeZoneForRawOffset(received.getRawTimezoneOffset()).getID())) {
+                ui.getPage().reload();
+            }
+        });
+    }
+
+    // Flow's own check (Page.retrieveExtendedClientDetails): a placeholder has
+    // no screen width
+    private static boolean isReceived(final ExtendedClientDetails details) {
+        return details.getScreenWidth() != -1;
     }
 
     /**
