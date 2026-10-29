@@ -25,7 +25,7 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 
 /**
- * 1B-59: a 406 answer carries no {@code Accept} response header (Spring
+ * A 406 answer carries no {@code Accept} response header (Spring
  * Framework 7 adds one by default; the old app's answers had none).
  */
 @Feature("Unit Tests - REST")
