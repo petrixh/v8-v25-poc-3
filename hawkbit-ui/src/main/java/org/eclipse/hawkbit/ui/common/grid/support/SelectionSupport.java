@@ -9,6 +9,7 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.support;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +17,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.LongFunction;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import jakarta.annotation.PreDestroy;
 
@@ -35,6 +37,7 @@ import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel.SelectAllCheckboxVisibility;
 import com.vaadin.flow.component.grid.GridNoneSelectionModel;
 import com.vaadin.flow.component.grid.GridSingleSelectionModel;
+import com.vaadin.flow.data.provider.DataKeyMapper;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.Query;
 
@@ -208,6 +211,25 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
      */
     public boolean isMultiSelectionModel() {
         return grid.getSelectionModel() instanceof GridMultiSelectionModel;
+    }
+
+    /**
+     * Vaadin 8: the selection model replaced a selected item with the instance
+     * last fetched for its row (AbstractSelectionModel#generateData), so a
+     * drag, an invalidation or a deletion saw the item's current state, e.g.
+     * an invalidated distribution set. Flow keeps the instance that was selected: take the instance the
+     * grid last fetched for the row where the grid has it.
+     *
+     * @param grid
+     *            the grid
+     * @return the selected items, as last fetched
+     */
+    public static <T> List<T> getSelectedItemsAsLastFetched(final Grid<T> grid) {
+        final DataKeyMapper<T> keyMapper = grid.getDataCommunicator().getKeyMapper();
+
+        return grid.getSelectedItems().stream()
+                .map(item -> keyMapper.has(item) ? keyMapper.get(keyMapper.key(item)) : item)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
