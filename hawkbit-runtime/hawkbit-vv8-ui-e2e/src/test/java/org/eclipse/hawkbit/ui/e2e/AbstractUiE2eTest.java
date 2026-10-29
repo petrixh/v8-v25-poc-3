@@ -74,7 +74,7 @@ abstract class AbstractUiE2eTest {
         // Chromium only: the pom installs its headless shell; Playwright must not fetch its other browsers.
         playwright = Playwright.create(new Playwright.CreateOptions().setEnv(Map.of("PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD", "1")));
         browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
-        // The user agent of the desktop browser, as the migration's workflow runs use (no "HeadlessChrome" token)
+        // The user agent of the desktop browser, as a real browser reports it (no "HeadlessChrome" token)
         try (BrowserContext probe = browser.newContext()) {
             userAgent = ((String) probe.newPage().evaluate("() => navigator.userAgent")).replace("HeadlessChrome", "Chrome");
         }

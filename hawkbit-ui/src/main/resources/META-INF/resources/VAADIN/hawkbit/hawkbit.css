@@ -10,8 +10,9 @@
 
 /*
  * hawkBit global theme settings, on top of Lumo and its compact preset (both loaded before this
- * file by the app shell). The values come from the Vaadin 8 theme
- * (VAADIN/themes/hawkbit/customstyles/hawkbitvariables.scss) and the Valo defaults it relied on.
+ * file by the app shell). The values come from the former Vaadin 8 theme (its hawkbitvariables.scss) and the
+ * Valo defaults it relied on. That theme is removed from the app: the Sass file names in the comments of this
+ * file (common.scss, grid.scss and so on) name its files, which are in the git history only.
  * Only global settings live here: colours, font, the app background, and the colours and sizes of
  * the menu and the view header. Density and sizes are the compact preset's: text 14px, fields and
  * buttons 32px; Open Sans is not shipped, and with the fallback font 14px text takes about the
@@ -96,7 +97,7 @@ html {
 }
 
 /*
- * Grids (hawkbittheme.scss, grid.scss; one rule for every grid, as the old theme had one
+ * Grids (former theme: hawkbittheme.scss, grid.scss; one rule for every grid, as the old theme had one
  * variable): rows and header 31px ($v-table-row-height), 6px cell padding ($v-grid-cell-padding-horizontal),
  * small icon buttons and icons in cells so they do not set the row height.
  */
@@ -249,7 +250,7 @@ vaadin-grid .joined-header-caption {
 /*
  * ==== Shell and login view: header band, menu, login form ====
  * Values from common.scss, login.scss, hawkbitvariables.scss and Valo's valo-menu.scss as the old theme
- * configured it. The images are the old theme's (VAADIN/themes/hawkbit/images/).
+ * configured it. The images are in the images/ folder next to this file (copied from the former theme).
  */
 
 /* Header band: 70px above the view title, the hawkBit logo top right ($logo-image, $logo-position); the

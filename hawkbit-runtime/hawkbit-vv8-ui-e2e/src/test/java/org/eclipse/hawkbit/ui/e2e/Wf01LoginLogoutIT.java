@@ -22,9 +22,10 @@ import com.microsoft.playwright.PlaywrightException;
 import org.junit.jupiter.api.Test;
 
 /**
- * Log in, look around and sign out, as the administrator, from the app's seed state (workflow WF01 of the migration:
- * the login page, the start view and menu, the user menu, every view with its seed content, sign-out, and no way back
- * in without signing in).
+ * Log in, look around and sign out, as the administrator, from the app's seed state: the login page, the start view
+ * and menu, the user menu, every view with its seed content, sign-out, and no way back in without signing in.
+ * (The "Wf01" in the class name is the number of this user workflow in the catalogue the tests were derived from; it
+ * is kept as the stable name of the test.)
  */
 class Wf01LoginLogoutIT extends AbstractUiE2eTest {
 
@@ -80,8 +81,7 @@ class Wf01LoginLogoutIT extends AbstractUiE2eTest {
 
         step(6, "going back in the browser shows the login page, not the app", () -> {
             // Going back may end in a redirect to the login page, which Playwright can report as an interrupted
-            // navigation: that is logged with its reason, not ignored, and the outcome a user sees is checked below
-            // (the workflow's replay script does the same).
+            // navigation: that is logged with its reason, not ignored, and the outcome a user sees is checked below.
             final String before = page.url();
             try {
                 page.goBack();
