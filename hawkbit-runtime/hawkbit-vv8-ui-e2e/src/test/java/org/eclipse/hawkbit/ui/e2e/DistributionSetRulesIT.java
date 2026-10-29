@@ -63,7 +63,7 @@ class DistributionSetRulesIT extends AbstractUiE2eTest {
 
     @Test
     void editAssignRulesAndDelete() {
-        step(1, "admin opens Distributions: 4 sets", () -> {
+        step(1, "sign in and open Distributions: 4 sets", () -> {
             ui.openAddress("login");
             ui.login(USER);
             ui.goTo("Distributions");

@@ -151,7 +151,7 @@ class SoftwareModuleUploadIT extends AbstractUiE2eTest {
 
     @Test
     void createModuleAndUploadArtifacts() {
-        step(1, "admin opens Upload: the 5 seed modules", () -> {
+        step(1, "sign in and open Upload: the 5 seed modules", () -> {
             ui.openAddress("login");
             ui.login(USER);
             ui.goTo("Upload");

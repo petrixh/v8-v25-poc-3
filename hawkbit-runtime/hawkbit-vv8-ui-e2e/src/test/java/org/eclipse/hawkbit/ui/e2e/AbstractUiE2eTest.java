@@ -152,7 +152,8 @@ abstract class AbstractUiE2eTest {
 
     /**
      * One workflow step: runs {@code body} (actions and assertions), then fails the step on browser errors or requests
-     * that left the app. Failures name the step.
+     * that left the app. Failures name the step. Keep user names out of {@code description}: a password that is also a
+     * plain word (the default admin's is "admin") is masked in failure messages wherever the word appears.
      */
     protected void step(final int number, final String description, final StepBody body) {
         browserErrors.clear();

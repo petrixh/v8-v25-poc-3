@@ -86,7 +86,7 @@ class TargetTagsIT extends AbstractUiE2eTest {
 
     @Test
     void createAssignFilterUnassignAndDeleteTag() {
-        step(1, "admin in the Deployment view: the target tags Lab and Field", () -> {
+        step(1, "sign in, the Deployment view: the target tags Lab and Field", () -> {
             ui.openAddress("login");
             ui.login(USER);
             assertEquals("Deployment", ui.currentView(), "view");

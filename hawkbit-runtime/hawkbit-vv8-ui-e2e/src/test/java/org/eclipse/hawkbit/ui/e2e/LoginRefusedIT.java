@@ -48,7 +48,7 @@ class LoginRefusedIT extends AbstractUiE2eTest {
 
     @Test
     void wrongCredentialsAreRefusedWithoutLockout() {
-        step(1, "admin with a wrong password: \"Login failed!\", the login page stays", () -> {
+        step(1, "a known user name with a wrong password: \"Login failed!\", the login page stays", () -> {
             ui.openAddress("login");
             assertTrue(ui.waitLoginPage(15_000), "login page");
             assertEquals(List.of(FAILED), attempt(USER, WRONG_PW), "notifications");
@@ -60,7 +60,7 @@ class LoginRefusedIT extends AbstractUiE2eTest {
             assertTrue(ui.isLoginPage(), "still the login page");
         });
 
-        step(3, "admin with an empty password: sign-in disabled, nothing happens", () -> {
+        step(3, "a known user name with an empty password: sign-in disabled, nothing happens", () -> {
             noNotification();
             ui.usernameField().fill(USER);
             ui.passwordField().fill("");
