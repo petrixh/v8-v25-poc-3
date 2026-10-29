@@ -79,11 +79,16 @@ class Wf01LoginLogoutIT extends AbstractUiE2eTest {
         step(5, "Sign Out shows the login page", () -> assertTrue(ui.signOut(), "login page after Sign Out"));
 
         step(6, "going back in the browser shows the login page, not the app", () -> {
+            // Going back may end in a redirect to the login page, which Playwright can report as an interrupted
+            // navigation: that is logged with its reason, not ignored, and the outcome a user sees is checked below
+            // (the workflow's replay script does the same).
+            final String before = page.url();
             try {
                 page.goBack();
             } catch (final PlaywrightException e) {
-                // no history entry or a redirect in flight: the outcome is checked below
+                System.out.println("Step 6: going back from " + before + " ended with: " + e.getMessage().split("\n")[0]);
             }
+            System.out.println("Step 6: went back from " + before + " to " + page.url());
             ui.settle(2000);
             assertTrue(ui.waitLoginPage(5000), "login page after going back");
             assertFalse(ui.menuItemVisible("Deployment"), "main menu shown");

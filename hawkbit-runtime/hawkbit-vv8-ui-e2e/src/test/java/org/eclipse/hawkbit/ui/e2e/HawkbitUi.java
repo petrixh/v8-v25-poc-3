@@ -19,6 +19,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BooleanSupplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -341,6 +343,8 @@ final class HawkbitUi {
     static final class TestUsers {
 
         private static final Pattern LINE = Pattern.compile("^\\s*([A-Za-z0-9_]+)\\s*[=:]\\s*(.*?)\\s*$");
+        /** Every password handed out, so that failure messages can be cleared of them ({@link #redact}). */
+        private static final Set<String> HANDED_OUT = ConcurrentHashMap.newKeySet();
 
         private TestUsers() {
         }
@@ -362,10 +366,23 @@ final class HawkbitUi {
             for (final String line : lines) {
                 final Matcher m = LINE.matcher(line);
                 if (m.matches() && m.group(1).equals(key)) {
-                    return m.group(2).replaceAll("^(['\"])(.*)\\1$", "$2");
+                    final String pw = m.group(2).replaceAll("^(['\"])(.*)\\1$", "$2");
+                    if (!pw.isEmpty()) {
+                        HANDED_OUT.add(pw);
+                    }
+                    return pw;
                 }
             }
             throw new IllegalStateException("No key " + key + " in the test-user file " + path);
+        }
+
+        /** {@code text} with every password handed out so far replaced by "***". */
+        static String redact(final String text) {
+            String out = text == null ? "" : text;
+            for (final String pw : HANDED_OUT) {
+                out = out.replace(pw, "***");
+            }
+            return out;
         }
     }
 }

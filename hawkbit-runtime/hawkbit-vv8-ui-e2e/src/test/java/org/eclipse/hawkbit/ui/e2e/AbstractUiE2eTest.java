@@ -156,7 +156,13 @@ abstract class AbstractUiE2eTest {
         try {
             body.run();
         } catch (final AssertionError | Exception e) {
-            throw new AssertionError("Step " + number + " (" + description + "): " + e.getMessage(), e);
+            // No password in reports or logs: Playwright's call log of a failed fill() can hold the typed value. The
+            // message is cleared of every test-user password, and the original exception (whose message and causes
+            // would keep it) is not attached; its stack trace is.
+            final AssertionError failure = new AssertionError(
+                    HawkbitUi.TestUsers.redact("Step " + number + " (" + description + "): " + e.getClass().getSimpleName() + ": " + e.getMessage()));
+            failure.setStackTrace(e.getStackTrace());
+            throw failure;
         }
         page.waitForTimeout(400);
         assertEquals(List.of(), List.copyOf(blockedRequests), "Step " + number + " (" + description + "): requests to other hosts");

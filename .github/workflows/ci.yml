@@ -174,6 +174,11 @@ jobs:
     if: ${{ needs.already-green.outputs.skip != 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
+    env:
+      # The tests' toolchain, pinned as the image build's (env/lib.sh): Temurin 21.0.12.1+1 (Adoptium semver
+      # 21.0.12+101.0.LTS) and Maven 3.9.16, checked against the SHA-512 Maven Central publishes for it
+      MAVEN_VERSION: 3.9.16
+      MAVEN_SHA512: 831a8591fe20c8243b1dbe7d71e3244f31d1665b0804b2e825e38cbbe5ce0cafb8338851f90780735568773e0a6cd07bbec107cda0b896b008b861075358b6f6
     defaults:
       run:
         shell: bash  # -eo pipefail
@@ -182,6 +187,19 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      - name: JDK 21 (Temurin 21.0.12.1+1)
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21.0.12+101.0.LTS'
+
+      - name: Maven (pinned, SHA-512 checked)
+        run: |
+          curl -fsSL --retry 3 -o /home/runner/maven.tar.gz \
+            "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION-bin.tar.gz"
+          echo "$MAVEN_SHA512  /home/runner/maven.tar.gz" | sha512sum -c -
+          tar -xzf /home/runner/maven.tar.gz -C /home/runner && rm /home/runner/maven.tar.gz
 
       - name: Restore Maven repository
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -212,15 +230,29 @@ jobs:
 
       - name: End-to-end tests (env/e2e.sh)
         timeout-minutes: 35
-        # The runner's JDK 21 and Maven 3.9 run the tests; the app image is built in Docker as in build-test-smoke.
+        # The pinned JDK (JAVA_HOME from setup-java) and Maven run the tests; the app image is built in Docker as in
+        # build-test-smoke.
+        env:
+          MVN: /home/runner/apache-maven-${{ env.MAVEN_VERSION }}/bin/mvn
         run: |
-          export JAVA_HOME="$JAVA_HOME_21_X64" PATH="$JAVA_HOME_21_X64/bin:$PATH"
           mkdir -p "$CI_OUT"
-          mvn -v
+          "$MVN" -v | tee "$CI_OUT/mvn-version.txt"
+          grep -q "^Apache Maven $MAVEN_VERSION " "$CI_OUT/mvn-version.txt" && grep -q "^Java version: 21\.0\.12\.1," "$CI_OUT/mvn-version.txt" \
+            || { echo "::error::not the pinned Maven $MAVEN_VERSION on Java 21.0.12.1"; exit 1; }
+          # Playwright for Java and the smoke's Node Playwright share one browser cache only at the same version
+          grep -q "<playwright.version>$PLAYWRIGHT_VERSION</playwright.version>" hawkbit-runtime/hawkbit-vv8-ui-e2e/pom.xml \
+            || { echo "::error::playwright.version in hawkbit-runtime/hawkbit-vv8-ui-e2e/pom.xml is not PLAYWRIGHT_VERSION ($PLAYWRIGHT_VERSION)"; exit 1; }
           env/e2e.sh 2>&1 | tee "$CI_OUT/e2e.log"
 
-      - name: Upload diagnostics (failure only)
+      - name: Redact test-user passwords from the diagnostics (failure only)
+        id: redact
+        # ::add-mask:: covers the live log only; the uploaded files are cleared of the passwords here
         if: ${{ failure() }}
+        run: .github/ci/redact.sh "$APP_ENV_USERS_ENV" /home/runner/ci-out hawkbit-runtime/hawkbit-vv8-ui-e2e/target/e2e hawkbit-runtime/hawkbit-vv8-ui-e2e/target/failsafe-reports
+
+      - name: Upload diagnostics (failure only)
+        # only what the step above cleared; nothing when it failed
+        if: ${{ failure() && steps.redact.outcome == 'success' }}
         continue-on-error: true
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

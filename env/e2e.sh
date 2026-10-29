@@ -62,4 +62,10 @@ bad="$( { grep -oE 'Download(ing|ed) from [^:]+: https?://[^/]+' "$log" | sed -E
           grep -E '^Downloading .* from https?://' "$log" | grep -oE 'https?://[^/]+' | sed -E 's#https?://##' | grep -vxF -f <(tr ' ' '\n' <<<"$browser_hosts" | grep .)
         } | sort -u)"
 [ -z "$bad" ] || { say "ERROR downloads from hosts not allowed: ${bad//$'\n'/ } (log $log)" >&2; [ "$rc" -ne 0 ] || rc=1; }
+# The browser check reads Playwright's "Downloading <what> from <url>" lines: if a browser was installed ("... downloaded
+# to <dir>") but no such line names its host, the wording changed and the check above saw nothing: fail rather than pass.
+if [ "$(grep -cE ' downloaded to /' "$log")" -gt "$(grep -cE '^Downloading .* from https?://' "$log")" ]; then
+  say "ERROR Playwright installed a browser but its download host is not in the log: update the check in e2e.sh (log $log)" >&2
+  [ "$rc" -ne 0 ] || rc=1
+fi
 exit "$rc"
