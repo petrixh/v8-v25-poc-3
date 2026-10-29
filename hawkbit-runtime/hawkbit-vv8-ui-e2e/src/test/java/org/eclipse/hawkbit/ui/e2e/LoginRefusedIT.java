@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Wrong credentials on the login page: a wrong password and an unknown user name are refused with the same
  * notification, an empty password cannot be submitted, repeated failures do not lock the account, and the right
- * password then signs in. (Workflow WF02 of the migration's catalogue.)
+ * password then signs in.
  */
 class LoginRefusedIT extends AbstractUiE2eTest {
 

@@ -431,6 +431,8 @@
                      <!-- Vaadin4Spring event bus source copied into hawkbit-ui (Apache-2.0, own headers; licence in licenses/APACHE-2.0.txt) -->
                      <exclude>**/org/vaadin/spring/**</exclude>
                      <exclude>licenses/APACHE-2.0.txt</exclude>
+                     <!-- Fixture files of the e2e tests' upload test (hawkbit-vv8-ui-e2e); the files' content is compared byte for byte, so they carry no header -->
+                     <exclude>**/src/test/resources/upload/**</exclude>
                   </excludes>
                   <mapping>
                      <scss>JAVADOC_STYLE</scss>

@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Distribution sets in the Distributions view: edit a set's description, the rules for assigning modules (module type
  * not supported by the set type, module already in the set, set already assigned to a target), and deleting a set,
- * which both views then reflect. Seed state: four sets, no assignments. (Workflow WF17 of the migration's catalogue.)
+ * which both views then reflect. Seed state: four sets, no assignments.
  */
 class DistributionSetRulesIT extends AbstractUiE2eTest {
 

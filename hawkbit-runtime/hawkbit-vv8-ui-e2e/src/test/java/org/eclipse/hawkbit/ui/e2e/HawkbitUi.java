@@ -42,12 +42,13 @@ import com.microsoft.playwright.options.LoadState;
  * Flow components keep their text in light DOM slots (menu items, tooltips, notification cards), the text is read
  * through the slots. Mostly the public tags and attributes of Vaadin components are used ({@code vaadin-tooltip},
  * {@code vaadin-tooltip-overlay[opened]}, {@code vaadin-notification-card}, a dialog's {@code opened}).
- * Five things are not public API and can change in a Vaadin update without notice: the Flow client objects in
+ * Five things here are not public API and can change in a Vaadin update without notice: the Flow client objects in
  * {@code window.Vaadin.Flow.clients} and their {@code isActive()} (the check "no server round trip in flight", as
  * TestBench uses it), the {@code closing} state attribute and the {@code positionTarget} property of the tooltip
  * overlay, the {@code target} property of {@code vaadin-tooltip}, and the {@code scrolling} attribute of the grid's
- * {@code #scroller} (a grid ignores the pointer while it scrolls). If a test starts to hang or read the wrong tooltip
- * after a Vaadin update, look there first.
+ * {@code #scroller} (a grid ignores the pointer while it scrolls). {@link Grids} also relies on the internal table
+ * structure of {@code vaadin-grid}'s shadow DOM (see its Javadoc). If a test starts to hang or read the wrong tooltip
+ * or list after a Vaadin update, look there first.
  */
 final class HawkbitUi {
 
