@@ -118,7 +118,7 @@ mvn clean install
 java -jar ./hawkbit-runtime/hawkbit-update-server/target/hawkbit-update-server-#version#.jar
 ```
 
-The build needs Java 21 (tested with Maven 3.9). The Management UI runtimes (`hawkbit-vv8-ui`, `hawkbit-update-server`) run Vaadin's frontend build when they are packaged; it uses Vaadin's pre-built bundle and needs no Node.js as long as the UI has no custom frontend files (see [hawkbit-ui](hawkbit-ui)).
+The build needs Java 21 (tested with Maven 3.9). The Management UI runtimes (`hawkbit-vv8-ui`, `hawkbit-update-server`) run Vaadin's frontend build when they are packaged. It may download Node.js from `nodejs.org` and npm packages from `registry.npmjs.org` (Node.js is kept in `~/.vaadin` for later builds), so the build needs these hosts next to Maven Central; as long as the UI has no custom frontend files it uses Vaadin's pre-built bundle (see [hawkbit-ui](hawkbit-ui)).
 
 The Vaadin 24 simple UI (`hawkbit-runtime/hawkbit-simple-ui`) is not part of the default build. The Maven profile `simple-ui` (`mvn clean install -Psimple-ui`) only adds this module to the build of `hawkbit-runtime`. The module has not been ported to Java 21 / Spring Boot 4, so a build with the profile is expected to fail until it is.
 

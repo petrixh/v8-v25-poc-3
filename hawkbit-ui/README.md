@@ -8,7 +8,7 @@ This module holds the views and components. The applications that serve the UI a
 
 The build needs Java 21. No client-side code is compiled: there is no GWT widgetset and no Sass theme.
 
-The two runtimes run Vaadin's frontend build (`vaadin-maven-plugin`, goals `prepare-frontend` and `build-frontend`) when they are packaged. As long as the UI uses only Vaadin's own components and no custom frontend files, Vaadin uses its pre-built production bundle (the build log says "A production mode bundle build is not needed") and needs neither Node.js nor npm. When a bundle has to be built (custom frontend files, add-ons with their own client-side code), the plugin downloads Node.js from `nodejs.org` and the npm packages from `registry.npmjs.org`.
+The two runtimes run Vaadin's frontend build (`vaadin-maven-plugin`, goals `prepare-frontend` and `build-frontend`) when they are packaged. The build may download Node.js from `nodejs.org` (once per Node.js version; it is kept in `~/.vaadin` of the user running Maven) and npm packages from `registry.npmjs.org`, so these two hosts must be reachable, next to Maven Central. As long as the UI uses only Vaadin's own components and no custom frontend files, Vaadin uses its pre-built production bundle (the build log says "A production mode bundle build is not needed"); a bundle is compiled only when there are custom frontend files or add-ons with their own client-side code.
 
 ## Theme
 
