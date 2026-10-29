@@ -10,14 +10,9 @@
 package org.eclipse.hawkbit.ui.themes;
 
 /**
- * The hawkbit theme.
- * 
- *
- *
+ * Constants of the hawkBit UI's look and routes.
  */
 public final class HawkbitTheme {
-
-    public static final String THEME_NAME = "hawkbit";
 
     /**
      * Route of the login view (under the /UI servlet mapping: /UI/login)

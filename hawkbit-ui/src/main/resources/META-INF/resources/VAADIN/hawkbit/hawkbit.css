@@ -10,43 +10,41 @@
 
 /*
  * hawkBit global theme settings, on top of Lumo and its compact preset (both loaded before this
- * file by the app shell). The values come from the former Vaadin 8 theme (its hawkbitvariables.scss) and the
- * Valo defaults it relied on. That theme is removed from the app: the Sass file names in the comments of this
- * file (common.scss, grid.scss and so on) name its files, which are in the git history only.
+ * file by the app shell). The values match the earlier Vaadin 8 UI, which this UI replaces.
  * Only global settings live here: colours, font, the app background, and the colours and sizes of
  * the menu and the view header. Density and sizes are the compact preset's: text 14px, fields and
  * buttons 32px; Open Sans is not shipped, and with the fallback font 14px text takes about the
- * width Valo's 16px Open Sans did. Border radius stays Lumo's 0.25em (Valo 4px).
+ * width the old UI's 16px Open Sans did. Border radius stays Lumo's 0.25em (the old UI had 4px).
  */
 html {
-    /* $hawkbit-primary-color, $app-focus-color, $app-selection-color */
+    /* primary colour: also focus and selection */
     --lumo-primary-color: #551f62;
     --lumo-primary-color-50pct: rgba(85, 31, 98, 0.5);
     --lumo-primary-color-10pct: rgba(85, 31, 98, 0.1);
     --lumo-primary-text-color: #551f62;
     --lumo-primary-contrast-color: #fff;
 
-    /* Valo $v-error-indicator-color */
+    /* error colour */
     --lumo-error-color: #ed473b;
     --lumo-error-color-50pct: rgba(237, 71, 59, 0.5);
     --lumo-error-color-10pct: rgba(237, 71, 59, 0.1);
     --lumo-error-text-color: #ed473b;
 
-    /* Valo $v-friendly-color */
+    /* success colour */
     --lumo-success-color: #2c9720;
     --lumo-success-color-50pct: rgba(44, 151, 32, 0.5);
     --lumo-success-color-10pct: rgba(44, 151, 32, 0.1);
     --lumo-success-text-color: #2c9720;
 
-    /* $app-font-family, then Lumo's own stack where Open Sans is not installed */
+    /* Open Sans first, then Lumo's own stack where Open Sans is not installed */
     --lumo-font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI", Helvetica, Arial,
         sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 
-    /* $app-background-color; widgets (grids, fields) keep Lumo's white base colour ($widget-bg) */
+    /* app background; widgets (grids, fields) keep Lumo's white base colour */
     background-color: #fafafa;
 }
 
-/* Menu: $valo-menu-background-color, $menu-text-color; 14px, weight 400 (common.scss .valo-menu) */
+/* Menu: dark grey background, light grey text; 14px, weight 400 */
 .valo-menu {
     background-color: #4b4b4b;
     color: #a5a5a5;
@@ -62,13 +60,13 @@ html {
     color: #a5a5a5;
 }
 
-/* the open view's menu item: white, as in Valo's dark menu */
+/* the open view's menu item: white */
 .valo-menu vaadin-button.selected {
     --vaadin-button-text-color: #fff;
     color: #fff;
 }
 
-/* View header: $widget-caption-color, $view-caption-font-style (common.scss .v-caption-header-content) */
+/* View header: the view title in the primary colour */
 .view-header-layout .header-content {
     color: #551f62;
     font-size: 1.6em;
@@ -76,7 +74,7 @@ html {
     padding-left: 20px;
 }
 
-/* View content: 20px left and right (common.scss .view-content) */
+/* View content: 20px left and right */
 .view-content {
     padding-left: 20px;
     padding-right: 20px;
@@ -84,7 +82,7 @@ html {
 }
 
 /*
- * View scrolling (common.scss .main-content, .view-content): below the view's minimum size the content
+ * View scrolling: below the view's minimum size the content
  * area scrolls inside itself, not the page.
  */
 .main-content {
@@ -97,8 +95,7 @@ html {
 }
 
 /*
- * Grids (former theme: hawkbittheme.scss, grid.scss; one rule for every grid, as the old theme had one
- * variable): rows and header 31px ($v-table-row-height), 6px cell padding ($v-grid-cell-padding-horizontal),
+ * Grids (one rule for every grid): rows and header 31px, 6px cell padding,
  * small icon buttons and icons in cells so they do not set the row height.
  */
 vaadin-grid {
@@ -115,7 +112,7 @@ vaadin-grid vaadin-button {
     --lumo-size-m: 24px;
 }
 
-/* Selected row: solid $app-selection-color with white text and icons (the checkbox column stays) */
+/* Selected row: solid primary colour with white text and icons (the checkbox column stays) */
 vaadin-grid::part(selected-row-cell) {
     background-color: #551f62;
     color: #fff;
@@ -126,8 +123,8 @@ vaadin-grid::part(selected-row-cell) {
 }
 
 /*
- * An invalidated distribution set: grey and struck through, also when selected (others.scss .invalid-distribution,
- * $disabled-row-color-grey with !important); the part name comes from the grids' setPartNameGenerator
+ * An invalidated distribution set: light grey and struck through, also when selected; the part name
+ * comes from the grids' setPartNameGenerator
  */
 vaadin-grid::part(invalid-distribution) {
     color: #c8c8c8;
@@ -154,9 +151,8 @@ vaadin-grid .joined-header-caption {
 }
 
 /*
- * Panels (table-common.scss, table-content.scss, filter-layout-styles.scss, common.scss): white panels with
- * a $widget-border-color border, a header band with the caption in $widget-caption-color and small icon
- * buttons; captions stay on one line, long values are cut with an ellipsis (generic-styles.scss).
+ * Panels: white panels with a border, a header band with the caption in the primary colour and small icon
+ * buttons; captions stay on one line, long values are cut with an ellipsis.
  */
 .table-layout {
     background: #fff;
@@ -249,11 +245,10 @@ vaadin-grid .joined-header-caption {
 
 /*
  * ==== Shell and login view: header band, menu, login form ====
- * Values from common.scss, login.scss, hawkbitvariables.scss and Valo's valo-menu.scss as the old theme
- * configured it. The images are in the images/ folder next to this file (copied from the former theme).
+ * The images are in the images/ folder next to this file.
  */
 
-/* Header band: 70px above the view title, the hawkBit logo top right ($logo-image, $logo-position); the
+/* Header band: 70px above the view title, the hawkBit logo top right; the
    login page has the same band */
 .main-content {
     position: relative;
@@ -276,8 +271,8 @@ vaadin-grid .joined-header-caption {
     box-sizing: border-box;
 }
 
-/* Menu: about 203px wide, scrolls inside itself when the window is low (Valo .valo-menu-part); the toggle
-   button is never shown (the hawkBit theme replaced Valo's responsive menu, which showed it below 800px) */
+/* Menu: about 203px wide, scrolls inside itself when the window is low; the toggle
+   button is never shown (the old UI replaced the framework's responsive menu, which showed it below 800px) */
 .valo-menu-part {
     min-width: 203px;
     padding-bottom: 37px;
@@ -363,7 +358,7 @@ vaadin-grid .joined-header-caption {
     color: #fff;
 }
 
-/* Links (Documentation and the like) at the bottom of the menu, and under the login form ($menu-text-color) */
+/* Links (Documentation and the like) at the bottom of the menu, and under the login form */
 .valo-menu .links {
     padding: 0 0 20px 22px;
     box-sizing: border-box;
@@ -386,7 +381,7 @@ vaadin-grid .joined-header-caption {
     vertical-align: -2px;
 }
 
-/* Up to 1100px the menu shows only icons (common.scss valo-menu-responsive, Valo's large icons style) */
+/* Up to 1100px the menu shows only icons */
 @media (max-width: 1100px) {
     .valo-menu-part {
         min-width: 74px;
@@ -460,13 +455,13 @@ vaadin-grid .joined-header-caption {
     align-self: center;
 }
 
-/* A disabled Sign in: the primary colour at half opacity, as Valo showed a disabled button */
+/* A disabled Sign in: the primary colour at half opacity, as the old UI showed a disabled button */
 .login-panel vaadin-button.login-button[disabled] {
     background-color: var(--lumo-primary-color);
     opacity: 0.5;
 }
 
-/* Required fields: Valo's red asterisk ($v-required-field-indicator-color = $v-error-indicator-color) */
+/* Required fields: a red asterisk */
 html {
     --vaadin-input-field-required-indicator: "*";
     --vaadin-input-field-required-indicator-color: #ed473b;
@@ -475,15 +470,12 @@ html {
 
 /*
  * ==== Detail tabs, rollout groups chart, status icons and bars ====
- * Values from table-common.scss, common.scss, rollout.scss, others.scss, grid.scss, statusprogressbar.scss and
- * hawkbitvariables.scss, and Valo's framed tab sheet as the old app drew it. Only the app's own class names,
+ * Values as the old UI drew them. Only the app's own class names,
  * part names from the grids' part name generators, documented parts and custom properties.
  */
 
 /*
- * Detail tabs (table-common.scss .details-tab, .details-layout; common.scss tab captions; Valo framed and
- * compact tab bar): framed tabs in $tab-sheet-caption-color on a bordered content box, captions at
- * $details-tab-caption-font-scale, detail text in $table-details-tab-font-color, and every tab's content
+ * Detail tabs: framed tabs in the primary colour on a bordered content box, smaller captions, and every tab's content
  * 116px high with 12px padding, scrolling inside itself.
  */
 .details-tab {
@@ -545,7 +537,7 @@ vaadin-tabsheet vaadin-tab {
 }
 
 /*
- * Rollout window: groups pie chart, its legend and the advanced group names (rollout.scss). The first slice
+ * Rollout window: groups pie chart, its legend and the advanced group names. The first slice
  * is the unassigned targets; the group colours repeat after 16 groups.
  */
 .groups-pie-chart svg .pie { stroke: #fff; }
@@ -603,7 +595,7 @@ vaadin-tabsheet vaadin-tab {
 .groups-legend > .rollout-group-count:nth-child(16n+15) { border-left-color: #bbde8f; }
 .groups-legend > .rollout-group-count:nth-child(16n+16) { border-left-color: #7fb0a4; }
 
-/* advanced group definition: the n-th group's name field, in the same grid positions as the old theme */
+/* advanced group definition: the n-th group's name field, in the same grid positions as in the old UI */
 .rollout-groups .rollout-group-name { border-left: 5px solid #000; }
 .rollout-groups .rollout-group-name:nth-child(16n+8) { border-left-color: #e20015; }
 .rollout-groups .rollout-group-name:nth-child(16n+14) { border-left-color: #b90276; }
@@ -623,7 +615,7 @@ vaadin-tabsheet vaadin-tab {
 .rollout-groups .rollout-group-name:nth-child(16n+98) { border-left-color: #7fb0a4; }
 
 /*
- * Status icons and grid action icons (others.scss, grid.scss, table-common.scss). Status labels carry the
+ * Status icons and grid action icons Status labels carry the
  * status colour; action buttons take the cell's text colour (white in a selected row), the force-quit
  * button is red. An unpinned target or set shows its pin turned by 90 degrees.
  */
@@ -649,7 +641,7 @@ vaadin-grid vaadin-button.icon-only > vaadin-icon {
     rotate: var(--hawkbit-icon-rotate, 0deg);
 }
 
-/* status spinners (Valo valo-spinner): running, creating, starting and deleting rollouts, active actions */
+/* status spinners: running, creating, starting and deleting rollouts, active actions */
 .redSpinner,
 .greySpinner,
 .yellowSpinner,
@@ -688,7 +680,7 @@ vaadin-grid::part(selected-row-cell) {
 }
 
 /*
- * Rollout and group progress bar (statusprogressbar.scss; the dbar add-on's own styles are gone with the
+ * Rollout and group progress bar (the dbar add-on's own styles are gone with the
  * add-on, A1): one rounded bar, a part per status in the status colour, the count in white.
  */
 .alump-dbar {
@@ -742,7 +734,7 @@ vaadin-form-layout.window-form-layout {
 /* ==== Filter panels: tag lists and status filters ==== */
 
 /*
- * Tag and type lists (filter-layout-styles.scss .type-button-layout): no header row (Vaadin 8 setHeaderVisible(false);
+ * Tag and type lists (.type-button-layout): no header row (Vaadin 8 setHeaderVisible(false);
  * a Flow grid always has one).
  */
 vaadin-grid.type-button-layout::part(header-cell) {
@@ -796,9 +788,8 @@ vaadin-button.button-tag-no-border {
 }
 
 /*
- * Filter by status (filter-status.scss): 21 px squares in the status colours ($status-unknown-color,
- * $signal-green-color, $signal-yellow-color, $signal-red-color, $signal-light-blue-color) and overdue in
- * $signal-dark-blue-color; a clicked one is white with its colour as border.
+ * Filter by status: 21 px squares in the status colours and overdue in
+ * dark blue; a clicked one is white with its colour as border.
  */
 .target-status-filters {
     margin-top: 6px;
