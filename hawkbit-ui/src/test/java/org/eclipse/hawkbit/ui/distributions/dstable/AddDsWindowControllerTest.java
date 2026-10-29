@@ -30,7 +30,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.data.binder.Binder;
 
 /**
- * The Create Distribution window (1B-61) opens with the tenant's default
+ * The Create Distribution window opens with the tenant's default
  * distribution set type selected: its Type combo box needs a label for it.
  */
 class AddDsWindowControllerTest {

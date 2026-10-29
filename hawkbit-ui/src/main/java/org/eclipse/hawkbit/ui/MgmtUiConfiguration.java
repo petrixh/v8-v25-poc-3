@@ -226,7 +226,7 @@ public class MgmtUiConfiguration {
     }
 
     /**
-     * Dates and times in the browser's time zone (2B-01).
+     * Dates and times in the browser's time zone.
      *
      * @return Vaadin service init listener
      */

@@ -21,8 +21,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * The save and undo buttons of System Config show their tooltip also while
- * disabled, as in Vaadin 8: the tooltip is on a wrapper that stays enabled
- * (2B-08).
+ * disabled, as in Vaadin 8: the tooltip is on a wrapper that stays enabled.
  */
 @Feature("Unit Tests - Management UI")
 @Story("System Config tooltips")

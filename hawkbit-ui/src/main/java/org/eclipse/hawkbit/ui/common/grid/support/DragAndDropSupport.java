@@ -9,12 +9,10 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.support;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import jakarta.annotation.PreDestroy;
 
@@ -38,7 +36,6 @@ import com.cronutils.utils.StringUtils;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.dnd.GridDragStartEvent;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
-import com.vaadin.flow.data.provider.DataKeyMapper;
 import com.vaadin.flow.shared.Registration;
 
 /**
@@ -167,7 +164,7 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     }
 
     private List<T> getItemsToDrag(final GridDragStartEvent<T> event) {
-        final List<T> selectedItems = getSelectedItemsAsLastFetched(event.getSource());
+        final List<T> selectedItems = SelectionSupport.getSelectedItemsAsLastFetched(event.getSource());
         final List<T> draggedVisibleItems = event.getDraggedItems();
 
         if (draggedVisibleItems.size() == 1 && !selectedItems.contains(draggedVisibleItems.get(0))) {
@@ -175,25 +172,6 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
         } else {
             return selectedItems;
         }
-    }
-
-    /**
-     * Vaadin 8: the selection model replaced a selected item with the instance
-     * last fetched for its row (AbstractSelectionModel#generateData), so a
-     * drag carried the item's current state, e.g. an invalidated distribution
-     * set. Flow keeps the instance that was selected: take the instance the
-     * grid last fetched for the row where the grid has it.
-     *
-     * @param grid
-     *            the grid
-     * @return the selected items, as last fetched
-     */
-    static <T> List<T> getSelectedItemsAsLastFetched(final Grid<T> grid) {
-        final DataKeyMapper<T> keyMapper = grid.getDataCommunicator().getKeyMapper();
-
-        return grid.getSelectedItems().stream()
-                .map(item -> keyMapper.has(item) ? keyMapper.get(keyMapper.key(item)) : item)
-                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private void showActionNotAllowedNotification() {

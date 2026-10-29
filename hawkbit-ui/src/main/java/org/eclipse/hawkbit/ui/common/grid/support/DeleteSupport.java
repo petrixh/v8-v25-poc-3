@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.common.grid.support;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -120,8 +121,9 @@ public class DeleteSupport<T extends ProxyIdentifiableEntity> {
         confirmDeleteDialog.getWindow().open();
     }
 
-    private Set<T> getItemsForDeletion(final T clickedItem) {
-        final Set<T> selectedItems = grid.getSelectedItems();
+    Set<T> getItemsForDeletion(final T clickedItem) {
+        // the items as the grid last fetched them (Vaadin 8 behaviour)
+        final Set<T> selectedItems = new LinkedHashSet<>(SelectionSupport.getSelectedItemsAsLastFetched(grid));
 
         // only clicked item should be deleted if it is not part of the
         // selection

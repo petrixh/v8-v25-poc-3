@@ -103,7 +103,7 @@
 
    <profiles>
       <profile>
-         <!-- Vaadin 24 simple UI, opt-in with -Psimple-ui. Out of the migration's scope (E004 A): it is not ported
+         <!-- Vaadin 24 simple UI, opt-in with -Psimple-ui. Out of the migration's scope: it is not ported
             to Java 21 / Spring Boot 4 and does not build with the rest, so it is not in the default build. -->
          <id>simple-ui</id>
          <modules>

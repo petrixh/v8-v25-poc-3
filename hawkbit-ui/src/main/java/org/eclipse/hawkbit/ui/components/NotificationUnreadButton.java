@@ -113,7 +113,9 @@ public class NotificationUnreadButton extends Button {
             counter.addClassName(STYLE_UNREAD_COUNTER);
             setSuffixComponent(counter);
         }
-        setTooltipText(i18n.getMessage(DESCRIPTION, unreadNotificationCounter));
+        final String description = i18n.getMessage(DESCRIPTION, unreadNotificationCounter);
+        setTooltipText(description);
+        setAriaLabel(description);
     }
 
     private void dispatchRemotelyOriginatedEvents(final ClickEvent<Button> event) {

@@ -24,14 +24,14 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 
 /**
- * A drag of selected rows carries the rows' state as the grid last fetched
- * it, as in Vaadin 8, not the state at the time they were selected: a
- * distribution set selected before it was invalidated is refused on drop
- * (2B-19).
+ * Code that reads the selection of a grid (drags, invalidation, deletion)
+ * gets the rows' state as the grid last fetched it, as in Vaadin 8, not the
+ * state at the time they were selected: a distribution set selected before it
+ * was invalidated is refused on drop and left out of an invalidation.
  */
 @Feature("Unit Tests - Management UI")
 @Story("Users cannot assign a distribution set that was invalidated after they selected it")
-class DragAndDropSupportTest {
+class SelectionSupportTest {
 
     @Test
     void selectedItemIsTakenAsLastFetched() {
@@ -49,7 +49,7 @@ class DragAndDropSupportTest {
         assertThat(grid.getSelectedItems()).singleElement().extracting(ProxyDistributionSet::getIsValid)
                 .isEqualTo(true);
 
-        final List<ProxyDistributionSet> items = DragAndDropSupport.getSelectedItemsAsLastFetched(grid);
+        final List<ProxyDistributionSet> items = SelectionSupport.getSelectedItemsAsLastFetched(grid);
         assertThat(items).singleElement().isSameAs(fetched);
         assertThat(items.get(0).getIsValid()).isFalse();
     }
@@ -59,7 +59,7 @@ class DragAndDropSupportTest {
         final ProxyDistributionSet selected = distributionSet(2L, true);
         final Grid<ProxyDistributionSet> grid = gridWithSelected(selected);
 
-        assertThat(DragAndDropSupport.getSelectedItemsAsLastFetched(grid)).singleElement().isSameAs(selected);
+        assertThat(SelectionSupport.getSelectedItemsAsLastFetched(grid)).singleElement().isSameAs(selected);
     }
 
     @Test
@@ -76,7 +76,7 @@ class DragAndDropSupportTest {
         grid.getDataCommunicator().getKeyMapper().key(secondFetched);
         grid.getDataCommunicator().getKeyMapper().refresh(secondFetched);
 
-        assertThat(DragAndDropSupport.getSelectedItemsAsLastFetched(grid)).containsExactly(first, secondFetched)
+        assertThat(SelectionSupport.getSelectedItemsAsLastFetched(grid)).containsExactly(first, secondFetched)
                 .extracting(ProxyDistributionSet::getIsValid).containsExactly(true, false);
     }
 

@@ -246,7 +246,7 @@ class DdiCancelActionTest extends AbstractDDiApiIntegrationTest {
         mvc.perform(get("/{tenant}/controller/v1/34534543/cancelAction/1", tenantAware.getCurrentTenant())
                 .accept(MediaType.APPLICATION_ATOM_XML)).andDo(MockMvcResultPrinter.print())
                 .andExpect(status().isNotAcceptable())
-                // 1B-59: no Accept response header (Spring Framework 7 adds one by default)
+                // No Accept response header (Spring Framework 7 adds one by default)
                 .andExpect(header().doesNotExist("Accept"));
 
     }

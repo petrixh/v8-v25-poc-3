@@ -70,7 +70,7 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> imple
         super.init();
 
         // Vaadin 8: setHeaderVisible(false); Flow grids always show the
-        // header row (look: stage 2a)
+        // header row
         setAllRowsVisible(true);
 
         addClassNames("metadata-details");

@@ -98,7 +98,7 @@ public class LabelBuilder {
         label.setHeight(null);
         if (StringUtils.hasText(caption)) {
             // Vaadin 8 caption of the label: Flow spans have none, it is
-            // shown as a first child (styled in stage 2a)
+            // shown as a first child
             final Span captionText = new Span(caption);
             captionText.addClassName("v-caption");
             label.addComponentAsFirst(captionText);

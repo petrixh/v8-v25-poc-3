@@ -9,6 +9,8 @@
  */
 package org.eclipse.hawkbit.ui.components;
 
+import org.springframework.util.StringUtils;
+
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.button.Button;
 
@@ -21,6 +23,10 @@ public class SPUIButton extends Button {
     SPUIButton(final String id, final String buttonName, final String buttonDesc) {
         super(buttonName);
         setTooltipText(buttonDesc);
+        if (!StringUtils.hasText(buttonName) && StringUtils.hasText(buttonDesc)) {
+            // an icon-only button: the tooltip text is its accessible name
+            setAriaLabel(buttonDesc);
+        }
 
         if (null != id) {
             setId(id);

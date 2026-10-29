@@ -16,7 +16,7 @@
 #   2. tests, offline, in Docker on the internal network of a running env copy (env/up.sh), with its RabbitMQ:
 #      -pl hawkbit-runtime/hawkbit-vv8-ui -am -fae verify
 # RABBITMQ_TEST_HOSTNAME and RABBITMQ_SERVER_REQUIRED=true make the DMF integration tests fail instead of skipping
-# silently when the broker is not reachable (BR-001 in the migration's baseline review).
+# silently when the broker is not reachable.
 # Test classes run in alphabetical order. Surefire's default (filesystem) follows the directory order of
 # target/test-classes, which differs between runners, and some tests depend on the order: on GitHub runners
 # TargetManagementSearchTest failed with targets another test left behind, on some runs and not on others.
