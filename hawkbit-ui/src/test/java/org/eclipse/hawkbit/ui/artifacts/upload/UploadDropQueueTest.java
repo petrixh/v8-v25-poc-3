@@ -36,6 +36,7 @@ import jakarta.servlet.MultipartConfigElement;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 import org.eclipse.hawkbit.repository.ArtifactManagement;
+import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.model.Artifact;
 import org.eclipse.hawkbit.repository.model.ArtifactUpload;
@@ -122,7 +123,8 @@ class UploadDropQueueTest {
         // the upload managers register their upload URLs with the current UI
         UI.setCurrent(ui);
         layout = new UploadDropAreaLayout(uiDependencies, state,
-                new MultipartConfigElement("", 10L * FILE_SIZE, -1L, 0), softwareManagement, artifactManagement);
+                new MultipartConfigElement("", 10L * FILE_SIZE, -1L, 0), softwareManagement, artifactManagement,
+                mock(QuotaManagement.class));
         handler = layout.new UploadFileDropHandler();
     }
 
