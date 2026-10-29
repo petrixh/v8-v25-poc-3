@@ -59,7 +59,7 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.streams.UploadEvent;
 
 /**
- * 1b-14: several files dropped together. The browser sends up to three upload
+ * Several files dropped together. The browser sends up to three upload
  * requests at once; the status window, opened by the first, makes the drop
  * zone inert. The drop handler accepts every request of the drop, streams the
  * files one after the other, keeps the waiting ones queued (the "Clear file
@@ -137,7 +137,7 @@ class UploadDropQueueTest {
     @Test
     void inertDropZoneAcceptsEveryRequestOfADrop() {
         // a file the browser sends after the listed ones have finished, while
-        // the status window is still open (1b-14 review finding 1)
+        // the status window is still open
         final FileUploadId id = new FileUploadId("a.bin", softwareModule());
         state.updateFileUploadProgress(id,
                 new FileUploadProgress(id, FileUploadStatus.UPLOAD_SUCCESSFUL, FILE_SIZE, FILE_SIZE));

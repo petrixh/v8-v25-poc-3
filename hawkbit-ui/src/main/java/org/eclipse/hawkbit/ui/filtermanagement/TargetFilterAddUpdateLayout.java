@@ -108,7 +108,7 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
         autoCompleteComponent.setLabel(i18n.getMessage(FILTER_QUERY_CAPTION));
         autoCompleteComponent.setRequiredIndicatorVisible(true);
         // Vaadin 8 called focus() here before the field was attached, which did nothing: the form opens with
-        // nothing focused, so there is no focus() call (2A-12)
+        // nothing focused, so there is no focus() call
         formLayout.add(autoCompleteComponent);
 
         final HorizontalLayout actionsLayout = new HorizontalLayout();

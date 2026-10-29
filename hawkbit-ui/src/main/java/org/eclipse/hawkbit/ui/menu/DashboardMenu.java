@@ -62,8 +62,8 @@ public final class DashboardMenu extends Composite<Div> implements HasStyle, Has
     private static final String LOGOUT_BASE = "/UI/logout";
     private static final String LOGIN_BASE = "/UI/login";
 
-    // Vaadin 8 served this from the theme (ThemeResource); the theme moves in
-    // stage 2a. A static resource outside VAADIN/themes: Flow's development
+    // Vaadin 8 served this from the theme (ThemeResource).
+    // A static resource outside VAADIN/themes: Flow's development
     // mode serves VAADIN/themes/<theme>/ only from the frontend theme folder
     private static final String DEFAULT_PROFILE_IMAGE = "VAADIN/hawkbit/images/profile-pic-57px.jpg";
 

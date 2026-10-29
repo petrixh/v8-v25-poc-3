@@ -43,7 +43,7 @@ JRE_IMG="eclipse-temurin:21-jre@sha256:ff92a063dac03a29fca3987bcfc66aa5f17769542
 MYSQL_IMG="mysql:8.0@sha256:7dcddc01f13bab2f15cde676d44d01f61fc9f99fe7785e86196dfc07d358ae2b"
 RABBIT_IMG="rabbitmq:3-management-alpine@sha256:606d8c0d6b3c18d1da9afc53bc7cdb2a8d5486df91b5a9830e9e07626c9ae281"
 PY_IMG="python:3.9.6-slim@sha256:4115592fd02679fb3d9e8c513cae33ad3fdd64747b64d32b504419d7118bcd7c"
-MARIADB_VER="3.5.10"   # the version Spring Boot 4.1.2 manages (the new dependency tree); proven with MySQL 8.0 in the stage 1a spike
+MARIADB_VER="3.5.10"   # the version Spring Boot 4.1.2 manages (the new dependency tree); proven with MySQL 8.0
 IMAGE_REPO="${APP_ENV_IMAGE_REPO:-mig-new-hawkbit}"   # distinct from the old app's mig-old-hawkbit: the two never share an image
 
 # ---- the Maven container's home. Vaadin's frontend build puts Node in ${user.home}/.vaadin (Java takes user.home from

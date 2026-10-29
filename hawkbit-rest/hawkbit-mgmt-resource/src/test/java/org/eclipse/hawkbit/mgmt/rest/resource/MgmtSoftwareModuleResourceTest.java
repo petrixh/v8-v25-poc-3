@@ -560,7 +560,7 @@ class MgmtSoftwareModuleResourceTest extends AbstractManagementApiIntegrationTes
                 .perform(
                         get("/rest/v1/softwaremodules/{smId}/artifacts/{artId}/download", sm.getId(), artifact.getId()))
                 .andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
-                // E011: a full download may send the ETag quoted (RFC form) as well as the bare SHA1 hash
+                // A full download may send the ETag quoted (RFC form) as well as the bare SHA1 hash
                 .andExpect(header().string("ETag", Matchers.anyOf(
                         Matchers.equalTo(artifact.getSha1Hash()), Matchers.equalTo("\"" + artifact.getSha1Hash() + "\""))))
                 .andReturn();

@@ -33,7 +33,7 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 
 /**
- * 1B-58: an unknown address below the login view answers 404 for a user who
+ * An unknown address below the login view answers 404 for a user who
  * is not logged in, before Flow's router builds the app shell.
  */
 @Feature("Unit Tests - Management UI")
@@ -74,7 +74,7 @@ class AnonymousUnknownLoginPathFilterTest {
     }
 
     @Test
-    @Description("1B-60: an anonymous address request with v-r=init or an unknown v-r value answers 404 like one without v-r")
+    @Description("An anonymous address request with v-r=init or an unknown v-r value answers 404 like one without v-r")
     void anonymousUnknownPathWithOtherRequestTypeAnswers404() throws Exception {
         for (final String type : List.of("x", "init", "webcomponent-resync", "oldbrowser", "")) {
             final MockHttpServletRequest address = request("/UI/login/zzz");
@@ -105,7 +105,7 @@ class AnonymousUnknownLoginPathFilterTest {
     }
 
     @Test
-    @Description("vm3-004 N3: anonymous /UI/login and /UI/login/ with a v-r that is none of Flow's request types "
+    @Description("Anonymous /UI/login and /UI/login/ with a v-r that is none of Flow's request types "
             + "reach the login view without v-r (as without it), other parameters and the query string unchanged")
     void anonymousLoginViewWithUnknownRequestTypeLosesIt() throws Exception {
         for (final String path : List.of("/UI/login", "/UI/login/")) {
@@ -132,7 +132,7 @@ class AnonymousUnknownLoginPathFilterTest {
     }
 
     @Test
-    @Description("vm3-004 N3: Flow's own request types on the login view, a logged-in user and other paths are passed "
+    @Description("Flow's own request types on the login view, a logged-in user and other paths are passed "
             + "on as they are")
     void loginViewKnownRequestTypesAndLoggedInUnchanged() throws Exception {
         for (final String type : List.of("init", "webcomponent-resync", "uidl", "heartbeat", "push", "i18n")) {

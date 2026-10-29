@@ -63,7 +63,7 @@ class EmptyViewOldAddressTest {
 
     @ParameterizedTest
     @ValueSource(strings = { " /x", " ..", " ../x" })
-    @Description("1B-56 (1b-06 review): an old address the expression lets through but Flow's Location rejects (a space in front of / or ..) is not a path either")
+    @Description("An old address the expression lets through but Flow's Location rejects (a space in front of / or ..) is not a path either")
     void addressOnlyLocationRejectsIsNotUiPath(final String oldState) {
         assertThat(EmptyView.hasViewName(oldState)).isTrue();
         assertThat(EmptyView.isUiPath(oldState)).isFalse();

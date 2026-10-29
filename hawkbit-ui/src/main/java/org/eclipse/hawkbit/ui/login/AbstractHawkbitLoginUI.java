@@ -152,8 +152,8 @@ public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements B
 
     /**
      * The login page opens with the focus on the Username field (Vaadin 8 focused the disabled Sign in button, which
-     * a Flow button cannot take without a workaround). This is escalation E024, open and worked as option A: the
-     * field, so typing works at once. It is not decided; the customer may still answer B.
+     * a Flow button cannot take without a workaround). Here the Username
+     * field gets the focus, so typing works at once. This is not final: the customer may decide otherwise.
      */
     private void focusUsername() {
         FocusOnShow.focus(username);

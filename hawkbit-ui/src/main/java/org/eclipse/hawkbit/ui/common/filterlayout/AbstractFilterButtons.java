@@ -68,14 +68,14 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
         super.init();
 
         // Vaadin 8: setHeaderVisible(false); Flow grids always show the
-        // header row (look: stage 2a)
+        // header row
         setClassName("type-button-layout");
         addClassNames("no-stripes");
         addClassNames("no-horizontal-lines");
         addClassNames("no-vertical-lines");
         addClassNames("borderless");
         addClassNames("compact");
-        // no frame and no lines between the entries, as the Vaadin 8 list had none (2A-09)
+        // no frame and no lines between the entries, as the Vaadin 8 list had none
         addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS);
     }
 

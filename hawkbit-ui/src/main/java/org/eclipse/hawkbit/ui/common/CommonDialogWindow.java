@@ -134,7 +134,7 @@ public class CommonDialogWindow extends Dialog {
         mainLayout.setSpacing(false);
 
         // Vaadin 8 added the style "marginTop" for GridLayout content; Flow
-        // has no GridLayout (styling is stage 2a)
+        // has no GridLayout
 
         if (content != null) {
             mainLayout.add(content);

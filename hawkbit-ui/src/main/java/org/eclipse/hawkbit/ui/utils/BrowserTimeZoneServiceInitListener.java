@@ -13,7 +13,7 @@ import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 
 /**
- * Dates and times in the browser's time zone (2B-01): each UI keeps the
+ * Dates and times in the browser's time zone: each UI keeps the
  * browser's offset in the session, or fetches it when the UI was built without
  * the browser details ({@code vaadin.eagerServerLoad}), as Vaadin 8's
  * session-wide {@code WebBrowser} had it before the first view

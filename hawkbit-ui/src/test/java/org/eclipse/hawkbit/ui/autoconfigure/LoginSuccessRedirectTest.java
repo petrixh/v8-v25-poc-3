@@ -36,7 +36,7 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 
 /**
- * 1B-10: the login success redirect keeps the servlet context path in front of
+ * The login success redirect keeps the servlet context path in front of
  * relative targets (as vaadin4spring's redirect strategy did); absolute
  * targets stay as they are.
  */

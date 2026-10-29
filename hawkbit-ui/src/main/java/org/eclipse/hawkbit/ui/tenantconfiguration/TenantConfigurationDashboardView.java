@@ -140,7 +140,7 @@ public class TenantConfigurationDashboardView extends Composite<Div>
      * (save and undo are disabled until something changes). A disabled Flow
      * button takes no pointer events, so its tooltip never opens: the tooltip
      * goes on a wrapper around the button, which gets the pointer in both
-     * states (2B-08).
+     * states.
      */
     static Span withTooltip(final Button button, final String tooltipText) {
         final Span wrapper = new Span(button);

@@ -91,7 +91,7 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
 
     private Span viewTitle;
     private Div content;
-    // false for a request without a logged-in user: only the routed content, no menu, header or push (1B-60)
+    // false for a request without a logged-in user: only the routed content, no menu, header or push
     private boolean shellBuilt;
 
     private final DashboardMenu dashboardMenu;
@@ -159,7 +159,7 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
         final UI ui = UI.getCurrent();
         LOG.debug("ManagementUI init starts uiid - {}", ui.getUIId());
         if (!isLoggedIn()) {
-            // 1B-60: the shell (menu, user, tenant) needs a logged-in user. An error view can reach this layout
+            // The shell (menu, user, tenant) needs a logged-in user. An error view can reach this layout
             // without one (Flow's own requests to an unknown /UI/login/... address are open to everyone): show only
             // the routed content, never the menu or any data.
             setPadding(false);
@@ -231,7 +231,7 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
      * Vaadin 8: ManagementViewProvider#getStartView. A view that exists but
      * that the user may not open goes to the error view.
      * <p>
-     * A layout built without the shell (1B-60) shows only an error view: it
+     * A layout built without the shell shows only an error view: it
      * stays in its UI, and Flow reuses it for later navigations, also after the
      * same session has logged in (in another tab). Any other route fails closed
      * there: for a logged-in user the address is loaded as a new page, whose new
@@ -413,7 +413,7 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
                 return;
             }
             // A page load of the new address, not ui.navigate: the page is loaded with the server-side navigation
-            // (eagerServerLoad, E006), and a client navigation sent in its first response is overridden by the
+            // (eagerServerLoad), and a client navigation sent in its first response is overridden by the
             // client's own initial navigation to /UI/. The page load also answers 404 for an unknown view.
             // An address that would leave the UI (another origin, a scheme, a path outside /UI/) is made one encoded segment.
             ui.getPage().executeJs("""

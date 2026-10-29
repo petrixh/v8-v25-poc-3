@@ -36,7 +36,7 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 
 /**
- * 1B-46 N4: the UI start page carries the cache headers of the Vaadin 8
+ * The UI start page carries the cache headers of the Vaadin 8
  * servlet, so Spring Security's no-store defaults do not show on it.
  */
 @Feature("Unit Tests - Management UI")

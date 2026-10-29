@@ -73,7 +73,7 @@ public final class BulkUploadWindowLayoutComponentBuilder {
         boundComboBox.setRequired(false);
 
         final ComboBox<ProxyDistributionSet> comboBox = boundComboBox.getComponent();
-        // Vaadin 8 empty first item: Flow's clear button (as getComboBox, A5/UI-1a)
+        // Vaadin 8 empty first item: Flow's clear button (as getComboBox)
         comboBox.setClearButtonVisible(true);
         comboBox.setSizeFull();
 

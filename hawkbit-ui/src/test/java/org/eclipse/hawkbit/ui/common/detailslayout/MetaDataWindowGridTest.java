@@ -25,7 +25,7 @@ import io.qameta.allure.Story;
 /**
  * The list of the metadata window (distribution set, software module, target)
  * keeps the grid's default height, as in Vaadin 8, instead of a relative
- * height that collapses to one row in the window (2B-10).
+ * height that collapses to one row in the window.
  */
 @Feature("Unit Tests - Management UI")
 @Story("Users see the metadata entries of an entity in its metadata window")

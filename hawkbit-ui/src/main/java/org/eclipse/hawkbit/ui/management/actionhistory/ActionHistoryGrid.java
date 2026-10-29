@@ -171,7 +171,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         GridComponentBuilder.joinToActionColumn(i18n, getHeaderRows().get(0),
                 Arrays.asList(addCancelColumn(), addForceColumn(), addForceQuitColumn()));
 
-        // Vaadin 8: setHidable(true) on these columns (UI-1b column toggle
+        // Vaadin 8: setHidable(true) on these columns (column toggle
         // menu); called after the last column so the toggle sits at the end;
         // the maintenance window column starts hidden, the user can show it
         ColumnToggleMenu.setHidable(activeStatusColumn);
@@ -377,7 +377,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         GridComponentBuilder.joinToActionColumn(i18n, getHeaderRows().get(0),
                 Arrays.asList(addCancelColumn(), addForceColumn(), addForceQuitColumn()));
 
-        // Vaadin 8: setHidable(true) on these columns (UI-1b column toggle
+        // Vaadin 8: setHidable(true) on these columns (column toggle
         // menu); called after the last column so the toggle sits at the end;
         // the maintenance window column starts hidden, the user can show it
         ColumnToggleMenu.setHidable(activeStatusColumn);

@@ -96,7 +96,7 @@ html {
 }
 
 /*
- * Grids (hawkbittheme.scss, grid.scss; E023 option A: one rule for every grid, as the old theme had one
+ * Grids (hawkbittheme.scss, grid.scss; one rule for every grid, as the old theme had one
  * variable): rows and header 31px ($v-table-row-height), 6px cell padding ($v-grid-cell-padding-horizontal),
  * small icon buttons and icons in cells so they do not set the row height.
  */
@@ -114,26 +114,26 @@ vaadin-grid vaadin-button {
     --lumo-size-m: 24px;
 }
 
-/* Selected row: solid $app-selection-color with white text and icons (the checkbox column stays, E007) */
+/* Selected row: solid $app-selection-color with white text and icons (the checkbox column stays) */
 vaadin-grid::part(selected-row-cell) {
     background-color: #551f62;
     color: #fff;
     --vaadin-button-text-color: #fff;
     --vaadin-button-tertiary-text-color: #fff;
-    /* the focus ring of the cell's buttons and checkbox: the primary 50 % is invisible on the purple (2a-05) */
+    /* the focus ring of the cell's buttons and checkbox: the primary 50 % is invisible on the purple */
     --lumo-primary-color-50pct: #fff;
 }
 
 /*
  * An invalidated distribution set: grey and struck through, also when selected (others.scss .invalid-distribution,
- * $disabled-row-color-grey with !important); the part name comes from the grids' setPartNameGenerator (2B-12)
+ * $disabled-row-color-grey with !important); the part name comes from the grids' setPartNameGenerator
  */
 vaadin-grid::part(invalid-distribution) {
     color: #c8c8c8;
     text-decoration: line-through;
 }
 
-/* Keyboard focus on a selected row: the grid's own ring is --lumo-primary-color-50pct on the cell, invisible on the purple (2a-05) */
+/* Keyboard focus on a selected row: the grid's own ring is --lumo-primary-color-50pct on the cell, invisible on the purple */
 vaadin-grid[navigating]::part(selected-row-cell focused-cell) {
     outline: 2px solid #fff;
     outline-offset: -2px;
@@ -141,7 +141,7 @@ vaadin-grid[navigating]::part(selected-row-cell focused-cell) {
 
 /*
  * A caption over several joined icon columns (Status, Actions, Type; Vaadin 8 joined the header cells): it sits in the
- * first column's header cell and is let out over the next ones (GridComponentBuilder.joinToIconColumn) (2a-05)
+ * first column's header cell and is let out over the next ones (GridComponentBuilder.joinToIconColumn)
  */
 vaadin-grid .joined-header-caption {
     position: absolute;
@@ -192,7 +192,7 @@ vaadin-grid .joined-header-caption {
 
 /*
  * The header's menu bar keeps its width and its one item (the cog) is tight, so the item is not moved into the
- * overflow "..." and the close button still fits next to "Filter by type" in the 148 px filter panels (2a-05)
+ * overflow "..." and the close button still fits next to "Filter by type" in the 148 px filter panels
  */
 .widget-header vaadin-menu-bar {
     flex-shrink: 0;
@@ -247,7 +247,7 @@ vaadin-grid .joined-header-caption {
 }
 
 /*
- * ==== Shell and login view (2a-04): header band, menu, login form ====
+ * ==== Shell and login view: header band, menu, login form ====
  * Values from common.scss, login.scss, hawkbitvariables.scss and Valo's valo-menu.scss as the old theme
  * configured it. The images are the old theme's (VAADIN/themes/hawkbit/images/).
  */
@@ -470,10 +470,10 @@ html {
     --vaadin-input-field-required-indicator: "*";
     --vaadin-input-field-required-indicator-color: #ed473b;
 }
-/* ==== end of 2a-04 ==== */
+/* ==== end of shell and login view ==== */
 
 /*
- * ==== Detail tabs, rollout groups chart, status icons and bars (2a-06) ====
+ * ==== Detail tabs, rollout groups chart, status icons and bars ====
  * Values from table-common.scss, common.scss, rollout.scss, others.scss, grid.scss, statusprogressbar.scss and
  * hawkbitvariables.scss, and Valo's framed tab sheet as the old app drew it. Only the app's own class names,
  * part names from the grids' part name generators, documented parts and custom properties.
@@ -726,9 +726,9 @@ vaadin-grid::part(selected-row-cell) {
 .alump-dbar .status-bar-part-cancelled { background-color: #d5d5d5; }
 .alump-dbar .status-bar-part-notstarted { background-color: #808080; }
 
-/* ==== end of 2a-06 ==== */
+/* ==== end of detail tabs, status icons and bars ==== */
 
-/* ==== Window forms: captions aside (2a-08) ==== */
+/* ==== Window forms: captions aside ==== */
 
 /* The form of a window is about as wide as the old one (about 400 px with its margins). Without a width the
    form item's content makes the window as wide as the screen allows. */
@@ -736,9 +736,9 @@ vaadin-form-layout.window-form-layout {
     width: 360px;
 }
 
-/* ==== end of 2a-08 ==== */
+/* ==== end of window forms ==== */
 
-/* ==== Filter panels: tag lists and status filters (2a-11, 2A-09) ==== */
+/* ==== Filter panels: tag lists and status filters ==== */
 
 /*
  * Tag and type lists (filter-layout-styles.scss .type-button-layout): no header row (Vaadin 8 setHeaderVisible(false);
@@ -843,4 +843,4 @@ vaadin-button.targetStatusBtn.btnClicked {
     background: #fff;
 }
 
-/* ==== end of 2a-11 ==== */
+/* ==== end of filter panels ==== */
