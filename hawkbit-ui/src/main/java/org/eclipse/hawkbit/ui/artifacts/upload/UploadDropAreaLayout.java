@@ -136,11 +136,15 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
         dropUploadManager.setMaxFileSize(maxFileSize);
         final ClientRefusedUpload refusedUpload = new ClientRefusedUpload(artifactManagement, softwareManagement, i18n,
                 uiNotification, uploadLock, maxFileSize);
-        dropUploadManager.addFileRejectedListener(refusedUpload::onFileRejected);
+        // the drop zone lists the refused files from the drop event, not from
+        // the manager's reject event (see ClientRefusedUpload#onFilesDropped)
         // the progress window shows the files; the drop zone keeps no list
         dropUploadManager.addAllFinishedListener(event -> dropUploadManager.clearFileList());
         dropZone = new UploadDropZone(dropAreaLayout, dropUploadManager);
         dropZone.setEnabled(false);
+        dropZone.getElement()
+                .addEventListener("drop", event -> refusedUpload.onFilesDropped(event.getEventData()))
+                .addEventData(ClientRefusedUpload.DROPPED_FILES).allowInert();
     }
 
     @Override

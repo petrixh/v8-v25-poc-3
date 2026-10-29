@@ -39,6 +39,9 @@ import org.vaadin.spring.events.EventBus;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.upload.UploadManager;
 
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+
 /**
  * The size limit the browser applies before a file is sent: how it is read from
  * the system limits, and how a file the browser refused is listed.
@@ -151,6 +154,41 @@ class UploadSizeLimitTest {
         refused.onFileRejected(rejected("a.bin", UploadManager.FileRejectionReason.TOO_MANY_FILES));
 
         assertThat(state.isFileInUploadState(new FileUploadId("a.bin", softwareModule))).isFalse();
+    }
+
+    @Test
+    void droppedFilesOverTheLimitAreListedAndTheOthersAreLeftAlone() {
+        refused.onFilesDropped(dropped("a.bin", LIMIT - 1, "big1.bin", LIMIT + 1, "exact.bin", LIMIT, "big2.bin",
+                5 * LIMIT));
+
+        final FileUploadProgress big1 = state.getFileUploadProgress(new FileUploadId("big1.bin", softwareModule));
+        assertThat(big1.getFileUploadStatus()).isEqualTo(FileUploadStatus.UPLOAD_FAILED);
+        assertThat(big1.getFailureReason()).isEqualTo("Maximum artifact size (10 MB) exceeded");
+        assertThat(state.getFileUploadProgress(new FileUploadId("big2.bin", softwareModule)).getFileUploadStatus())
+                .isEqualTo(FileUploadStatus.UPLOAD_FAILED);
+        assertThat(state.isFileInUploadState(new FileUploadId("a.bin", softwareModule))).isFalse();
+        assertThat(state.isFileInUploadState(new FileUploadId("exact.bin", softwareModule))).isFalse();
+    }
+
+    @Test
+    void aDropWithoutFileDataOrWithoutALimitListsNothing() {
+        refused.onFilesDropped(JsonMapper.builder().build().readTree("{}"));
+        final ClientRefusedUpload unlimited = new ClientRefusedUpload(mock(ArtifactManagement.class),
+                mock(SoftwareModuleManagement.class), i18n, notification, new ReentrantLock(), 0);
+        unlimited.onFilesDropped(dropped("big.bin", 5 * LIMIT));
+
+        assertThat(state.isFileInUploadState(new FileUploadId("big.bin", softwareModule))).isFalse();
+    }
+
+    /** The event data of a drop: name and size of each file. */
+    private static JsonNode dropped(final Object... nameAndSize) {
+        final StringBuilder files = new StringBuilder();
+        for (int i = 0; i < nameAndSize.length; i += 2) {
+            files.append(i > 0 ? "," : "").append("{\"name\":\"").append(nameAndSize[i]).append("\",\"size\":")
+                    .append(nameAndSize[i + 1]).append('}');
+        }
+        return JsonMapper.builder().build()
+                .readTree("{\"" + ClientRefusedUpload.DROPPED_FILES.replace("\"", "\\\"") + "\":[" + files + "]}");
     }
 
     private static UploadManager.FileRejectedEvent rejected(final String fileName,

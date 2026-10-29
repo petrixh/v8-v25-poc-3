@@ -21,6 +21,8 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.flow.component.upload.UploadManager;
 
+import tools.jackson.databind.JsonNode;
+
 /**
  * Lists a file the browser refused because it is larger than the size limit
  * ({@link UploadLimits}) in the upload status window, with the reason the
@@ -49,16 +51,48 @@ final class ClientRefusedUpload extends AbstractFileTransferHandler {
     /**
      * Shows the refusal of the browser: the file as failed in the status
      * window with the "Maximum artifact size" reason. Other reasons the
-     * browser gives (too many files, file type) cannot occur, the limits for
-     * them are not set.
+     * browser gives (too many files, file type) are not listed: the limits for
+     * them are not set (the upload button's one file per click is its own
+     * picker).
      *
      * @param event
      *            the file reject event of an upload manager
      */
     void onFileRejected(final UploadManager.FileRejectedEvent event) {
-        if (event.getReason() != UploadManager.FileRejectionReason.FILE_TOO_LARGE) {
+        if (event.getReason() == UploadManager.FileRejectionReason.FILE_TOO_LARGE) {
+            refuse(event.getFileName());
+        }
+    }
+
+    /**
+     * Event data expression of the {@code drop} event: the name and size of
+     * each dropped file.
+     */
+    static final String DROPPED_FILES = "Array.from(event.dataTransfer.files, f => ({name: f.name, size: f.size}))";
+
+    /**
+     * Shows the refusal of each dropped file that is over the limit, from the
+     * drop itself: the upload manager's own reject event is a DOM event of a
+     * connector that the modal status window makes inert (the server then
+     * ignores it), and the window opens with the first file of the drop that
+     * is accepted. This listener allows inert, as the drop handler does.
+     *
+     * @param event
+     *            the event data {@link #DROPPED_FILES} of the drop event
+     */
+    void onFilesDropped(final JsonNode event) {
+        final JsonNode files = event.get(DROPPED_FILES);
+        if (files == null || !files.isArray() || maxFileSize <= 0) {
             return;
         }
+        for (final JsonNode file : files) {
+            if (file.path("size").asLong() > maxFileSize) {
+                refuse(file.path("name").asString());
+            }
+        }
+    }
+
+    private void refuse(final String fileName) {
         final ArtifactUploadState state = getUploadState();
         final Long softwareModuleId = state.getSmGridLayoutUiState().getSelectedEntityId();
         final SoftwareModule softwareModule = softwareModuleId == null ? null
@@ -68,7 +102,7 @@ final class ClientRefusedUpload extends AbstractFileTransferHandler {
             return;
         }
 
-        final FileUploadId fileUploadId = new FileUploadId(event.getFileName(), softwareModule);
+        final FileUploadId fileUploadId = new FileUploadId(fileName, softwareModule);
         if (state.isFileInUploadState(fileUploadId)) {
             // the same file is listed already (the server checks this first)
             uiNotification.displayValidationError(getI18n().getMessage("message.no.duplicateFiles"));
