@@ -23,8 +23,12 @@ import org.eclipse.hawkbit.repository.jpa.AbstractJpaIntegrationTest;
 import org.eclipse.hawkbit.repository.jpa.autoassign.AutoAssignScheduler;
 import org.eclipse.hawkbit.repository.jpa.autocleanup.AutoActionCleanup;
 import org.eclipse.hawkbit.repository.jpa.autocleanup.AutoCleanupScheduler;
+import org.eclipse.hawkbit.repository.jpa.rollout.RolloutScheduler;
 import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
+import org.eclipse.hawkbit.repository.model.Rollout;
+import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
+import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.test.util.DisposableSqlTestDatabaseExtension;
 import org.eclipse.hawkbit.repository.test.util.SecurityContextSwitch;
@@ -38,7 +42,7 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 
 /**
- * The scheduled jobs (auto assignment, action cleanup) run once for all
+ * The scheduled jobs (auto assignment, rollouts, action cleanup) run once for all
  * tenants, from a scheduler thread that has no user. Each tenant's part must
  * run in that tenant only: its own targets, its own distribution sets, its own
  * configuration, though both tenants use the same controller IDs.
@@ -53,6 +57,8 @@ class MultiTenancySchedulerTest extends AbstractJpaIntegrationTest {
     private static final String ASSIGN_TENANT_B = "assignTenantB";
     private static final String CLEANUP_TENANT_A = "cleanupTenantA";
     private static final String CLEANUP_TENANT_B = "cleanupTenantB";
+    private static final String ROLLOUT_TENANT_A = "rolloutTenantA";
+    private static final String ROLLOUT_TENANT_B = "rolloutTenantB";
     private static final List<String> CONTROLLER_IDS = List.of("dev-1", "dev-2", "dev-3");
 
     @Autowired
@@ -94,6 +100,58 @@ class MultiTenancySchedulerTest extends AbstractJpaIntegrationTest {
                 .as("canceled action of tenant A").isEmpty();
         assertThat(asTenant(CLEANUP_TENANT_B, () -> actionRepository.findById(actionB)))
                 .as("canceled action of tenant B").isPresent();
+    }
+
+    @Test
+    @Description("The rollout scheduler moves each tenant's rollout on in that tenant only: when started, each rollout assigns its distribution set to its own tenant's targets, though the controller IDs and filters are the same")
+    void rolloutSchedulerKeepsTenantsApart() throws Exception {
+        final TenantRollout rolloutA = rolloutWithTargets(ROLLOUT_TENANT_A, "dsA");
+        final TenantRollout rolloutB = rolloutWithTargets(ROLLOUT_TENANT_B, "dsB");
+        final RolloutScheduler scheduler = new RolloutScheduler(systemManagement, rolloutHandler,
+                systemSecurityContext);
+
+        scheduler.runningRolloutScheduler();
+        assertThat(rolloutStatus(ROLLOUT_TENANT_A, rolloutA)).as("rollout of tenant A after the first run")
+                .isEqualTo(RolloutStatus.READY);
+        assertThat(rolloutStatus(ROLLOUT_TENANT_B, rolloutB)).as("rollout of tenant B after the first run")
+                .isEqualTo(RolloutStatus.READY);
+
+        tenantAware.runAsTenant(ROLLOUT_TENANT_A, () -> rolloutManagement.start(rolloutA.rolloutId()));
+        tenantAware.runAsTenant(ROLLOUT_TENANT_B, () -> rolloutManagement.start(rolloutB.rolloutId()));
+        scheduler.runningRolloutScheduler();
+
+        assertThat(rolloutStatus(ROLLOUT_TENANT_A, rolloutA)).as("rollout of tenant A after start")
+                .isEqualTo(RolloutStatus.RUNNING);
+        assertThat(rolloutStatus(ROLLOUT_TENANT_B, rolloutB)).as("rollout of tenant B after start")
+                .isEqualTo(RolloutStatus.RUNNING);
+        final Long dsA = rolloutA.dsId();
+        final Long dsB = rolloutB.dsId();
+        assertThat(asTenant(ROLLOUT_TENANT_A, this::assignedDistributionSets))
+                .as("distribution set of each target of tenant A").containsExactly(dsA, dsA, dsA);
+        assertThat(asTenant(ROLLOUT_TENANT_B, this::assignedDistributionSets))
+                .as("distribution set of each target of tenant B").containsExactly(dsB, dsB, dsB);
+        assertThat(asTenant(ROLLOUT_TENANT_A, this::actionCount)).as("actions in tenant A").isEqualTo(3);
+        assertThat(asTenant(ROLLOUT_TENANT_B, this::actionCount)).as("actions in tenant B").isEqualTo(3);
+    }
+
+    private record TenantRollout(long rolloutId, Long dsId) {
+    }
+
+    private TenantRollout rolloutWithTargets(final String tenant, final String dsName) throws Exception {
+        final DistributionSet ds = asTenant(tenant, () -> {
+            CONTROLLER_IDS.forEach(testdataFactory::createTarget);
+            return testdataFactory.createDistributionSet(dsName);
+        });
+        // the rollout stores its creator's context, as the filter above: create it as system code in the tenant
+        final Rollout rollout = tenantAware.runAsTenant(tenant, () -> rolloutManagement.create(
+                entityFactory.rollout().create().name("rollout").targetFilterQuery("controllerId==dev-*").set(ds),
+                1, false, new RolloutGroupConditionBuilder().withDefaults().build()));
+        return new TenantRollout(rollout.getId(), ds.getId());
+    }
+
+    private RolloutStatus rolloutStatus(final String tenant, final TenantRollout rollout) throws Exception {
+        return asTenant(tenant,
+                () -> rolloutManagement.get(rollout.rolloutId()).map(Rollout::getStatus).orElse(null));
     }
 
     private Long autoAssignmentWithTargets(final String tenant, final String dsName) throws Exception {

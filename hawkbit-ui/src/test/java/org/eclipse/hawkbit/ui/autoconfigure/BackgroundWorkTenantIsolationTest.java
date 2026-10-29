@@ -10,6 +10,7 @@
 package org.eclipse.hawkbit.ui.autoconfigure;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -253,19 +254,25 @@ class BackgroundWorkTenantIsolationTest {
             VaadinSession.setCurrent(sessionA);
             final Seen leaving = runAndSee(ctx, path, null,
                     () -> SecurityContextHolder.setContext(context("leftByTaskOfA", TENANT_A)));
-            assertThat(leaving.user()).as("user of the task that leaves a context").isEqualTo(USER_A);
             final Thread worker = leaving.thread();
 
             VaadinSession.setCurrent(sessionB);
             final Seen ofB = runAndSee(ctx, path, worker, null);
-            assertThat(ofB.user()).as("next task, from a request of a user in another tenant").isEqualTo(USER_B);
-            assertThat(ofB.tenant()).as("its tenant").isEqualTo(TENANT_B);
 
             VaadinSession.setCurrent(null);
             SecurityContextHolder.clearContext();
             final Seen ofNobody = runAndSee(ctx, path, worker, null);
-            assertThat(ofNobody.user()).as("next task, from a submitter with no user").isNull();
-            assertThat(ofNobody.tenant()).as("its tenant").isNull();
+
+            // all checked together, so a failure shows what each later task saw
+            assertSoftly(softly -> {
+                softly.assertThat(leaving.user()).as("user of the task that leaves a context").isEqualTo(USER_A);
+                softly.assertThat(ofB.user()).as("next task, from a request of a user in another tenant: user")
+                        .isEqualTo(USER_B);
+                softly.assertThat(ofB.tenant()).as("next task, from a request of a user in another tenant: tenant")
+                        .isEqualTo(TENANT_B);
+                softly.assertThat(ofNobody.user()).as("next task, from a submitter with no user: user").isNull();
+                softly.assertThat(ofNobody.tenant()).as("next task, from a submitter with no user: tenant").isNull();
+            });
         });
     }
 
