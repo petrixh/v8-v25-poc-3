@@ -37,6 +37,8 @@ public class HawkbitUIErrorHandler implements ErrorHandler {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(HawkbitUIErrorHandler.class);
 
+    private static final String SESSION_ALREADY_INVALIDATED = "Session already invalidated";
+
     private final VaadinMessageSource i18n;
     private final transient List<UiErrorDetailsExtractor> uiErrorDetailsExtractors;
 
@@ -60,6 +62,15 @@ public class HawkbitUIErrorHandler implements ErrorHandler {
             LOG.debug("Ui error received. Trying to extract details...", event.getThrowable());
         }
 
+        if (isSessionAlreadyInvalidated(event.getThrowable())) {
+            // A sign out invalidated the session while this request (a heartbeat, a push request) was handled, a race
+            // in Flow's session lookup that Vaadin 8 has too (2B-26). There is no UI to tell; Flow answers the request
+            // itself. Logged with the cause, but without the notification that failed with an NPE here.
+            LOG.warn("Session invalidated while the request was handled (sign out), no notification shown",
+                    event.getThrowable());
+            return;
+        }
+
         final UI currentPage = getPageFrom(event);
         final List<UiErrorDetails> errorDetails = extractErrorDetails(event);
 
@@ -70,6 +81,17 @@ public class HawkbitUIErrorHandler implements ErrorHandler {
 
         errorDetails.stream().filter(UiErrorDetails::isPresent)
                 .forEach(details -> showSpecificErrorNotification(currentPage, details));
+    }
+
+    // The container's IllegalStateException "getAttribute: Session already invalidated" (Tomcat), anywhere in the cause chain
+    private static boolean isSessionAlreadyInvalidated(final Throwable throwable) {
+        for (Throwable cause = throwable; cause != null; cause = cause.getCause() == cause ? null : cause.getCause()) {
+            if (cause instanceof IllegalStateException && cause.getMessage() != null
+                    && cause.getMessage().contains(SESSION_ALREADY_INVALIDATED)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
