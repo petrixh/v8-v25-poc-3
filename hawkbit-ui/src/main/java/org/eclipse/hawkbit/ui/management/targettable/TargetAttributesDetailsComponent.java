@@ -147,10 +147,9 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
 
     private void toggleRequestAttributesUpdateButton(final Button requestAttributesButton,
             final boolean isRequestAttributes) {
-        final String tooltip = isRequestAttributes ? i18n.getMessage("tooltip.target.attributes.update.requested")
-                : i18n.getMessage("tooltip.target.attributes.update.request");
-        requestAttributesButton.setTooltipText(tooltip);
-        requestAttributesButton.setAriaLabel(tooltip);
+        requestAttributesButton
+                .setTooltipText(isRequestAttributes ? i18n.getMessage("tooltip.target.attributes.update.requested")
+                        : i18n.getMessage("tooltip.target.attributes.update.request"));
         requestAttributesButton.setEnabled(!isRequestAttributes);
     }
 }
