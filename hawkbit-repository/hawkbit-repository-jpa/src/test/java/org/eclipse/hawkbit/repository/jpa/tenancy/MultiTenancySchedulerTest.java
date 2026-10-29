@@ -88,18 +88,28 @@ class MultiTenancySchedulerTest extends AbstractJpaIntegrationTest {
     }
 
     @Test
-    @Description("The cleanup scheduler applies each tenant's own cleanup configuration: tenant A (cleanup on) loses its canceled action, tenant B (cleanup off) keeps its own")
+    @Description("The cleanup scheduler applies each tenant's own cleanup configuration, whichever tenant has cleanup on: first tenant A (on) loses its canceled action and tenant B (off) keeps its own, then the settings are swapped and B loses its canceled action while A keeps its own")
     void autoCleanupSchedulerAppliesEachTenantsOwnConfiguration() throws Exception {
-        final Long actionA = asTenant(CLEANUP_TENANT_A, () -> canceledActionWithCleanup(true));
-        final Long actionB = asTenant(CLEANUP_TENANT_B, () -> canceledActionWithCleanup(false));
+        final AutoCleanupScheduler scheduler = new AutoCleanupScheduler(systemManagement, systemSecurityContext,
+                lockRegistry, List.of(autoActionCleanup));
 
-        new AutoCleanupScheduler(systemManagement, systemSecurityContext, lockRegistry, List.of(autoActionCleanup))
-                .run();
+        // round 1: A on, B off. A scheduler that runs B's part in A's context would delete B's action too
+        final Long actionA1 = asTenant(CLEANUP_TENANT_A, () -> canceledActionWithCleanup(true, 0));
+        final Long actionB1 = asTenant(CLEANUP_TENANT_B, () -> canceledActionWithCleanup(false, 0));
+        scheduler.run();
+        assertThat(asTenant(CLEANUP_TENANT_A, () -> actionRepository.findById(actionA1)))
+                .as("canceled action of tenant A (cleanup on), round 1").isEmpty();
+        assertThat(asTenant(CLEANUP_TENANT_B, () -> actionRepository.findById(actionB1)))
+                .as("canceled action of tenant B (cleanup off), round 1").isPresent();
 
-        assertThat(asTenant(CLEANUP_TENANT_A, () -> actionRepository.findById(actionA)))
-                .as("canceled action of tenant A").isEmpty();
-        assertThat(asTenant(CLEANUP_TENANT_B, () -> actionRepository.findById(actionB)))
-                .as("canceled action of tenant B").isPresent();
+        // round 2: A off, B on, new actions. A scheduler that runs A's part in B's context would delete A's action too
+        final Long actionA2 = asTenant(CLEANUP_TENANT_A, () -> canceledActionWithCleanup(false, 1));
+        final Long actionB2 = asTenant(CLEANUP_TENANT_B, () -> canceledActionWithCleanup(true, 1));
+        scheduler.run();
+        assertThat(asTenant(CLEANUP_TENANT_A, () -> actionRepository.findById(actionA2)))
+                .as("canceled action of tenant A (cleanup off), round 2").isPresent();
+        assertThat(asTenant(CLEANUP_TENANT_B, () -> actionRepository.findById(actionB2)))
+                .as("canceled action of tenant B (cleanup on), round 2").isEmpty();
     }
 
     @Test
@@ -179,14 +189,14 @@ class MultiTenancySchedulerTest extends AbstractJpaIntegrationTest {
         return actionRepository.count();
     }
 
-    private Long canceledActionWithCleanup(final boolean cleanupEnabled) {
+    private Long canceledActionWithCleanup(final boolean cleanupEnabled, final int round) {
         tenantConfigurationManagement.addOrUpdateConfiguration(ACTION_CLEANUP_ENABLED, cleanupEnabled);
         tenantConfigurationManagement.addOrUpdateConfiguration(ACTION_CLEANUP_ACTION_EXPIRY, 0L);
         tenantConfigurationManagement.addOrUpdateConfiguration(ACTION_CLEANUP_ACTION_STATUS,
                 Status.CANCELED.toString());
 
-        final Target target = testdataFactory.createTarget(CONTROLLER_IDS.get(0));
-        final DistributionSet ds = testdataFactory.createDistributionSet("ds");
+        final Target target = testdataFactory.createTarget(CONTROLLER_IDS.get(round));
+        final DistributionSet ds = testdataFactory.createDistributionSet("ds" + round);
         final Long actionId = getFirstAssignedActionId(assignDistributionSet(ds.getId(), target.getControllerId()));
         deploymentManagement.cancelAction(actionId);
         deploymentManagement.forceQuitAction(actionId);
