@@ -32,11 +32,13 @@ import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 
@@ -115,22 +117,33 @@ public class TenantConfigurationDashboardView extends Composite<Div>
         saveConfigurationBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.SYSTEM_CONFIGURATION_SAVE, "", "",
                 "", true, VaadinIcon.HARDDRIVE, SPUIButtonStyleNoBorder.class);
         saveConfigurationBtn.setEnabled(false);
-        saveConfigurationBtn.setTooltipText(i18n.getMessage("configuration.savebutton.tooltip"));
         saveConfigurationBtn.addClickListener(event -> saveConfiguration());
-        hlayout.add(saveConfigurationBtn);
+        hlayout.add(withTooltip(saveConfigurationBtn, i18n.getMessage("configuration.savebutton.tooltip")));
 
         undoConfigurationBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.SYSTEM_CONFIGURATION_CANCEL, "",
                 "", "", true, VaadinIcon.ARROW_BACKWARD, SPUIButtonStyleNoBorder.class);
         undoConfigurationBtn.setEnabled(false);
-        undoConfigurationBtn.setTooltipText(i18n.getMessage("configuration.cancellbutton.tooltip"));
         undoConfigurationBtn.addClickListener(event -> undoConfiguration());
-        hlayout.add(undoConfigurationBtn);
+        hlayout.add(withTooltip(undoConfigurationBtn, i18n.getMessage("configuration.cancellbutton.tooltip")));
 
         final Anchor linkToSystemConfigHelp = SPUIComponentProvider.getHelpLink(i18n,
                 uiProperties.getLinks().getDocumentation().getSystemConfigurationView());
         hlayout.add(linkToSystemConfigHelp);
 
         return hlayout;
+    }
+
+    /**
+     * Vaadin 8 showed a button's tooltip also while the button was disabled
+     * (save and undo are disabled until something changes). A disabled Flow
+     * button takes no pointer events, so its tooltip never opens: the tooltip
+     * goes on a wrapper around the button, which gets the pointer in both
+     * states (2B-08).
+     */
+    static Span withTooltip(final Button button, final String tooltipText) {
+        final Span wrapper = new Span(button);
+        Tooltip.forComponent(wrapper).setText(tooltipText);
+        return wrapper;
     }
 
     private void saveConfiguration() {
