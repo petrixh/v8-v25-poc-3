@@ -357,7 +357,7 @@ final class HawkbitUi {
         page.waitForTimeout(250);
         // the target in the middle of the window (the pointer stopping on a window edge does not open a tooltip)...
         try {
-            loc.evaluate("el => el.scrollIntoView({ block: 'nearest', inline: 'center' })");
+            loc.evaluate("el => el.scrollIntoView({ block: 'nearest', inline: 'center' })", null, SHORT);
         } catch (final PlaywrightException e) {
             // not there: the hover below says so
         }
@@ -391,6 +391,12 @@ final class HawkbitUi {
         return text == null ? "" : text;
     }
 
+    /**
+     * Wait for the element of a tooltip read: short, so that an element that went away meanwhile (a row removed by a
+     * push update) costs seconds, not Playwright's default 30 s.
+     */
+    private static final Locator.EvaluateOptions SHORT = new Locator.EvaluateOptions().setTimeout(3000);
+
     private static void hover(final Locator loc) {
         // force: a spinning icon (a running status) is never "stable" for Playwright, though the pointer can rest on it
         loc.hover(new Locator.HoverOptions().setTimeout(5000).setForce(true));
@@ -401,7 +407,7 @@ final class HawkbitUi {
         final String tag = "tip" + (++tipSeq);
         boolean inside;
         try {
-            inside = Boolean.TRUE.equals(loc.evaluate(MARK_TOOLTIP_TARGET, tag));
+            inside = Boolean.TRUE.equals(loc.evaluate(MARK_TOOLTIP_TARGET, tag, SHORT));
         } catch (final PlaywrightException e) {
             inside = false;
         }

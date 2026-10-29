@@ -141,6 +141,7 @@ final class Grids {
         }
     }
 
+    /** The text of a row or cell; "" when it went away meanwhile (waits 3 s at most, not Playwright's default 30 s). */
     private static String rowText(final Locator row) {
         try {
             return textOf(row, 3000);
@@ -184,7 +185,7 @@ final class Grids {
         return eachPage(g, () -> {
             final Locator rows = rows(g);
             for (int i = 0, n = rows.count(); i < n; i++) {
-                if (name.equals(textOf(rows.nth(i).getByRole(AriaRole.GRIDCELL).first()))) {
+                if (name.equals(rowText(rows.nth(i).getByRole(AriaRole.GRIDCELL).first()))) {
                     return rows.nth(i);
                 }
             }
@@ -262,7 +263,7 @@ final class Grids {
                 final Map<String, String> rec = new LinkedHashMap<>();
                 for (int j = 0, cn = cells.count(); j < cn && j < heads.size(); j++) {
                     final String h = heads.get(j).isEmpty() ? "col" + j : heads.get(j);
-                    rec.put(h, tips.contains(h) ? ui.tooltip(cells.nth(j)) : textOf(cells.nth(j)));
+                    rec.put(h, tips.contains(h) ? ui.tooltip(cells.nth(j)) : rowText(cells.nth(j)));
                 }
                 recs.add(rec);
             }
