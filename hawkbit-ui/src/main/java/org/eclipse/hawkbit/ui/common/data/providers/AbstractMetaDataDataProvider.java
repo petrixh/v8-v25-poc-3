@@ -9,6 +9,8 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.model.MetaData;
@@ -42,6 +44,15 @@ public abstract class AbstractMetaDataDataProvider<U extends MetaData, F>
     @Override
     protected Stream<ProxyMetaData> getProxyEntities(final Slice<U> backendEntities) {
         return backendEntities.stream().map(this::createProxyMetaData);
+    }
+
+    // Vaadin 25: the grid identifies an item (selection, row updates) by this id. The generic id is a random value
+    // that every mapped ProxyMetaData gets, so a selected item was lost when the list was reloaded after a save.
+    // Vaadin 8 compared items with ProxyMetaData#equals (entity id and key), which is the identity used here.
+    @Override
+    public Object getId(final ProxyMetaData item) {
+        Objects.requireNonNull(item, "Cannot provide an id for a null item.");
+        return List.of(Objects.toString(item.getEntityId()), Objects.toString(item.getKey()));
     }
 
     protected ProxyMetaData createProxyMetaData(final U metadata) {
