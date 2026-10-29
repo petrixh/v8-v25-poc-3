@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.hawkbit.repository.DistributionSetFields;
 import org.eclipse.hawkbit.repository.SoftwareModuleFields;
@@ -51,7 +52,12 @@ public class RSQLDistributionSetFieldTest extends AbstractJpaIntegrationTest {
         ds = distributionSetManagement.update(entityFactory.distributionSet().update(ds.getId()).description("DS"));
         createDistributionSetMetadata(ds.getId(), entityFactory.generateDsMetadata("metaKey", "metaValue"));
 
-        DistributionSet ds2 = testdataFactory.createDistributionSets("NewDS", 3).get(0);
+        final List<DistributionSet> newDistributionSets = testdataFactory.createDistributionSets("NewDS", 3);
+        DistributionSet ds2 = newDistributionSets.get(0);
+        // the factory gives the other two a random alphanumeric description, which can start with "ds" (any case)
+        // and then match DESCRIPTION==DS*; give them a fixed one that cannot
+        newDistributionSets.stream().skip(1).forEach(newDs -> distributionSetManagement
+                .update(entityFactory.distributionSet().update(newDs.getId()).description("NewDS description")));
 
         ds2 = distributionSetManagement.update(entityFactory.distributionSet().update(ds2.getId()).description("DS%"));
         createDistributionSetMetadata(ds2.getId(), entityFactory.generateDsMetadata("metaKey", "value"));
