@@ -64,7 +64,7 @@ public class HawkbitUIErrorHandler implements ErrorHandler {
 
         if (isSessionAlreadyInvalidated(event.getThrowable())) {
             // A sign out invalidated the session while this request (a heartbeat, a push request) was handled, a race
-            // in Flow's session lookup that Vaadin 8 has too (2B-26). There is no UI to tell; Flow answers the request
+            // in Flow's session lookup that Vaadin 8 has too. There is no UI to tell; Flow answers the request
             // itself. Logged with the cause, but without the notification that failed with an NPE here.
             LOG.warn("Session invalidated while the request was handled (sign out), no notification shown",
                     event.getThrowable());

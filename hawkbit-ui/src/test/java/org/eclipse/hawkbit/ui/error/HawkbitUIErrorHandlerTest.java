@@ -201,7 +201,7 @@ class HawkbitUIErrorHandlerTest {
 
     @Test
     @Description("A sign out that invalidates the session while a request is handled (the container's 'Session already "
-            + "invalidated') shows no notification and is logged at WARN with its throwable (2B-26)")
+            + "invalidated') shows no notification and is logged at WARN with its throwable")
     void showsNothingAndWarnsWhenTheSessionWasInvalidatedByASignOut() {
         final ListAppender<ILoggingEvent> appender = captureLog();
         final IllegalStateException invalidated = new IllegalStateException("getAttribute: Session already invalidated");
