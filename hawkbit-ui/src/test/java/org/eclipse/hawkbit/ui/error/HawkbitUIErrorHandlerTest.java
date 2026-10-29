@@ -20,6 +20,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+
 import org.eclipse.hawkbit.ui.error.extractors.UiErrorDetailsExtractor;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.junit.jupiter.api.Test;
@@ -28,9 +33,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.internal.CurrentInstance;
 import com.vaadin.flow.server.ErrorEvent;
 
 import io.qameta.allure.Description;
@@ -190,6 +197,70 @@ class HawkbitUIErrorHandlerTest {
         final List<Notification> shownNotifications = captureShownNotifications(2).getAllValues();
         verifyNotificationContent(shownNotifications.get(0), MATCHING_CAPTION, MATCHING_DESCRIPTION);
         verifyNotificationContent(shownNotifications.get(1), "anotherMatchingCaption", "anotherMatchingDescription");
+    }
+
+    @Test
+    @Description("A sign out that invalidates the session while a request is handled (the container's 'Session already "
+            + "invalidated') shows no notification and is logged at WARN with its throwable (2B-26)")
+    void showsNothingAndWarnsWhenTheSessionWasInvalidatedByASignOut() {
+        final ListAppender<ILoggingEvent> appender = captureLog();
+        final IllegalStateException invalidated = new IllegalStateException("getAttribute: Session already invalidated");
+        try {
+            // also when wrapped, as Flow wraps it in a ServiceException
+            handleErrorWithExtractors(new RuntimeException("ServiceException", invalidated), Collections.emptyList());
+        } finally {
+            releaseLog(appender);
+        }
+
+        verify(errorHandler, times(0)).showErrorNotification(any(), any());
+        verify(i18n, times(0)).getMessage(any());
+        assertThat(appender.list).hasSize(1);
+        assertThat(appender.list.get(0).getLevel()).isEqualTo(Level.WARN);
+        assertThat(appender.list.get(0).getThrowableProxy().getClassName()).isEqualTo(RuntimeException.class.getName());
+    }
+
+    @Test
+    @Description("With no current request or session the message still decides: handled the same way, nothing else is read")
+    void invalidatedSessionIsHandledWithoutACurrentRequest() {
+        CurrentInstance.clearAll();
+        final ListAppender<ILoggingEvent> appender = captureLog();
+        try {
+            handleErrorWithExtractors(new IllegalStateException("getAttribute: Session already invalidated"),
+                    Collections.emptyList());
+        } finally {
+            releaseLog(appender);
+        }
+
+        verify(errorHandler, times(0)).showErrorNotification(any(), any());
+        assertThat(appender.list).extracting(ILoggingEvent::getLevel).containsExactly(Level.WARN);
+    }
+
+    @Test
+    @Description("An unrelated IllegalStateException is not swallowed: it is reported as any error (ERROR log, notification)")
+    void unrelatedIllegalStateExceptionIsReportedAsBefore() {
+        initUi();
+        initI18n();
+        final ListAppender<ILoggingEvent> appender = captureLog();
+        try {
+            handleErrorWithExtractors(new IllegalStateException("something else"), Collections.emptyList());
+        } finally {
+            releaseLog(appender);
+        }
+
+        verifyDefaultI18nCalled();
+        verifyNotificationContent(captureShownNotification().getValue(), DEFAULT_CAPTION, DEFAULT_DESCRIPTION);
+        assertThat(appender.list).extracting(ILoggingEvent::getLevel).containsExactly(Level.ERROR);
+    }
+
+    private static ListAppender<ILoggingEvent> captureLog() {
+        final ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        appender.start();
+        ((Logger) LoggerFactory.getLogger(HawkbitUIErrorHandler.class)).addAppender(appender);
+        return appender;
+    }
+
+    private static void releaseLog(final ListAppender<ILoggingEvent> appender) {
+        ((Logger) LoggerFactory.getLogger(HawkbitUIErrorHandler.class)).detachAppender(appender);
     }
 
     private static String textOf(final Notification notification, final String className) {
