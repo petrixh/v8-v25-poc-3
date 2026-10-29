@@ -1,6 +1,6 @@
 # Reproducible environment
 
-One command starts one isolated copy of the app: the UI runtime (`hawkbit-vv8-ui`, the module keeps its name; Vaadin 25 on Java 21 from stage 1a) with `hawkbit-mgmt-server`, MySQL 8.0 and RabbitMQ 3, seeded with a small synthetic data set. Several copies run side by side, each with its own network, database, broker and port. The scripts follow the replay runner's env-script contract (`up.sh`, `reset.sh`, `down.sh`, configured through `APP_ENV_*`).
+One command starts one isolated copy of the app: the UI runtime (`hawkbit-vv8-ui`, which keeps its name from the earlier Vaadin 8 UI and serves the Vaadin 25 UI on Java 21) with `hawkbit-mgmt-server`, MySQL 8.0 and RabbitMQ 3, seeded with a small synthetic data set. Several copies run side by side, each with its own network, database, broker and port. The scripts follow the replay runner's env-script contract (`up.sh`, `reset.sh`, `down.sh`, configured through `APP_ENV_*`).
 
 ## Needs
 
@@ -74,7 +74,7 @@ Memory per copy, measured: about 2.45 GB for its containers (each JVM about 0.9 
 
 Both JVMs run with the settings the migration's pre-check proved on the old app, adapted to the new stack: Spring profile `mysql`, MariaDB JDBC driver 3.5.10 (the version Spring Boot 4.1.2 manages; 3.1.4 on the old app) on the loader path (`-Dloader.path`), the launcher `org.springframework.boot.loader.launch.PropertiesLauncher` (Boot 3.2 and later; `org.springframework.boot.loader.PropertiesLauncher` on the old app), `-Xms768m -Xmx768m`, uid 1000. The project's own `hawkbit-runtime/docker/docker_build/Dockerfile-mysql` differs: it puts the driver in `BOOT-INF/lib` and sets more JVM flags. It is not used here.
 
-**Runtime mode: production.** The scripts do not set the Vaadin mode. On the old app `hawkbit-ui/src/main/resources/hawkbit-ui-defaults.properties` sets it and the vv8-ui log shows `Set servlet init parameter [productionMode] = [true]`; check on the new app that the mode is production (the build runs the production frontend build) once the UI starts.
+**Runtime mode: production.** The scripts do not set the Vaadin mode: `hawkbit-ui/src/main/resources/hawkbit-ui-defaults.properties` sets `vaadin.productionMode=true`, the image holds the production build, and the vv8-ui log says `Vaadin is running in production mode.` Development mode cannot be switched on in this image by a property alone: it needs Vaadin's development dependencies and the unpacked class path of an IDE run (`hawkbit-ui/README.md`).
 
 **mgmt-server's admin** gets a new random password per copy, never printed. It is in `mgmt-admin.properties` in the copy's state dir (the dir has mode 700, the file mode 644 so the container's uid 1000 can read it), mounted read-only and loaded with `--spring.config.additional-location`. Only the seed uses it; mgmt-server has no port on the host.
 

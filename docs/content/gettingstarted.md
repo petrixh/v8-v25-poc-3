@@ -30,6 +30,10 @@ It supports two configurations:
 * monolith - hawkbit-update-server
 * micro-service - hawkbit-mgmt-server, hawkbit-ddi-server, hawkbit-dmf-server, hawkbit-vv8-ui.
 
+{{% note %}}
+The `hawkbit/*` images on Docker Hub hold the hawkBit project's own releases, with the earlier Vaadin 8 Management UI. To run this version (Java 21, Spring Boot 4, Vaadin 25 Management UI) in Docker, build the images with the same names from the sources first, as described in `hawkbit-runtime/docker/README.md`; the commands below then use the local images.
+{{% /note %}}
+
 ### A: Run hawkBit Update Server (Monolith) as Docker Container
 
 Start the hawkBit Update Server as a single container
@@ -55,12 +59,15 @@ Start the hawkBit Update Server together with an MySQL and RabbitMQ instance as 
 ```bash
 $ git clone https://github.com/eclipse/hawkbit.git
 $ cd hawkbit/hawkbit-runtime/docker
-$ docker-compose -f docker-compose-micro-service-mysql.yml up -d
+$ docker-compose -f docker-compose-micro-services-mysql.yml up -d
 ```
 
 ## From Sources
 
 ### 1: Clone and build hawkBit
+
+The build needs Java 21.
+
 ```sh
 $ git clone https://github.com/eclipse/hawkbit.git
 $ cd hawkbit

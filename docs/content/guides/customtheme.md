@@ -4,47 +4,78 @@ parent: Guides
 weight: 34
 ---
 
-This guide provides details about using and creating themes that control the visual look of Eclipse hawkBit Management UI. Theme customization is done using Sass, which is an extension of CSS (Cascading Style Sheets).
+This guide describes how to change the visual look of the Eclipse hawkBit Management UI. The Management UI is built with Vaadin Flow (Vaadin 25) and styled with plain CSS: the Lumo theme, its compact preset, and hawkBit's own style sheet on top. A custom look is one more style sheet, loaded after hawkBit's.
 <!--more-->
 
-The mechanism described below is the rather simple case by customizing the theme by means of configuring a set of variables as defined by the hawkBit default theme. A full customization be means of copying the hawkBit theme and customize it completely is not described here but of course possible.
-
-## Example App
-
-An example application with customized theme can be found [here](https://github.com/eclipse/hawkbit-examples/tree/master/hawkbit-custom-theme-example).
+{{% note %}}
+Earlier versions of the Management UI (Vaadin 8) used a Sass theme in `src/main/resources/VAADIN/themes/<theme>/`, configured through the variables of `hawkbitvariables.scss`. That mechanism no longer applies: the UI does not read Sass themes, `styles.scss` or theme variables, and the custom theme example of the hawkBit examples project, which is such a Sass theme, does not work with this version.
+{{% /note %}}
 
 ## Overview
-Vaadin separates the appearance of the user interface from its logic using themes. Themes can include Sass or CSS style sheets, custom HTML layouts, and any necessary graphics.
 
-Theme resources can also be accessed from application code as ThemeResource objects. Custom themes are placed under the src/main/resources/VAADIN/themes/ folder of the application.
+The application's app shell class (the class that implements Vaadin's `AppShellConfigurator`) loads the style sheets of the UI, in this order:
 
-This location is fixed -- the VAADIN folder contains static resources that are served by the Vaadin servlet. The servlet augments the files stored in the folder by resources found from corresponding VAADIN folders contained in JARs in the class path.The base theme and all the corresponding custom themes are placed under the above mentioned folder.
+```java
+@StyleSheet(Lumo.STYLESHEET)               // the Lumo theme
+@StyleSheet(Lumo.COMPACT_STYLESHEET)       // Lumo's compact preset: smaller text and controls
+@StyleSheet("VAADIN/hawkbit/hawkbit.css")  // hawkBit's settings
+public class Vaadin8UIStart implements AppShellConfigurator {
+```
 
-If a new custom theme has to be created, it should always be placed under the src/main/resources/VAADIN/themes/ folder.
+In the hawkBit runtimes the app shell class is the application's main class: `org.eclipse.hawkbit.app.vv8ui.Vaadin8UIStart` (`hawkbit-vv8-ui`) and `org.eclipse.hawkbit.app.Start` (`hawkbit-update-server`).
 
-Every custom theme should always refer the base theme and customization can be done by the use of variables mentioned in the XXXXvariable.scss. For details of the creation of the custom theme please refer the next section.
+`hawkbit.css` is part of the `hawkbit-ui` module, in `src/main/resources/META-INF/resources/VAADIN/hawkbit/`, with its images in the `images` folder next to it. It holds:
 
-## Procedure to create a theme
-- Create a new folder **"XXXtheme"** (significant to the new theme) under src/main/resources/VAADIN/themes/ folder.
-- Create a folder named as **"customstyles"**.
-- Create a **XXXvariables.scss** file under **customstyles** folder, putting all the variables inside the same file. For more details about the variables we recommend to take a look at the [hawkBit defaults](https://github.com/eclipse/hawkbit/blob/master/hawkbit-ui/src/main/resources/VAADIN/themes/hawkbit/customstyles/hawkbitvariables.scss).
-- Create **styles.scss** file under the **"XXXtheme"** folder.
-- Any images should be placed under the sub folder **"images"** folder.
-- Within the **_styles.scss_** file, import **XXXvariables.scss** and the base theme (hawkBit theme as mentioned in previous chapter **Overview** . Please find below the syntax:
+- global values as Lumo custom properties on `html`: primary, error and success colours, font family, the application background;
+- rules for hawkBit's own class names: the menu (`.valo-menu`), the header band with the logo and the view title (`.main-content > .view-header`, `.view-header-layout`), grids, panels and their headers (`.widget-header`, `.header-caption`), the login page (`.login-panel`), detail tabs, status icons and bars.
+
+The file is commented section by section; use it as the reference for the class names. A style sheet loaded later wins over an earlier one for rules of the same specificity, so a custom style sheet only needs the rules it changes.
+
+The style sheets are served as they are: there is no theme compilation, and adding one does not need Node.js or a frontend build.
+
+## Procedure to create a custom look
+
+- Create the style sheet in the resources of your application (a hawkBit runtime, or your own Spring Boot application built with the hawkBit starters), under `src/main/resources/META-INF/resources/`, for example **`src/main/resources/META-INF/resources/VAADIN/mytheme/mytheme.css`**. Put its images in a sub folder, for example **`VAADIN/mytheme/images/`**.
+- Add it to the application's app shell class, after hawkBit's style sheet. An application has one app shell class; in your own application it is the class that carries these annotations instead of the runtime's main class:
+
+  ```java
+  @StyleSheet(Lumo.STYLESHEET)
+  @StyleSheet(Lumo.COMPACT_STYLESHEET)
+  @StyleSheet("VAADIN/hawkbit/hawkbit.css")
+  @StyleSheet("VAADIN/mytheme/mytheme.css")
+  public class MyApplication implements AppShellConfigurator {
+  ```
+
+- In the style sheet, override what you want to change. Global values are Lumo custom properties; hawkBit's rules use its class names. For example:
 
   ```css
-  @import "../hawkbit/customstyles/hawkbitvariables";
-  @import "customstyles/examplevariables";
-  @import "../hawkbit/hawkbittheme";
-  @import "addons";
+  html {
+      --lumo-primary-color: #00629e;
+      --lumo-primary-color-50pct: rgba(0, 98, 158, 0.5);
+      --lumo-primary-color-10pct: rgba(0, 98, 158, 0.1);
+      --lumo-primary-text-color: #00629e;
+      --lumo-font-family: "Roboto", sans-serif;
+  }
 
-  .exampletheme {
-    @include addons;
-    @include hawkbittheme;
+  /* the logo in the header band, top right of every view and of the login page */
+  .main-content > .view-header {
+      background-image: url("images/my_logo.png");
+  }
+
+  /* the menu */
+  .valo-menu {
+      background-color: #1f2d3d;
+      color: #c0c8d0;
   }
   ```
 
-- Finally the structure should be as in the [example app](https://github.com/eclipse/hawkbit-examples/tree/master/hawkbit-custom-theme-example/src/main/resources/VAADIN).
+  A relative `url(...)` is resolved against the address of the style sheet that contains it.
+- hawkBit's primary colour (`#551f62`) is set in two ways: as the Lumo custom properties above, and directly in several rules of `hawkbit.css` (view titles, the selected grid row, panel headers, detail tabs, links under the mouse, the rollout groups chart, the running status icon). To change it everywhere, search `hawkbit.css` for the colour and override those rules too. Colours that come from data, such as tag and type colours, are not part of the style sheets.
+- Build and start the application, and check the views and the login page.
 
 ## Procedure to add a custom footer
-- Any footer can be added by creating  "footer.html" in **src/main/resources --> VAADIN -- themes --> {XXXtheme} --> layouts** folder. An example can be found [here](https://github.com/eclipse/hawkbit/blob/master/hawkbit-ui/src/main/resources/VAADIN/themes/hawkbit/layouts/footer.html).
+
+The login page shows the footer from the class path resource **`VAADIN/themes/hawkbit/layouts/footer.html`**. The default is in the `hawkbit-ui` module, in `src/main/resources/VAADIN/themes/hawkbit/layouts/footer.html`. The folder name `hawkbit` is fixed: it does not depend on a theme name.
+
+- To replace the footer, create **`src/main/resources/VAADIN/themes/hawkbit/layouts/footer.html`** in your application, starting from the default file. The login page uses the first file of that name on the class path, and the application's own resources come before the library jars.
+- The file is inserted into the login page as HTML, inside one `<div>`.

@@ -11,6 +11,7 @@ hawkBit Runtime
 | `hawkbit-ddi-server/`    | Spring-Boot application of hawkBit DDI server.                                                                             |
 | `hawkbit-dmf-server/`    | Spring-Boot application of hawkBit DMF server.                                                                             |
 | `hawkbit-mgmt-server/`   | Spring-Boot application of hawkBit Management server. Provides REST Management API and rollouts / auto assigment processing |
-| `hawkbit-vv8-ui/`        | Spring-Boot application of hawkBit Vaadin 8 UI.                                                                            |
+| `hawkbit-vv8-ui/`        | Spring-Boot application of hawkBit Management UI (Vaadin 25; the folder keeps its name from the earlier Vaadin 8 UI).     |
+| `hawkbit-simple-ui/`     | Spring-Boot application of the hawkBit simple UI (Vaadin 24). Not in the default build: see the root `README.md`.          |
 
 Note: micro service setup requires all services using DB to use same shared DB. So, they don't work with default in memory H2 database. Docker compose with mysql shows an example setup.

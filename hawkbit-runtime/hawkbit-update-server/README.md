@@ -1,6 +1,6 @@
 # hawkBit Update Server
 
-The hawkBit Update Server (Monolith) is a standalone spring-boot application with an embedded servlet container .
+The hawkBit Update Server (Monolith) is a standalone spring-boot application with an embedded servlet container . It serves the Management UI (Vaadin 25) as well. It needs Java 21.
 
 ## On your own workstation
 
@@ -15,12 +15,12 @@ _(Note: you have to add the JDBC driver also to your class path if you intend to
 Or:
 
 ```bash
-run org.eclipse.hawkbit.doc.Start
+run org.eclipse.hawkbit.app.Start
 ```
 
 ### Usage
 
-The Management UI can be accessed via http://localhost:8080/UI
+The Management UI can be accessed via http://localhost:8080/UI (production mode; for development mode and the theme see `hawkbit-ui/README.md`)
 The Management API can be accessed via http://localhost:8080/rest/v1
 
 ## Enable Clustering (experimental)
