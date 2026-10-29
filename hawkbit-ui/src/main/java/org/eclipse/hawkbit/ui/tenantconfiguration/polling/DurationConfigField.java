@@ -149,6 +149,7 @@ public final class DurationConfigField extends HorizontalLayout {
             // Vaadin 8 showed the layout caption above the field; Flow layouts
             // have no caption, so it is the first element of the row
             field.addComponentAsFirst(new NativeLabel(caption));
+            field.getDurationField().setPickerCaption(caption);
             return this;
         }
 
