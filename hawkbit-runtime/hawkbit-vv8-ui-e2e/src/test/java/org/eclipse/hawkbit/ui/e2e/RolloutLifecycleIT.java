@@ -86,10 +86,18 @@ class RolloutLifecycleIT extends AbstractUiE2eTest {
     private Map<String, String> waitRollout(final Predicate<Map<String, String>> pred, final int ms) {
         final List<Map<String, String>> last = new ArrayList<>();
         last.add(null);
+        final List<String> seen = new ArrayList<>();
+        final long t0 = System.currentTimeMillis();
         ui.waitFor(() -> {
             last.set(0, rollout());
+            final String s = status(last.get(0)) + " @" + (System.currentTimeMillis() - t0) / 1000 + "s";
+            if (seen.isEmpty() || !seen.get(seen.size() - 1).startsWith(status(last.get(0)) + " @")) {
+                seen.add(s);
+            }
             return pred.test(last.get(0));
         }, ms, 1000);
+        // the statuses the list showed while waiting, with the time each was first seen (the test output, for slow runs)
+        System.out.println("rollout status sequence: " + String.join(" > ", seen));
         return last.get(0);
     }
 
