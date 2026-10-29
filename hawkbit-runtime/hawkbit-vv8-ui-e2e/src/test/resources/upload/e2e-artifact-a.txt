@@ -1,0 +1,3 @@
+hawkBit UI end-to-end test artifact A
+Line 2: a small plain text file uploaded with the upload button.
+Line 3: do not edit; the test computes its size and checksums.
