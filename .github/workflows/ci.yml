@@ -10,9 +10,9 @@
 
 # CI of the migration (.github/CI.md): build the UI path on Java 21 and Vaadin 25, start one isolated copy, smoke-log-in
 # every test user, run the test suite. One job, so the build is never passed between jobs through artifact storage;
-# diagnostics are uploaded only on failure (a step over its time limit is a failure). Downloads only from Maven
-# Central, nodejs.org (Node for the frontend build), the npm registry, official Docker Hub images and the Playwright
-# browser download.
+# diagnostics are uploaded only on failure (a step over its time limit is a failure). In parallel, the job e2e builds
+# and starts its own copy and runs the UI end-to-end tests (env/e2e.sh). Downloads only from Maven Central, nodejs.org
+# (Node for the frontend build), the npm registry, official Docker Hub images and the Playwright browser download.
 # Runs once per commit: no pull_request trigger (the checks of a push show on its PR), and the first job ends the run
 # at once, as a success, when the commit already has a successful run of this workflow (.github/CI.md "When it runs").
 name: CI
@@ -165,3 +165,69 @@ jobs:
             /home/runner/ci-out/
             **/target/surefire-reports/*.txt
             **/target/failsafe-reports/*.txt
+
+  e2e:
+    # End-to-end tests of the UI (env/README.md "End-to-end tests"): env/e2e.sh builds the image, starts one copy, runs
+    # mvn -Pe2e verify (Playwright for Java, Chromium headless shell) against it and removes it. Own job, in parallel
+    # with build-test-smoke, so it builds the image itself (no build passed between jobs); skipped like it.
+    needs: already-green
+    if: ${{ needs.already-green.outputs.skip != 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash  # -eo pipefail
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Restore Maven repository
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /home/runner/.m2/repository
+          # own key: this repository also holds Playwright for Java; seeded from build-test-smoke's on a miss
+          key: maven-e2e-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-e2e-${{ runner.os }}-
+            maven-${{ runner.os }}-
+
+      - name: Restore Node and npm cache of the frontend build
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /home/runner/.cache/mig-env-build-home
+          key: build-home-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: build-home-${{ runner.os }}-
+
+      - name: Restore Playwright browser
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          # the same Chromium headless shell the smoke installs (Playwright for Java has the smoke's version)
+          path: /home/runner/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ env.PLAYWRIGHT_VERSION }}
+
+      - name: Test users (throw-away, random passwords)
+        run: .github/ci/test-users.sh /home/runner/.config/mig-ci
+
+      - name: End-to-end tests (env/e2e.sh)
+        timeout-minutes: 35
+        # The runner's JDK 21 and Maven 3.9 run the tests; the app image is built in Docker as in build-test-smoke.
+        run: |
+          export JAVA_HOME="$JAVA_HOME_21_X64" PATH="$JAVA_HOME_21_X64/bin:$PATH"
+          mkdir -p "$CI_OUT"
+          mvn -v
+          env/e2e.sh 2>&1 | tee "$CI_OUT/e2e.log"
+
+      - name: Upload diagnostics (failure only)
+        if: ${{ failure() }}
+        continue-on-error: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ci-e2e-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: |
+            /home/runner/ci-out/
+            hawkbit-runtime/hawkbit-vv8-ui-e2e/target/e2e/
+            hawkbit-runtime/hawkbit-vv8-ui-e2e/target/failsafe-reports/

@@ -19,6 +19,7 @@ On the host, checked by `up.sh` and `reset.sh` at start; nothing else is install
 APP_ENV_PROJECT=copy-a APP_ENV_PORT=18181 env/up.sh     # build the image for HEAD if missing, start, seed; returns when the UI answers
 APP_ENV_PROJECT=copy-a APP_ENV_PORT=18181 env/reset.sh  # back to the seed state
 APP_ENV_PROJECT=copy-a env/down.sh                      # remove the copy
+APP_ENV_PROJECT=copy-a APP_ENV_PORT=18181 env/e2e.sh    # start, run the UI end-to-end tests, remove (see End-to-end tests)
 ```
 
 The UI is at `http://127.0.0.1:$APP_ENV_PORT/UI/`. `up.sh --no-build` starts from an existing image and fails if there is none.
@@ -28,6 +29,7 @@ The UI is at `http://127.0.0.1:$APP_ENV_PORT/UI/`. `up.sh --no-build` starts fro
 | `up.sh [--no-build]` | Builds the app image for `HEAD` if it does not exist yet (`--no-build`: it must exist). Starts the copy, runs the seed hook, takes the seed dump, gives mgmt-server the test users (if any), starts the UI; about 40-55 s with the image in place. Refuses to start when the copy already exists (any container, network or volume with its label, or a volume with one of its names). On failure it leaves what it started, for `down.sh` | 0 once `/UI/login` answers 200 |
 | `reset.sh` | Returns the running copy to the seed state (see Reset) | 0 once the UI answers again |
 | `down.sh` | Saves the DNS log and app logs, then removes every container, network and volume of the copy and its state dir. Safe after a half-finished or killed `up.sh` and when the copy is gone | always 0 |
+| `e2e.sh [--no-build] [--running] [-- <maven args>]` | `up.sh`, then the UI end-to-end tests against the copy, then `down.sh` (`--running`: a copy that is already up, left running). See End-to-end tests | Maven's: 0 when every test passed |
 
 ## Settings
 
@@ -135,6 +137,34 @@ awk '{print $3, $5}' env/.state/copies/<project>/dns/dns.log | sort | uniq -c
 # everything of the copy
 docker ps -a --filter label=mig.env.project=<project>; docker network ls --filter label=mig.env.project=<project>; docker volume ls --filter label=mig.env.project=<project>
 ```
+
+## End-to-end tests
+
+UI tests in `hawkbit-runtime/hawkbit-vv8-ui-e2e`: Playwright for Java 1.63.0 and JUnit 5, run by failsafe in the Maven profile `e2e`. They drive a headless Chromium against a running copy, as a user would (roles, labels, visible text), with the browser's time zone set to Europe/Helsinki. The tests are black-box: they use none of the app's classes. The module is in the build only with `-Pe2e`, so the default build neither downloads Playwright nor runs them.
+
+Needs, besides the above: JDK 21 and Maven 3.9 on the host (the tests run there, not in Docker), and on Linux the system libraries Chromium needs (Playwright's `install-deps chromium` installs them on Debian and Ubuntu; GitHub's Ubuntu runners have them). Node.js is not needed. The copy needs the seed and the test user `admin`, with its password as `MIG_TU_ADMIN_PW` in `APP_ENV_USERS_ENV` (as `.github/ci/test-users.sh` writes it).
+
+```sh
+# start a copy, run the tests, remove the copy (exit code: Maven's)
+APP_ENV_PROJECT=copy-a APP_ENV_PORT=18181 APP_ENV_USERS_PROPERTIES=<file> APP_ENV_USERS_ENV=<file> env/e2e.sh
+# against a copy that is already up; one test class
+APP_ENV_PROJECT=copy-a APP_ENV_PORT=18181 APP_ENV_USERS_ENV=<file> env/e2e.sh --running -- -Dit.test=Wf01LoginLogoutIT
+# Maven only, against any running UI (no reset unless -De2e.reset is given)
+mvn -Pe2e -pl hawkbit-runtime/hawkbit-vv8-ui-e2e verify -De2e.baseUrl=http://127.0.0.1:18181 -De2e.usersEnv=<file>
+```
+
+| Property (`-D`) | Default | Meaning |
+|---|---|---|
+| `e2e.baseUrl` | `http://127.0.0.1:18081` | The UI (`e2e.sh`: `http://127.0.0.1:$APP_ENV_PORT`) |
+| `e2e.usersEnv` | the environment variable `APP_ENV_USERS_ENV` | The test users' password file (`MIG_TU_<USER>_PW=...`); read at run time, never printed |
+| `e2e.reset` | none (`e2e.sh`: `env/reset.sh`) | Command run before each test class to return the copy to the seed state; it gets the `APP_ENV_*` of the shell |
+| `e2e.timezone` | `Europe/Helsinki` | Time zone of the browser |
+
+- Each test gets a fresh browser context (its own session). The browser may reach only the UI's host and port: any other request is aborted and fails the test. A console error, page error or HTTP status of 400 or more fails the step it happens in. A target's security token is hidden on every page.
+- A failing test leaves a screenshot in `hawkbit-runtime/hawkbit-vv8-ui-e2e/target/e2e/`; the reports are in `target/failsafe-reports/`. `e2e.sh` keeps Maven's output in `$APP_ENV_LOG_DIR` (`e2e-<commit>-<time>.log`).
+- Downloads: Playwright for Java from Maven Central (its `driver-bundle` jar, about 195 MB, carries Playwright's driver with a Node.js runtime per platform, so nothing is installed for it); at the first run the Chromium headless shell and ffmpeg (about 120 MB) from Playwright's CDN `cdn.playwright.dev` into Playwright's browser cache (`PLAYWRIGHT_BROWSERS_PATH`, default `~/.cache/ms-playwright` on Linux), shared with the CI smoke's Node Playwright of the same version. Playwright may fall back to `playwright.download.prss.microsoft.com`. `e2e.sh` fails when its log shows a download from any other host.
+- A new test: a class `*IT` in `org.eclipse.hawkbit.ui.e2e` that extends `AbstractUiE2eTest`, one `step(...)` per workflow step, with the helpers of `HawkbitUi`. Keep `playwright.version` in the module's pom equal to `PLAYWRIGHT_VERSION` in `.github/workflows/ci.yml`.
+- In CI the job `e2e` runs `env/e2e.sh` (`.github/CI.md`).
 
 ## With the replay runner
 

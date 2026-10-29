@@ -114,6 +114,10 @@ java -jar ./hawkbit-runtime/hawkbit-update-server/target/hawkbit-update-server-#
 
 The build needs Java 21. The Vaadin 24 simple UI (`hawkbit-runtime/hawkbit-simple-ui`) is not part of the default build; it is behind the opt-in profile `simple-ui` and does not build on the new stack (Java 21 / Spring Boot 4) yet.
 
+## End-to-end tests of the UI
+
+Playwright tests (Java, JUnit 5) of the management UI against a running app, in the opt-in profile `e2e`: `env/e2e.sh` starts a copy of the app in Docker, runs `mvn -Pe2e -pl hawkbit-runtime/hawkbit-vv8-ui-e2e verify` against it and removes it. How to run them and what they need: [env/README.md](env/README.md), "End-to-end tests". CI runs them in the job `e2e` ([.github/CI.md](.github/CI.md)).
+
 ## Start hawkBit [Device Simulator](https://github.com/eclipse/hawkbit-examples/tree/master/hawkbit-device-simulator) (optional)
 
 ```bash
