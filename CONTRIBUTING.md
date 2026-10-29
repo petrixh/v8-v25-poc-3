@@ -15,9 +15,6 @@ Please read this if you intend to contribute to the project.
 * XML files:
   * we follow the standard eclipse IDE XML formatter with the following changes:
     * Indent using spaces only: 3
-* SCSS files:
-  * we follow the standard [scss-lint](https://github.com/brigade/scss-lint/) rules with the following exception:
-    * disabled rules: ImportantRule, PropertySortOrder
 * Sonarqube:
   * Our rule set can be found [here](https://sonarcloud.io/organizations/bosch-iot-rollouts/rules)
   * Sonarqube reports can be found [here](https://sonarcloud.io/project/overview?id=org.eclipse.hawkbit%3Ahawkbit-parent)
