@@ -116,10 +116,17 @@ public class DurationField extends CustomField<LocalDateTime> implements HasVali
      * Takes a time chosen in the popup as if the user had typed it: same
      * parsing, limits and value change from the user as typed text.
      *
+     * The pop-up is attached to the UI, not under this field, so it does not
+     * inherit the field's state: a pick is ignored while the field is disabled
+     * or read-only, as the old field ignored the pop-up then.
+     *
      * @param time
      *            the chosen time
      */
     void pickTime(final LocalTime time) {
+        if (!isEnabled() || isReadOnly()) {
+            return;
+        }
         textField.setValue(time.format(DateTimeFormatter.ofPattern(DURATION_FORMAT_STIRNG)));
         updateValue();
         if (parseErrorMessage == null) {

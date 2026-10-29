@@ -160,6 +160,33 @@ class DurationPickerTest {
     }
 
     @Test
+    void choiceIsIgnoredWhileTheFieldIsDisabled() {
+        field.setEnabled(false);
+
+        choose(1, 2, 3);
+
+        assertThat(field.getValue().toLocalTime()).isEqualTo(LocalTime.of(0, 5, 0));
+        assertThat(field.getTextField().getValue()).isEqualTo("00:05:00");
+        assertThat(events).isEmpty();
+        // the selects show the field's value again
+        assertThat(picker.selectedTime()).isEqualTo(LocalTime.of(0, 5, 0));
+
+        field.setEnabled(true);
+        choose(1, 2, 3);
+        assertThat(field.getValue().toLocalTime()).isEqualTo(LocalTime.of(1, 2, 3));
+    }
+
+    @Test
+    void choiceIsIgnoredWhileTheFieldIsReadOnly() {
+        field.setReadOnly(true);
+
+        choose(1, 2, 3);
+
+        assertThat(field.getValue().toLocalTime()).isEqualTo(LocalTime.of(0, 5, 0));
+        assertThat(events).isEmpty();
+    }
+
+    @Test
     void popupOpensFromThePrefixButtonOnClick() {
         assertThat(field.getTextField().getPrefixComponent()).isSameAs(field.getPickerButton());
         assertThat(picker.getTarget()).isSameAs(field.getPickerButton());

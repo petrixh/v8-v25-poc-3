@@ -615,7 +615,7 @@ vaadin-tabsheet vaadin-tab {
 .rollout-groups .rollout-group-name:nth-child(16n+98) { border-left-color: #7fb0a4; }
 
 /*
- * Status icons and grid action icons Status labels carry the
+ * Status icons and grid action icons. Status labels carry the
  * status colour; action buttons take the cell's text colour (white in a selected row), the force-quit
  * button is red. An unpinned target or set shows its pin turned by 90 degrees.
  */
