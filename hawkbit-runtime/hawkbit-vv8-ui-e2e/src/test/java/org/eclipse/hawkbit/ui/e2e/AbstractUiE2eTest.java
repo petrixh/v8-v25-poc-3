@@ -156,9 +156,11 @@ abstract class AbstractUiE2eTest {
      */
     protected void step(final int number, final String description, final StepBody body) {
         browserErrors.clear();
+        final long t0 = System.currentTimeMillis();
         try {
             body.run();
         } catch (final AssertionError | Exception e) {
+            System.out.println(testName + " step " + number + ": failed after " + (System.currentTimeMillis() - t0) + " ms");
             // No password in reports or logs: Playwright's call log of a failed fill() can hold the typed value. The
             // message is cleared of every test-user password, and the original exception (whose message and causes
             // would keep it) is not attached; its stack trace is.
@@ -167,6 +169,8 @@ abstract class AbstractUiE2eTest {
             failure.setStackTrace(e.getStackTrace());
             throw failure;
         }
+        // durations in the test's output (failsafe report), to see where a slow run spends its time
+        System.out.println(testName + " step " + number + ": " + (System.currentTimeMillis() - t0) + " ms");
         page.waitForTimeout(400);
         assertEquals(List.of(), List.copyOf(blockedRequests), "Step " + number + " (" + description + "): requests to other hosts");
         assertEquals(List.of(), List.copyOf(browserErrors), "Step " + number + " (" + description + "): browser errors");
@@ -181,6 +185,7 @@ abstract class AbstractUiE2eTest {
         // its output goes to a file: the forked test JVM must not write to its own stdout directly (failsafe's channel)
         Files.createDirectories(OUTPUT_DIR);
         final Path log = OUTPUT_DIR.resolve("reset.log");
+        final long t0 = System.currentTimeMillis();
         final Process p = new ProcessBuilder(cmd).redirectErrorStream(true).redirectOutput(ProcessBuilder.Redirect.appendTo(log.toFile()))
                 .start();
         if (!p.waitFor(5, TimeUnit.MINUTES)) {
@@ -190,6 +195,7 @@ abstract class AbstractUiE2eTest {
         if (p.exitValue() != 0) {
             fail("Reset of the app (" + cmd + ") failed with exit code " + p.exitValue() + " (log " + log.toAbsolutePath() + ")");
         }
+        System.out.println("reset of the app: " + (System.currentTimeMillis() - t0) + " ms");
     }
 
     private static String truncate(final String s) {
