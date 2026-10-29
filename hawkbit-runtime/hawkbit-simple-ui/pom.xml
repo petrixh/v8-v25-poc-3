@@ -198,9 +198,6 @@
                         <exclude>**/README.md</exclude>
                         <exclude>**/frontend/**</exclude>
                     </excludes>
-                    <mapping>
-                        <scss>JAVADOC_STYLE</scss>
-                    </mapping>
                 </configuration>
             </plugin>
             <plugin>

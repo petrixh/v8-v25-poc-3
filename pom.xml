@@ -417,8 +417,6 @@
                      <exclude>.git*</exclude>
                      <exclude>**/*.sql</exclude>
                      <exclude>eclipse_codeformatter.xml</exclude>
-                     <exclude>**/addons.scss</exclude>
-                     <exclude>**/VAADIN/widgetsets/**</exclude>
                      <exclude>.sonar</exclude>
                      <exclude>**/docker/**</exclude>
                      <exclude>**/.sonar/**</exclude>
@@ -434,9 +432,6 @@
                      <!-- Fixture files of the e2e tests' upload test (hawkbit-vv8-ui-e2e); the files' content is compared byte for byte, so they carry no header -->
                      <exclude>**/src/test/resources/upload/**</exclude>
                   </excludes>
-                  <mapping>
-                     <scss>JAVADOC_STYLE</scss>
-                  </mapping>
                </configuration>
             </plugin>
             <plugin>
@@ -457,20 +452,6 @@
                            </pluginExecutionFilter>
                            <action>
                               <ignore />
-                           </action>
-                        </pluginExecution>
-                        <pluginExecution>
-                           <pluginExecutionFilter>
-                              <groupId>com.vaadin</groupId>
-                              <artifactId>vaadin-maven-plugin</artifactId>
-                              <versionRange>${vaadin.plugin.version}</versionRange>
-                              <goals>
-                                 <goal>resources</goal>
-                                 <goal>update-widgetset</goal>
-                              </goals>
-                           </pluginExecutionFilter>
-                           <action>
-                              <ignore/>
                            </action>
                         </pluginExecution>
                      </pluginExecutions>

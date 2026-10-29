@@ -15,8 +15,11 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Optional;
@@ -30,8 +33,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.util.StreamUtils;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -94,6 +101,32 @@ class AbstractHawkbitLoginUITest {
         assertSignInFollowsFields(view);
     }
 
+    @Test
+    @Description("The login view reads the footer from the documented class path location and shows it")
+    void footerIsReadFromItsResourceAndShown() {
+        final ApplicationContext context = mock(ApplicationContext.class);
+        when(context.getResource(anyString()))
+                .thenReturn(new ByteArrayResource("<p>footer</p>".getBytes(StandardCharsets.UTF_8)));
+        final TestLoginUI view = newLoginView(context);
+        view.beforeEnter(enterEvent("login"));
+
+        verify(context).getResource("classpath:/META-INF/resources/VAADIN/hawkbit/footer.html");
+        assertThat(descendants(view).filter(Html.class::isInstance).map(Html.class::cast)
+                .anyMatch(html -> html.getInnerHtml().contains("<p>footer</p>"))).as("footer shown").isTrue();
+    }
+
+    @Test
+    @Description("The default footer file is on the class path where the login view looks for it")
+    void defaultFooterIsOnTheClassPath() throws IOException {
+        final Resource footer = new ClassPathResource(AbstractHawkbitLoginUI.FOOTER_RESOURCE);
+
+        assertThat(footer.exists()).as("default footer file").isTrue();
+        try (final InputStream in = footer.getInputStream()) {
+            assertThat(StreamUtils.copyToString(in, StandardCharsets.UTF_8)).contains("<footer>")
+                    .contains("Eclipse Foundation");
+        }
+    }
+
     private void assertSignInFollowsFields(final TestLoginUI view) {
         final Button signIn = signIn(view);
         assertThat(signIn.isEnabled()).as("sign in with empty fields").isFalse();
@@ -116,6 +149,10 @@ class AbstractHawkbitLoginUITest {
         final ApplicationContext context = mock(ApplicationContext.class);
         when(context.getResource(anyString()))
                 .thenReturn(new ByteArrayResource("<p>footer</p>".getBytes(StandardCharsets.UTF_8)));
+        return newLoginView(context);
+    }
+
+    private static TestLoginUI newLoginView(final ApplicationContext context) {
         final VaadinMessageSource i18n = mock(VaadinMessageSource.class);
         when(i18n.getMessage(anyString(), any(Object[].class))).thenReturn("text");
         final MultitenancyIndicator multiTenancy = mock(MultitenancyIndicator.class);

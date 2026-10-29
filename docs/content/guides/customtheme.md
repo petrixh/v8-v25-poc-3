@@ -75,7 +75,11 @@ The style sheets are served as they are: there is no theme compilation, and addi
 
 ## Procedure to add a custom footer
 
-The login page shows the footer from the class path resource **`VAADIN/themes/hawkbit/layouts/footer.html`**. The default is in the `hawkbit-ui` module, in `src/main/resources/VAADIN/themes/hawkbit/layouts/footer.html`. The folder name `hawkbit` is fixed: it does not depend on a theme name.
+The login page shows the footer from the class path resource **`META-INF/resources/VAADIN/hawkbit/footer.html`**, the constant `AbstractHawkbitLoginUI.FOOTER_RESOURCE`. The default is in the `hawkbit-ui` module, in `src/main/resources/META-INF/resources/VAADIN/hawkbit/footer.html`, next to `hawkbit.css`. The folder name `hawkbit` is fixed.
 
-- To replace the footer, create **`src/main/resources/VAADIN/themes/hawkbit/layouts/footer.html`** in your application, starting from the default file. The login page uses the first file of that name on the class path, and the application's own resources come before the library jars.
+{{% note %}}
+Earlier versions of the Management UI (Vaadin 8) read the footer from `VAADIN/themes/hawkbit/layouts/footer.html`. A footer at that path is no longer read: move it to the path above.
+{{% /note %}}
+
+- To replace the footer, create **`src/main/resources/META-INF/resources/VAADIN/hawkbit/footer.html`** in your application, starting from the default file. The login page uses the first file of that name on the class path, and the application's own resources come before the library jars. The file is also served as a static resource at `/VAADIN/hawkbit/footer.html`, like `hawkbit.css`.
 - The file is inserted into the login page as HTML, inside one `<div>`.

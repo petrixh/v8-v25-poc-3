@@ -20,7 +20,6 @@ import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyLoginCredentials;
 import org.eclipse.hawkbit.ui.common.notification.ParallelNotification;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.themes.HawkbitTheme;
 import org.eclipse.hawkbit.ui.utils.FocusOnShow;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -77,6 +76,13 @@ public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements B
     private static final Logger LOG = LoggerFactory.getLogger(AbstractHawkbitLoginUI.class);
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * Class path location of the HTML shown below the login form. An
+     * application replaces the footer by a file of the same path in its own
+     * resources.
+     */
+    public static final String FOOTER_RESOURCE = "/META-INF/resources/VAADIN/hawkbit/footer.html";
 
     private static final String TITLE = "hawkBit UI - Login";
 
@@ -410,10 +416,9 @@ public abstract class AbstractHawkbitLoginUI extends VerticalLayout implements B
     }
 
     private void addFooter(final VerticalLayout rootLayout) {
-        final Resource resource = context
-                .getResource("classpath:/VAADIN/themes/" + HawkbitTheme.THEME_NAME + "/layouts/footer.html");
+        final Resource resource = context.getResource("classpath:" + FOOTER_RESOURCE);
 
-        // Vaadin 8 CustomLayout: the template as it is, inside one element
+        // the file as it is, inside one element
         try (final InputStream resourceStream = resource.getInputStream()) {
             final Html customLayout = new Html(
                     "<div>" + StreamUtils.copyToString(resourceStream, StandardCharsets.UTF_8) + "</div>");

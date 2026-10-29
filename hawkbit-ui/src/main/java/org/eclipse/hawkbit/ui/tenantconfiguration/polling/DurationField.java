@@ -31,11 +31,8 @@ import com.vaadin.flow.data.binder.Validator;
 
 /**
  * This class represents a Field which is optimized to enter a time duration in
- * form HH:mm:ss (see {@link #DURATION_FORMAT_STIRNG}). It uses the vaadin
- * DateField as a basic element, but the format is optimized for the duration
- * input. For a correct view of the popup it is recommended not to display the
- * css-class "v-datefield-calendarpanel-header" and
- * "v-datefield-calendarpanel-body" (see systemconfig.scss}
+ * form HH:mm:ss (see {@link #DURATION_FORMAT_STIRNG}). The format is optimized
+ * for the duration input.
  * <p>
  * Vaadin 25: Flow has no date-time field with a free text format and a server
  * side parse fallback. The field is a {@link CustomField} around a
