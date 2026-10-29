@@ -169,13 +169,17 @@ abstract class AbstractUiE2eTest {
         if (cmd.isEmpty()) {
             return;
         }
-        final Process p = new ProcessBuilder(cmd).inheritIO().start();
+        // its output goes to a file: the forked test JVM must not write to its own stdout directly (failsafe's channel)
+        Files.createDirectories(OUTPUT_DIR);
+        final Path log = OUTPUT_DIR.resolve("reset.log");
+        final Process p = new ProcessBuilder(cmd).redirectErrorStream(true).redirectOutput(ProcessBuilder.Redirect.appendTo(log.toFile()))
+                .start();
         if (!p.waitFor(5, TimeUnit.MINUTES)) {
             p.destroyForcibly();
-            fail("Reset of the app (" + cmd + ") did not finish within 5 minutes");
+            fail("Reset of the app (" + cmd + ") did not finish within 5 minutes (log " + log.toAbsolutePath() + ")");
         }
         if (p.exitValue() != 0) {
-            fail("Reset of the app (" + cmd + ") failed with exit code " + p.exitValue());
+            fail("Reset of the app (" + cmd + ") failed with exit code " + p.exitValue() + " (log " + log.toAbsolutePath() + ")");
         }
     }
 

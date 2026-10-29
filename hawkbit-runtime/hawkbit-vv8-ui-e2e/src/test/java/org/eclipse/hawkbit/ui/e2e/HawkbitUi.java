@@ -206,8 +206,16 @@ final class HawkbitUi {
 
     /** A main menu entry by its visible text (a button whose name may start with an icon glyph). */
     Locator menuItem(final String name) {
-        return page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("^\\W*" + Pattern.quote(name) + "\\s*$")))
+        return page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("^\\W*" + escape(name) + "\\s*$")))
                 .first();
+    }
+
+    /**
+     * {@code s} as a literal in a regular expression that Playwright evaluates in the browser (JavaScript syntax:
+     * {@code Pattern.quote}'s {@code \Q...\E} does not work there).
+     */
+    static String escape(final String s) {
+        return s.replaceAll("[.*+?^${}()|\\[\\]\\\\]", "\\\\$0");
     }
 
     boolean menuItemVisible(final String name) {
