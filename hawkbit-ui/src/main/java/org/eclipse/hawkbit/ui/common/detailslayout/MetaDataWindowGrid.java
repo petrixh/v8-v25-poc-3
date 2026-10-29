@@ -72,6 +72,11 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> implem
         getSelectionSupport().enableSingleSelection();
 
         init();
+        // Vaadin 8: the window's layouts had no height, so this full-size
+        // grid got the grid's default height. In Flow its relative height
+        // collapsed to one row; without a height it gets the Flow grid's
+        // default height, as before.
+        setHeight(null);
     }
 
     @Override
