@@ -21,7 +21,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * The save and undo buttons of System Config show their tooltip also while
- * disabled, as in Vaadin 8: the tooltip is on a wrapper that stays enabled.
+ * disabled, as in Vaadin 8: the tooltip is on a wrapper that stays enabled, and
+ * the button is named by the tooltip text.
  */
 @Feature("Unit Tests - Management UI")
 @Story("System Config tooltips")
@@ -39,5 +40,14 @@ class TenantConfigurationDashboardViewTest {
         assertThat(Tooltip.forComponent(wrapper).getText()).isEqualTo("Save Configurations");
         // only one tooltip: the button has none of its own, so an enabled button does not show it twice
         assertThat(button.getTooltip().getText()).isNull();
+    }
+
+    @Test
+    void tooltipTextIsTheButtonsAccessibleName() {
+        final Button button = new Button();
+
+        TenantConfigurationDashboardView.withTooltip(button, "Save Configurations");
+
+        assertThat(button.getAriaLabel()).contains("Save Configurations");
     }
 }

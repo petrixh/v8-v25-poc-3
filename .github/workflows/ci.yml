@@ -176,7 +176,8 @@ jobs:
     timeout-minutes: 45
     env:
       # The tests' toolchain, pinned as the image build's (env/lib.sh): Temurin 21.0.12.1+1 (Adoptium semver
-      # 21.0.12+101.0.LTS) and Maven 3.9.16, checked against the SHA-512 Maven Central publishes for it
+      # 21.0.12+101.0.LTS, pinned by version through setup-java and trusted through it and HTTPS: no checksum
+      # of its own, see .github/CI.md) and Maven 3.9.16, checked against the SHA-512 Maven Central publishes for it
       MAVEN_VERSION: 3.9.16
       MAVEN_SHA512: 831a8591fe20c8243b1dbe7d71e3244f31d1665b0804b2e825e38cbbe5ce0cafb8338851f90780735568773e0a6cd07bbec107cda0b896b008b861075358b6f6
     defaults:

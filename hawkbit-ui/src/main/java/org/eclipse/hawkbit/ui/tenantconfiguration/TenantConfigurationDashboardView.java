@@ -118,14 +118,12 @@ public class TenantConfigurationDashboardView extends Composite<Div>
                 "", true, VaadinIcon.HARDDRIVE, SPUIButtonStyleNoBorder.class);
         saveConfigurationBtn.setEnabled(false);
         saveConfigurationBtn.addClickListener(event -> saveConfiguration());
-        saveConfigurationBtn.setAriaLabel(i18n.getMessage("configuration.savebutton.tooltip"));
         hlayout.add(withTooltip(saveConfigurationBtn, i18n.getMessage("configuration.savebutton.tooltip")));
 
         undoConfigurationBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.SYSTEM_CONFIGURATION_CANCEL, "",
                 "", "", true, VaadinIcon.ARROW_BACKWARD, SPUIButtonStyleNoBorder.class);
         undoConfigurationBtn.setEnabled(false);
         undoConfigurationBtn.addClickListener(event -> undoConfiguration());
-        undoConfigurationBtn.setAriaLabel(i18n.getMessage("configuration.cancellbutton.tooltip"));
         hlayout.add(withTooltip(undoConfigurationBtn, i18n.getMessage("configuration.cancellbutton.tooltip")));
 
         final Anchor linkToSystemConfigHelp = SPUIComponentProvider.getHelpLink(i18n,
@@ -140,9 +138,13 @@ public class TenantConfigurationDashboardView extends Composite<Div>
      * (save and undo are disabled until something changes). A disabled Flow
      * button takes no pointer events, so its tooltip never opens: the tooltip
      * goes on a wrapper around the button, which gets the pointer in both
-     * states.
+     * states. Moving the tooltip off the button took the description the
+     * button had, so the tooltip text is also set as the button's accessible
+     * name (these two icon-only buttons only; other icon-only buttons keep only
+     * their tooltip, as in the old app).
      */
     static Span withTooltip(final Button button, final String tooltipText) {
+        button.setAriaLabel(tooltipText);
         final Span wrapper = new Span(button);
         Tooltip.forComponent(wrapper).setText(tooltipText);
         return wrapper;

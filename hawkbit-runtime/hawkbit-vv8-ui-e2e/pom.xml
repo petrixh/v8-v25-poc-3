@@ -42,7 +42,7 @@
         <!-- Command run before each test class to return the app to its seed state (env/reset.sh with the copy's
            APP_ENV_* settings in the environment). Empty: no reset. -->
         <e2e.reset/>
-        <!-- Time zone of the browser, as in the migration's workflow runs. -->
+        <!-- Time zone of the browser (fixed, so dates and times read the same on every machine). -->
         <e2e.timezone>Europe/Helsinki</e2e.timezone>
 
         <!-- Nothing to publish -->

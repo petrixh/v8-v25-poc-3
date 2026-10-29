@@ -32,8 +32,9 @@ docker build -t hawkbit_update_server:<version> . -f Dockerfile
 ```
 having that docker uses by default _Dockerfile_ and the _hawkbit-update-server_ is the default _HAWKBIT_APP_. To take the jar from another file name use `--build-arg HAWKBIT_JAR=<file in the context>`.
 
-To download a release instead:
 The local jar is not checked (no checksum, no signature): whoever builds from a local jar owns its provenance, e.g. a CI job builds the jar and passes it to `docker build` in the same job.
+
+To download a release instead (this one is checked against its published signature):
 
 ```shell
 docker build --build-arg HAWKBIT_JAR_SOURCE=download --build-arg HAWKBIT_VERSION=<release> -t hawkbit_update_server:<release> . -f Dockerfile

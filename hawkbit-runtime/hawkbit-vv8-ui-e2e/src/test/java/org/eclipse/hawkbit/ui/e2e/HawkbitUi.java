@@ -34,8 +34,12 @@ import com.microsoft.playwright.options.LoadState;
 /**
  * The hawkBit UI as a user sees it: login, main menu, views, user menu, tooltips, notifications. Locators are
  * user-level (roles, labels, visible text). Where Flow components keep their text in light DOM slots (menu items,
- * tooltips, notification cards), the text is read through the slots. Only the public tags and attributes of Vaadin
+ * tooltips, notification cards), the text is read through the slots. Mostly the public tags and attributes of Vaadin
  * components are used ({@code vaadin-tooltip}, {@code vaadin-tooltip-overlay[opened]}, {@code vaadin-notification-card}).
+ * Three things are not public API and can change in a Vaadin update without notice: the Flow client objects in
+ * {@code window.Vaadin.Flow.clients} and their {@code isActive()} (the check "no server round trip in flight", as
+ * TestBench uses it), the {@code closing} state attribute of the tooltip overlay, and the {@code target} property of
+ * {@code vaadin-tooltip}. If a test starts to hang or read the wrong tooltip after a Vaadin update, look there first.
  */
 final class HawkbitUi {
 
