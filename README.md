@@ -112,7 +112,7 @@ mvn clean install
 java -jar ./hawkbit-runtime/hawkbit-update-server/target/hawkbit-update-server-#version#.jar
 ```
 
-The build needs Java 21. The Vaadin 24 simple UI (`hawkbit-runtime/hawkbit-simple-ui`) is not part of the default build; add `-Psimple-ui` to build it (it is not ported to Java 21 / Spring Boot 4 yet).
+The build needs Java 21. The Vaadin 24 simple UI (`hawkbit-runtime/hawkbit-simple-ui`) is not part of the default build; it is behind the opt-in profile `simple-ui` and does not build on the new stack (Java 21 / Spring Boot 4) yet.
 
 ## Start hawkBit [Device Simulator](https://github.com/eclipse/hawkbit-examples/tree/master/hawkbit-device-simulator) (optional)
 

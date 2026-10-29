@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
@@ -244,7 +245,9 @@ class DdiCancelActionTest extends AbstractDDiApiIntegrationTest {
         // wrong media type
         mvc.perform(get("/{tenant}/controller/v1/34534543/cancelAction/1", tenantAware.getCurrentTenant())
                 .accept(MediaType.APPLICATION_ATOM_XML)).andDo(MockMvcResultPrinter.print())
-                .andExpect(status().isNotAcceptable());
+                .andExpect(status().isNotAcceptable())
+                // 1B-59: no Accept response header (Spring Framework 7 adds one by default)
+                .andExpect(header().doesNotExist("Accept"));
 
     }
 

@@ -14,6 +14,7 @@ import org.eclipse.hawkbit.api.ArtifactUrlHandler;
 import org.eclipse.hawkbit.api.HostnameResolver;
 import org.eclipse.hawkbit.cache.DownloadIdCache;
 import org.eclipse.hawkbit.dmf.amqp.api.AmqpSettings;
+import org.eclipse.hawkbit.dmf.json.model.DmfActionUpdateStatus;
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.ConfirmationManagement;
 import org.eclipse.hawkbit.repository.ControllerManagement;
@@ -25,6 +26,7 @@ import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.DdiSecurityProperties;
+import org.eclipse.hawkbit.security.DmfTenantSecurityToken;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.TenantAware;
 import org.slf4j.Logger;
@@ -146,7 +148,10 @@ public class AmqpConfiguration {
     @Bean
     public RabbitTemplate rabbitTemplate() {
         final RabbitTemplate rabbitTemplate = new RabbitTemplate(rabbitConnectionFactory);
-        rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
+        // Spring AMQP 4 trusts only java.util and java.lang for the type header (2.x trusted all packages).
+        // BaseAmqpService#convertMessage sets that header to the DMF class it expects: trust those packages.
+        rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter(
+                DmfActionUpdateStatus.class.getPackageName(), DmfTenantSecurityToken.class.getPackageName()));
 
         // Spring AMQP 4 takes Spring Framework's RetryTemplate. Same policy as the spring-retry defaults used before:
         // 3 attempts in total on any Exception, exponential back-off 100 ms, x2, at most 30 s

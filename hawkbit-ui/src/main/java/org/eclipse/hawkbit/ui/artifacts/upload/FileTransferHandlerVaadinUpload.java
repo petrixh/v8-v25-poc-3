@@ -111,9 +111,15 @@ public class FileTransferHandlerVaadinUpload extends AbstractFileTransferHandler
             final Exception reason = failure;
             accessLocked(event, () -> uploadFailed(fileName, reason));
             upload.streamingFailed();
-            event.reject();
+            // answered with 200, as in Vaadin 8: the upload status window
+            // shows the reason, and a rejection (422) would only add a
+            // browser console error
         }
         accessLocked(event, () -> uploadFinished(fileName));
+        if (failure != null) {
+            // after the status is up to date: the browser may still be sending
+            drainQuietly(event.getInputStream());
+        }
     }
 
     /**

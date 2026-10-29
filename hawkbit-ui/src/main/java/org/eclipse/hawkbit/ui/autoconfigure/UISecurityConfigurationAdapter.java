@@ -42,12 +42,14 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.AntPathMatcher;
@@ -229,6 +231,10 @@ public class UISecurityConfigurationAdapter {
         // Vaadin configurer, which also requires authentication for any other
         // request
         httpSec.authorizeHttpRequests(requests -> requests.requestMatchers("/UI/login/**").permitAll());
+        // 1B-58: an unknown address below /UI/login/ answers 404 for an
+        // anonymous user, as before, instead of reaching the router (the error
+        // view in the shell needs a logged-in user)
+        httpSec.addFilterBefore(new AnonymousUnknownLoginPathFilter(), AuthorizationFilter.class);
 
         if (enableOidc) {
             // OIDC
@@ -308,7 +314,10 @@ public class UISecurityConfigurationAdapter {
 
         public TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler(final String defaultTargetUrl) {
             redirectHandler.setDefaultTargetUrl(defaultTargetUrl);
-            redirectHandler.setRedirectStrategy((request, response, url) -> UI.getCurrent().getPage().setLocation(url));
+            // relative targets get the servlet context path, absolute ones stay
+            // as they are (as vaadin4spring's DefaultVaadinRedirectStrategy did)
+            redirectHandler.setRedirectStrategy((request, response, url) -> UI.getCurrent().getPage()
+                    .setLocation(UrlUtils.isAbsoluteUrl(url) ? url : request.getContextPath() + url));
         }
 
         public void setTargetUrlParameter(final String targetUrlParameter) {

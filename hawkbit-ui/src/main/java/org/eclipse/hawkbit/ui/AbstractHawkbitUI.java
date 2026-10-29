@@ -9,8 +9,9 @@
  */
 package org.eclipse.hawkbit.ui;
 
-import java.net.URLEncoder;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Pattern;
 
 import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
 import org.eclipse.hawkbit.ui.menu.DashboardEvent.PostViewChangeEvent;
@@ -27,6 +28,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.ObjectUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -86,6 +91,8 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
 
     private Span viewTitle;
     private Div content;
+    // false for a request without a logged-in user: only the routed content, no menu, header or push (1B-60)
+    private boolean shellBuilt;
 
     private final DashboardMenu dashboardMenu;
     private final NotificationUnreadButton notificationUnreadButton;
@@ -119,7 +126,7 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
 
         entityEventsListener.unsubscribeListeners();
 
-        if (pushStrategy != null) {
+        if (pushStrategy != null && shellBuilt) {
             pushStrategy.clean();
             clearContextListener();
         }
@@ -137,9 +144,32 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
         }
     }
 
+    /**
+     * @return {@code true} if the current request belongs to a logged-in user
+     *         (not anonymous, no authentication at all, or no security context)
+     */
+    private static boolean isLoggedIn() {
+        final SecurityContext securityContext = SecurityContextHolder.getContext();
+        final Authentication authentication = securityContext == null ? null : securityContext.getAuthentication();
+        return authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken);
+    }
+
     private void init() {
         final UI ui = UI.getCurrent();
         LOG.debug("ManagementUI init starts uiid - {}", ui.getUIId());
+        if (!isLoggedIn()) {
+            // 1B-60: the shell (menu, user, tenant) needs a logged-in user. An error view can reach this layout
+            // without one (Flow's own requests to an unknown /UI/login/... address are open to everyone): show only
+            // the routed content, never the menu or any data.
+            setPadding(false);
+            setSpacing(false);
+            setSizeFull();
+            content = buildContent();
+            add(content);
+            return;
+        }
+        shellBuilt = true;
         if (pushStrategy != null) {
             pushStrategy.init(ui);
         }
@@ -200,10 +230,26 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
     /**
      * Vaadin 8: ManagementViewProvider#getStartView. A view that exists but
      * that the user may not open goes to the error view.
+     * <p>
+     * A layout built without the shell (1B-60) shows only an error view: it
+     * stays in its UI, and Flow reuses it for later navigations, also after the
+     * same session has logged in (in another tab). Any other route fails closed
+     * there: for a logged-in user the address is loaded as a new page, whose new
+     * UI builds the shell and checks the view as above (in the Vaadin 8 app the
+     * login and the main UI were separate pages); otherwise the error view.
      */
     @Override
     public void beforeEnter(final BeforeEnterEvent event) {
         if (HasErrorParameter.class.isAssignableFrom(event.getNavigationTarget())) {
+            return;
+        }
+        if (!shellBuilt) {
+            if (isLoggedIn()) {
+                // relative to the page's base, which is the UI root: never leaves the UI
+                event.forwardToUrl("./" + event.getLocation().getPathWithQueryParameters());
+            } else {
+                event.rerouteToError(NotFoundException.class);
+            }
             return;
         }
         final String viewName = event.getLocation().getFirstSegment();
@@ -213,11 +259,19 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
     }
 
     /**
-     * Vaadin 8: the Navigator's afterViewChange listener.
+     * Vaadin 8: the Navigator's afterViewChange listener. Its view name was the
+     * whole navigation state when the error view was shown, so a denied view
+     * with parameters has no title.
      */
     @Override
     public void afterNavigation(final AfterNavigationEvent event) {
-        final DashboardMenuItem view = dashboardMenu.getByViewName(event.getLocation().getFirstSegment());
+        if (!shellBuilt) {
+            return;
+        }
+        final boolean errorView = !event.getActiveChain().isEmpty()
+                && event.getActiveChain().get(0) instanceof HasErrorParameter;
+        final String viewName = errorView ? event.getLocation().getPath() : event.getLocation().getFirstSegment();
+        final DashboardMenuItem view = dashboardMenu.getByViewName(viewName);
         dashboardMenu.postViewChange(new PostViewChangeEvent(view));
         UI.getCurrent().getPage().setTitle(TITLE);
         if (view == null) {
@@ -278,11 +332,21 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
 
         private static final String OLD_FRAGMENT_PREFIX = "!";
 
+        /**
+         * An old address that is no path inside the UI: a scheme, an empty,
+         * {@code .} or {@code ..} segment, a backslash, a semicolon or an encoded
+         * {@code / \ . % ;} (the server's firewall rejects such a path with 400).
+         */
+        private static final Pattern NOT_A_UI_PATH = Pattern
+                .compile("(?i)^[^/]*:|//|\\\\|;|%2f|%5c|%2e|%25|%3b|(^|/)\\.{1,2}(/|$)");
+
         private final DashboardMenu dashboardMenu;
+        private final VaadinMessageSource i18n;
 
         @Autowired
-        EmptyView(final DashboardMenu dashboardMenu) {
+        EmptyView(final DashboardMenu dashboardMenu, final VaadinMessageSource i18n) {
             this.dashboardMenu = dashboardMenu;
+            this.i18n = i18n;
         }
 
         @Override
@@ -291,8 +355,13 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
             // the fragment is never sent to the server: ask the browser
             ui.getPage().fetchCurrentURL(url -> {
                 final String fragment = url.getRef();
-                if (fragment != null && fragment.startsWith(OLD_FRAGMENT_PREFIX)) {
-                    forwardOldAddress(ui, fragment.substring(OLD_FRAGMENT_PREFIX.length()));
+                final String oldState = fragment != null && fragment.startsWith(OLD_FRAGMENT_PREFIX)
+                        ? fragment.substring(OLD_FRAGMENT_PREFIX.length())
+                        : null;
+                // Vaadin 8: the view name is the old address up to the first
+                // "/", read decoded; an empty one (#!//host) opens the start view
+                if (oldState != null && hasViewName(oldState)) {
+                    forwardOldAddress(ui, oldState);
                 } else if (!dashboardMenu.isAccessibleViewsEmpty()) {
                     ui.navigate(dashboardMenu.getInitialViewName());
                 }
@@ -300,18 +369,48 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
         }
 
         /**
-         * An old address the router does not accept as a path (for example
-         * {@code #!//host} or {@code #!../x}) goes to the error view, as
-         * Vaadin 8 showed it for an unknown view name: the whole old state
-         * becomes one encoded path segment that matches no route.
+         * Vaadin 8: the view name is the old address up to the first "/", read
+         * decoded; an address with an empty view name ({@code #!//host},
+         * {@code #!/x}) opens the start view.
          */
-        private static void forwardOldAddress(final UI ui, final String oldState) {
-            String path = oldState;
+        static boolean hasViewName(final String oldState) {
+            return !decode(oldState).startsWith("/");
+        }
+
+        static String decode(final String oldState) {
+            try {
+                return URLDecoder.decode(oldState.replace("+", "%2B"), StandardCharsets.UTF_8);
+            } catch (final IllegalArgumentException e) {
+                return oldState;
+            }
+        }
+
+        /**
+         * Whether an old address can be forwarded as a path inside the UI.
+         */
+        static boolean isUiPath(final String oldState) {
+            if (NOT_A_UI_PATH.matcher(oldState).find()) {
+                return false;
+            }
             try {
                 new Location(oldState);
             } catch (final InvalidLocationException e) {
-                LOG.debug("Old address {} is not a valid path, showing the error view", oldState, e);
-                path = URLEncoder.encode(oldState, StandardCharsets.UTF_8);
+                LOG.debug("Old address {} is not a valid path, showing the error view text", oldState, e);
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * An old address that is no path inside the UI (for example
+         * {@code #!http://x} or {@code #!../x}) shows the error view's text here,
+         * in the shell, as Vaadin 8 showed it for an unknown view name: such an
+         * address cannot be forwarded as a path.
+         */
+        private void forwardOldAddress(final UI ui, final String oldState) {
+            if (!isUiPath(oldState)) {
+                add(new Span(i18n.getMessage("message.error.view", decode(oldState))));
+                return;
             }
             // A page load of the new address, not ui.navigate: the page is loaded with the server-side navigation
             // (eagerServerLoad, E006), and a client navigation sent in its first response is overridden by the
@@ -323,7 +422,7 @@ public abstract class AbstractHawkbitUI extends HorizontalLayout
                     if (target.origin !== base.origin || !target.pathname.startsWith(base.pathname)) {
                         target = new URL(encodeURIComponent($0), base);
                     }
-                    window.location.replace(target);""", path);
+                    window.location.replace(target);""", oldState);
         }
     }
 }

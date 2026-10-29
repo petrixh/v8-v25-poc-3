@@ -53,7 +53,7 @@ public interface RepositoryManagement<T, C, U> {
      *             {@link BaseEntity} for field constraints.
      */
     @PreAuthorize(SpringEvalExpressions.HAS_AUTH_CREATE_REPOSITORY)
-    List<T> create(@NotNull @Valid Collection<C> creates);
+    List<T> create(@NotNull Collection<@Valid C> creates);
 
     /**
      * Creates new {@link BaseEntity}.

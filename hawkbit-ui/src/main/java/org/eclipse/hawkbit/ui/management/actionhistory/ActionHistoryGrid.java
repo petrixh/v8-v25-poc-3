@@ -159,24 +159,26 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
     @Override
     public void addColumns() {
-        // Vaadin 8: setHidable(true) on these columns (UI-1b column toggle
-        // menu); the maintenance window column starts hidden, the user can
-        // show it
-        ColumnToggleMenu.setHidable(addActiveStatusColumn());
-
-        ColumnToggleMenu.setHidable(addDsColumn());
-
-        ColumnToggleMenu.setHidable(addDateAndTimeColumn());
-
-        ColumnToggleMenu.setHidable(addStatusColumn());
-
-        ColumnToggleMenu.setHidable(addMaintenanceWindowColumn()).setVisible(false);
+        final Column<ProxyAction> activeStatusColumn = addActiveStatusColumn();
+        final Column<ProxyAction> dsColumn = addDsColumn();
+        final Column<ProxyAction> dateAndTimeColumn = addDateAndTimeColumn();
+        final Column<ProxyAction> statusColumn = addStatusColumn();
+        final Column<ProxyAction> maintenanceWindowColumn = addMaintenanceWindowColumn();
 
         GridComponentBuilder.joinToIconColumn(getHeaderRows().get(0), i18n.getMessage("label.action.type"),
                 Arrays.asList(addTypeColumn(), addTimeforcedColumn()));
 
         GridComponentBuilder.joinToActionColumn(i18n, getHeaderRows().get(0),
                 Arrays.asList(addCancelColumn(), addForceColumn(), addForceQuitColumn()));
+
+        // Vaadin 8: setHidable(true) on these columns (UI-1b column toggle
+        // menu); called after the last column so the toggle sits at the end;
+        // the maintenance window column starts hidden, the user can show it
+        ColumnToggleMenu.setHidable(activeStatusColumn);
+        ColumnToggleMenu.setHidable(dsColumn);
+        ColumnToggleMenu.setHidable(dateAndTimeColumn);
+        ColumnToggleMenu.setHidable(statusColumn);
+        ColumnToggleMenu.setHidable(maintenanceWindowColumn).setVisible(false);
     }
 
     private Column<ProxyAction> addActiveStatusColumn() {
@@ -351,28 +353,30 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
     @Override
     protected void addMaxColumns() {
-        // Vaadin 8: setHidable(true) on these columns (UI-1b column toggle
-        // menu); the maintenance window column starts hidden, the user can
-        // show it
-        ColumnToggleMenu.setHidable(addActiveStatusColumn());
-
-        ColumnToggleMenu.setHidable(addActionIdColumn()).setFlexGrow((int) 0);
-
-        ColumnToggleMenu.setHidable(addDsColumn());
-
-        ColumnToggleMenu.setHidable(addDateAndTimeColumn());
-
-        ColumnToggleMenu.setHidable(addStatusColumn());
-
-        ColumnToggleMenu.setHidable(addMaintenanceWindowColumn()).setVisible(false);
-
-        ColumnToggleMenu.setHidable(addRolloutNameColumn());
+        final Column<ProxyAction> activeStatusColumn = addActiveStatusColumn();
+        final Column<ProxyAction> actionIdColumn = addActionIdColumn().setFlexGrow((int) 0);
+        final Column<ProxyAction> dsColumn = addDsColumn();
+        final Column<ProxyAction> dateAndTimeColumn = addDateAndTimeColumn();
+        final Column<ProxyAction> statusColumn = addStatusColumn();
+        final Column<ProxyAction> maintenanceWindowColumn = addMaintenanceWindowColumn();
+        final Column<ProxyAction> rolloutNameColumn = addRolloutNameColumn();
 
         GridComponentBuilder.joinToIconColumn(getHeaderRows().get(0), i18n.getMessage("label.action.type"),
                 Arrays.asList(addTypeColumn(), addTimeforcedColumn()));
 
         GridComponentBuilder.joinToActionColumn(i18n, getHeaderRows().get(0),
                 Arrays.asList(addCancelColumn(), addForceColumn(), addForceQuitColumn()));
+
+        // Vaadin 8: setHidable(true) on these columns (UI-1b column toggle
+        // menu); called after the last column so the toggle sits at the end;
+        // the maintenance window column starts hidden, the user can show it
+        ColumnToggleMenu.setHidable(activeStatusColumn);
+        ColumnToggleMenu.setHidable(actionIdColumn);
+        ColumnToggleMenu.setHidable(dsColumn);
+        ColumnToggleMenu.setHidable(dateAndTimeColumn);
+        ColumnToggleMenu.setHidable(statusColumn);
+        ColumnToggleMenu.setHidable(maintenanceWindowColumn).setVisible(false);
+        ColumnToggleMenu.setHidable(rolloutNameColumn);
     }
 
     private Column<ProxyAction> addActionIdColumn() {

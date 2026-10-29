@@ -84,11 +84,14 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> implem
         GridComponentBuilder.addColumn(this, ProxyMetaData::getKey).setKey(META_DATA_KEY_ID)
                 .setHeader(i18n.getMessage("header.key"));
 
-        ColumnToggleMenu.setHidable(GridComponentBuilder.addColumn(this, ProxyMetaData::getValue)
-                .setKey(META_DATA_VALUE_ID).setHeader(i18n.getMessage("header.value"))).setVisible(false);
+        final Column<ProxyMetaData> valueColumn = GridComponentBuilder.addColumn(this, ProxyMetaData::getValue)
+                .setKey(META_DATA_VALUE_ID).setHeader(i18n.getMessage("header.value"));
 
         GridComponentBuilder.addDeleteColumn(this, i18n, META_DATA_DELETE_BUTTON_ID, metaDataDeleteSupport,
                 UIComponentIdProvider.META_DATA_DELET_ICON, e -> hasMetadataChangePermission.getAsBoolean());
+
+        // called after the last column so the toggle sits at the end
+        ColumnToggleMenu.setHidable(valueColumn).setVisible(false);
     }
 
     @Override

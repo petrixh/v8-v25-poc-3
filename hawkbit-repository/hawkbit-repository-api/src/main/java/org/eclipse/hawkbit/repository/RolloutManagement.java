@@ -151,7 +151,7 @@ public interface RolloutManagement {
      *             exceeded.
      */
     @PreAuthorize(SpringEvalExpressions.HAS_AUTH_ROLLOUT_MANAGEMENT_CREATE)
-    Rollout create(@Valid @NotNull RolloutCreate rollout, @NotNull @Valid List<RolloutGroupCreate> groups,
+    Rollout create(@Valid @NotNull RolloutCreate rollout, @NotNull List<@Valid RolloutGroupCreate> groups,
             RolloutGroupConditions conditions);
 
     /**
@@ -174,7 +174,7 @@ public interface RolloutManagement {
      *             {@link RolloutGroupCreate} for field constraints.
      */
     @PreAuthorize(SpringEvalExpressions.HAS_AUTH_ROLLOUT_MANAGEMENT_READ_AND_TARGET_READ)
-    CompletableFuture<RolloutGroupsValidation> validateTargetsInGroups(@Valid List<RolloutGroupCreate> groups,
+    CompletableFuture<RolloutGroupsValidation> validateTargetsInGroups(List<@Valid RolloutGroupCreate> groups,
             String targetFilter, Long createdAt, @NotNull Long dsTypeId);
 
     /**

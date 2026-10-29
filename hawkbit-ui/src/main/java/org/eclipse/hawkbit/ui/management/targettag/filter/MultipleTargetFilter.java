@@ -113,7 +113,8 @@ public class MultipleTargetFilter extends Accordion {
 
         init();
         addTabs();
-        addOpenedChangeListener(event -> selectedTabChanged());
+        // exactly one section is open at all times, as in the Vaadin 8 accordion
+        new OneOpenPanelRule(this, panel -> selectedTabChanged());
     }
 
     private VerticalLayout buildSimpleFilterTab() {

@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.rest;
 
 import jakarta.servlet.http.HttpServletResponse;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.eclipse.hawkbit.rest.exception.ResponseExceptionHandler;
 import org.eclipse.hawkbit.rest.filter.ExcludePathAwareShallowETagFilter;
 import org.eclipse.hawkbit.rest.util.FilterHttpResponse;
@@ -22,12 +23,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.Ordered;
+import org.springframework.hateoas.Links;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.UrlHandlerFilter;
+import tools.jackson.databind.JacksonModule;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
  * Configuration for Rest api.
@@ -109,5 +114,32 @@ public class RestConfiguration {
                         "/*/controller/v1/**").wrapRequest().build());
         filterRegBean.setOrder(Ordered.HIGHEST_PRECEDENCE + 1);
         return filterRegBean;
+    }
+
+    /**
+     * Keeps {@code links} as the last field where a {@link RepresentationModel}
+     * is written as plain JSON, not HAL (inside response bodies that are not
+     * themselves a {@link RepresentationModel}: the tenant configuration map,
+     * tag assignment results). Spring HATEOAS 1 named the property explicitly,
+     * which made Jackson write it last; Spring HATEOAS 3 does not, so it came
+     * first. Registered with Spring Boot's JSON mapper; HAL output keeps Spring
+     * HATEOAS's own mix-in, which its HAL mapper registers after this one.
+     *
+     * @return the Jackson module with the mix-in
+     */
+    @Bean
+    JacksonModule representationModelLinksLastModule() {
+        return new SimpleModule("hawkbit-representation-model-links-last")
+                .setMixInAnnotation(RepresentationModel.class, RepresentationModelLinksLast.class);
+    }
+
+    /**
+     * Mix-in for {@link RepresentationModel}: {@code links} named explicitly,
+     * as Spring HATEOAS 1 did.
+     */
+    abstract static class RepresentationModelLinksLast {
+
+        @JsonProperty("links")
+        abstract Links getLinks();
     }
 }

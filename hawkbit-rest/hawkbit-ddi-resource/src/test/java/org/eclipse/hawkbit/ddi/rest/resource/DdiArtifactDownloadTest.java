@@ -10,6 +10,7 @@
 package org.eclipse.hawkbit.ddi.rest.resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -23,11 +24,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.eclipse.hawkbit.ddi.rest.resource.DdiArtifactDownloadTest.DownloadTestConfiguration;
@@ -62,8 +66,9 @@ import io.qameta.allure.Story;
 @SpringBootTest(classes = { DownloadTestConfiguration.class })
 public class DdiArtifactDownloadTest extends AbstractDDiApiIntegrationTest {
 
-    private static volatile int downLoadProgress = 0;
-    private static volatile long shippedBytes = 0;
+    // the test application event multicaster delivers events on an async executor: count atomically and wait for them
+    private static final AtomicInteger downLoadProgress = new AtomicInteger();
+    private static final AtomicLong shippedBytes = new AtomicLong();
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
 
@@ -159,8 +164,8 @@ public class DdiArtifactDownloadTest extends AbstractDDiApiIntegrationTest {
     @WithUser(principal = "4712", authorities = "ROLE_CONTROLLER", allSpPermissions = true)
     @Description("Tests valid downloads through the artifact resource by identifying the artifact not by ID but file name.")
     public void downloadArtifactThroughFileName() throws Exception {
-        downLoadProgress = 1;
-        shippedBytes = 0;
+        downLoadProgress.set(1);
+        shippedBytes.set(0);
         assertThat(softwareModuleManagement.findAll(PAGE)).hasSize(0);
 
         // create target
@@ -194,9 +199,11 @@ public class DdiArtifactDownloadTest extends AbstractDDiApiIntegrationTest {
         assertTrue(
                 Arrays.equals(result.getResponse().getContentAsByteArray(), random), "The same file that was uploaded is expected when downloaded");
 
-        // download complete
-        assertThat(downLoadProgress).isEqualTo(10);
-        assertThat(shippedBytes).isEqualTo(artifactSize);
+        // download complete: the progress events arrive asynchronously, so wait (bounded) for them
+        await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
+            assertThat(downLoadProgress.get()).isEqualTo(10);
+            assertThat(shippedBytes.get()).isEqualTo(artifactSize);
+        });
     }
 
     @Test
@@ -361,9 +368,8 @@ public class DdiArtifactDownloadTest extends AbstractDDiApiIntegrationTest {
 
         @EventListener(classes = DownloadProgressEvent.class)
         public static void listen(final DownloadProgressEvent event) {
-            downLoadProgress++;
-            shippedBytes += event.getShippedBytesSinceLast();
-
+            downLoadProgress.incrementAndGet();
+            shippedBytes.addAndGet(event.getShippedBytesSinceLast());
         }
     }
 

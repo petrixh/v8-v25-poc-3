@@ -59,6 +59,9 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
 
     private final transient MultipartConfigElement multipartConfigElement;
     private final transient Lock uploadLock = new ReentrantLock();
+    // dropped files are streamed one after the other, in the order their
+    // requests arrive
+    private final transient Lock dropQueueLock = new ReentrantLock(true);
 
     private final UploadProgressButtonLayout uploadButtonLayout;
     private VerticalLayout dropAreaLayout;
@@ -180,9 +183,30 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
         return uploadButtonLayout;
     }
 
-    private class UploadFileDropHandler implements UploadHandler {
+    // package-private for UploadDropQueueTest
+    class UploadFileDropHandler implements UploadHandler {
 
         private static final long serialVersionUID = 1L;
+
+        /**
+         * Vaadin 8's modal upload status window did not stop the files of a
+         * drop that started before it opened. The window opens with the first
+         * file and makes the drop zone inert, and Flow refuses requests to an
+         * inert element (403) while the browser still sends the other files of
+         * the drop: up to three at once, each further one when an earlier one
+         * ends, also after the listed ones have finished and while the window
+         * is still open. A modal dialog's curtain keeps a new drop from
+         * reaching the drop zone, so a request that arrives while it is inert
+         * belongs to a drop the user made before: always accepted. The other
+         * checks of the request stay: its security key, and a drop zone that
+         * is attached, visible and enabled.
+         *
+         * @return {@code true}
+         */
+        @Override
+        public boolean isAllowInert() {
+            return true;
+        }
 
         /**
          * Validates the dropped file and uploads it. Vaadin 8 got all dropped
@@ -201,11 +225,30 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
             AbstractFileTransferHandler.accessLocked(event,
                     () -> streamVariable.set(drop(event.getFileName(), event.getFileSize(), event.getContentType())));
 
+            // a refused or failed upload is answered with 200, as in Vaadin 8:
+            // the upload status window shows the reason, and a rejection
+            // (422) would only add a browser console error
             if (streamVariable.get() == null) {
-                event.reject();
+                AbstractFileTransferHandler.drainQuietly(event.getInputStream());
                 return;
             }
-            streamFile(event, streamVariable.get());
+
+            // Vaadin 8 sent the dropped files one after the other; the browser
+            // now sends several at once. Each waits here for its turn, listed
+            // in the status window as queued, so leaving the view asks to clear
+            // the upload queue, as in Vaadin 8
+            final boolean removedFromQueue;
+            dropQueueLock.lock();
+            try {
+                removedFromQueue = !streamFile(event, streamVariable.get());
+            } finally {
+                dropQueueLock.unlock();
+            }
+            if (removedFromQueue) {
+                // the queue was cleared when leaving the view: Vaadin 8 did not
+                // send such a file
+                AbstractFileTransferHandler.drainQuietly(event.getInputStream());
+            }
         }
 
         private FileTransferHandlerStreamVariable drop(final String fileName, final long fileSize,
@@ -237,16 +280,27 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
          * What the Vaadin 8 framework did with the stream variable of a
          * dropped file: started, output stream, progress, then finished or
          * failed.
+         *
+         * @return {@code false} if the file was removed from the upload queue
+         *         while it waited, and nothing was streamed
          */
-        private void streamFile(final UploadEvent event, final FileTransferHandlerStreamVariable streamVariable) {
+        private boolean streamFile(final UploadEvent event, final FileTransferHandlerStreamVariable streamVariable) {
             final String fileName = event.getFileName();
             final long contentLength = event.getFileSize();
 
             final AtomicReference<OutputStream> receiverStream = new AtomicReference<>();
             AbstractFileTransferHandler.accessLocked(event, () -> {
+                // under the session lock, as the queue is cleared under it:
+                // either the file is gone, or it starts and counts as running
+                if (streamVariable.isRemovedFromUploadQueue()) {
+                    return;
+                }
                 streamVariable.streamingStarted(fileName);
                 receiverStream.set(streamVariable.getOutputStream());
             });
+            if (receiverStream.get() == null) {
+                return false;
+            }
 
             final OutputStream outputStream = receiverStream.get();
             Exception failure = null;
@@ -271,8 +325,9 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
                 final Exception reason = failure;
                 AbstractFileTransferHandler.accessLocked(event,
                         () -> streamVariable.streamingFailed(fileName, reason));
-                event.reject();
+                AbstractFileTransferHandler.drainQuietly(event.getInputStream());
             }
+            return true;
         }
 
         private boolean validate() {

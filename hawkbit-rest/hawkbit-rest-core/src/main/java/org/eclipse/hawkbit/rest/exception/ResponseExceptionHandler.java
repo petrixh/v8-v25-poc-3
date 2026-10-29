@@ -9,12 +9,14 @@
  */
 package org.eclipse.hawkbit.rest.exception;
 
+import java.io.IOException;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
 
@@ -28,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -252,6 +255,33 @@ public class ResponseExceptionHandler {
 
         final ExceptionInfo response = createExceptionInfo(new MultiPartFileUploadException(responseCause));
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Method for handling exception of type
+     * {@link HttpMediaTypeNotAcceptableException}: the request's
+     * {@code Accept} header names no type the resource can produce.
+     * <p>
+     * Spring Framework 7 adds an {@code Accept} header (the types the resource
+     * produces) to this answer; 6.x and so the old app did not. As before, the
+     * answer is the plain 406 error answer without it (status and body are the
+     * same, the body is the container's error answer). Called by the
+     * Spring-Framework for exception handling.
+     *
+     * @param request
+     *            the Http request
+     * @param response
+     *            the Http response
+     * @param ex
+     *            the exception which occurred
+     * @throws IOException
+     *             if the error answer cannot be sent
+     */
+    @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
+    public void handleHttpMediaTypeNotAcceptable(final HttpServletRequest request, final HttpServletResponse response,
+            final Exception ex) throws IOException {
+        logRequest(request, ex);
+        response.sendError(HttpStatus.NOT_ACCEPTABLE.value());
     }
 
     private void logRequest(final HttpServletRequest request, final Exception ex) {

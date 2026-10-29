@@ -39,6 +39,7 @@ import org.springframework.context.annotation.PropertySource;
 
 import com.vaadin.flow.server.ErrorHandler;
 import com.vaadin.flow.server.SystemMessagesProvider;
+import com.vaadin.flow.server.VaadinResponse;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.vaadin.flow.spring.annotation.UIScope;
 
@@ -221,6 +222,26 @@ public class MgmtUiConfiguration {
     @Bean
     VaadinServiceInitListener systemMessagesServiceInitListener(final SystemMessagesProvider systemMessagesProvider) {
         return event -> event.getSource().setSystemMessagesProvider(systemMessagesProvider);
+    }
+
+    /**
+     * Sends the page that starts the UI (login and main view) with the cache
+     * headers the Vaadin 8 servlet sent: {@code Cache-Control: no-cache},
+     * {@code Pragma: no-cache} and an {@code Expires} date in the past. Vaadin
+     * 25 sends none, so Spring Security's defaults ({@code no-store}, ...)
+     * showed instead; Spring Security still writes them where the response has
+     * none of these headers, as before.
+     *
+     * @return Vaadin service init listener
+     */
+    @Bean
+    VaadinServiceInitListener noCacheIndexHtmlServiceInitListener() {
+        return event -> event.addIndexHtmlRequestListener(indexHtml -> {
+            final VaadinResponse response = indexHtml.getVaadinResponse();
+            response.setHeader("Cache-Control", "no-cache");
+            response.setHeader("Pragma", "no-cache");
+            response.setDateHeader("Expires", 0);
+        });
     }
 
     /**

@@ -61,7 +61,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -79,6 +78,8 @@ import org.springframework.security.oauth2.server.resource.web.authentication.Be
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -88,7 +89,9 @@ import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -557,8 +560,20 @@ public class SecurityManagedConfiguration {
 
                 http.addFilterAfter(oidcBearerTokenAuthenticationFilter, BearerTokenAuthenticationFilter.class);
             } else {
+                // Spring Security 7 adds charset="UTF-8" to the challenge by default; null restores the old header
                 final BasicAuthenticationEntryPoint basicAuthEntryPoint = new BasicAuthenticationEntryPoint();
                 basicAuthEntryPoint.setRealmName(securityProperties.getBasicRealm());
+                basicAuthEntryPoint.setCharset(null);
+                // the entry point of the Basic filter itself (bad credentials) keeps Spring Security's default realm
+                final BasicAuthenticationEntryPoint badCredentialsEntryPoint = new BasicAuthenticationEntryPoint();
+                badCredentialsEntryPoint.setRealmName("Realm");
+                badCredentialsEntryPoint.setCharset(null);
+                // as httpBasic's default: XHR requests get a plain 401 (no WWW-Authenticate, so a browser shows no
+                // login dialog), all others the Basic challenge
+                final DelegatingAuthenticationEntryPoint basicFilterEntryPoint = new DelegatingAuthenticationEntryPoint(
+                        badCredentialsEntryPoint,
+                        new RequestMatcherEntry<>(new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"),
+                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
 
                 http.addFilterBefore(new Filter() {
                     @Override
@@ -578,7 +593,7 @@ public class SecurityManagedConfiguration {
                     }
                 }, RequestHeaderAuthenticationFilter.class);
                 http
-                        .httpBasic(Customizer.withDefaults())
+                        .httpBasic(configurer -> configurer.authenticationEntryPoint(basicFilterEntryPoint))
                         .exceptionHandling(configurer -> configurer.authenticationEntryPoint(basicAuthEntryPoint));
             }
 
