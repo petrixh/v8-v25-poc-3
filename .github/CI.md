@@ -1,6 +1,6 @@
 # CI
 
-One GitHub Actions workflow, `.github/workflows/ci.yml`: the job `build-test-smoke` on a GitHub-hosted `ubuntu-24.04` runner, behind the small job `already-green` (see "When it runs"). It builds the UI path (Java 21, Vaadin 25), starts one isolated copy of the app with the env scripts (`env/README.md`), logs in every test user and opens their views, and runs the test suite.
+One GitHub Actions workflow, `.github/workflows/ci.yml`: the job `build-test-smoke` on a GitHub-hosted `ubuntu-24.04` runner, behind the small job `already-green` (see "When it runs"). It builds the UI path (Java 21, Vaadin 25), starts one isolated copy of the app with the env scripts (`env/README.md`), logs in every test user and opens their views, and runs the test suite. In parallel, the job `e2e` builds and starts its own copy and runs the UI end-to-end tests against it (see "Job e2e").
 
 ## When it runs
 
@@ -9,15 +9,15 @@ One GitHub Actions workflow, `.github/workflows/ci.yml`: the job `build-test-smo
 
 There is no `pull_request` trigger: the checks of a push are attached to the commit, so they show on a pull request of that branch, and a second run for the same commit would only repeat the first.
 
-CI runs once per commit. The first job, `already-green`, asks the GitHub API (with the job's own token, permission `actions: read`, no other) whether this commit already has a successful run of this workflow. If it has, the job `build-test-smoke` is skipped and the run ends as a success within a minute: a branch moved to a commit that already passed (a fast-forward merge, a copy of a branch) is not built again. A failed or cancelled earlier run does not count, so that commit runs again. To run a green commit again, start the workflow by hand with `force` ticked. Two runs of one commit started at the same moment (before either has finished) both run: the check only sees finished successes.
+CI runs once per commit. The first job, `already-green`, asks the GitHub API (with the job's own token, permission `actions: read`, no other) whether this commit already has a successful run of this workflow. If it has, the jobs `build-test-smoke` and `e2e` are skipped and the run ends as a success within a minute: a branch moved to a commit that already passed (a fast-forward merge, a copy of a branch) is not built again. A failed or cancelled earlier run does not count, so that commit runs again. To run a green commit again, start the workflow by hand with `force` ticked. Two runs of one commit started at the same moment (before either has finished) both run: the check only sees finished successes.
 
-No schedule. A newer run on the same ref cancels the one still running. Time limits: 20 minutes for build and start, 5 for the Playwright install, 10 for the smoke, 20 for the tests, 60 for the job. A step over its limit fails, so its diagnostics are uploaded.
+No schedule. A newer run on the same ref cancels the one still running. Time limits: 20 minutes for build and start, 5 for the Playwright install, 10 for the smoke, 20 for the tests, 60 for the job; in `e2e`, 35 for `env/e2e.sh` (build, start, tests), 45 for the job. A step over its limit fails, so its diagnostics are uploaded.
 
 ## Steps
 
 | Step | Does | Fails when |
 |---|---|---|
-| (job `already-green`) | See "When it runs": sets `skip` when the commit has a successful run; `build-test-smoke` then does not run | the API call fails (the run then fails rather than guessing) |
+| (job `already-green`) | See "When it runs": sets `skip` when the commit has a successful run; `build-test-smoke` and `e2e` then do not run | the API call fails (the run then fails rather than guessing) |
 | Restore Maven repository, Node and npm cache, Playwright browser | `actions/cache` of `~/.m2/repository` and `~/.cache/mig-env-build-home` (Vaadin's Node and the npm cache; keys: hash of every `pom.xml`) and `~/.cache/ms-playwright` (key: Playwright version) | never |
 | Test users | `.github/ci/test-users.sh`: four throw-away users with new random passwords (see "Test users") | |
 | Build and start | `env/up.sh`. Builds the app image from the commit: Maven 3.9.16 / JDK 21.0.12.1 in Docker (the image `env/lib.sh` pins by digest), `-pl hawkbit-runtime/hawkbit-vv8-ui,hawkbit-runtime/hawkbit-mgmt-server -am -DskipTests package` with `env/maven-settings.xml` and `-DskipNexusStaging`. Then starts copy `ci` on an internal Docker network with MySQL 8.0 and RabbitMQ 3, seeds it, and serves the UI on `127.0.0.1:18081` | the build fails; Maven or the frontend build downloaded from a host other than `repo.maven.apache.org`, `nodejs.org` and `registry.npmjs.org` (the check is in `env/up.sh`; it sees Maven's transfers and the Node download, not npm's); the app does not start |
@@ -27,6 +27,19 @@ No schedule. A newer run on the same ref cancels the one still running. Time lim
 | Stop | `env/down.sh`, always. Saves the app and DNS logs to `~/ci-out/env-logs/` (`APP_ENV_LOG_DIR`), removes the copy | never |
 | Summary | `.github/ci/summary.sh`: writes the job summary (and the same lines to the log): Maven download hosts, build and start times, smoke result and blocked hosts, test counts, the DNS names the copy looked up. A row whose input is missing says "not run" or is left out | never (the script always exits 0; the step also has `continue-on-error`) |
 | Upload diagnostics | Only when a step failed or ran over its time limit (not when a newer push cancelled the run): `~/ci-out/` (step output, Maven build log, app and DNS logs, smoke screenshots and results, test logs), surefire and failsafe `*.txt` reports. Retention 3 days, `continue-on-error` | never |
+
+## Job e2e
+
+The UI end-to-end tests (`env/README.md` "End-to-end tests"): Playwright for Java and JUnit 5 in the Maven profile `e2e`, module `hawkbit-runtime/hawkbit-vv8-ui-e2e`, headless Chromium. Own job on its own runner, in parallel with `build-test-smoke`, so it builds the image itself: no build is passed between jobs.
+
+| Step | Does | Fails when |
+|---|---|---|
+| JDK 21, Maven | `actions/setup-java` (pinned by SHA) installs Temurin 21.0.12.1+1 (`java-version: 21.0.12+101.0.LTS`, the JDK of the image build's Maven image); Maven 3.9.16 from Maven Central, checked against its published SHA-512 (`MAVEN_VERSION`, `MAVEN_SHA512` in the job) | the download fails or the checksum differs |
+| Restore Maven repository, Node and npm cache, Playwright browser | As in `build-test-smoke`, but the Maven repository has its own key (`maven-e2e-...`; it also holds Playwright for Java), restored from `build-test-smoke`'s on a miss. The browser cache is the smoke's: the same Chromium headless shell | never |
+| Test users | `.github/ci/test-users.sh`, as in `build-test-smoke` | |
+| End-to-end tests | First two checks: `mvn -v` must report Maven 3.9.16 on Java 21.0.12.1, and `playwright.version` in the module's pom must equal `PLAYWRIGHT_VERSION`. Then `env/e2e.sh`: `env/up.sh` (build and start copy `ci` as in "Build and start"), then with the pinned JDK and Maven `mvn -Pe2e -pl hawkbit-runtime/hawkbit-vv8-ui-e2e verify` against `127.0.0.1:18081`: Playwright's CLI installs the Chromium headless shell if the cache has none, failsafe runs the tests, each test class after `env/reset.sh`. Then `env/down.sh`, always | a version check fails; the copy does not start; a test fails (a step's check, a browser error, a request to a host other than the app's); Maven or the browser download used a host outside the allowed ones (`repo.maven.apache.org` and the image build's hosts; `cdn.playwright.dev`, `playwright.download.prss.microsoft.com`), or Playwright installed a browser without naming its download host in the log |
+| Redact (failure only) | `.github/ci/redact.sh`: replaces every test-user password with `***` in the files the next step uploads (`::add-mask::` masks only the live log). The tests already keep passwords out of their failure messages | python3 missing or the user file unreadable: then nothing is uploaded |
+| Upload diagnostics | Only on failure, and only after the redact step succeeded: `~/ci-out/` (`e2e.log`, the env logs), the screenshot of each failing test (`target/e2e/`) and the failsafe reports. Retention 3 days, `continue-on-error` | never |
 
 The step "Build and start" is the deployable artefact per commit: the image `mig-new-hawkbit:<commit>` with both jars, built and run in the same job. It is not kept after the run.
 
@@ -38,11 +51,11 @@ CI runs on GitHub on pushes to `petrixh/v8-v25-poc-3`. This note does not copy t
 
 ## Storage
 
-GitHub's artifact storage is small and shared across the account. The job therefore never hands the build to another job, and uploads nothing on success. Diagnostics of a failed run are kept for 3 days; a full quota never turns a run red. The Maven and Playwright caches count against the cache limit, not the storage quota.
+GitHub's artifact storage is small and shared across the account. The job therefore never hands the build to another job, and uploads nothing on success. Diagnostics of a failed run are kept for 3 days; a full quota never turns a run red. The Maven and Playwright caches count against the cache limit, not the storage quota; `e2e` keeps a second Maven repository cache (the first plus Playwright for Java, about 200 MB more).
 
 ## What it downloads
 
-Maven Central (`repo.maven.apache.org`) for Maven, enforced by `env/maven-settings.xml` and the host check; `nodejs.org` (Node 24 for Vaadin's frontend build, once per Node version, then cached) and `registry.npmjs.org` (the frontend build's npm packages, and Playwright); official Docker Hub images, each pinned by digest in `env/lib.sh` (`maven:3.9-eclipse-temurin-21`, `eclipse-temurin:21-jre`, `mysql:8.0`, `rabbitmq:3-management-alpine`, `python:3.9.6-slim`; versions in `env/README.md`); the Playwright browser download; the pinned actions `checkout`, `cache`, `upload-artifact`. The app and the tests run on an internal network with no route out, and the copy's DNS answers only its own container names. The smoke browser reaches only `127.0.0.1:18081`.
+Maven Central (`repo.maven.apache.org`) for Maven, enforced by `env/maven-settings.xml` and the host check; `nodejs.org` (Node 24 for Vaadin's frontend build, once per Node version, then cached) and `registry.npmjs.org` (the frontend build's npm packages, and Playwright); official Docker Hub images, each pinned by digest in `env/lib.sh` (`maven:3.9-eclipse-temurin-21`, `eclipse-temurin:21-jre`, `mysql:8.0`, `rabbitmq:3-management-alpine`, `python:3.9.6-slim`; versions in `env/README.md`); the Playwright browser download (`cdn.playwright.dev`); Playwright for Java and Maven 3.9.16 for `e2e` from Maven Central; Temurin 21 for `e2e` through `actions/setup-java` (`api.adoptium.net` and Adoptium's GitHub release downloads); the pinned actions `checkout`, `cache`, `upload-artifact`, `setup-java`. The app and the tests run on an internal network with no route out, and the copy's DNS answers only its own container names. The smoke browser and the `e2e` browser reach only `127.0.0.1:18081`.
 
 ## Test users
 
@@ -68,6 +81,7 @@ env/up.sh
 node .github/ci/smoke/smoke.cjs .github/ci/smoke/new-app.json http://127.0.0.1:18081 /tmp/ci-smoke
 .github/ci/run-tests.sh /tmp/ci-tests
 env/down.sh
+env/e2e.sh                                       # job e2e: start, end-to-end tests, remove (needs JDK 21 and Maven)
 ```
 
 `.github/ci/run-tests.sh` compiles in the checkout (`target/` folders) and needs the copy running.

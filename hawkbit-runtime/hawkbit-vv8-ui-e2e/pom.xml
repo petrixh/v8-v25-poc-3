@@ -1,0 +1,153 @@
+<!--
+
+    Copyright (c) 2023 Contributors to the Eclipse Foundation
+
+    This program and the accompanying materials are made
+    available under the terms of the Eclipse Public License 2.0
+    which is available at https://www.eclipse.org/legal/epl-2.0/
+
+    SPDX-License-Identifier: EPL-2.0
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- End-to-end tests of the UI (env/README.md "End-to-end tests"): Playwright for Java and JUnit 5, run by failsafe
+       against a running app, started with env/up.sh (or env/e2e.sh, which starts it, runs these tests and stops it).
+       Black-box: the tests drive a browser over HTTP and use none of the app's classes, so the parent is
+       hawkbit-parent (dependency and plugin management only), not hawkbit-runtime-parent with its runtime and test
+       dependencies. The module is in the reactor only with -Pe2e (hawkbit-runtime/pom.xml), so the default build
+       neither downloads Playwright nor runs these tests. -->
+    <parent>
+        <groupId>org.eclipse.hawkbit</groupId>
+        <artifactId>hawkbit-parent</artifactId>
+        <version>${revision}</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <artifactId>hawkbit-vv8-ui-e2e</artifactId>
+    <name>hawkBit :: Runtime :: Vaadin v8 UI :: End-to-end tests</name>
+
+    <properties>
+        <!-- Playwright for Java. Its browser builds match the Playwright version: keep it equal to PLAYWRIGHT_VERSION in
+           .github/workflows/ci.yml, so the smoke and these tests share one browser download and cache. -->
+        <playwright.version>1.63.0</playwright.version>
+        <exec-maven-plugin.version>3.6.4</exec-maven-plugin.version>
+
+        <!-- Defaults; override with -D (env/README.md "End-to-end tests"). Base URL of the running UI. -->
+        <e2e.baseUrl>http://127.0.0.1:18081</e2e.baseUrl>
+        <!-- KEY=value file with the test users' passwords (MIG_TU_<USER>_PW), the APP_ENV_USERS_ENV of env/README.md.
+           Empty: the environment variable APP_ENV_USERS_ENV. -->
+        <e2e.usersEnv/>
+        <!-- Command run before each test class to return the app to its seed state (env/reset.sh with the copy's
+           APP_ENV_* settings in the environment). Empty: no reset. -->
+        <e2e.reset/>
+        <!-- Time zone of the browser, as in the migration's workflow runs. -->
+        <e2e.timezone>Europe/Helsinki</e2e.timezone>
+
+        <!-- Nothing to publish -->
+        <maven.install.skip>true</maven.install.skip>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+        <maven.source.skip>true</maven.source.skip>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.microsoft.playwright</groupId>
+            <artifactId>playwright</artifactId>
+            <version>${playwright.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <!-- No main code: no empty jar -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <skipIfEmpty>true</skipIfEmpty>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- Every test here needs the running app: none runs in the test phase -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- Chromium only: Playwright's CLI installs the headless shell into its browser cache
+                   (PLAYWRIGHT_BROWSERS_PATH, default ~/.cache/ms-playwright on Linux), a no-op when it is there. The
+                   tests start Playwright with PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD, so it does not fetch its other browsers.
+                   Separate JVM: the CLI ends with System.exit. -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>install-chromium</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${java.home}/bin/java</executable>
+                            <classpathScope>test</classpathScope>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>com.microsoft.playwright.CLI</argument>
+                                <argument>install</argument>
+                                <argument>--only-shell</argument>
+                                <argument>chromium</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <argLine combine.self="override">-Xmx512m</argLine>
+                    <properties combine.self="override"/>
+                    <runOrder>alphabetical</runOrder>
+                    <systemPropertyVariables>
+                        <e2e.baseUrl>${e2e.baseUrl}</e2e.baseUrl>
+                        <e2e.usersEnv>${e2e.usersEnv}</e2e.usersEnv>
+                        <e2e.reset>${e2e.reset}</e2e.reset>
+                        <e2e.timezone>${e2e.timezone}</e2e.timezone>
+                        <e2e.outputDir>${project.build.directory}/e2e</e2e.outputDir>
+                    </systemPropertyVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <!-- the parent binds only integration-test; verify fails the build on a failed test -->
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <!-- Declared here too, so that a build of only this module (-pl ...) does not warn that the profile does
+               not exist; what it does is in hawkbit-runtime/pom.xml -->
+            <id>e2e</id>
+        </profile>
+    </profiles>
+</project>

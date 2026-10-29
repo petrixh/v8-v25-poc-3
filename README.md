@@ -136,6 +136,10 @@ mvn verify
 
 The DMF integration tests need RabbitMQ; without a reachable broker they are skipped, unless `RABBITMQ_SERVER_REQUIRED=true` is set, which makes them fail instead (`RABBITMQ_TEST_HOSTNAME` names the broker host). How CI builds, starts and tests the app: [.github/CI.md](.github/CI.md).
 
+## End-to-end tests of the UI
+
+Playwright tests (Java, JUnit 5) of the management UI against a running app, in the opt-in profile `e2e`: `env/e2e.sh` starts a copy of the app in Docker, runs `mvn -Pe2e -pl hawkbit-runtime/hawkbit-vv8-ui-e2e verify` against it and removes it. How to run them and what they need: [env/README.md](env/README.md), "End-to-end tests". CI runs them in the job `e2e` ([.github/CI.md](.github/CI.md)).
+
 ## Start hawkBit [Device Simulator](https://github.com/eclipse/hawkbit-examples/tree/master/hawkbit-device-simulator) (optional)
 
 ```bash
