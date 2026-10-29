@@ -27,7 +27,6 @@ import org.junit.jupiter.api.Test;
  * A rollout's life in the Rollout view: create it, start it, pause and resume it, trigger its next group, delete it
  * while its updates run; the targets keep their actions. Seed state: no rollouts, approval off, no device connected
  * (groups never finish on their own). The rollout scheduler runs in the app's background, so states are waited for.
- * (Workflow WF24 of the migration's catalogue.)
  */
 class RolloutLifecycleIT extends AbstractUiE2eTest {
 

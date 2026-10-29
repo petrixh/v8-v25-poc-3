@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
  * Software modules and artifacts in the Upload view: create a module, upload one file with the upload button and one
  * by dropping it on the drop area, see each upload finish in the upload status window and both files listed with
  * their sizes and checksums, also after leaving the view. Seed state: five modules, no artifacts. The two files are
- * small fixtures in this module's test resources ({@code upload/}). (Workflow WF19 of the migration's catalogue.)
+ * small fixtures in this module's test resources ({@code upload/}).
  */
 class SoftwareModuleUploadIT extends AbstractUiE2eTest {
 

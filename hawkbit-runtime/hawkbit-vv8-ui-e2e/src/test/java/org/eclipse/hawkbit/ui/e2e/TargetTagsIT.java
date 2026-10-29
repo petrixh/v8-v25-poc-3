@@ -25,8 +25,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Target tags in the Deployment view: create a tag, drag two targets onto it, filter by it, remove it from one target
  * in the target's details, see the delete refused while the tag filters the list, then delete it. Seed state: tags
- * {@code Lab} and {@code Field}; {@code Seed Device 09} and {@code 10} untagged. (Workflow WF06 of the migration's
- * catalogue.)
+ * {@code Lab} and {@code Field}; {@code Seed Device 09} and {@code 10} untagged.
  */
 class TargetTagsIT extends AbstractUiE2eTest {
 
