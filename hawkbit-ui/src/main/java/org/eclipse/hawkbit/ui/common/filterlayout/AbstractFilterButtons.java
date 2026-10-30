@@ -143,7 +143,7 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
      * @param button
      *            a filter button with a tooltip
      */
-    protected static void placeTooltipBesideRow(final Button button) {
+    public static void placeTooltipBesideRow(final Button button) {
         Tooltip.forComponent(button).setPosition(TooltipPosition.END);
     }
 

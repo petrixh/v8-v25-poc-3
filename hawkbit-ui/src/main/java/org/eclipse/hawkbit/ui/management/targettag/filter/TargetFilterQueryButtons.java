@@ -23,6 +23,7 @@ import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.FilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
+import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -107,6 +108,7 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
                 UIComponentIdProvider.CUSTOM_FILTER_BUTTON_PREFIX + "." + filterQuery.getId(), filterQuery.getName(),
                 filterQuery.getName(), null, false, null, SPUITagButtonStyle.class);
         tfqButton.setWidthFull();
+        AbstractFilterButtons.placeTooltipBesideRow(tfqButton);
 
         tfqButton.addClickListener(event -> customTargetTagFilterButtonClick.processFilterClick(filterQuery));
 
