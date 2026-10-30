@@ -1,0 +1,106 @@
+/* Print stylesheet of the Vaadin 25 migration hand-off document (build.cjs). A4, one column, system fonts.
+   Header and footer are drawn by Chromium (build.cjs templates); the @page margins below leave room for them. */
+
+
+:root {
+  --ink: #1d232b;
+  --muted: #5b6573;
+  --rule: #d5dae1;
+  --accent: #1f4e79;
+  --accent-soft: #e8eff6;
+  --code-bg: #f4f6f8;
+  --note-bg: #f3f6f9;
+  --warn-bg: #fff4d6;
+  --warn-ink: #7a5300;
+}
+
+@page { size: A4; margin: 22mm 18mm 20mm 18mm; }
+@page cover { margin: 0; }
+
+html { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Liberation Sans", "DejaVu Sans", sans-serif; font-size: 10pt; line-height: 1.42; color: var(--ink); background: #fff; }
+body { margin: 0; }
+* { box-sizing: border-box; }
+
+/* ---------- Headings ---------- */
+h1, h2, h3, h4 { color: var(--accent); line-height: 1.2; break-after: avoid; page-break-after: avoid; }
+h1 { font-size: 19pt; font-weight: 600; margin: 0 0 5mm; padding-bottom: 2.5mm; border-bottom: 1.5pt solid var(--accent); break-before: page; }
+h2 { font-size: 13.5pt; font-weight: 600; margin: 7mm 0 2.5mm; }
+h3 { font-size: 11pt; font-weight: 600; margin: 5mm 0 1.5mm; color: var(--ink); }
+h4 { font-size: 10pt; font-weight: 600; margin: 4mm 0 1mm; color: var(--ink); }
+.num { color: var(--muted); font-weight: 600; margin-right: 0.45em; }
+h1 .num { color: var(--accent); }
+/* Keep a heading with the start of what follows */
+h2 + *, h3 + *, h4 + * { break-before: avoid; }
+
+p { margin: 0 0 2.6mm; orphans: 3; widows: 3; }
+ul, ol { margin: 0 0 2.8mm; padding-left: 6mm; }
+li { margin: 0 0 1mm; }
+li > ul, li > ol { margin-top: 1mm; margin-bottom: 0; }
+strong { font-weight: 600; }
+a { color: var(--accent); text-decoration: none; }
+hr { border: 0; border-top: 0.75pt solid var(--rule); margin: 5mm 0; }
+
+/* ---------- Code ---------- */
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 0.86em; background: var(--code-bg); padding: 0.05em 0.3em; border-radius: 2px; overflow-wrap: anywhere; }
+pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 8.2pt; line-height: 1.38; background: var(--code-bg); border-left: 2pt solid var(--accent); padding: 2.5mm 3.5mm; margin: 0 0 3mm; white-space: pre-wrap; overflow-wrap: anywhere; break-inside: avoid; }
+pre code { background: none; padding: 0; font-size: inherit; }
+
+/* ---------- Tables ---------- */
+.table-wrap { margin: 0 0 3.5mm; }
+table { width: 100%; border-collapse: collapse; font-size: 8.8pt; line-height: 1.33; }
+thead { display: table-header-group; }
+th { text-align: left; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-bottom: 1pt solid var(--accent); padding: 1.6mm 2mm; vertical-align: bottom; }
+td { border-bottom: 0.5pt solid var(--rule); padding: 1.5mm 2mm; vertical-align: top; }
+tr { break-inside: avoid; }
+td code, th code { font-size: 0.84em; }
+td p { margin: 0; }
+
+/* ---------- Figures ---------- */
+figure { margin: 2mm 0 5mm; break-inside: avoid; text-align: center; }
+figure img { max-width: 100%; max-height: 105mm; border: 0.5pt solid var(--rule); }
+figcaption { font-size: 8.8pt; color: var(--muted); margin-top: 1.6mm; text-align: left; }
+figcaption b { color: var(--ink); font-weight: 600; }
+
+/* ---------- Callouts ---------- */
+blockquote { margin: 0 0 3.5mm; padding: 2.5mm 4mm; background: var(--note-bg); border-left: 2.5pt solid var(--accent); break-inside: avoid; }
+blockquote p:last-child { margin-bottom: 0; }
+.tbc { background: var(--warn-bg); color: var(--warn-ink); padding: 0 0.25em; border-radius: 2px; font-weight: 600; }
+
+/* ---------- Table of contents ---------- */
+nav.toc h1 { break-before: auto; }
+nav.toc ol { list-style: none; padding: 0; margin: 0; }
+nav.toc li { margin: 0; }
+nav.toc li a { display: flex; align-items: baseline; color: var(--ink); padding: 0.9mm 0; }
+nav.toc li.l1 > a { font-weight: 600; margin-top: 2.2mm; }
+nav.toc li.l2 > a { padding-left: 8mm; font-size: 9.5pt; }
+nav.toc .t-num { min-width: 8mm; color: var(--muted); }
+nav.toc li.l2 .t-num { min-width: 10mm; }
+nav.toc .t-title { flex: 0 1 auto; }
+nav.toc .t-dots { flex: 1 1 auto; border-bottom: 0.75pt dotted #9aa3ae; margin: 0 2mm; transform: translateY(-0.9mm); min-width: 5mm; }
+/* Fixed-width number column with a small inset, so right-aligned numbers never touch the page edge
+   (with tabular-nums and an auto width, level-2 numbers were clipped by about half a digit) */
+nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color: var(--muted); }
+
+/* ---------- Utilities usable from Markdown via raw HTML ---------- */
+.page-break { break-before: page; }
+.small { font-size: 8.8pt; }
+.keep { break-inside: avoid; }
+
+/* ---------- Cover page (rendered as its own PDF page, no header/footer) ---------- */
+.cover { page: cover; width: 210mm; height: 296mm; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.cover .band { background: var(--accent); color: #fff; padding: 62mm 22mm 16mm; }
+.cover .kicker { font-size: 10.5pt; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.85; margin-bottom: 6mm; }
+.cover .title { font-size: 30pt; font-weight: 600; line-height: 1.12; margin: 0 0 5mm; }
+.cover .subtitle { font-size: 14pt; line-height: 1.3; opacity: 0.92; }
+.cover .meta { padding: 14mm 22mm; flex: 1; }
+.cover .meta table { width: auto; font-size: 10pt; }
+.cover .meta td { border: 0; padding: 1.2mm 8mm 1.2mm 0; }
+.cover .meta td:first-child { color: var(--muted); }
+.cover .foot { padding: 0 22mm 16mm; font-size: 8.8pt; color: var(--muted); }
+.cover .status { display: inline-block; border: 1pt solid #fff; padding: 0.6mm 2.5mm; font-size: 9pt; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 8mm; }
+
+/* Denser text for a one-page summary: wrap it in <div class="exec"> ... </div> in the Markdown */
+.exec { font-size: 9.4pt; line-height: 1.36; }
+.exec p { margin-bottom: 2mm; }
+.exec li { margin-bottom: 0.6mm; }
+.exec table { font-size: 8.4pt; }

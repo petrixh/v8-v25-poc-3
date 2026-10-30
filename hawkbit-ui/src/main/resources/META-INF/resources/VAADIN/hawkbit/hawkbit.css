@@ -217,6 +217,28 @@ vaadin-grid .joined-header-caption {
     min-width: 0;
 }
 
+/*
+ * Headers with a search field (grid headers built on SearchHeaderSupport). The open search field has an intrinsic
+ * width of about 156 px, wider than the free room of the narrow panels, so the icons were pushed out of the header
+ * over the next panel's caption and the field was drawn up against the caption. The search layout and field may shrink
+ * (min-width 0) and take what is left after the caption and the icons, with a small gap to the caption; the header
+ * icon buttons are tighter (2 px side padding, about 25 px wide; Vaadin 8 icons were about 22 px apart) so the field
+ * keeps a usable width in the 214 px headers of a 1024 px window.
+ */
+.widget-header > vaadin-horizontal-layout:has(> .filter-box) {
+    min-width: 0;
+}
+
+.widget-header .filter-box {
+    min-width: 0;
+    margin-left: 4px;
+}
+
+.widget-header:has(.filter-box) vaadin-button {
+    min-width: 0;
+    padding: 0 2px;
+}
+
 .widget-style {
     background: #fff;
     border: 1px solid #d4d4d4;
@@ -785,6 +807,15 @@ vaadin-accordion.filter-btns-layout .filter-panel-content {
 vaadin-button.button-tag-no-border {
     justify-content: flex-start;
     text-align: left;
+}
+
+/*
+ * The tooltip of a tag, type or custom filter button does not take the pointer: it sits beside the list, over the Targets
+ * grid, and a click on the grid right after hovering a button must reach the grid. "overlay" is a part the
+ * tooltip exports (exportparts) for styling.
+ */
+vaadin-button.button-tag-no-border > vaadin-tooltip::part(overlay) {
+    pointer-events: none;
 }
 
 /*

@@ -14,10 +14,12 @@ import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationPrope
 import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.ACTION_CLEANUP_ACTION_STATUS;
 import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.ACTION_CLEANUP_ENABLED;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
+import org.awaitility.Awaitility;
 import org.eclipse.hawkbit.repository.autoassign.AutoAssignExecutor;
 import org.eclipse.hawkbit.repository.jpa.AbstractJpaIntegrationTest;
 import org.eclipse.hawkbit.repository.jpa.autoassign.AutoAssignScheduler;
@@ -96,6 +98,7 @@ class MultiTenancySchedulerTest extends AbstractJpaIntegrationTest {
         // round 1: A on, B off. A scheduler that runs B's part in A's context would delete B's action too
         final Long actionA1 = asTenant(CLEANUP_TENANT_A, () -> canceledActionWithCleanup(true, 0));
         final Long actionB1 = asTenant(CLEANUP_TENANT_B, () -> canceledActionWithCleanup(false, 0));
+        awaitClockPastLastModification(actionA1, actionB1);
         scheduler.run();
         assertThat(asTenant(CLEANUP_TENANT_A, () -> actionRepository.findById(actionA1)))
                 .as("canceled action of tenant A (cleanup on), round 1").isEmpty();
@@ -105,6 +108,7 @@ class MultiTenancySchedulerTest extends AbstractJpaIntegrationTest {
         // round 2: A off, B on, new actions. A scheduler that runs A's part in B's context would delete A's action too
         final Long actionA2 = asTenant(CLEANUP_TENANT_A, () -> canceledActionWithCleanup(false, 1));
         final Long actionB2 = asTenant(CLEANUP_TENANT_B, () -> canceledActionWithCleanup(true, 1));
+        awaitClockPastLastModification(actionA2, actionB2);
         scheduler.run();
         assertThat(asTenant(CLEANUP_TENANT_A, () -> actionRepository.findById(actionA2)))
                 .as("canceled action of tenant A (cleanup off), round 2").isPresent();
@@ -202,6 +206,20 @@ class MultiTenancySchedulerTest extends AbstractJpaIntegrationTest {
         deploymentManagement.forceQuitAction(actionId);
         assertThat(actionRepository.findById(actionId)).as("canceled action before the cleanup").isPresent();
         return actionId;
+    }
+
+    /**
+     * The cleanup deletes actions last modified strictly before "now - expiry" (expiry 0 here): a run in the same
+     * millisecond as an action's last change deletes nothing. Wait until the clock is past the newest change.
+     */
+    private void awaitClockPastLastModification(final Long actionA, final Long actionB) throws Exception {
+        final long newest = Math.max(lastModifiedAt(CLEANUP_TENANT_A, actionA), lastModifiedAt(CLEANUP_TENANT_B, actionB));
+        Awaitility.await().atMost(Duration.ofSeconds(2)).pollInterval(Duration.ofMillis(1))
+                .until(() -> System.currentTimeMillis() > newest);
+    }
+
+    private long lastModifiedAt(final String tenant, final Long actionId) throws Exception {
+        return asTenant(tenant, () -> actionRepository.findById(actionId).orElseThrow().getLastModifiedAt());
     }
 
     private static <T> T asTenant(final String tenant, final Callable<T> callable) throws Exception {

@@ -424,6 +424,8 @@
                      <exclude>docs/layouts/**</exclude>
                      <exclude>docs/static/**</exclude>
                      <exclude>docs/*.toml</exclude>
+                     <!-- Vaadin 25 migration hand-off documents (Markdown source, generated HTML and PDF, build script and style) -->
+                     <exclude>docs/vaadin25-migration/**</exclude>
                      <exclude>**/spring.factories</exclude>
                      <exclude>**/LICENSE*</exclude>
                      <!-- Vaadin4Spring event bus source copied into hawkbit-ui (Apache-2.0, own headers; licence in licenses/APACHE-2.0.txt) -->

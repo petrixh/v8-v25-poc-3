@@ -1,0 +1,1703 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>hawkBit Management UI on Vaadin 25 (Release candidate — awaiting acceptance (M3))</title><style>/* Print stylesheet of the Vaadin 25 migration hand-off document (build.cjs). A4, one column, system fonts.
+   Header and footer are drawn by Chromium (build.cjs templates); the @page margins below leave room for them. */
+
+
+:root {
+  --ink: #1d232b;
+  --muted: #5b6573;
+  --rule: #d5dae1;
+  --accent: #1f4e79;
+  --accent-soft: #e8eff6;
+  --code-bg: #f4f6f8;
+  --note-bg: #f3f6f9;
+  --warn-bg: #fff4d6;
+  --warn-ink: #7a5300;
+}
+
+@page { size: A4; margin: 22mm 18mm 20mm 18mm; }
+@page cover { margin: 0; }
+
+html { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Liberation Sans", "DejaVu Sans", sans-serif; font-size: 10pt; line-height: 1.42; color: var(--ink); background: #fff; }
+body { margin: 0; }
+* { box-sizing: border-box; }
+
+/* ---------- Headings ---------- */
+h1, h2, h3, h4 { color: var(--accent); line-height: 1.2; break-after: avoid; page-break-after: avoid; }
+h1 { font-size: 19pt; font-weight: 600; margin: 0 0 5mm; padding-bottom: 2.5mm; border-bottom: 1.5pt solid var(--accent); break-before: page; }
+h2 { font-size: 13.5pt; font-weight: 600; margin: 7mm 0 2.5mm; }
+h3 { font-size: 11pt; font-weight: 600; margin: 5mm 0 1.5mm; color: var(--ink); }
+h4 { font-size: 10pt; font-weight: 600; margin: 4mm 0 1mm; color: var(--ink); }
+.num { color: var(--muted); font-weight: 600; margin-right: 0.45em; }
+h1 .num { color: var(--accent); }
+/* Keep a heading with the start of what follows */
+h2 + *, h3 + *, h4 + * { break-before: avoid; }
+
+p { margin: 0 0 2.6mm; orphans: 3; widows: 3; }
+ul, ol { margin: 0 0 2.8mm; padding-left: 6mm; }
+li { margin: 0 0 1mm; }
+li > ul, li > ol { margin-top: 1mm; margin-bottom: 0; }
+strong { font-weight: 600; }
+a { color: var(--accent); text-decoration: none; }
+hr { border: 0; border-top: 0.75pt solid var(--rule); margin: 5mm 0; }
+
+/* ---------- Code ---------- */
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 0.86em; background: var(--code-bg); padding: 0.05em 0.3em; border-radius: 2px; overflow-wrap: anywhere; }
+pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 8.2pt; line-height: 1.38; background: var(--code-bg); border-left: 2pt solid var(--accent); padding: 2.5mm 3.5mm; margin: 0 0 3mm; white-space: pre-wrap; overflow-wrap: anywhere; break-inside: avoid; }
+pre code { background: none; padding: 0; font-size: inherit; }
+
+/* ---------- Tables ---------- */
+.table-wrap { margin: 0 0 3.5mm; }
+table { width: 100%; border-collapse: collapse; font-size: 8.8pt; line-height: 1.33; }
+thead { display: table-header-group; }
+th { text-align: left; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-bottom: 1pt solid var(--accent); padding: 1.6mm 2mm; vertical-align: bottom; }
+td { border-bottom: 0.5pt solid var(--rule); padding: 1.5mm 2mm; vertical-align: top; }
+tr { break-inside: avoid; }
+td code, th code { font-size: 0.84em; }
+td p { margin: 0; }
+
+/* ---------- Figures ---------- */
+figure { margin: 2mm 0 5mm; break-inside: avoid; text-align: center; }
+figure img { max-width: 100%; max-height: 105mm; border: 0.5pt solid var(--rule); }
+figcaption { font-size: 8.8pt; color: var(--muted); margin-top: 1.6mm; text-align: left; }
+figcaption b { color: var(--ink); font-weight: 600; }
+
+/* ---------- Callouts ---------- */
+blockquote { margin: 0 0 3.5mm; padding: 2.5mm 4mm; background: var(--note-bg); border-left: 2.5pt solid var(--accent); break-inside: avoid; }
+blockquote p:last-child { margin-bottom: 0; }
+.tbc { background: var(--warn-bg); color: var(--warn-ink); padding: 0 0.25em; border-radius: 2px; font-weight: 600; }
+
+/* ---------- Table of contents ---------- */
+nav.toc h1 { break-before: auto; }
+nav.toc ol { list-style: none; padding: 0; margin: 0; }
+nav.toc li { margin: 0; }
+nav.toc li a { display: flex; align-items: baseline; color: var(--ink); padding: 0.9mm 0; }
+nav.toc li.l1 > a { font-weight: 600; margin-top: 2.2mm; }
+nav.toc li.l2 > a { padding-left: 8mm; font-size: 9.5pt; }
+nav.toc .t-num { min-width: 8mm; color: var(--muted); }
+nav.toc li.l2 .t-num { min-width: 10mm; }
+nav.toc .t-title { flex: 0 1 auto; }
+nav.toc .t-dots { flex: 1 1 auto; border-bottom: 0.75pt dotted #9aa3ae; margin: 0 2mm; transform: translateY(-0.9mm); min-width: 5mm; }
+/* Fixed-width number column with a small inset, so right-aligned numbers never touch the page edge
+   (with tabular-nums and an auto width, level-2 numbers were clipped by about half a digit) */
+nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color: var(--muted); }
+
+/* ---------- Utilities usable from Markdown via raw HTML ---------- */
+.page-break { break-before: page; }
+.small { font-size: 8.8pt; }
+.keep { break-inside: avoid; }
+
+/* ---------- Cover page (rendered as its own PDF page, no header/footer) ---------- */
+.cover { page: cover; width: 210mm; height: 296mm; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.cover .band { background: var(--accent); color: #fff; padding: 62mm 22mm 16mm; }
+.cover .kicker { font-size: 10.5pt; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.85; margin-bottom: 6mm; }
+.cover .title { font-size: 30pt; font-weight: 600; line-height: 1.12; margin: 0 0 5mm; }
+.cover .subtitle { font-size: 14pt; line-height: 1.3; opacity: 0.92; }
+.cover .meta { padding: 14mm 22mm; flex: 1; }
+.cover .meta table { width: auto; font-size: 10pt; }
+.cover .meta td { border: 0; padding: 1.2mm 8mm 1.2mm 0; }
+.cover .meta td:first-child { color: var(--muted); }
+.cover .foot { padding: 0 22mm 16mm; font-size: 8.8pt; color: var(--muted); }
+.cover .status { display: inline-block; border: 1pt solid #fff; padding: 0.6mm 2.5mm; font-size: 9pt; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 8mm; }
+
+/* Denser text for a one-page summary: wrap it in <div class="exec"> ... </div> in the Markdown */
+.exec { font-size: 9.4pt; line-height: 1.36; }
+.exec p { margin-bottom: 2mm; }
+.exec li { margin-bottom: 0.6mm; }
+.exec table { font-size: 8.4pt; }
+
+/* Status marks. Screen: a bar at the top. Print: the PDF build draws the status and page numbers in the page margin
+   (Chromium header and footer); a browser printing handoff.html gets them from the @page margin boxes below. */
+.status-bar { position: sticky; top: 0; z-index: 10; background: #7a5300; color: #fff; text-align: center; font-weight: 600; letter-spacing: 0.06em; padding: 1.5mm; font-size: 9pt; }
+@media screen {
+  body { max-width: 190mm; margin: 0 auto 20mm; padding: 0 8mm; }
+  .cover { width: auto; height: auto; margin: 0 -8mm 10mm; }
+  .cover .band { padding: 30mm 22mm 14mm; }
+  h1 { margin-top: 14mm; }
+  h1, h2, h3 { scroll-margin-top: 10mm; }
+  .cover { width: auto; margin: 0 0 10mm; }
+}
+@media print { .status-bar { display: none; } }
+
+@page { @top-right { content: "Release candidate — awaiting acceptance (M3)"; font-size: 7.5pt; font-weight: bold; color: #7a5300; } @bottom-right { content: "Page " counter(page); font-size: 7.5pt; color: #5b6573; } }
+@page cover { @top-right { content: none; } @bottom-right { content: none; } }
+
+.cover .status { background: #fff; color: #7a5300; font-weight: 700; }
+</style></head><body><div class="status-bar">Release candidate — awaiting acceptance (M3)</div><section class="cover">
+  <div class="band">
+    <div class="kicker">Migration hand-off</div>
+    <div class="title">hawkBit Management UI on Vaadin 25</div>
+    <div class="subtitle">Hand-off documentation for the migration from Vaadin 8 / Spring Boot 2.7 / Java 17 to Vaadin 25 / Spring Boot 4.1 / Java 21</div>
+    <div class="status">Release candidate — awaiting acceptance (M3)</div>
+  </div>
+  <div class="meta"><table><tr><td>Version</td><td>1.0 (release candidate)</td></tr><tr><td>Date</td><td>2026-10-30</td></tr><tr><td>Status</td><td>Release candidate — awaiting acceptance (M3)</td></tr><tr><td>Prepared for</td><td>Operators, developers and users of the hawkBit Management UI</td></tr><tr><td>Prepared by</td><td>Vaadin migration team</td></tr></table></div>
+  <div class="foot">Release candidate — awaiting acceptance (M3). Milestone M2 passed on 30 October 2026. Written from the migrated code at commit 684b25a: the workflow stage's last commit 1c662d9 (merged into mig-dev as d8e794c on 30 October 2026) plus the small fixes of the hand-off stage, with every decision you made during the migration. The document becomes final when you accept the hand-off.</div>
+</section><nav class="toc"><h1 id="contents">Contents</h1><ol>
+<li class="l1"><a href="#executive-summary"><span class="t-num"></span><span class="t-title">Executive summary</span><span class="t-dots"></span><span class="t-page">3</span></a></li>
+<li class="l1"><a href="#about-this-document"><span class="t-num">1</span><span class="t-title">About this document</span><span class="t-dots"></span><span class="t-page">6</span></a></li>
+<li class="l2"><a href="#purpose-and-reader"><span class="t-num">1.1</span><span class="t-title">Purpose and reader</span><span class="t-dots"></span><span class="t-page">6</span></a></li>
+<li class="l2"><a href="#what-was-migrated"><span class="t-num">1.2</span><span class="t-title">What was migrated</span><span class="t-dots"></span><span class="t-page">6</span></a></li>
+<li class="l2"><a href="#how-the-result-was-checked"><span class="t-num">1.3</span><span class="t-title">How the result was checked</span><span class="t-dots"></span><span class="t-page">6</span></a></li>
+<li class="l2"><a href="#status-words-used-in-the-change-tables"><span class="t-num">1.4</span><span class="t-title">Status words used in the change tables</span><span class="t-dots"></span><span class="t-page">7</span></a></li>
+<li class="l1"><a href="#what-changed-operators"><span class="t-num">2</span><span class="t-title">What changed: operators</span><span class="t-dots"></span><span class="t-page">8</span></a></li>
+<li class="l2"><a href="#runtime-and-build-platform"><span class="t-num">2.1</span><span class="t-title">Runtime and build platform</span><span class="t-dots"></span><span class="t-page">8</span></a></li>
+<li class="l2"><a href="#configuration-you-may-have-to-rename"><span class="t-num">2.2</span><span class="t-title">Configuration you may have to rename</span><span class="t-dots"></span><span class="t-page">8</span></a></li>
+<li class="l2"><a href="#http-behaviour-addresses-and-headers"><span class="t-num">2.3</span><span class="t-title">HTTP behaviour, addresses and headers</span><span class="t-dots"></span><span class="t-page">9</span></a></li>
+<li class="l2"><a href="#messaging-and-logs"><span class="t-num">2.4</span><span class="t-title">Messaging and logs</span><span class="t-dots"></span><span class="t-page">11</span></a></li>
+<li class="l2"><a href="#build-and-repository"><span class="t-num">2.5</span><span class="t-title">Build and repository</span><span class="t-dots"></span><span class="t-page">12</span></a></li>
+<li class="l1"><a href="#what-changed-users"><span class="t-num">3</span><span class="t-title">What changed: users</span><span class="t-dots"></span><span class="t-page">13</span></a></li>
+<li class="l2"><a href="#look"><span class="t-num">3.1</span><span class="t-title">Look</span><span class="t-dots"></span><span class="t-page">13</span></a></li>
+<li class="l2"><a href="#behaviour-of-controls"><span class="t-num">3.2</span><span class="t-title">Behaviour of controls</span><span class="t-dots"></span><span class="t-page">14</span></a></li>
+<li class="l2"><a href="#uploads"><span class="t-num">3.3</span><span class="t-title">Uploads</span><span class="t-dots"></span><span class="t-page">16</span></a></li>
+<li class="l1"><a href="#what-changed-developers-and-integrators"><span class="t-num">4</span><span class="t-title">What changed: developers and integrators</span><span class="t-dots"></span><span class="t-page">17</span></a></li>
+<li class="l2"><a href="#apis"><span class="t-num">4.1</span><span class="t-title">APIs</span><span class="t-dots"></span><span class="t-page">17</span></a></li>
+<li class="l2"><a href="#ui-code-theme-and-security-context"><span class="t-num">4.2</span><span class="t-title">UI code, theme and security context</span><span class="t-dots"></span><span class="t-page">18</span></a></li>
+<li class="l2"><a href="#tests-ci-and-development-environment"><span class="t-num">4.3</span><span class="t-title">Tests, CI and development environment</span><span class="t-dots"></span><span class="t-page">19</span></a></li>
+<li class="l2"><a href="#notes-for-ui-developers"><span class="t-num">4.4</span><span class="t-title">Notes for UI developers</span><span class="t-dots"></span><span class="t-page">20</span></a></li>
+<li class="l1"><a href="#environment-and-deployment"><span class="t-num">5</span><span class="t-title">Environment and deployment</span><span class="t-dots"></span><span class="t-page">22</span></a></li>
+<li class="l2"><a href="#requirements"><span class="t-num">5.1</span><span class="t-title">Requirements</span><span class="t-dots"></span><span class="t-page">22</span></a></li>
+<li class="l2"><a href="#build"><span class="t-num">5.2</span><span class="t-title">Build</span><span class="t-dots"></span><span class="t-page">22</span></a></li>
+<li class="l2"><a href="#run"><span class="t-num">5.3</span><span class="t-title">Run</span><span class="t-dots"></span><span class="t-page">22</span></a></li>
+<li class="l2"><a href="#local-test-copy-env"><span class="t-num">5.4</span><span class="t-title">Local test copy (<code>env/</code>)</span><span class="t-dots"></span><span class="t-page">23</span></a></li>
+<li class="l2"><a href="#container-images"><span class="t-num">5.5</span><span class="t-title">Container images</span><span class="t-dots"></span><span class="t-page">23</span></a></li>
+<li class="l2"><a href="#database-migration"><span class="t-num">5.6</span><span class="t-title">Database migration</span><span class="t-dots"></span><span class="t-page">24</span></a></li>
+<li class="l2"><a href="#expected-log-lines-at-startup"><span class="t-num">5.7</span><span class="t-title">Expected log lines at startup</span><span class="t-dots"></span><span class="t-page">25</span></a></li>
+<li class="l2"><a href="#content-security-policy"><span class="t-num">5.8</span><span class="t-title">Content-Security-Policy</span><span class="t-dots"></span><span class="t-page">26</span></a></li>
+<li class="l2"><a href="#security-before-production"><span class="t-num">5.9</span><span class="t-title">Security before production</span><span class="t-dots"></span><span class="t-page">26</span></a></li>
+<li class="l2"><a href="#third-party-dependency-list"><span class="t-num">5.10</span><span class="t-title">Third-party dependency list</span><span class="t-dots"></span><span class="t-page">27</span></a></li>
+<li class="l2"><a href="#cut-over-checklist"><span class="t-num">5.11</span><span class="t-title">Cut-over checklist</span><span class="t-dots"></span><span class="t-page">27</span></a></li>
+<li class="l1"><a href="#how-to-test"><span class="t-num">6</span><span class="t-title">How to test</span><span class="t-dots"></span><span class="t-page">29</span></a></li>
+<li class="l2"><a href="#unit-and-integration-tests"><span class="t-num">6.1</span><span class="t-title">Unit and integration tests</span><span class="t-dots"></span><span class="t-page">29</span></a></li>
+<li class="l2"><a href="#browser-end-to-end-tests"><span class="t-num">6.2</span><span class="t-title">Browser end-to-end tests</span><span class="t-dots"></span><span class="t-page">29</span></a></li>
+<li class="l2"><a href="#continuous-integration"><span class="t-num">6.3</span><span class="t-title">Continuous integration</span><span class="t-dots"></span><span class="t-page">29</span></a></li>
+<li class="l2"><a href="#manual-check"><span class="t-num">6.4</span><span class="t-title">Manual check</span><span class="t-dots"></span><span class="t-page">30</span></a></li>
+<li class="l1"><a href="#known-pre-existing-issues"><span class="t-num">7</span><span class="t-title">Known pre-existing issues</span><span class="t-dots"></span><span class="t-page">31</span></a></li>
+<li class="l2"><a href="#security"><span class="t-num">7.1</span><span class="t-title">Security</span><span class="t-dots"></span><span class="t-page">31</span></a></li>
+<li class="l2"><a href="#reliability-and-data"><span class="t-num">7.2</span><span class="t-title">Reliability and data</span><span class="t-dots"></span><span class="t-page">32</span></a></li>
+<li class="l1"><a href="#side-by-side-recordings"><span class="t-num">8</span><span class="t-title">Side-by-side recordings</span><span class="t-dots"></span><span class="t-page">34</span></a></li>
+<li class="l1"><a href="#follow-up-candidates-parking-lot"><span class="t-num">9</span><span class="t-title">Follow-up candidates (parking lot)</span><span class="t-dots"></span><span class="t-page">36</span></a></li>
+<li class="l2"><a href="#before-production"><span class="t-num">9.1</span><span class="t-title">Before production</span><span class="t-dots"></span><span class="t-page">36</span></a></li>
+<li class="l2"><a href="#security-and-accessibility"><span class="t-num">9.2</span><span class="t-title">Security and accessibility</span><span class="t-dots"></span><span class="t-page">36</span></a></li>
+<li class="l2"><a href="#operations-and-build"><span class="t-num">9.3</span><span class="t-title">Operations and build</span><span class="t-dots"></span><span class="t-page">36</span></a></li>
+<li class="l2"><a href="#look-restoration-toward-the-original-pixels"><span class="t-num">9.4</span><span class="t-title">Look (restoration toward the original pixels)</span><span class="t-dots"></span><span class="t-page">37</span></a></li>
+<li class="l2"><a href="#code-and-tests"><span class="t-num">9.5</span><span class="t-title">Code and tests</span><span class="t-dots"></span><span class="t-page">37</span></a></li>
+<li class="l1"><a href="#appendix-a-before-this-document-is-final"><span class="t-num"></span><span class="t-title">Appendix A. Before this document is final</span><span class="t-dots"></span><span class="t-page">39</span></a></li>
+</ol></nav>
+<h1 id="executive-summary">Executive summary</h1>
+<div class="exec"><blockquote>
+<p><strong>Release candidate — awaiting acceptance (M3).</strong> This document describes the migrated code at commit <code>684b25a</code>, the code put forward for your acceptance. It is the last commit of the workflow stage, <code>1c662d9</code>, which was merged into <code>mig-dev</code> unchanged (merge commit <code>d8e794c</code>) when you signed off the workflow milestone (M2) on 30 October 2026, plus three small fixes of the hand-off stage: the filter panel tooltips (section 3.2), the grid headers with a search (section 3.1) and the timing of one test. It includes every answer you gave during the migration. One known open item is the MySQL release image&#39;s driver download (section 5.5). <strong>M2 passed on 30 October 2026; M3, your acceptance of the hand-off, is pending.</strong> The document becomes final when you accept the hand-off.</p>
+</blockquote>
+<h2 id="outcome">Outcome</h2>
+<p>The hawkBit Management UI and every server program in the build now run on <strong>Vaadin 25.3, Spring Boot 4.1, Jakarta EE 11 and Java 21</strong>, replacing Vaadin 8.14, Spring Boot 2.7 and Java 17. The UI is a server-side Vaadin Flow application with free Vaadin components only: there is no GWT widget build, no Sass theme and no commercial component, and no Vaadin licence key is needed.</p>
+<p>The code for your test run is on the M3 branch <strong><code>stage/3-handoff</code></strong> (the M3 pull request). After your acceptance it merges into <strong><code>mig-dev</code></strong>, which keeps the migrated version. The original stays on <code>main</code>, so the two can be compared. Nothing is merged into <code>main</code> as part of the hand-off (your decision, 29 October 2026).</p>
+<p>The migration was checked against the original application, with both run side by side:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result on the migrated app</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>31 user workflows (all agreed as critical), replayed on both apps and compared step by step</td>
+<td><strong>31 of 31 pass or show only a difference you accepted</strong>: 25 pass, 6 differ in an accepted way (field error messages under the field: 3; forbidden views answer 404: 3)</td>
+</tr>
+<tr>
+<td>Backend and UI test suite</td>
+<td>Full suite: 1699 tests, 0 failures, 0 errors, 0 skipped, on commit <code>684b25a</code>. Continuous integration on <code>684b25a</code>: 1672 tests, 0 failures</td>
+</tr>
+<tr>
+<td>Access matrix: 8 test users × every view, by menu and by address</td>
+<td>Identical to the original app</td>
+</tr>
+<tr>
+<td>HTTP behaviour of the login, sign-out, UI and error addresses and the security headers</td>
+<td>No access weakened; each difference fixed or accepted</td>
+</tr>
+<tr>
+<td>A change made through the REST API appears in an open view</td>
+<td>Within 2.2 s on both apps (20 of 20 readings)</td>
+</tr>
+<tr>
+<td>Continuous integration (build, start, smoke test of every view for 4 users, test suite, 6 browser end-to-end tests)</td>
+<td>Green on <code>684b25a</code>: 36 of 36 view checks, 1672 tests with 0 failures, 6 of 6 browser tests. Later commits change only documentation and code comments</td>
+</tr>
+<tr>
+<td>Soak test: 400 sign-in, all-views, sign-out cycles per app, about 2.5 hours each</td>
+<td>Memory and threads flat on both apps; the migrated app uses fewer threads (73 against 81). Two framework log errors in 400 sign-outs (section 2.4)</td>
+</tr>
+</tbody></table></div>
+<h2 id="what-changed">What changed</h2>
+<ul>
+<li><strong>For operators:</strong> a Java 21 runtime; several configuration property names (section 2.2); the Spring Boot launcher class name; the container build files; a few HTTP status codes and headers for unusual requests (section 2.3); some new WARN lines at startup (section 5.7). The database schema is <strong>unchanged</strong>: no database migration script was added or changed.</li>
+<li><strong>For users:</strong> the same views, workflows, texts and permissions. The look is Vaadin&#39;s Lumo theme in its compact form with hawkBit&#39;s colours. Views have real addresses (<code>/UI/deployment</code> instead of <code>/UI/#!deployment</code>), and old bookmarks are forwarded. A number of controls behave slightly differently; each is listed in section 3, with your decision.</li>
+<li><strong>For developers:</strong> the UI code is Vaadin Flow. The theme is plain CSS, and the event bus library is now source code in the app. The Java API has a few changes, the tests run on JUnit 5/6 and Spring 7, and there is a new browser end-to-end test module (section 4).</li>
+</ul>
+<h2 id="risks">Risks</h2>
+<ol>
+<li><strong>Anonymous Vaadin requests to the login address.</strong> Vaadin answers its own protocol requests on the login addresses with its standard answers, where the original answered 404. You accepted this, and you asked for <strong>a human security review before production</strong> (section 5.9).</li>
+<li><strong>Soak test not repeated on the final code.</strong> The soak test ran on an earlier commit of the workflow stage. It was not repeated on the final commit, as you decided. Later changes were covered by the test suite and the workflow runs.</li>
+<li><strong>Existing databases.</strong> There is no schema change, but the database migration library moves from Flyway 8.5 to 12.4. A rehearsal on a database written by the original version passed. Repeat it on a copy of your production database first (section 5.6).</li>
+<li><strong>Strict Content-Security-Policy.</strong> The UI needs <code>&#39;unsafe-eval&#39;</code> in a Content-Security-Policy, as the original did (section 5.8).</li>
+<li><strong>MySQL release image:</strong> its driver download stage could not be run, because the MariaDB download host was down; re-check it with one command (section 5.5). The standard release image is verified.</li>
+<li><strong>Not verified:</strong> single sign-on (OIDC) and databases other than MySQL 8.0 and the test suite&#39;s H2 (as agreed). The Vaadin 24 &quot;simple UI&quot; module is not built by default and has not been ported.</li>
+<li><strong>No vulnerability scanning.</strong> The upstream project&#39;s nightly vulnerability scan was removed with its workflows, and nothing in CI scans the new dependency set. Run a dependency scan before production (section 5.9).</li>
+<li><strong>Pre-existing security weaknesses are kept as they were</strong>, as agreed: default passwords, the open redirect and cross-site sign-out, login throttling that can be bypassed, and a leftover device login on a message thread (section 7.1).</li>
+</ol>
+<h2 id="still-open">Still open</h2>
+<p>No behaviour decision is open: every question put to you during the migration has an answer, and the code follows it. What remains:</p>
+<ol>
+<li><strong>Your test run and acceptance of the hand-off (M3)</strong>, on the M3 branch <code>stage/3-handoff</code> (the M3 pull request); after your acceptance it merges into <code>mig-dev</code>. The workflow milestone (M2) passed on 30 October 2026.</li>
+<li><strong>Before production, your own actions:</strong> the security review (section 5.9); a dependency scan of the new stack (section 5.9); the database rehearsal on your data (section 5.6); new passwords for every default account (section 7.1).</li>
+<li><strong>Before you distribute the software:</strong> regenerate the third-party dependency list (section 5.10).</li>
+<li><strong>Before you use the MySQL release image:</strong> re-check its driver download stage once the MariaDB download host answers (section 5.5).</li>
+</ol>
+<h2 id="your-decisions-in-short">Your decisions, in short</h2>
+<p>Section 2 to 4 give each change with its decision and date. The main answers:</p>
+<ul>
+<li><strong>Accepted as built:</strong> the new look (Lumo compact, hawkBit&#39;s colours, system font); one row height for every grid; field error messages as text under the field; forbidden and unknown views answer HTTP 404; focus starts in the Username field on the login page; the combo-box clear button; the notifications pop-up closing on Esc or a click outside; the bulk upload button; the tenant name as plain text; the upload changes, including two documented exceptions from one Vaadin safeguard for the upload drop area; browser tests in Java with Playwright; release images built from a local jar by default; accessible names added only where the migration had removed one.</li>
+<li><strong>Restored or added at your request:</strong> the hour/minute/second pop-up of the System Config time fields; the Deployment filter panel with one section always open; the login footer moved out of the old theme folder; upload size limits checked in the browser, so users get the message at once; the filter panel tooltips shown beside the row, letting clicks pass through (30 October 2026).</li>
+<li><strong>Platform facts, not decisions:</strong> the changes the new platform forces (package names <code>jakarta.*</code>, renamed properties, Java API changes) are listed as facts.</li>
+</ul>
+</div><h1 id="about-this-document"><span class="num">1</span>About this document</h1>
+<h2 id="purpose-and-reader"><span class="num">1.1</span>Purpose and reader</h2>
+<p>This document hands over the migrated hawkBit application. It is written for three readers: <strong>operators</strong> who build, deploy and run it; <strong>developers</strong> who maintain and extend it; and <strong>product owners and users</strong> who need to know what looks or behaves differently. You do not need access to the migration team&#39;s working files to use it. Everything it names is either in your repository or explained here.</p>
+<p>The source of this document, the build script and the generated HTML and PDF are in the repository folder <code>docs/vaadin25-migration/</code>. To rebuild the HTML and PDF after editing the source, run in that folder, with Node.js 22.13 or later: <code>npm ci</code> (installs the npm packages pinned in its <code>package-lock.json</code> into the folder&#39;s own, git-ignored <code>node_modules</code>), once per machine <code>npx playwright install chromium</code>, then <code>node build.cjs</code>. The repository&#39;s upgrade guide <code>MIGRATION.md</code> points here.</p>
+<h2 id="what-was-migrated"><span class="num">1.2</span>What was migrated</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Before (original)</th>
+<th>After (migrated)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Java</td>
+<td>17</td>
+<td>21</td>
+</tr>
+<tr>
+<td>UI framework</td>
+<td>Vaadin 8.14.3 with vaadin-spring 3.2.1, Vaadin4Spring add-ons, a GWT widget set and a Valo-based Sass theme</td>
+<td>Vaadin 25.3.4 (Flow 25.3.5), free core components, Lumo theme with plain CSS</td>
+</tr>
+<tr>
+<td>Spring</td>
+<td>Spring Boot 2.7.18 (Spring 5.3, Security 5.7), Spring Cloud 2021.0.8</td>
+<td>Spring Boot 4.1.2 (Spring 7.0, Security 7.1), Spring Cloud 2025.1.4</td>
+</tr>
+<tr>
+<td>Servlet container</td>
+<td>Embedded Tomcat 9 (<code>javax.*</code>)</td>
+<td>Embedded Tomcat 11 (Jakarta EE 11)</td>
+</tr>
+<tr>
+<td>Persistence</td>
+<td>EclipseLink 2.7.13, Flyway 8.5.13</td>
+<td>EclipseLink 5.0.2, Flyway 12.4.0</td>
+</tr>
+<tr>
+<td>JSON</td>
+<td>Jackson 2.13</td>
+<td>Jackson 3.1 (REST and Spring Cloud Bus); Jackson 2.21 for device messages over AMQP (DMF)</td>
+</tr>
+<tr>
+<td>Database verified</td>
+<td>MySQL 8.0 (MariaDB JDBC 3.1.4), H2 in tests</td>
+<td>MySQL 8.0.46 (MariaDB JDBC 3.5.10), H2 in tests</td>
+</tr>
+</tbody></table></div>
+<p><strong>In scope:</strong> the Management UI module (<code>hawkbit-ui</code>) and all server programs of the default build: Management server, Management UI runtime (<code>hawkbit-vv8-ui</code>, which keeps its old name), the all-in-one Update Server, and the DDI and DMF servers. All of them build, start and run on the new stack.</p>
+<p><strong>Out of scope:</strong> the separate Vaadin 24 &quot;simple UI&quot; (<code>hawkbit-runtime/hawkbit-simple-ui</code>). It is no longer part of the default build (section 2.5).</p>
+<h2 id="how-the-result-was-checked"><span class="num">1.3</span>How the result was checked</h2>
+<p>The original application was frozen at the commit tagged <code>baseline-green</code> on <code>main</code>. Both applications were run in the same isolated container setup, with MySQL 8.0, RabbitMQ 3, the same small synthetic data set and the same test users, in production mode and in Chromium. The 31 user workflows were recorded on the original application. They were then replayed on the migrated application and compared step by step: outcome, texts, data and screenshots. A difference was either fixed or put to you as a decision. Only differences you accepted count as &quot;accepted&quot;. A final run of all 31 workflows on the workflow stage&#39;s last commit, and a re-run on the final code of the five workflows that the hand-off fixes touch, are reported in the final migration report, which is delivered with this document.</p>
+<h2 id="status-words-used-in-the-change-tables"><span class="num">1.4</span>Status words used in the change tables</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Agreed</strong></td>
+<td>Decided before the migration work started (planning decisions, 27 October 2026)</td>
+</tr>
+<tr>
+<td><strong>Accepted</strong></td>
+<td>You accepted it during the migration, on the date given</td>
+</tr>
+<tr>
+<td><strong>Requested</strong></td>
+<td>Built or restored at your request during the migration, on the date given</td>
+</tr>
+<tr>
+<td><strong>Platform</strong></td>
+<td>A direct consequence of the agreed target platform. A fact, not a decision (your instruction, 29 October 2026)</td>
+</tr>
+<tr>
+<td><strong>Restored</strong></td>
+<td>The migrated app behaves as the original after a fix; listed because the mechanism or a detail changed</td>
+</tr>
+<tr>
+<td><strong>Beyond parity</strong></td>
+<td>Better than the original, not asked for; listed so you know</td>
+</tr>
+<tr>
+<td><strong>Look only</strong></td>
+<td>A small look difference from the original that came with a fix in the hand-off stage. It was not put to you as a decision; you see it in your test run (M3)</td>
+</tr>
+<tr>
+<td><strong>Your action</strong></td>
+<td>Something you or your operators do; the migration did not do it</td>
+</tr>
+</tbody></table></div>
+<h1 id="what-changed-operators"><span class="num">2</span>What changed: operators</h1>
+<p>Only changes that alter how the application is built, deployed, configured or run are listed. Each row gives the old and new value and the reason.</p>
+<h2 id="runtime-and-build-platform"><span class="num">2.1</span>Runtime and build platform</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Old → new</th>
+<th>Why</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Java runtime</td>
+<td>Java 17 → <strong>Java 21</strong> for every jar and image</td>
+<td>Required by Vaadin 25 and Spring Boot 4</td>
+<td>Agreed</td>
+</tr>
+<tr>
+<td>Platform libraries</td>
+<td>Spring Boot 2.7.18 → 4.1.2, Spring Cloud 2021.0.8 → 2025.1.4, Tomcat 9 → 11, EclipseLink 2.7 → 5.0, Flyway 8.5 → 12.4. Every library that Spring Boot manages moves with it</td>
+<td>Target platform agreed at planning</td>
+<td>Agreed</td>
+</tr>
+<tr>
+<td>Build download hosts</td>
+<td>Maven Central plus <code>maven.vaadin.com</code> (Vaadin 8 add-ons) → <strong>Maven Central only</strong>. Packaging a UI runtime runs Vaadin&#39;s frontend build, which may download Node.js from <code>nodejs.org</code> and npm packages from <code>registry.npmjs.org</code> (kept in <code>~/.vaadin</code> for later builds)</td>
+<td>The Vaadin 8 add-ons are gone; Vaadin 25 has a frontend build step</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Removed version pins</td>
+<td>Security override pins for Spring Boot 2.7 removed: <code>snakeyaml</code> 1.33 → 2.6, <code>logback</code> 1.2.13 → 1.5.38, <code>spring-security-oauth2-jose</code> 5.8.8 → 7.1.2 (Spring Boot 4&#39;s own, newer versions); <code>jacoco</code> 0.8.8 → 0.8.11</td>
+<td>The pins held back versions Spring Boot 4 manages; Java 21 needs a newer jacoco</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Spring Boot launcher</td>
+<td><code>org.springframework.boot.loader.PropertiesLauncher</code> / <code>JarLauncher</code> → <code>org.springframework.boot.loader.launch.PropertiesLauncher</code> / <code>...launch.JarLauncher</code></td>
+<td>Spring Boot 3.2 moved the launcher package</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Eclipse licence check (Dash)</td>
+<td>Always resolved in the default build → opt-in profile <code>eclipse-dash</code> (<code>-Peclipse-dash</code>, or <code>-Ddash.skip=false</code> as <code>check-dependencies.sh</code> passes it)</td>
+<td>The plugin lives only on an Eclipse repository; it did nothing for the app</td>
+<td>Agreed</td>
+</tr>
+</tbody></table></div>
+<h2 id="configuration-you-may-have-to-rename"><span class="num">2.2</span>Configuration you may have to rename</h2>
+<p>If your own configuration sets any of these properties, rename it. Spring Boot 4 and Vaadin 25 no longer read the old names, and nothing warns you.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Old name</th>
+<th>New name</th>
+<th>Set by hawkBit itself</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>server.servlet.encoding.charset</code>, <code>.enabled</code>, <code>.force</code></td>
+<td><code>spring.servlet.encoding.*</code></td>
+<td>Yes (renamed in all runtimes)</td>
+</tr>
+<tr>
+<td><code>server.error.*</code></td>
+<td><code>spring.web.error.*</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>vaadin.servlet.productionMode</code></td>
+<td><code>vaadin.productionMode</code></td>
+<td>Yes (<code>true</code>)</td>
+</tr>
+<tr>
+<td><code>vaadin.servlet.urlMapping</code></td>
+<td><code>vaadin.url-mapping</code></td>
+<td>Yes (<code>/UI/*</code>)</td>
+</tr>
+<tr>
+<td><code>vaadin.servlet.heartbeatInterval</code></td>
+<td><code>vaadin.heartbeatInterval</code></td>
+<td>Yes (60 s)</td>
+</tr>
+<tr>
+<td><code>vaadin.servlet.closeIdleSessions</code></td>
+<td><code>vaadin.closeIdleSessions</code></td>
+<td>Yes (<code>false</code>)</td>
+</tr>
+<tr>
+<td>(new)</td>
+<td><code>spring.jackson.use-jackson2-defaults=true</code> in all five runtimes: keeps the JSON format of Jackson 2</td>
+<td>Yes</td>
+</tr>
+</tbody></table></div>
+<p>Further notes:</p>
+<ul>
+<li>Custom <code>spring.jackson.*</code> features now map to Jackson 3 feature names; check yours against the Spring Boot 4 documentation.</li>
+<li>The UI&#39;s auto-configuration is registered in <code>META-INF/spring/...AutoConfiguration.imports</code> instead of <code>spring.factories</code> (Spring Boot 4 reads only the imports file).</li>
+<li>The upgrade guide <code>MIGRATION.md</code> in the repository opens with a short section for this upgrade that points to this document.</li>
+</ul>
+<h2 id="http-behaviour-addresses-and-headers"><span class="num">2.3</span>HTTP behaviour, addresses and headers</h2>
+<p>These matter if you run proxies, monitoring, security scanners or API clients that look at status codes or headers.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Old → new</th>
+<th>Why</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>UI addresses</td>
+<td><code>/UI/#!deployment</code> (and <code>#!rollout</code>, <code>#!targetFilters</code>, <code>#!distributions</code>, <code>#!spUpload</code>, <code>#!spSystemConfig</code>) → <code>/UI/deployment</code> etc.; deep link <code>/UI/deployment/target=&lt;id&gt;</code>. Old <code>#!</code> addresses are forwarded with one page load. <code>/UI/login</code>, <code>/UI</code> and <code>/UI/logout</code> are unchanged</td>
+<td>Vaadin 25 router; agreed to keep bookmarks working</td>
+<td>Agreed</td>
+</tr>
+<tr>
+<td>Unknown address or forbidden view under <code>/UI/</code></td>
+<td>The page answered 200 (the old error view had no status of its own) → <strong>HTTP 404</strong>, with the same error view and texts inside the app frame (&quot;No such view: …&quot;, &quot;No access to view: …&quot; with the &quot;Access denied&quot; message). Browsers log the 404 in their console</td>
+<td>The new app has real addresses</td>
+<td>Accepted (28 Oct 2026)</td>
+</tr>
+<tr>
+<td>Signed-in <code>/UI</code> without trailing slash</td>
+<td>200 → one redirect to <code>/UI/</code></td>
+<td>Vaadin&#39;s servlet redirects before application code runs</td>
+<td>Accepted (28 Oct 2026)</td>
+</tr>
+<tr>
+<td><code>X-XSS-Protection</code> header on every response</td>
+<td><code>1; mode=block</code> → <code>0</code></td>
+<td>Spring Security 7 default. Current browsers no longer have the XSS filter this header controlled, and OWASP advises against enabling it</td>
+<td>Accepted (27 Oct 2026)</td>
+</tr>
+<tr>
+<td>Requests the security firewall rejects (disallowed host name, malformed path)</td>
+<td>500 with a stack trace → <strong>400</strong></td>
+<td>Spring Security 7&#39;s rejected-request handling</td>
+<td>Accepted (28 Oct 2026)</td>
+</tr>
+<tr>
+<td>REST, device and download addresses ending in <code>//</code>, or a single trailing slash on device paths</td>
+<td>500 with a stack trace → a normal 401, 403 or 404 (or the same answer as without the slash)</td>
+<td>Spring 7 path handling</td>
+<td>Accepted (28 Oct 2026)</td>
+</tr>
+<tr>
+<td>CORS preflight (<code>OPTIONS</code>) to an address without CORS settings</td>
+<td>403 → 200 without CORS headers. Browsers block the cross-origin request in both cases. Error, not-found and <code>OPTIONS</code> answers no longer carry <code>Vary: Origin, …</code>; an anonymous preflight to the Management API answers 401 instead of 403</td>
+<td>Spring 7 CORS handling</td>
+<td>Accepted (28 Oct 2026)</td>
+</tr>
+<tr>
+<td>Full artifact downloads</td>
+<td>ETag sent as the bare hash → quoted (<code>&quot;&lt;sha1&gt;&quot;</code>, the standard form)</td>
+<td>Spring 7</td>
+<td>Accepted (28 Oct 2026)</td>
+</tr>
+<tr>
+<td>Trailing slash on REST addresses (<code>/rest/v1/targets/</code>)</td>
+<td>Same answer as without the slash, as before. It is now done by a servlet filter for <code>/rest/**</code>, <code>/system/admin/**</code>, <code>/api/v1/downloadserver/**</code>, <code>/*/controller/v1/**</code>. <strong>If you deploy under a servlet context path, these trailing-slash addresses answer 404</strong></td>
+<td>Spring 7 removed trailing-slash matching</td>
+<td>Restored</td>
+</tr>
+<tr>
+<td>Vaadin&#39;s own static files</td>
+<td>These load without login: <code>/UI/sw.js</code>, <code>/UI/offline.html</code>, <code>/UI/styles.css</code>, <code>/UI/themes/**</code>, <code>/UI/assets/**</code>, <code>/aura/**</code>, <code>/lumo/**</code>, <code>/favicon.ico</code>. Vaadin&#39;s internal requests from a signed-out browser answer <strong>401</strong> instead of a redirect to <code>/UI/login</code>. No data is exposed</td>
+<td>Vaadin&#39;s security configuration for Spring Security 7</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Anonymous Vaadin protocol requests (<code>v-r=uidl</code>, <code>heartbeat</code>, <code>push</code>, <code>i18n</code>) to <code>/UI/login</code>, <code>/UI/login/</code> and <code>/UI/login/...</code></td>
+<td>404 (or the login page) → Vaadin&#39;s standard no-session answers (200 JSON &quot;session expired&quot;, 403 or 404), no cookie set (the old 404 set a session cookie). Browsers never send these; only crafted requests do</td>
+<td>Vaadin handles its own protocol requests</td>
+<td>Accepted (28 Oct 2026; the login address itself confirmed 29 Oct 2026). <strong>Security review before production</strong> (section 5.9)</td>
+</tr>
+<tr>
+<td>Content-Security-Policy</td>
+<td>None by default, as before. A policy you set must allow <code>&#39;unsafe-eval&#39;</code>, as for the original (section 5.8)</td>
+<td>Vaadin runs scripts sent by the server</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Page cache headers</td>
+<td><code>/UI/login</code> and the UI page send the original <code>Cache-Control: no-cache</code>, <code>Pragma</code>, <code>Expires</code> again. The new 404 UI pages send them too</td>
+<td>Parity</td>
+<td>Restored</td>
+</tr>
+<tr>
+<td>Default profile picture address</td>
+<td><code>/UI/VAADIN/themes/hawkbit/images/profile-pic-57px.jpg</code> → <code>/UI/VAADIN/hawkbit/images/profile-pic-57px.jpg</code> (same image)</td>
+<td>The old theme folder is not served by Vaadin 25</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>JSON error responses</td>
+<td>Keep <code>;charset=UTF-8</code> as before, through one new hawkBit auto-configuration (16 in total now)</td>
+<td>Spring 6.2+ resets the content type before error handling</td>
+<td>Restored</td>
+</tr>
+</tbody></table></div>
+<h2 id="messaging-and-logs"><span class="num">2.4</span>Messaging and logs</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Old → new</th>
+<th>Why</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Spring Cloud Bus messages between the server programs</td>
+<td>Same payloads, exchange and routing key; the AMQP header <code>target-protocol: amqp</code> is <strong>no longer sent</strong>. <em>Known difference for release notes</em>: anyone who reads this header in their own code will not find it</td>
+<td>Spring Cloud Stream 5 no longer sets it</td>
+<td>Accepted (28 Oct 2026)</td>
+</tr>
+<tr>
+<td>JSON of the REST API and Bus events</td>
+<td>Written and read by Jackson 3 instead of Jackson 2. 143 Management API requests and 35 request-body cases give the same status and bytes as the original after normalising timestamps, tokens and ids</td>
+<td>Spring 7 / HATEOAS 3 support only Jackson 3</td>
+<td>Restored</td>
+</tr>
+<tr>
+<td>Device messages (DMF over AMQP)</td>
+<td>The message converter trusts the types of two hawkBit packages (<code>org.eclipse.hawkbit.dmf.json.model</code>, <code>org.eclipse.hawkbit.security</code>) instead of all packages. Same behaviour for every hawkBit message. <strong>If you extend the DMF API with types in other packages, add them</strong></td>
+<td>Spring AMQP 4 changed the default; the narrower list keeps its safeguard</td>
+<td>Beyond parity</td>
+</tr>
+<tr>
+<td>Startup log</td>
+<td>New WARN lines at startup that the original did not log; harmless. Listed in section 5.7</td>
+<td>Spring 7, Spring Security 7, springdoc 3</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Server log, validation</td>
+<td>One Hibernate Validator WARN (<code>HV000272</code>) on the first validated use of two generic create/update methods after each start; harmless</td>
+<td>The remaining annotation form is in shared interfaces</td>
+<td>Accepted (28 Oct 2026)</td>
+</tr>
+<tr>
+<td>Server log, sign-out</td>
+<td>A heartbeat or push request of a page that is being signed out can meet the framework&#39;s &quot;Session already invalidated&quot; race (Vaadin 8 has the same race). Where it reaches hawkBit&#39;s UI error handler it is logged as <strong>one WARN</strong> and the user sees nothing. Where Vaadin&#39;s own code meets it, it can still log an ERROR line and answer that request with 500, as in Vaadin 8. Seen 2 times in 400 sign-outs in the soak test; no user effect</td>
+<td>The handler failed with a second error before; the race itself is in the framework</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Refused artifact uploads (duplicate, over the size limit)</td>
+<td>Above 2 MB the connection was reset → a file over the size limit is now refused in the browser before it is sent (section 3.3). For any other refusal that reaches the server, the server reads and discards up to 100 MB / 60 s of the rest of the upload, so the browser gets a normal answer and the status window shows the reason. Above that bound the connection ends as before</td>
+<td>Same message for users without a browser error, bounded server time</td>
+<td>Requested (29 Oct 2026) / Platform</td>
+</tr>
+</tbody></table></div>
+<h2 id="build-and-repository"><span class="num">2.5</span>Build and repository</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Old → new</th>
+<th>Why</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Vaadin 24 simple UI (<code>hawkbit-runtime/hawkbit-simple-ui</code>)</td>
+<td>Part of the default root build → opt-in profile <code>simple-ui</code>. The module is unchanged and <strong>does not build</strong> on the new stack until someone ports it. A plain <code>mvn install</code> builds the other 36 modules</td>
+<td>Out of scope, and it depends on modules that moved to Java 21 / Spring Boot 4</td>
+<td>Accepted (28 Oct 2026)</td>
+</tr>
+<tr>
+<td>Container build files (<code>hawkbit-runtime/docker/docker_build/</code>)</td>
+<td>Base image <code>eclipse-temurin:17.0.9_9-jre-alpine</code> → <code>21.0.12.1_1-jre-alpine</code>; layer extraction <code>-Djarmode=layertools extract</code> → <code>-Djarmode=tools extract --layers --launcher</code>; new launcher class. Users, ports, volumes, JVM flags and profiles unchanged</td>
+<td>The migrated jars are Java 21 / Spring Boot 4</td>
+<td>Accepted (28 Oct 2026)</td>
+</tr>
+<tr>
+<td>Release flavours <code>Dockerfile</code>, <code>Dockerfile-mysql</code></td>
+<td>Downloaded the released <code>0.3.0</code> jar by default → <strong>take the jar from the build context by default</strong> (<code>HAWKBIT_JAR_SOURCE=local</code>). The signed download stays an option (<code>--build-arg HAWKBIT_JAR_SOURCE=download</code>). A bare <code>docker build</code> without a jar now fails at once</td>
+<td><code>0.3.0</code> is not a migrated release and is not expected to start on the new image layout; there is no migrated release yet</td>
+<td>Accepted (29 Oct 2026)</td>
+</tr>
+<tr>
+<td>Upstream automation</td>
+<td>The upstream project&#39;s GitHub Actions (nightly vulnerability scan, stale-issue bot, first-PR greeting) and <code>.trivyignore</code> with two CVE acceptances removed. The repository&#39;s own CI replaces them (section 6.3). The upstream CircleCI and Azure files are still there but inactive, and they still name JDK 17</td>
+<td>Not part of the app; the migration has its own CI</td>
+<td>Agreed</td>
+</tr>
+<tr>
+<td>Licence of copied code</td>
+<td>The Vaadin4Spring event bus (Apache 2.0) is now source inside <code>hawkbit-ui</code> (section 4.2), with its licence text in <code>licenses/APACHE-2.0.txt</code> and a line in <code>.3rd-party/DEPENDENCIES</code></td>
+<td>No Vaadin 25 version of the add-on exists</td>
+<td>Agreed</td>
+</tr>
+<tr>
+<td><code>.3rd-party/DEPENDENCIES</code></td>
+<td>Still lists the old stack (Vaadin 8, Spring 5.3, …); only the event bus line was edited. <strong>Regenerate it before you distribute</strong> (section 5.10). It was not regenerated during the migration, because the tool contacts Eclipse Foundation services and the migration agreed to make no contact with the upstream project</td>
+<td>It is generated output</td>
+<td>Your action</td>
+</tr>
+<tr>
+<td>Hand-off documents</td>
+<td>New folder <code>docs/vaadin25-migration/</code> with this document (source, HTML, PDF, build script and its pinned npm packages in <code>package.json</code> and <code>package-lock.json</code>); <code>MIGRATION.md</code> points to it</td>
+<td>Hand-off</td>
+<td>Agreed</td>
+</tr>
+</tbody></table></div>
+<h1 id="what-changed-users"><span class="num">3</span>What changed: users</h1>
+<p>The views, menus, permissions, texts and workflows are the same. Section 3.1 covers the look. Sections 3.2 and 3.3 list each control that behaves differently. The side-by-side walkthrough delivered with these docs (section 8) shows every workflow in both versions.</p>
+<h2 id="look"><span class="num">3.1</span>Look</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Old → new</th>
+<th>Why</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Overall theme</td>
+<td>Valo-based hawkBit theme → Vaadin&#39;s <strong>Lumo theme, compact preset</strong>, with hawkBit&#39;s colours: primary <code>#551f62</code>, error <code>#ed473b</code>, success <code>#2c9720</code>, background <code>#fafafa</code>, dark menu. Text 14 px in Open Sans if the user has it installed, else the system sans-serif font (old: 16 px Open Sans light, shipped with the app). Controls 32 px high (old 37 px)</td>
+<td>Vaadin 25 has no Valo; agreed visual target is structural parity</td>
+<td>Accepted (29 Oct 2026)</td>
+</tr>
+<tr>
+<td>Shell and login</td>
+<td>As before: 70 px header band with the hawkBit logo, 203 px menu (icons only below 1100 px window width), centred login form, red <code>*</code> on required fields, no password reveal button</td>
+<td>Structural parity</td>
+<td>Accepted (29 Oct 2026, with the look)</td>
+</tr>
+<tr>
+<td>Grids</td>
+<td>Rows 31 px as before, solid purple selected row with white text, by one global rule for every grid</td>
+<td>Old theme used one row-height value for all grids</td>
+<td>Accepted (29 Oct 2026)</td>
+</tr>
+<tr>
+<td>Selection column</td>
+<td>Multi-select grids show a <strong>checkbox column</strong>. Click, Ctrl/Cmd+click, Shift+click, Ctrl/Cmd+A and keys select as before (Ctrl/Shift ranges limited to 1000 rows, as before; ticking checkboxes has no such limit)</td>
+<td>Vaadin 25&#39;s multi-select grid shows it; hiding it needs non-public API</td>
+<td>Accepted (28 Oct 2026)</td>
+</tr>
+<tr>
+<td>Column visibility and headers</td>
+<td>Columns are hidden and shown from a menu button at the end of the grid header (one extra narrow column), instead of Vaadin 8&#39;s column toggle. Grid header rows are always shown. Captions of grouped icon columns sit in the first column&#39;s header cell</td>
+<td>Vaadin 25 Grid has no column menu or header hiding</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Grid headers with a search (Targets, Distributions, Software Modules, Rollouts, Target Filters, Upload)</td>
+<td>Icon buttons about 22 px apart, search field about 100 px wide → icon buttons <strong>slightly narrower</strong> than Vaadin 25&#39;s default (about 25 px instead of 33 px), and the open search field <strong>shrinks to the room</strong> the caption and the icons leave, with a small gap to the caption: about 48-57 px wide in a 1024 px window (original 68-80 px). Below 1024 px it can become too narrow to read the typed text (section 9)</td>
+<td>At Vaadin 25&#39;s default sizes the open search field pushed the icons out of the header, over the caption of the panel beside it; fixed in the hand-off stage</td>
+<td>Look only (fixed 30 Oct 2026)</td>
+</tr>
+<tr>
+<td>Detail tabs, status colours, rollout chart</td>
+<td>Framed purple tabs over a bordered box, 116 px high with scrolling; the old status colours and spinners; rollout &quot;Detail status&quot; as a coloured bar; groups pie chart drawn by the server (SVG) with the old slice colours</td>
+<td>Structural parity; the GWT chart was dropped</td>
+<td>Agreed / Accepted (29 Oct 2026, with the look)</td>
+</tr>
+<tr>
+<td>Window titles</td>
+<td>Windows are Vaadin dialogs with the same titles, buttons, Esc and modality, and a close button in the header. Titles keep the old prefixes (&quot;Metadata of …&quot;, &quot;Activate automatic confirmations for …&quot;, &quot;Artifact Details of …&quot;); the name after the prefix is no longer bold</td>
+<td>Vaadin 25 has no Window component</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Auto-confirmation button</td>
+<td>Toggle-switch icon → checked / unchecked box icon</td>
+<td>FontAwesome is not shipped; Vaadin icons have no toggle switch</td>
+<td>Agreed</td>
+</tr>
+</tbody></table></div>
+<h2 id="behaviour-of-controls"><span class="num">3.2</span>Behaviour of controls</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Old → new</th>
+<th>Why</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Field validation errors</td>
+<td>Red &quot;!&quot; next to the field, message as a tooltip → <strong>message as text under the field</strong>. Same texts</td>
+<td>Vaadin 25 standard presentation; the old one would need custom code in every form</td>
+<td>Accepted (29 Oct 2026)</td>
+</tr>
+<tr>
+<td>Pop-up messages</td>
+<td>Bottom right, newest on top → bottom end, <strong>newest at the bottom</strong>; each still closes after 3 s</td>
+<td>Vaadin 25 notifications</td>
+<td>Agreed</td>
+</tr>
+<tr>
+<td>Tag and type colour</td>
+<td>Vaadin 8 colour pop-up (gradient, preview, RGB sliders) → <strong>the browser&#39;s own colour picker</strong>; stored format unchanged</td>
+<td>No Vaadin 25 colour picker</td>
+<td>Agreed</td>
+</tr>
+<tr>
+<td>Combo boxes that allowed an empty choice</td>
+<td>Empty first item → a clear (x) button in the field; same empty result</td>
+<td>Vaadin 25 ComboBox has no empty item</td>
+<td>Accepted (29 Oct 2026)</td>
+</tr>
+<tr>
+<td>Notifications (bell) pop-up</td>
+<td>Closes when it loses focus, opens below the button → closes on Esc or a click outside it, opens 40 px below the click point; unread counter is a separate element</td>
+<td>Vaadin 25 dialogs have no focus-lost event</td>
+<td>Accepted (29 Oct 2026)</td>
+</tr>
+<tr>
+<td>Deployment filter panel (Simple / Custom / Target type)</td>
+<td>Exactly one section is open at all times, as before (an earlier migration step allowed all closed; this was restored)</td>
+<td>Parity</td>
+<td>Restored (confirmed 29 Oct 2026)</td>
+</tr>
+<tr>
+<td>Tooltips of the filter panel buttons (tags, types and custom filters)</td>
+<td>Shown at the pointer, below and to the right of it → shown <strong>beside the row</strong> (to the right; to the left where the window has no room on the right), beside the list, and <strong>clicks pass through the tooltip</strong>: a click on the next row, or on the grid beside the list, lands while the tooltip is still shown. The buttons themselves are unchanged</td>
+<td>Vaadin 25 tooltips open below their button and take the pointer, so the tooltip covered the next row and a click there missed; fixed in the hand-off stage. The click-through rule styles a part of Vaadin&#39;s tooltip: re-check it after a Vaadin upgrade</td>
+<td>Requested (30 Oct 2026)</td>
+</tr>
+<tr>
+<td>Login page</td>
+<td>Keyboard focus starts in <strong>Username</strong> (old: the disabled Sign in button)</td>
+<td>Restoring the old focus needed a fragile workaround</td>
+<td>Accepted (29 Oct 2026)</td>
+</tr>
+<tr>
+<td>System Config polling and overdue times</td>
+<td>Time field with an hour/minute/second pop-up → an <code>HH:mm:ss</code> text field (same parsing, limits and message) with a button at its start that opens the <strong>hour/minute/second pop-up</strong> (three drop-downs; a choice applies at once and is held to the minimum and maximum as before; Esc, a click outside or Tab out of the last drop-down closes it). The pop-up no longer shows today&#39;s date above the drop-downs; the caption is at the start of the row</td>
+<td>No Vaadin 25 time field with a free format; the pop-up was rebuilt at your request</td>
+<td>Requested (29 Oct 2026)</td>
+</tr>
+<tr>
+<td>Forced update time, rollout start time</td>
+<td>One date-time field with a calendar pop-up → a date picker plus a time picker; same value. The year shows with four digits</td>
+<td>No Vaadin 25 DateTimeField equivalent</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Maintenance window time zone</td>
+<td>The list can be filtered by typing; same choices and default</td>
+<td>Vaadin 25 ComboBox accepts typing</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Radio choices with explanations</td>
+<td>The explanation tooltip shows when hovering the choice&#39;s text (old: the whole choice, including the circle)</td>
+<td>No per-item description in Vaadin 25 radio groups</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Target filter query suggestions</td>
+<td>Same suggestions and keys (Up/Down wrap, Enter inserts, Esc closes) in a pop-over list; it also closes on a click outside; plain text instead of HTML</td>
+<td>The GWT widget was dropped</td>
+<td>Agreed</td>
+</tr>
+<tr>
+<td>Tooltips</td>
+<td>HTML tooltips in rollout and filter grids are plain text, one line per status. Icon and button tooltips in grids show over the whole cell, also for disabled buttons. System Config Save and Undo show their tooltips while disabled, as before</td>
+<td>Vaadin 25 tooltips are text only</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Tenant name in the user menu</td>
+<td>Shown as plain text (it was inserted as HTML, unescaped). No change for normal names such as <code>DEFAULT</code></td>
+<td>Safer; closes a pre-existing weakness</td>
+<td>Accepted (29 Oct 2026)</td>
+</tr>
+<tr>
+<td>Dates and times</td>
+<td>Shown in the browser&#39;s time zone as before (zone still guessed from the offset, as before). The page reloads once when a page showed dates before the browser&#39;s zone was known: only on the first page of a session that did not start at the login page (for example single sign-on entry), or after the browser&#39;s zone changed</td>
+<td>Vaadin 25 renders before it knows the browser&#39;s zone</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>A tab left on an error page while signed out</td>
+<td>After signing in in another tab, its next navigation reloads the page once</td>
+<td>Closes a permission gap found during the migration</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Accessible names of icon-only buttons</td>
+<td>Restored only where the migration removed one (System Config Save and Undo). Naming every icon-only button is follow-up work (section 9)</td>
+<td>Parity first</td>
+<td>Accepted (29 Oct 2026)</td>
+</tr>
+<tr>
+<td>Target status after an auto-assignment</td>
+<td>Updates live in the target list (old: stayed &quot;unknown&quot; until the view was reopened)</td>
+<td>Side effect of the Vaadin 25 grid refresh</td>
+<td>Beyond parity</td>
+</tr>
+</tbody></table></div>
+<h2 id="uploads"><span class="num">3.3</span>Uploads</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Old → new</th>
+<th>Why</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Dropping several artifact files</td>
+<td>Uploaded and checked <strong>one by one</strong>. A later file attaches to the software module selected when its upload starts (old: all went to the module selected at the drop). Files may be listed in arrival order, not drop order</td>
+<td>Vaadin 25&#39;s drop zone gives no module at drop time</td>
+<td>Accepted (28 Oct 2026)</td>
+</tr>
+<tr>
+<td>Upload status window and &quot;Clear file upload queue&quot; prompt</td>
+<td>Appear when a file&#39;s upload request reaches the server, not at the drop. They must still appear once the request starts (your condition, checked in the workflow runs)</td>
+<td>No client-side &quot;upload start&quot; event in Vaadin 25.3</td>
+<td>Accepted with condition (28 Oct 2026)</td>
+</tr>
+<tr>
+<td>One dropped file held back by a slow network, user leaves Upload first</td>
+<td>Old: the prompt asked first. New: <strong>no prompt, and the file is not uploaded, with no message</strong>. Normal transfers and multi-file drops are not affected</td>
+<td>Same cause as the row above</td>
+<td>Accepted (29 Oct 2026)</td>
+</tr>
+<tr>
+<td>Files over the size limit</td>
+<td>Sent to the server and refused there → <strong>refused in the browser before sending</strong>, and listed in the Upload status window with the server&#39;s message (&quot;Maximum artifact size (…) exceeded&quot;), in about 0.1 s. The limit is the smaller of <code>spring.servlet.multipart.max-file-size</code> and <code>hawkbit.server.security.dos.max-artifact-size</code>. The server checks stay; the total storage quota is checked by the server only</td>
+<td>You asked for immediate feedback</td>
+<td>Requested (29 Oct 2026)</td>
+</tr>
+<tr>
+<td>Drop area while the status window is open</td>
+<td>The drop area accepts its own uploads while the (modal) status window is open, and its drop listener lists files that the browser refused for size in that window. For these two, Vaadin&#39;s &quot;inert behind a modal window&quot; safeguard is switched off; session, attachment, visibility and enabled checks still apply</td>
+<td>Otherwise the 2nd and later files of a drop were refused, and refused files got no message</td>
+<td>Accepted (upload: 29 Oct 2026; drop listener: 30 Oct 2026)</td>
+</tr>
+<tr>
+<td>Bulk target upload (CSV)</td>
+<td>Upload button with one file and no drag and drop. The file name and progress show under the button while it uploads. A file not ending in <code>.csv</code> is refused with the same message</td>
+<td>Vaadin 25 Upload</td>
+<td>Accepted (29 Oct 2026)</td>
+</tr>
+<tr>
+<td>Upload button in the Upload view</td>
+<td>Vaadin 25 upload button, one file per click; the drop area keeps its content</td>
+<td>Vaadin 25 Upload</td>
+<td>Accepted (28 Oct 2026)</td>
+</tr>
+</tbody></table></div>
+<h1 id="what-changed-developers-and-integrators"><span class="num">4</span>What changed: developers and integrators</h1>
+<h2 id="apis"><span class="num">4.1</span>APIs</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Old → new</th>
+<th>Why</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>REST error body for validation failures (HTTP 400, <code>hawkbit.server.error.repo.constraintViolation</code>)</td>
+<td><code>exceptionClass</code> = <code>javax.validation.ConstraintViolationException</code> / <code>ValidationException</code> → <code>jakarta.validation.…</code>. Message text unchanged. <strong>Clients that match on <code>exceptionClass</code> instead of <code>errorCode</code> must change</strong></td>
+<td>Jakarta EE package rename</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Java API: <code>RolloutManagement.validateTargetsInGroups</code></td>
+<td>Returns <code>CompletableFuture</code> instead of <code>ListenableFuture</code></td>
+<td>Spring 7 removed <code>ListenableFuture</code></td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Java API: management interfaces</td>
+<td><code>@Valid</code> on 9 collection parameters moved to the element type (<code>Collection&lt;@Valid TargetCreate&gt;</code>); validation unchanged</td>
+<td>Hibernate Validator 9</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>DDI API interface (<code>hawkbit-ddi-api</code>)</td>
+<td><code>@NotEmpty</code> removed from two path variables and <code>@Valid</code> from one REST body list. Requests accepted and rejected are unchanged; the OpenAPI docs lose <code>minLength: 1</code> on those parameters</td>
+<td>Spring 6.1+ would now validate them and fail</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Repositories through the access-control wrapper</td>
+<td>The 4 query methods Spring Data JPA 4 adds are not supported through the wrapper (they would bypass access rules)</td>
+<td>Safety</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Auto-configuration</td>
+<td>Registered in <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> instead of <code>spring.factories</code>; 16 hawkBit auto-configurations (one new, for the JSON error charset)</td>
+<td>Spring Boot 4</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>New runtime dependencies</td>
+<td><code>spring-security-access</code> (legacy method security kept for the back end); <code>spring-boot-hateoas</code> (restores <code>application/json</code> handling of the REST API)</td>
+<td>Spring Security 7 and Spring Boot 4 module split</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Own runtimes built on the hawkBit starters</td>
+<td>Need an error view with <code>@ParentLayout</code> to show the app frame around &quot;No such view&quot; (each hawkBit runtime has a <code>MyErrorView</code>)</td>
+<td>Vaadin 25 routing</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Theme constant</td>
+<td><code>HawkbitTheme.THEME_NAME</code> removed; code that refers to it no longer compiles</td>
+<td>There is no named theme any more</td>
+<td>Requested (29 Oct 2026)</td>
+</tr>
+</tbody></table></div>
+<h2 id="ui-code-theme-and-security-context"><span class="num">4.2</span>UI code, theme and security context</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Old → new</th>
+<th>Why</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>UI framework</td>
+<td>Vaadin 8 server components with a GWT widget set and SuperDevMode → Vaadin Flow 25, all logic on the server, nothing client-side to compile. Debug with a Java debugger; production mode by default (<code>vaadin.productionMode=true</code>)</td>
+<td>Target platform</td>
+<td>Agreed</td>
+</tr>
+<tr>
+<td>Development mode</td>
+<td>Needs <code>com.vaadin:vaadin-dev</code> added while developing, an IDE class path (not the packaged jar) with the module folder as working directory, and <code>-Dvaadin.productionMode=false</code>. Use <code>vaadin.devmode.hostsAllowed</code> for access from other addresses. Described in <code>hawkbit-ui/README.md</code></td>
+<td>Vaadin 25</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Theme customisation</td>
+<td>Vaadin 8 Sass theme in <code>VAADIN/themes/&lt;theme&gt;/</code> (<code>hawkbitvariables.scss</code>) → <strong>plain CSS</strong>: the app shell loads Lumo, Lumo compact and <code>VAADIN/hawkbit/hawkbit.css</code> with <code>@StyleSheet</code>; a custom look is one more style sheet after them. <strong>Existing Sass themes no longer apply</strong>; the upstream custom-theme example does not work. Guide: <code>docs/content/guides/customtheme.md</code></td>
+<td>No Sass themes in Vaadin 25</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Login footer</td>
+<td>Read from <code>VAADIN/themes/hawkbit/layouts/footer.html</code> → <strong><code>META-INF/resources/VAADIN/hawkbit/footer.html</code></strong> on the class path (constant <code>AbstractHawkbitLoginUI.FOOTER_RESOURCE</code>). <strong>A custom footer at the old path is no longer read: move it.</strong> Described in the Custom Theme guide</td>
+<td>The old theme folder is gone</td>
+<td>Requested (29 Oct 2026)</td>
+</tr>
+<tr>
+<td>Vaadin 8 theme sources</td>
+<td>27 SCSS files, 2 duplicate images, 2 <code>.gitignore</code> files, <code>dynamicStylesheet.js</code>, the whole <code>VAADIN/themes</code> folder (with a duplicate <code>favicon.ico</code>), the scss-lint rule in <code>CONTRIBUTING.md</code>, dead SCSS and widget-set entries in the root <code>pom.xml</code>, and comments citing SCSS or Valo removed or updated</td>
+<td>They looked like a theme to edit but nothing reads them</td>
+<td>Requested (29 Oct 2026)</td>
+</tr>
+<tr>
+<td>Event bus</td>
+<td>The Vaadin4Spring event bus 2.0.0 (Apache 2.0) is copied into <code>hawkbit-ui</code> (package <code>org.vaadin.spring.events</code>); same API, adapted to Jakarta and Vaadin Flow scopes. The copied files are excluded from the project&#39;s licence-header check</td>
+<td>No Vaadin 25 version exists</td>
+<td>Agreed</td>
+</tr>
+<tr>
+<td>Security context in the UI</td>
+<td>The UI installs its own <code>SecurityContextHolderStrategy</code> (<code>ThreadFirstSecurityContextHolderStrategy</code>): a context set on the thread (system code, tenant switches) wins over the Vaadin session&#39;s user, as with the old holder. hawkBit&#39;s executors (<code>asyncExecutor</code>, <code>uiExecutor</code>, the task scheduler) run tasks with the submitter&#39;s user and tenant again. No access gained or lost. Tests prove that background work runs as the submitting user and tenant (9 paths, 8 negative controls). <strong>Re-check both after upgrading Spring Security or vaadin-spring</strong></td>
+<td>Vaadin&#39;s own strategy ignored hawkBit&#39;s &quot;run as system&quot;; Spring Security 6+ executors captured the strategy too early</td>
+<td>Restored</td>
+</tr>
+<tr>
+<td>Method security in the UI</td>
+<td><code>@EnableGlobalMethodSecurity</code> → <code>@EnableMethodSecurity</code> with the same switches</td>
+<td>Spring Security 7</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Upload drop area (<code>UploadDropAreaLayout</code>)</td>
+<td>Two documented opt-outs from Vaadin&#39;s modal-inert safeguard: the upload handler (<code>isAllowInert()</code>) and the drop listener (<code>allowInert()</code>, which carries only file names and sizes). One method each, reversible. <strong>Re-check both after a Vaadin upgrade</strong>; if Vaadin&#39;s upload manager later lets its own reject listener run behind a modal window, the drop listener can go</td>
+<td>See section 3.3</td>
+<td>Accepted (29 and 30 Oct 2026)</td>
+</tr>
+<tr>
+<td>UI error handler</td>
+<td>The &quot;Session already invalidated&quot; race during sign-out is logged as one WARN, without a notification (section 2.4)</td>
+<td>The handler failed with a NullPointerException there before</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Filter panel button tooltips</td>
+<td>Placed at the end of the button (<code>AbstractFilterButtons.placeTooltipBesideRow</code>, used by every filter list and the custom filter list), and made to let the pointer through by one rule in <code>hawkbit.css</code> on the tooltip&#39;s exported <code>overlay</code> part, for buttons with the class <code>button-tag-no-border</code>. <strong>Re-check after a Vaadin upgrade</strong> that the part keeps its name; if it does not, the tooltip takes clicks again</td>
+<td>See section 3.2</td>
+<td>Requested (30 Oct 2026)</td>
+</tr>
+</tbody></table></div>
+<h2 id="tests-ci-and-development-environment"><span class="num">4.3</span>Tests, CI and development environment</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Old → new</th>
+<th>Why</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Test code</td>
+<td>Backend and UI tests ported to Spring Boot 4, Spring 7, Mockito 5, Jackson 3, JUnit 5/6 and the Stream 5 test binder; no assertion removed. Deliberately changed expectations: a rejected host name is HTTP 400 (not an exception), <code>CorsTest</code> expects 200 for a preflight without CORS settings, one download test accepts the quoted ETag. New tests for the duration pop-up, the upload size limit, the error handler, the login footer and user and tenant isolation of background work</td>
+<td>Framework change; accepted behaviours above</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Build detail</td>
+<td><code>hawkbit-repository-jpa</code> empties <code>target/generated-sources/apt</code> before EclipseLink&#39;s model generator runs (otherwise rebuilds without <code>clean</code> failed)</td>
+<td>EclipseLink plugin 4.0.2</td>
+<td>Platform</td>
+</tr>
+<tr>
+<td>Browser end-to-end tests (new)</td>
+<td>New module <code>hawkbit-runtime/hawkbit-vv8-ui-e2e</code>: Playwright for Java 1.63.0, JUnit 5, failsafe, in the opt-in profile <code>-Pe2e</code>. Six tests: sign in and sign out; wrong login; target tags; distribution set rules; software module upload; rollout lifecycle. <code>env/e2e.sh</code> runs them against a fresh copy; CI job <code>e2e</code>. The tests rely on six non-public Vaadin details that must be checked after a Vaadin update (<code>env/README.md</code>). Test upload files are excluded from the licence-header check</td>
+<td>Workflows that pass become tests that ship with the app</td>
+<td>Accepted (29 Oct 2026)</td>
+</tr>
+<tr>
+<td>Reproducible environment (new)</td>
+<td>Folder <code>env/</code>: one command (<code>env/up.sh</code>) starts an isolated copy (UI runtime + Management server + MySQL 8.0 + RabbitMQ 3, images pinned by digest, no internet for the app) with a small synthetic data set; <code>reset.sh</code>, <code>down.sh</code></td>
+<td>Repeatable runs for testing and CI</td>
+<td>Agreed</td>
+</tr>
+<tr>
+<td>CI (new)</td>
+<td><code>.github/workflows/ci.yml</code> with notes in <code>.github/CI.md</code> (section 6.3)</td>
+<td>Every commit is built, smoke-tested and tested</td>
+<td>Agreed</td>
+</tr>
+<tr>
+<td>Dev container</td>
+<td>The Java formatter setting points to the repository&#39;s own <code>eclipse_codeformatter.xml</code> instead of downloading it from the upstream project. Note: the dev container still uses Java version 8 (pre-existing; follow-up)</td>
+<td>No contact with the upstream project</td>
+<td>Agreed</td>
+</tr>
+</tbody></table></div>
+<h2 id="notes-for-ui-developers"><span class="num">4.4</span>Notes for UI developers</h2>
+<p><strong>Window forms move a field&#39;s caption.</strong> The windows that create or edit targets, tags, distribution sets, software modules and the bulk upload and auto-confirmation windows lay out their fields with <code>WindowFormLayout</code> (<code>hawkbit-ui</code>, package <code>org.eclipse.hawkbit.ui.common.builder</code>). It shows the caption to the left of the field, as Vaadin 8&#39;s form layout did. To do that, <code>add(...)</code> and <code>addComponentAtIndex(...)</code> wrap each field that has a label in a form item:</p>
+<ul>
+<li>the field&#39;s label text moves into the form item&#39;s label, and the field&#39;s own label is cleared: <strong><code>field.getLabel()</code> returns <code>null</code> after <code>add</code></strong>;</li>
+<li>the text stays on the field as its accessible name, so screen readers still announce it;</li>
+<li>checkboxes, and fields without a label text, are added unchanged.</li>
+</ul>
+<p>How to work with it:</p>
+<ul>
+<li><strong>Read</strong> the caption of a field after <code>add</code> with <code>field.getAriaLabel()</code> (an <code>Optional&lt;String&gt;</code>), not with <code>getLabel()</code>.</li>
+<li><strong>Set</strong> the caption with <code>field.setLabel(&quot;…&quot;)</code> before you add the field. Calling <code>setLabel</code> after <code>add</code> shows the text a second time, above the field.</li>
+<li><strong>Change</strong> the caption of a field that is already in the form: take its form item out and add the field again, at the same position.</li>
+</ul>
+<pre><code class="language-java">// the form item around the field, and its position in the form
+Component item = field.getParent().orElseThrow();
+int index = form.getElement().indexOfChild(item.getElement());
+form.remove(item);
+field.setLabel(&quot;New caption&quot;);
+form.addComponentAtIndex(index, field);   // wraps the field in a new form item
+</code></pre>
+<ul>
+<li><strong>Tests</strong> find a field by its id or its accessible name, not by its label.</li>
+</ul>
+<p><strong>Scripts sent from the server.</strong> Three UI features run a small script in the browser through Vaadin&#39;s <code>executeJs</code>: the forward of old <code>#!</code> addresses (<code>AbstractHawkbitUI</code>), the focus-on-open helper (<code>FocusOnShow</code>) and the style rules for software module type colours (<code>SmTypeCssStylesHandler</code>). Section 5.8 says what a Content-Security-Policy needs for them.</p>
+<h1 id="environment-and-deployment"><span class="num">5</span>Environment and deployment</h1>
+<h2 id="requirements"><span class="num">5.1</span>Requirements</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>What</th>
+<th>Version</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Java runtime</td>
+<td><strong>21</strong></td>
+<td>Every jar and image. Images use <code>eclipse-temurin:21.0.12.1_1-jre-alpine</code> (release files) or <code>eclipse-temurin:21-jre</code> (<code>env/</code>)</td>
+</tr>
+<tr>
+<td>Build</td>
+<td>JDK 21, Maven 3.9 (tested with 3.9.16)</td>
+<td>Downloads from Maven Central, <code>nodejs.org</code> and <code>registry.npmjs.org</code></td>
+</tr>
+<tr>
+<td>Database</td>
+<td>MySQL 8.0 (verified with 8.0.46 and MariaDB Connector/J 3.5.10); H2 for tests and evaluation</td>
+<td>Other databases in the README&#39;s table were not tested on this version</td>
+</tr>
+<tr>
+<td>Message broker</td>
+<td>RabbitMQ 3 (verified with 3.13.7)</td>
+<td>Needed for DMF and for the Spring Cloud Bus between separate server programs</td>
+</tr>
+<tr>
+<td>Browser for users</td>
+<td>A current evergreen browser</td>
+<td>Verified with Chromium only, as agreed</td>
+</tr>
+</tbody></table></div>
+<h2 id="build"><span class="num">5.2</span>Build</h2>
+<p>From the repository root (the default build leaves out the Vaadin 24 simple UI):</p>
+<pre><code class="language-bash">mvn clean install                       # all 36 modules, with tests
+mvn clean install -DskipTests           # jars only
+# only the UI runtime and the Management server:
+mvn -pl hawkbit-runtime/hawkbit-vv8-ui,hawkbit-runtime/hawkbit-mgmt-server -am -DskipTests package
+</code></pre>
+<p>Packaging a UI runtime runs Vaadin&#39;s frontend build. As long as the UI has no custom frontend files, it uses Vaadin&#39;s pre-built production bundle (the log says &quot;A production mode bundle build is not needed&quot;). It may still download Node.js once into <code>~/.vaadin</code>.</p>
+<h2 id="run"><span class="num">5.3</span>Run</h2>
+<p><strong>All in one (Update Server, embedded H2 for evaluation):</strong></p>
+<pre><code class="language-bash">java -jar hawkbit-runtime/hawkbit-update-server/target/hawkbit-update-server-0.4.0-SNAPSHOT.jar
+# UI: http://localhost:8080/UI     Management API: http://localhost:8080/rest/v1
+</code></pre>
+<p><strong>Separate services (Management server + Management UI) with MySQL and RabbitMQ.</strong> The Management server creates and migrates the schema; Flyway is switched off in the UI runtime. Put the JDBC driver in a folder of its own and start each jar with the Spring Boot 3.2+ launcher:</p>
+<pre><code class="language-bash">java -cp hawkbit-runtime/hawkbit-mgmt-server/target/hawkbit-mgmt-server-0.4.0-SNAPSHOT.jar \
+  -Dspring.profiles.active=mysql -Dloader.path=/path/to/drivers/ \
+  org.springframework.boot.loader.launch.PropertiesLauncher
+java -cp hawkbit-runtime/hawkbit-vv8-ui/target/hawkbit-vv8-ui-0.4.0-SNAPSHOT.jar \
+  -Dspring.profiles.active=mysql -Dloader.path=/path/to/drivers/ \
+  org.springframework.boot.loader.launch.PropertiesLauncher
+# UI: http://localhost:8082/UI/
+</code></pre>
+<p>Configure the database, RabbitMQ and users as before (<code>spring.datasource.*</code>, <code>spring.rabbitmq.*</code>, <code>hawkbit.server.im.users[N].*</code>), with the renamed properties of section 2.2. <strong>Change the shipped default passwords</strong> before any real use (section 7.1). Users&#39; passwords belong in a protected configuration file or secret store, not in the repository.</p>
+<p>The UI runs in Vaadin&#39;s production mode; the start log says &quot;Vaadin is running in production mode.&quot;</p>
+<h2 id="local-test-copy-env"><span class="num">5.4</span>Local test copy (<code>env/</code>)</h2>
+<p><code>env/up.sh</code> builds an image of the current commit and starts an isolated copy: UI runtime, Management server, MySQL 8.0 and RabbitMQ 3 on an internal Docker network, seeded with a small synthetic data set. The UI is at <code>http://127.0.0.1:$APP_ENV_PORT/UI/</code>. <code>env/reset.sh</code> returns it to the seed state in about 10 s, and <code>env/down.sh</code> removes it. Needs bash 4.4+, git, curl, GNU <code>timeout</code> and <code>sha256sum</code>, and Docker on the same host. About 2.5 GB of memory per copy. Full description: <code>env/README.md</code>. This is a test aid, not a production deployment.</p>
+<h2 id="container-images"><span class="num">5.5</span>Container images</h2>
+<p>Build the images from this source. <strong>Do not pull <code>hawkbit/*</code> images from Docker Hub</strong>: they are the Eclipse hawkBit project&#39;s own releases with the old Vaadin 8 UI, and Docker pulls them whenever no local image of that name exists.</p>
+<p>Development images of all five programs, from your local Maven repository (<code>hawkbit-runtime/docker/docker_build/</code>):</p>
+<pre><code class="language-bash">mvn clean install                         # repository root, Java 21
+cd hawkbit-runtime/docker/docker_build
+./build_all_dev.sh                        # hawkbit/&lt;app&gt;:0.4.0-SNAPSHOT and :latest
+./build_all_dev.sh -f mysql               # ...-mysql flavour (needs the MariaDB driver in ~/.m2)
+</code></pre>
+<p>The mysql flavour uses MariaDB driver 3.1.4 by default; the migrated app was verified with <strong>3.5.10</strong>. Pass <code>--build-arg MARIADB_DRIVER_VERSION=3.5.10</code> when you build a mysql image by hand. <code>build_all_dev.sh</code> does not pass a version, so it uses 3.1.4.</p>
+<p>Release flavour from a jar you built (the default):</p>
+<pre><code class="language-bash">cp &lt;your build&gt;/hawkbit-update-server-&lt;version&gt;.jar hawkbit-update-server.jar
+docker build -t hawkbit_update_server:&lt;version&gt; . -f Dockerfile
+docker build -t hawkbit_update_server:&lt;version&gt;-mysql . -f Dockerfile-mysql
+</code></pre>
+<p>The local jar is not checked: whoever builds the image owns the jar&#39;s provenance. <code>--build-arg HAWKBIT_JAR_SOURCE=download</code> downloads and verifies a released jar instead. The default <code>HAWKBIT_VERSION</code> 0.3.0 is not a migrated release and is not expected to work.</p>
+<p>What was proven:</p>
+<ul>
+<li>A development image of the Management server starts.</li>
+<li>A standard release image of the Update Server starts.</li>
+<li>A mysql release image of the Update Server starts on MySQL 8.0 with RabbitMQ 3, with no errors, with the driver supplied locally.</li>
+</ul>
+<p><strong>Known open item: the MySQL flavour&#39;s driver download.</strong> The standard release image is verified. The <code>driver</code> stage of <code>Dockerfile-mysql</code>, which downloads the MariaDB driver and checks its signature, could not be run: the MariaDB download host (<code>downloads.mariadb.com</code>) answered HTTP 522 for the driver and its signature file on every try, on 29 and again on 30 October 2026. The steps before the download pass; the mysql image itself starts when the driver is supplied locally (above). Re-check the stage once the host answers, in <code>hawkbit-runtime/docker/docker_build/</code>:</p>
+<pre><code class="language-bash">docker build --target driver -f Dockerfile-mysql .
+</code></pre>
+<p>The compose files in <code>hawkbit-runtime/docker/</code> (monolith and micro-services with MySQL) use the image names above. See <code>hawkbit-runtime/docker/README.md</code> for the access table.</p>
+<h2 id="database-migration"><span class="num">5.6</span>Database migration</h2>
+<p><strong>No database migration script is part of this migration.</strong> The Flyway scripts under <code>hawkbit-repository/hawkbit-repository-jpa/src/main/resources/db/migration/</code> (H2, MySQL, PostgreSQL, SQL Server, DB2) are byte-for-byte the same as in the original app. The schema the new EclipseLink 5 maps is the existing one.</p>
+<p>What changes is the library that applies the scripts:</p>
+<ul>
+<li>Flyway 8.5.13 becomes Flyway 12.4.0, through Spring Boot&#39;s Flyway starter. MySQL support stays in <code>flyway-mysql</code>.</li>
+<li>The schema history table is still <code>schema_version</code>.</li>
+<li>The UI runtime still has Flyway switched off; the Management server (or the Update Server) owns the schema.</li>
+</ul>
+<p>Verified: the new Management server creates the schema on a fresh MySQL 8.0 database (every test copy and the release image check), and the test suite runs on H2.</p>
+<p><strong>Verified on a test copy (29 October 2026):</strong> the new Management server and UI started on a MySQL 8.0 database, message broker and artifact store that the original version had been using (with targets, distribution sets, software modules, uploaded artifacts, target filters, a rollout and actions created through the original UI and API). Flyway 12.4 validated the 47 existing migrations and reported the schema up to date: no migration ran, <code>schema_version</code> was unchanged (47 rows, none failed), there were no errors in either log, the record counts were identical before and after, and every view showed the original data (artifact checksums included). Not covered: the new version writing to that data over a longer period, and databases other than MySQL 8.0.</p>
+<p>Before production, repeat the rehearsal on a copy of your own data:</p>
+<ol>
+<li>Back up the production database and restore it to a test server.</li>
+<li>Start the new Management server (or Update Server) against the copy.</li>
+<li>Check that the log shows no pending migration and no validation error, and that <code>schema_version</code> is unchanged.</li>
+<li>Sign in to the UI and open each view.</li>
+</ol>
+<h2 id="expected-log-lines-at-startup"><span class="num">5.7</span>Expected log lines at startup</h2>
+<p>The migrated programs log some WARN lines at startup that the original did not. They are expected and harmless; do not raise alerts on them. Two programs were compared with the original: the UI runtime and the Management server (28 October 2026), and their startup logs were counted again on the final code (30 October 2026), with the same lines and counts. In all, the UI runtime logs 22 WARN lines at startup and the Management server 20; 5 and 1 of them are also in the original&#39;s log (below the table).</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Logger (short)</th>
+<th>Message starts with</th>
+<th>Where, how many</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>PostProcessorRegistrationDelegate$BeanPostProcessorChecker</code></td>
+<td>&quot;Bean &#39;…&#39; of type […] is not eligible for getting processed by all BeanPostProcessors&quot;</td>
+<td>16 in the UI runtime and 16 in the Management server: the same 15 beans in both (data source, JPA and Spring Cloud beans and hawkBit&#39;s <code>RepositoryApplicationConfiguration</code>), plus one in the UI runtime for the event bus (<code>EventBusConfiguration</code>) and one in the Management server for Flyway&#39;s version converter (<code>stringOrNumberMigrationVersionConverter</code>)</td>
+<td>hawkBit declares two post-processor beans as instance methods, as before; Spring 7 now logs this at WARN (Spring 5 logged it at INFO). Kept unchanged for parity</td>
+</tr>
+<tr>
+<td><code>InitializeUserDetailsManagerConfigurer</code></td>
+<td>&quot;Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used …&quot;</td>
+<td>1 in the UI runtime, 1 in the Management server</td>
+<td>Spring Security 7 message. Sign-in works as before</td>
+</tr>
+<tr>
+<td><code>SpringDocAppInitializer</code></td>
+<td>&quot;SpringDoc /swagger-ui.html endpoint is enabled by default …&quot; and &quot;SpringDoc /v3/api-docs endpoint is enabled by default …&quot;</td>
+<td>2 in the Management server</td>
+<td>springdoc 3 message. The original serves the same endpoints without saying so. To switch them off in production: <code>springdoc.swagger-ui.enabled=false</code>, <code>springdoc.api-docs.enabled=false</code></td>
+</tr>
+<tr>
+<td><code>HV000272</code> (Hibernate Validator)</td>
+<td>A message about <code>@Valid</code> on a container</td>
+<td>1 on the first validated use of two methods after each start (not at startup itself)</td>
+<td>Section 2.4</td>
+</tr>
+</tbody></table></div>
+<p>Not new, also in the original&#39;s log: four &quot;You are asking Spring Security to ignore …&quot; lines in the UI runtime (now naming <code>PathPattern</code> instead of <code>Ant</code>) and &quot;spring.jpa.open-in-view is enabled by default&quot; in both programs. The startup logs of the Update Server, DDI server and DMF server were not compared with the original.</p>
+<h2 id="content-security-policy"><span class="num">5.8</span>Content-Security-Policy</h2>
+<p>hawkBit sets no Content-Security-Policy by default, as before. If you set one, through <code>hawkbit.server.security.content-security-policy</code> or in a proxy:</p>
+<ul>
+<li><strong><code>script-src</code> must allow <code>&#39;unsafe-eval&#39;</code> for the UI.</strong> Without it the UI does not start: the login page stays blank. The original version behaves the same.</li>
+<li>Three hawkBit UI features run a script that the server sends (Vaadin&#39;s <code>executeJs</code>), and these also need <code>&#39;unsafe-eval&#39;</code>: the forward of old <code>#!</code> bookmarks, setting the focus when a page or window opens, and the colours of software module types in the Distributions view. No other hawkBit code uses <code>executeJs</code>.</li>
+<li>The policy below (one header value, shown one directive per line) was tested during the migration on both versions: the UI started and forwarded old <code>#!</code> addresses, with no console errors. It was tested on the UI runtime in an earlier stage of the migration and not repeated on the final code; test your own policy on a test copy.</li>
+</ul>
+<pre><code class="language-text">default-src &#39;self&#39;;
+script-src &#39;self&#39; &#39;unsafe-inline&#39; &#39;unsafe-eval&#39;;
+style-src &#39;self&#39; &#39;unsafe-inline&#39;;
+img-src &#39;self&#39; data:;
+font-src &#39;self&#39; data:;
+connect-src &#39;self&#39;
+</code></pre>
+<h2 id="security-before-production"><span class="num">5.9</span>Security before production</h2>
+<p>Read this with section 7.1 (pre-existing issues) before you put the migrated version into production.</p>
+<ol>
+<li><strong>Human security review of anonymous Vaadin requests to the login addresses.</strong> The original answered 404 (or showed the login page) to Vaadin&#39;s protocol requests (<code>v-r=uidl</code>, <code>heartbeat</code>, <code>push</code>, <code>i18n</code>) sent without a session to <code>/UI/login</code>, <code>/UI/login/</code> and <code>/UI/login/...</code>. The migrated app gives Vaadin&#39;s standard answers for a request without a session (200 with a &quot;session expired&quot; JSON, 403 or 404) and sets no cookie. Browsers never send these requests; only crafted ones do. You accepted this (28 and 29 October 2026) and asked for a review by a security reviewer before production. <strong>Owner: your security reviewer.</strong> Check whether any of these answers creates state on the server or can be used for load (denial of service), and whether your proxy should block them. A plain load of the login page creates a session in both versions.</li>
+<li><strong>Two documented exceptions from one Vaadin safeguard (accepted).</strong> Vaadin ignores requests from parts of a page that sit behind an open modal window. The artifact upload drop area is allowed to receive its own uploads, and its drop listener its own drop events, while its modal &quot;Upload status&quot; window is open. The listener carries only file names and sizes and decides nothing on the server; the upload still needs a signed-in user with upload permission, and every server-side check applies. You accepted both (29 and 30 October 2026). Re-check them after each Vaadin upgrade (section 4.2).</li>
+<li><strong>Content-Security-Policy</strong> needs <code>&#39;unsafe-eval&#39;</code> (section 5.8).</li>
+<li><strong>No vulnerability scanning.</strong> The upstream project&#39;s nightly scan was removed with its workflows, together with its two recorded CVE acceptances (<code>.trivyignore</code>, section 2.5). Nothing scans the new dependency set. Add a dependency scan to CI and review its result before release.</li>
+<li><strong>Pre-existing issues kept for parity</strong> (section 7.1). For production, the most important are:<ul>
+<li>the open redirect and cross-site sign-out: <code>/UI/logout?login=&lt;any address&gt;</code> signs the user out and sends them to that address, and a link from another site can sign a user out;</li>
+<li>the leftover device login on a message thread: after a device download request over DMF, the message listener&#39;s thread keeps the last device&#39;s login and tenant until the next message replaces them. Nothing reads it today, but code added later that reads the login before authenticating would see another tenant. The original behaves the same;</li>
+<li>the shipped default passwords.</li>
+</ul>
+</li>
+</ol>
+<h2 id="third-party-dependency-list"><span class="num">5.10</span>Third-party dependency list</h2>
+<p><code>.3rd-party/DEPENDENCIES</code> is the licence inventory of all third-party libraries. It still lists the original stack (Vaadin 8, Spring 5.3, …), apart from the edited line for the copied event bus. It is generated with the Eclipse Dash licence tool, which asks Eclipse Foundation services about each library. The migration did not run it, because the migration agreed to make no contact with the upstream Eclipse project and its services. <strong>Regenerate the list before you distribute the software.</strong></p>
+<p>From the repository root, with JDK 21, Maven 3.9 and network access to <code>repo.eclipse.org</code> (the tool&#39;s Maven plugin) and the Eclipse Foundation&#39;s licence service:</p>
+<pre><code class="language-bash">./check-dependencies.sh
+</code></pre>
+<p>The script runs:</p>
+<pre><code class="language-bash">mvn clean install -DskipTests -Ddash.skip=false \
+  --projects &#39;!org.eclipse.hawkbit:hawkbit-repository-test,!org.eclipse.hawkbit:hawkbit-dmf-rabbitmq-test&#39; \
+  -Ddash.summary=.3rd-party/DEPENDENCIES
+</code></pre>
+<ul>
+<li><code>-Ddash.skip=false</code> switches on the <code>eclipse-dash</code> profile, which adds the tool&#39;s plugin repository.</li>
+<li>With an Eclipse IP Lab access token as the first argument (<code>./check-dependencies.sh &lt;token&gt;</code>), the tool also files review requests for libraries it cannot vet, listed in <code>.3rd-party/DEPENDENCIES_REVIEW</code>. Never commit or share the token.</li>
+<li>The build fails if a library is not approved (<code>dash.fail=true</code>). Many versions are new with this migration and may need a review first.</li>
+<li>The Vaadin 24 simple UI is not in the default build, so its libraries are no longer listed.</li>
+<li>The event bus is copied source, not a Maven dependency, so the tool will not list it. Add its line back by hand after regenerating (Apache-2.0; licence text in <code>licenses/APACHE-2.0.txt</code>).</li>
+</ul>
+<h2 id="cut-over-checklist"><span class="num">5.11</span>Cut-over checklist</h2>
+<ol>
+<li>Install Java 21 on the hosts, or use the new images.</li>
+<li>Rename the configuration properties of section 2.2 in your own configuration.</li>
+<li>Replace launcher class names in your start scripts (<code>org.springframework.boot.loader.launch.*</code>).</li>
+<li>Rebuild images from this source. Never pull <code>hawkbit/*</code> from Docker Hub for this version. For the MySQL flavour, re-check the driver download stage first (section 5.5).</li>
+<li>Update proxies, monitors and scanners for the address and status changes in section 2.3: <code>/UI/&lt;view&gt;</code> addresses, 404 for unknown or forbidden UI views, 400 for rejected requests, <code>X-XSS-Protection: 0</code>.</li>
+<li>Tell log monitoring about the expected startup WARN lines (section 5.7).</li>
+<li>If you set a Content-Security-Policy, allow <code>&#39;unsafe-eval&#39;</code> (section 5.8).</li>
+<li>If you use a custom Sass theme, redo it as a CSS file; move a custom login footer to its new path (<code>docs/content/guides/customtheme.md</code>).</li>
+<li>If you integrate over DMF with your own message types, or read Spring Cloud Bus headers, see section 2.4.</li>
+<li>Rehearse the database start on a copy (section 5.6).</li>
+<li>Have the security review done and run a dependency scan (section 5.9), and change all default passwords (section 7.1).</li>
+<li>Regenerate the third-party dependency list before distribution (section 5.10).</li>
+</ol>
+<h1 id="how-to-test"><span class="num">6</span>How to test</h1>
+<h2 id="unit-and-integration-tests"><span class="num">6.1</span>Unit and integration tests</h2>
+<pre><code class="language-bash">mvn verify
+</code></pre>
+<p>The 89 DMF integration tests need RabbitMQ. Without a reachable broker they are <strong>skipped silently</strong> (pre-existing). Set <code>RABBITMQ_TEST_HOSTNAME=&lt;broker host&gt;</code> and <code>RABBITMQ_SERVER_REQUIRED=true</code> so that they run, or fail if the broker is missing. Some test classes depend on the order they run in (pre-existing). Run them in alphabetical order as CI does: <code>-Dsurefire.runOrder=alphabetical</code>.</p>
+<p>Last results, on commit <code>684b25a</code>: the full backend and UI suite ran 1699 tests with 0 failures, 0 errors and 0 skipped, and the CI subset (the UI runtime and its modules, offline, with RabbitMQ) ran 1672 tests with 0 failures. Later commits change only documentation and code comments.</p>
+<h2 id="browser-end-to-end-tests"><span class="num">6.2</span>Browser end-to-end tests</h2>
+<pre><code class="language-bash">APP_ENV_PROJECT=copy-a APP_ENV_PORT=18181 \
+  APP_ENV_USERS_PROPERTIES=&lt;users file&gt; APP_ENV_USERS_ENV=&lt;password file&gt; env/e2e.sh
+</code></pre>
+<p><code>env/e2e.sh</code> starts a fresh copy, runs <code>mvn -Pe2e -pl hawkbit-runtime/hawkbit-vv8-ui-e2e verify</code> against it and removes it.</p>
+<ul>
+<li><strong>Needs:</strong> JDK 21 and Maven 3.9 on the host. The first run downloads Chromium headless shell from <code>cdn.playwright.dev</code>.</li>
+<li><strong>Time:</strong> about 6 minutes locally.</li>
+<li><strong>Users:</strong> the test user <code>admin</code>, with its password in the password file as <code>MIG_TU_ADMIN_PW</code>. <code>.github/ci/test-users.sh</code> writes throw-away users with random passwords.</li>
+<li><strong>Never commit password files.</strong></li>
+<li><strong>On failure:</strong> screenshots go to <code>hawkbit-runtime/hawkbit-vv8-ui-e2e/target/e2e/</code>.</li>
+<li><strong>More:</strong> <code>env/README.md</code>, &quot;End-to-end tests&quot;.</li>
+</ul>
+<h2 id="continuous-integration"><span class="num">6.3</span>Continuous integration</h2>
+<p>GitHub Actions workflow <code>.github/workflows/ci.yml</code> (<code>.github/CI.md</code> describes it in full):</p>
+<ul>
+<li><strong>When it runs:</strong> on push to <code>main</code>, <code>mig-dev</code>, <code>stage/**</code>, <code>stabilise/**</code>, <code>fix/**</code>, and by hand. There is no <code>pull_request</code> trigger, so a commit is built once: a commit that already passed is skipped unless the run is started with <code>force</code>.</li>
+<li><strong>Job <code>build-test-smoke</code>:</strong><ul>
+<li>builds the image and starts a copy;</li>
+<li>logs in four throw-away users and opens their views by address and from the menu (36 checks, other hosts blocked);</li>
+<li>runs the test suite offline with RabbitMQ.</li>
+<li>Takes about 15-16 minutes with a warm cache.</li>
+</ul>
+</li>
+<li><strong>Job <code>e2e</code>:</strong> builds its own copy and runs the six browser tests, in about 9 minutes, in parallel with <code>build-test-smoke</code>.</li>
+<li><strong>On failure:</strong> diagnostics are uploaded for 3 days, with test-user passwords removed. No repository secret is needed.</li>
+</ul>
+<h2 id="manual-check"><span class="num">6.4</span>Manual check</h2>
+<p>Start a copy with <code>env/up.sh</code>. Then sign in as an administrator and as a read-only user, open each view, and follow one workflow from each area: target, distribution set, upload, rollout, system configuration. The side-by-side walkthrough delivered with these docs (section 8) shows the expected screens.</p>
+<h1 id="known-pre-existing-issues"><span class="num">7</span>Known pre-existing issues</h1>
+<p>These issues exist in the original application. They were found during the migration and <strong>kept as they were</strong>, because the migration&#39;s rule is parity first: changing them was not part of the agreed work. The first three security items were confirmed as &quot;keep and log&quot; in the planning decisions. Where the migrated app behaves differently, the table says so.</p>
+<h2 id="security"><span class="num">7.1</span>Security</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Where</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Shipped default passwords</strong>: UI administrator with a well-known password stored in plain text and all permissions; RabbitMQ <code>guest</code> account; MySQL profile with an empty root password</td>
+<td><code>application.properties</code> of the runtimes, <code>hawkbit-security-defaults.properties</code></td>
+<td>Documented upstream default. <strong>Override them in every deployment</strong></td>
+</tr>
+<tr>
+<td><strong>Open redirect and cross-site sign-out:</strong> <code>/UI/logout?login=&lt;any URL&gt;</code> signs the user out and sends them to that site, and sign-out accepts a plain link from another site</td>
+<td>Logout success handler, <code>/UI/**</code> without CSRF</td>
+<td>Kept. A good candidate for follow-up work</td>
+</tr>
+<tr>
+<td><strong>Login throttling can be bypassed:</strong> the only throttle keys on the client-supplied <code>X-Forwarded-For</code> header and skips private ranges. There is no account lockout</td>
+<td><code>DosFilter</code>, <code>IpUtil</code></td>
+<td>Kept</td>
+</tr>
+<tr>
+<td><strong>Leftover device login on a DMF message thread:</strong> after a download authentication message, the listener keeps the last device&#39;s login and tenant on its pooled thread. The next message authenticates first, so nothing reads it today</td>
+<td><code>hawkbit-dmf-amqp</code>, <code>AmqpAuthenticationMessageHandler</code></td>
+<td>Same in both versions. Found by a test written during the migration; code that reads the login before authenticating would see another tenant</td>
+</tr>
+<tr>
+<td>No new session id at login (session fixation)</td>
+<td>UI login</td>
+<td>Same in both apps; an attacker would need to plant a session id</td>
+</tr>
+<tr>
+<td>Some static paths bypass the security filter chain: <code>/documentation/**</code>, <code>/docs/**</code>, <code>/VAADIN/**</code> and any root-level address with a dot (<code>/*.*</code>) skip the whole chain, including the security headers</td>
+<td>UI security configuration (ignored paths)</td>
+<td>Same four paths in both versions</td>
+</tr>
+<tr>
+<td>A software module type colour set through the API is put into the page unescaped</td>
+<td>Distributions view</td>
+<td>The migrated app limits it to a CSS rule (old: script)</td>
+</tr>
+<tr>
+<td>The bulk upload failure reason is shown as HTML (self-reflected only)</td>
+<td>Bulk upload window</td>
+<td>Kept</td>
+</tr>
+<tr>
+<td>OIDC logout handler races between concurrent sign-outs</td>
+<td>OIDC configuration</td>
+<td>Not on the verified path (OIDC not verified)</td>
+</tr>
+</tbody></table></div>
+<h2 id="reliability-and-data"><span class="num">7.2</span>Reliability and data</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Each target-count footer in Deployment and Target Filters starts a thread that is never stopped, and that keeps the last user&#39;s security context</td>
+<td>Still present in the migrated code. The soak test (400 sign-ins per app) saw no thread growth on either app</td>
+</tr>
+<tr>
+<td>Live updates: three busy sessions can stall push updates for all users and the shared scheduled jobs; more than 10,000 queued events are dropped silently</td>
+<td>Under concurrent load</td>
+</tr>
+<tr>
+<td>One rollout that fails during handling stops rollout handling for the whole tenant: other rollouts stay in &quot;Creating&quot;</td>
+<td>Seen when a rollout&#39;s creator is not a known user on the Management server</td>
+</tr>
+<tr>
+<td>A database or schema problem at login is reported as &quot;authentication failed&quot;, logged at DEBUG only</td>
+<td></td>
+</tr>
+<tr>
+<td>Bulk upload reads the CSV in the platform&#39;s default charset. On Java 21 this is UTF-8; on the original Java 17 it followed the host locale</td>
+<td>Not compared; non-ASCII names may be read differently</td>
+</tr>
+<tr>
+<td>Bulk upload: an error on one line stops the rest of the file; blank and duplicate lines count as failed; only lowercase <code>.csv</code> is accepted. The footer count stays at the old total until the view is reopened</td>
+<td></td>
+</tr>
+<tr>
+<td>Artifact upload can block for good when the upload thread pool is full (heavy concurrent uploads only)</td>
+<td></td>
+</tr>
+<tr>
+<td>System Config save writes each group separately, with no transaction. An invalid polling time plus another change reports &quot;Saved changes&quot;, but the invalid value is not stored</td>
+<td></td>
+</tr>
+<tr>
+<td>Two users editing the same item: the last save wins silently</td>
+<td></td>
+</tr>
+<tr>
+<td>Recognised UI errors are shown but not logged. Some validation failures show raw technical messages</td>
+<td></td>
+</tr>
+<tr>
+<td>Grid search treats <code>%</code> and <code>_</code> as wildcards. Sorting by a column with equal values can repeat or skip rows while scrolling</td>
+<td></td>
+</tr>
+<tr>
+<td>An open browser tab keeps its session alive indefinitely (heartbeat on, idle sessions not closed)</td>
+<td></td>
+</tr>
+<tr>
+<td>Times can be one hour off in summer: the browser time zone is guessed from the UTC offset only. Set <code>hawkbit.server.ui.fixed-time-zone</code> to avoid it</td>
+<td>Kept as agreed</td>
+</tr>
+<tr>
+<td>A link opened before login is lost after login</td>
+<td>Kept</td>
+</tr>
+<tr>
+<td>In the rollout &quot;Advanced group&quot; definition, removing a row after an earlier row was removed may remove the wrong row</td>
+<td>Inferred from code</td>
+</tr>
+<tr>
+<td><code>spring.main.allow-bean-definition-overriding=true</code> hides duplicate bean definitions</td>
+<td></td>
+</tr>
+<tr>
+<td>Malformed addresses such as <code>/UI;jsessionid=x/</code> and a Management API body <code>[null]</code> answer 500 with a stack trace</td>
+<td>Same status in both apps</td>
+</tr>
+<tr>
+<td>The five status filters in Deployment have no accessible name (a screen reader says &quot;button&quot;)</td>
+<td>Kept</td>
+</tr>
+<tr>
+<td>The target status after an auto-assignment stays &quot;unknown&quot; until the view is reopened</td>
+<td><strong>Better in the migrated app</strong>: updates live</td>
+</tr>
+<tr>
+<td>Opening &quot;Create new Rollout&quot; logged 4 browser console errors from the old pie chart</td>
+<td>The chart is redrawn; the errors are expected to be gone (not separately confirmed)</td>
+</tr>
+</tbody></table></div>
+<h1 id="side-by-side-recordings"><span class="num">8</span>Side-by-side recordings</h1>
+<p>Every one of the 31 workflows was recorded step by step on the original and on the migrated application, with the same data, test users, browser and window size. <strong>The side-by-side walkthrough delivered with these docs</strong> is one self-contained folder (also delivered as a zip) with a page per workflow. Each page shows the workflow&#39;s steps, with the original&#39;s screenshot on the left and the migrated app&#39;s on the right. Steps with an accepted difference say what differs and that it was accepted.</p>
+<p><strong>How to open it:</strong> unzip the folder anywhere and open <code>index.html</code> in a current browser. It works offline from the file system; no server, login or network is needed. The pages hold no passwords or security tokens.</p>
+<p>The workflows, numbered as in the walkthrough:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Workflow</th>
+<th>#</th>
+<th>Workflow</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Log in, look around and sign out</td>
+<td>17</td>
+<td>Edit and delete distribution sets, and the module rules</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Log in with a wrong password</td>
+<td>18</td>
+<td>Create a software module type and a distribution set type</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Stay signed in while idle in an open tab</td>
+<td>19</td>
+<td>Create a software module and upload artifacts</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Create, edit and delete a target</td>
+<td>20</td>
+<td>Upload, download and delete an artifact (repository operator)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Search and filter the target list, keep the filter over a reload</td>
+<td>21</td>
+<td>Create, use, edit and delete a target filter</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Create a target tag, tag targets, filter and remove the tag</td>
+<td>22</td>
+<td>Auto-assign a distribution set through a target filter</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Assign a distribution set to a target by drag and drop</td>
+<td>23</td>
+<td>Create a rollout and start it (approval off)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Assign several targets to a distribution set at once</td>
+<td>24</td>
+<td>Pause, resume, trigger the next group and delete a rollout</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Assign a distribution set to all targets with a tag</td>
+<td>25</td>
+<td>Define rollout groups by hand, copy and edit a rollout</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Cancel an update action and force-quit it</td>
+<td>26</td>
+<td>Rollout with approval switched on</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Create targets in bulk from a CSV file</td>
+<td>27</td>
+<td>Change, keep and undo system configuration</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Tag distribution sets and filter by tag</td>
+<td>28</td>
+<td>What the read-only user can and cannot do</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Invalidate a distribution set</td>
+<td>29</td>
+<td>What the target operator can and cannot do</td>
+</tr>
+<tr>
+<td>14</td>
+<td>See another session&#39;s changes without reloading</td>
+<td>30</td>
+<td>What the repository operator can and cannot do</td>
+</tr>
+<tr>
+<td>15</td>
+<td>A device installs an assigned update</td>
+<td>31</td>
+<td>A target created through the REST API appears without a reload</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Create a distribution set with modules and metadata</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table></div>
+<p>Verdicts on the code this document describes:</p>
+<ul>
+<li>25 pass.</li>
+<li>3 are accepted because forbidden views now answer 404: workflows 28, 29 and 30 (accepted 28 October 2026).</li>
+<li>3 are accepted because field error messages now show under the field: workflows 4, 21 and 27 (accepted 29 October 2026).</li>
+</ul>
+<p>Six of the workflows also run as browser tests in the repository (section 6.2): 1, 2, 6, 17, 19 and 24.</p>
+<h1 id="follow-up-candidates-parking-lot"><span class="num">9</span>Follow-up candidates (parking lot)</h1>
+<p>During the migration, improvements that were not needed for parity were written down instead of built. They are input for a possible follow-up. Only the items of section 9.1 are needed before production; none blocks the hand-off. Size: tiny = under an hour, small = up to a day.</p>
+<h2 id="before-production"><span class="num">9.1</span>Before production</h2>
+<ul>
+<li><strong>Security review</strong> of anonymous Vaadin requests to the login addresses, together with the other security items of section 7.1 (section 5.9). Owner: your security reviewer. Small (review); the size of any fix is unknown.</li>
+<li><strong>Dependency scan</strong> of the new stack, and a scan step in CI (section 5.9). Small.</li>
+</ul>
+<h2 id="security-and-accessibility"><span class="num">9.2</span>Security and accessibility</h2>
+<ul>
+<li>Close the open redirect at sign-out and add CSRF protection to sign-out; anchor the login throttle and add an account lockout; change the session id at login (pre-existing issues above).</li>
+<li>Give every icon-only button an accessible name that follows its tooltip (small). The three drop-downs of the System Config duration pop-up have no accessible names, as in the original (tiny).</li>
+<li>Menu text contrast is about 3.5:1 (WCAG AA needs 4.5:1), and yellow on white is used for pending status. White text on module type colours is about 3.8:1. All of these are the original colours (tiny each).</li>
+<li>Disabled buttons outside grids show no tooltip; Vaadin 8 showed one (small).</li>
+<li>Upload hardening against crafted requests, not reachable from a normal browser (small each): no cap on the number of files a crafted drop event lists; a file over the size limit with an illegal name gets the size reason instead of the name reason; whether a disabled drop zone still delivers drop events is not confirmed; a file just over the limit that bypasses the browser check stays &quot;in progress&quot; in the upload button&#39;s list.</li>
+<li>Pin the CI&#39;s JDK download by checksum (small).</li>
+</ul>
+<h2 id="operations-and-build"><span class="num">9.3</span>Operations and build</h2>
+<ul>
+<li>Release images: raise the MariaDB driver default to 3.5.10 and let <code>build_all_dev.sh</code> pass it; re-run the mysql driver stage once the download host answers (tiny).</li>
+<li>The upstream CircleCI and Azure files still name JDK 17, and the dev container uses Java 8. Update or remove them (small).</li>
+<li><code>/UI;jsessionid=x/</code> and a <code>[null]</code> request body answer 500; both could answer 400 (small).</li>
+<li>The refused-upload drain limits (100 MB / 60 s) are constants. A probe saw one unreproduced 500 right after a refused 200 MB upload (small).</li>
+<li>The favicon is served only at the host root, so a deployment under a path prefix shows no tab icon (small).</li>
+<li>The shell banner still says &quot;This Vaadin 8 hawkBit UI … is deprecated&quot;. The text is yours to decide (tiny).</li>
+<li>Log noise from framework races, no user effect: a rare Atmosphere ERROR line when a push connection closes; Vaadin&#39;s session cleanup can throw an <code>IllegalStateException</code> when many heartbeats overlap a sign-out (seen only under a deliberate flood); hawkBit&#39;s UI error handler lacks one null check for other errors on a heartbeat (tiny to small).</li>
+<li>No <code>.gitignore</code> for the frontend build&#39;s generated folder in the two UI runtimes (small).</li>
+<li>Dead setting <code>spring.mvc.favicon.enabled</code> (tiny).</li>
+<li><code>env/</code>: the helper containers use Python 3.9.6, which is past end of life (small); <code>reset.sh</code> occasionally takes about 60 s (small).</li>
+<li>Comments in shipped files still carry migration references (small).</li>
+</ul>
+<h2 id="look-restoration-toward-the-original-pixels"><span class="num">9.4</span>Look (restoration toward the original pixels)</h2>
+<ul>
+<li>Ship Open Sans (light weight) for the exact original typeface: a font licence and asset decision (small).</li>
+<li>Striped grid rows and a shaded header, the dropdown chevron in the user menu, and the drop-area highlight (small each).</li>
+<li>Smaller details (tiny each):<ul>
+<li>links underlined in blue;</li>
+<li>Valo&#39;s corner radius and white fields;</li>
+<li>disabled primary buttons at half opacity;</li>
+<li>the legend spacing in the rollout window;</li>
+<li>the progress bar height;</li>
+<li>bold names in window titles;</li>
+<li>the detail-tab marker;</li>
+<li>the menu spacing;</li>
+<li>the &quot;Actions&quot; caption covered at 1400 px;</li>
+<li>incomplete sets not greyed;</li>
+<li>the bulk-upload tag row;</li>
+<li>the order of the rollout status bar segments;</li>
+<li>labels meant to be small or bold look normal (two CSS classes without a rule).</li>
+</ul>
+</li>
+<li>The date pickers show a four-digit year, and the time is cut in the rollout window at 1400 px (small).</li>
+<li>In a 1024 px window the Rollout view is wider than the window: the Rollouts grid and its header run past the right edge. The original behaves the same (small).</li>
+<li>The open search field in grid headers has no minimum width: below a 1024 px window it can become too narrow to read the typed text (tiny).</li>
+</ul>
+<h2 id="code-and-tests"><span class="num">9.5</span>Code and tests</h2>
+<ul>
+<li>Small tidy-ups:<ul>
+<li>51 class names and identifiers still named after the Vaadin 8 Valo theme (<code>valo-*</code>);</li>
+<li>two copies of colour parsing;</li>
+<li>casts left from automated edits;</li>
+<li>a null id passed to <code>setId</code> in two builders;</li>
+<li>the upload button using the thread&#39;s current UI;</li>
+<li><code>ExpandRatioLayout</code> not normalising ratios that add up to less than 1.</li>
+</ul>
+</li>
+<li>Grid cells with tooltips are built twice per refresh (CPU only; the soak test showed no growth) (small).</li>
+<li>The drop area&#39;s client file list is never emptied in a long-lived tab (small).</li>
+<li>Upload status rows in arrival order rather than drop order (small, only if asked).</li>
+<li>The drop area&#39;s own drop listener works around a Vaadin limitation; remove it if a later Vaadin lets the upload manager&#39;s reject event run behind a modal window (small).</li>
+<li>DMF integration tests use a converter that trusts all packages, unlike production (small).</li>
+<li>Dependency hygiene in <code>hawkbit-dmf-amqp</code> (small).</li>
+<li>Some RSQL tests may use random 100-character names with prefix filters that collide about once in 480 runs; check their test data (small).</li>
+<li>End-to-end tests:<ul>
+<li>rename <code>Wf01LoginLogoutIT</code> by feature (tiny);</li>
+<li>check the data the UI does not show, for example tag membership and stored files, through a small Management API client (medium).</li>
+</ul>
+</li>
+</ul>
+<h1 id="appendix-a-before-this-document-is-final">Appendix A. Before this document is final</h1>
+<p>This release candidate becomes the final version when you accept the hand-off. What remains is your test run and acceptance of the hand-off (M3), on the M3 branch <code>stage/3-handoff</code> (the M3 pull request); after your acceptance it merges into <code>mig-dev</code>. The workflow milestone (M2) passed on 30 October 2026, and the final workflow runs on the hand-off code are done and reported in the final migration report.</p>
+<p>After acceptance, your own steps before production are in sections 5.5 (MySQL image driver check), 5.6, 5.9 and 5.10 and in the cut-over checklist (section 5.11).</p>
+</body></html>
