@@ -374,7 +374,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         addDeleteColumn();
 
-        // Vaadin 8: setHidable(true) on every column (UI-1b column toggle menu)
+        // Vaadin 8: setHidable(true) on every column (column toggle menu)
         ColumnToggleMenu.setAllHidable(this);
     }
 

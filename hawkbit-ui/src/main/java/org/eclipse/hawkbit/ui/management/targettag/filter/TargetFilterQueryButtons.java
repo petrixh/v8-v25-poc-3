@@ -80,7 +80,7 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
         addClassNames("compact");
 
         // Vaadin 8: removeHeaderRow(0); Flow grids always show the header row
-        // (look: stage 2a). The caption is the accordion panel's summary
+        // The caption is the accordion panel's summary
         // (MultipleTargetFilter)
     }
 

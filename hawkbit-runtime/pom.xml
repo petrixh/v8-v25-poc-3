@@ -103,11 +103,19 @@
 
    <profiles>
       <profile>
-         <!-- Vaadin 24 simple UI, opt-in with -Psimple-ui. Out of the migration's scope (E004 A): it is not ported
+         <!-- Vaadin 24 simple UI, opt-in with -Psimple-ui. Out of the migration's scope: it is not ported
             to Java 21 / Spring Boot 4 and does not build with the rest, so it is not in the default build. -->
          <id>simple-ui</id>
          <modules>
             <module>hawkbit-simple-ui</module>
+         </modules>
+      </profile>
+      <profile>
+         <!-- End-to-end tests of the UI against a running app, opt-in with -Pe2e (env/README.md "End-to-end tests").
+            Not in the default build: they need a started app and download Playwright. -->
+         <id>e2e</id>
+         <modules>
+            <module>hawkbit-vv8-ui-e2e</module>
          </modules>
       </profile>
    </profiles>

@@ -98,7 +98,7 @@ public class LabelBuilder {
         label.setHeight(null);
         if (StringUtils.hasText(caption)) {
             // Vaadin 8 caption of the label: Flow spans have none, it is
-            // shown as a first child (styled in stage 2a)
+            // shown as a first child
             final Span captionText = new Span(caption);
             captionText.addClassName("v-caption");
             label.addComponentAsFirst(captionText);
@@ -110,7 +110,6 @@ public class LabelBuilder {
     private Span createLabel() {
         final Span label = new Span(name);
         label.setVisible(visible);
-        // Vaadin 8: ValoTheme.LABEL_SMALL and LABEL_BOLD
         label.addClassNames("small", "bold");
         if (id != null) {
             label.setId(id);

@@ -59,7 +59,7 @@ public class CorsTest extends AbstractSecurityTest {
                 .getContentAsString();
         assertThat(invalidOriginResponseBody).isEqualTo(INVALID_CORS_REQUEST);
 
-        // E010: a preflight to a URL without CORS settings answers 200 without CORS headers (Spring 7; 403 before).
+        // A preflight to a URL without CORS settings answers 200 without CORS headers (Spring 7; 403 before).
         // The browser still blocks the cross-origin call.
         performOptionsRequestToUrlWithOrigin(MgmtRestConstants.BASE_SYSTEM_MAPPING, ALLOWED_ORIGIN_FIRST)
                 .andExpect(status().isOk())

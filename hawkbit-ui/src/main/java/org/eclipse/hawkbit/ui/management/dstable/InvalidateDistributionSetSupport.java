@@ -21,6 +21,7 @@ import org.eclipse.hawkbit.repository.model.DistributionSetInvalidationCount;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -28,8 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import com.google.common.collect.Lists;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.grid.Grid;
 
 /**
  * Support for invalidate a distribution set in the ds grid.
@@ -187,7 +188,14 @@ public class InvalidateDistributionSetSupport {
     }
 
     private List<ProxyDistributionSet> getDistributionSetsForInvalidation(final ProxyDistributionSet clickedItem) {
-        final List<ProxyDistributionSet> selectedItems = Lists.newArrayList(grid.getSelectedItems());
+        return getDistributionSetsForInvalidation(grid, clickedItem);
+    }
+
+    static List<ProxyDistributionSet> getDistributionSetsForInvalidation(final Grid<ProxyDistributionSet> grid,
+            final ProxyDistributionSet clickedItem) {
+        // the selection as the grid last fetched it, so a set that was
+        // invalidated meanwhile is left out (Vaadin 8 behaviour)
+        final List<ProxyDistributionSet> selectedItems = SelectionSupport.getSelectedItemsAsLastFetched(grid);
 
         if (selectedItems.contains(clickedItem)) {
             // consider only valid DS for invalidation

@@ -1,38 +1,64 @@
 # set Java
 ARG JAVA_VERSION=21.0.12.1_1
-# extracts spring layers from the app jar (to optimize boot)
-FROM eclipse-temurin:${JAVA_VERSION}-jre-alpine as build
+# where the application jar comes from: "local" (default) takes it from the docker build context (a jar of your own
+# build, see HAWKBIT_JAR), "download" fetches the officially released ${HAWKBIT_APP}-${HAWKBIT_VERSION}.jar from
+# https://repo1.maven.org and verifies its signature with KEY
+ARG HAWKBIT_JAR_SOURCE=local
+
+# stage "jar-local": the jar from the build context
+FROM scratch AS jar-local
+ARG HAWKBIT_APP=hawkbit-update-server
+ARG HAWKBIT_JAR=${HAWKBIT_APP}.jar
+COPY ${HAWKBIT_JAR} /app.jar
+
+# stage "jar-download": the released jar, signature verified
+FROM eclipse-temurin:${JAVA_VERSION}-jre-alpine AS jar-download
 
 ARG HAWKBIT_APP=hawkbit-update-server
 ARG HAWKBIT_VERSION=0.3.0
-
-ENV BUILD_DIR=/opt/hawkbit_build
-ENV APP=${HAWKBIT_APP}
-ENV VERSION=${HAWKBIT_VERSION}
 
 COPY KEY .
 
 RUN set -x &&\
  apk add --no-cache --virtual build-dependencies gnupg unzip libressl wget &&\
  gpg --import KEY &&\
- mkdir -p ${BUILD_DIR} &&\
- cd ${BUILD_DIR} &&\
- wget -O ${APP}.jar --no-verbose https://repo1.maven.org/maven2/org/eclipse/hawkbit/${APP}/${VERSION}/${APP}-${VERSION}.jar &&\
- wget -O ${APP}.jar.asc --no-verbose https://repo1.maven.org/maven2/org/eclipse/hawkbit/${APP}/${VERSION}/${APP}-${VERSION}.jar.asc &&\
- gpg --batch --verify ${APP}.jar.asc ${APP}.jar &&\
- java -Djarmode=tools -jar ${APP}.jar extract --layers --launcher --destination . &&\
- rm ${APP}.jar ${APP}.jar.asc /KEY
+ wget -O /app.jar --no-verbose https://repo1.maven.org/maven2/org/eclipse/hawkbit/${HAWKBIT_APP}/${HAWKBIT_VERSION}/${HAWKBIT_APP}-${HAWKBIT_VERSION}.jar &&\
+ wget -O /app.jar.asc --no-verbose https://repo1.maven.org/maven2/org/eclipse/hawkbit/${HAWKBIT_APP}/${HAWKBIT_VERSION}/${HAWKBIT_APP}-${HAWKBIT_VERSION}.jar.asc &&\
+ gpg --batch --verify /app.jar.asc /app.jar &&\
+ apk del build-dependencies &&\
+ rm /app.jar.asc /KEY
+
+# stage "driver": the MariaDB Java connector, signature verified
+FROM eclipse-temurin:${JAVA_VERSION}-jre-alpine AS driver
 
 ARG MARIADB_DRIVER_VERSION=3.1.4
+ENV BUILD_DIR=/opt/hawkbit_build
 COPY KEY-mysql .
 
 RUN set -x &&\
+ apk add --no-cache --virtual build-dependencies gnupg wget &&\
+ mkdir -p ${BUILD_DIR} &&\
  gpg --import KEY-mysql &&\
  wget -O ${BUILD_DIR}/mariadb-java-client-${MARIADB_DRIVER_VERSION}.jar --no-verbose https://downloads.mariadb.com/Connectors/java/connector-java-${MARIADB_DRIVER_VERSION}/mariadb-java-client-${MARIADB_DRIVER_VERSION}.jar &&\
  wget -O ${BUILD_DIR}/mariadb-java-client-${MARIADB_DRIVER_VERSION}.jar.asc --no-verbose https://downloads.mariadb.com/Connectors/java/connector-java-${MARIADB_DRIVER_VERSION}/mariadb-java-client-${MARIADB_DRIVER_VERSION}.jar.asc &&\
  gpg --verify --batch ${BUILD_DIR}/mariadb-java-client-${MARIADB_DRIVER_VERSION}.jar.asc ${BUILD_DIR}/mariadb-java-client-${MARIADB_DRIVER_VERSION}.jar &&\
  apk del build-dependencies &&\
  rm ${BUILD_DIR}/mariadb-java-client-${MARIADB_DRIVER_VERSION}.jar.asc /KEY-mysql
+
+FROM jar-${HAWKBIT_JAR_SOURCE} AS jar
+
+# extracts spring layers from the app jar (to optimize boot)
+FROM eclipse-temurin:${JAVA_VERSION}-jre-alpine AS build
+
+ENV BUILD_DIR=/opt/hawkbit_build
+
+COPY --from=jar /app.jar /app.jar
+
+RUN set -x &&\
+ mkdir -p ${BUILD_DIR} &&\
+ cd ${BUILD_DIR} &&\
+ java -Djarmode=tools -jar /app.jar extract --layers --launcher --destination . &&\
+ rm /app.jar
 
 FROM eclipse-temurin:${JAVA_VERSION}-jre-alpine
 
@@ -46,7 +72,7 @@ COPY --from=build ${BUILD_DIR}/spring-boot-loader/ ./
 COPY --from=build ${BUILD_DIR}/snapshot-dependencies/ ./
 COPY --from=build ${BUILD_DIR}/application/ ./
 ARG MARIADB_DRIVER_VERSION=3.1.4
-COPY --from=build ${BUILD_DIR}/mariadb-java-client-${MARIADB_DRIVER_VERSION}.jar ./BOOT-INF/lib/
+COPY --from=driver ${BUILD_DIR}/mariadb-java-client-${MARIADB_DRIVER_VERSION}.jar ./BOOT-INF/lib/
 
 ARG CONTAINER_PORT=8080
 ENV JAVA_OPTS="-Dspring.profiles.active=mysql -Xms768m -Xmx768m -XX:MaxMetaspaceSize=250m -XX:MetaspaceSize=250m -Xss300K -XX:+UseG1GC -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+HeapDumpOnOutOfMemoryError"

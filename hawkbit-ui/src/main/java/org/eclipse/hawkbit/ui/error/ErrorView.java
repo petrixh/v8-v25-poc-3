@@ -78,7 +78,7 @@ public class ErrorView extends VerticalLayout implements HasErrorParameter<NotFo
                     i18n.getMessage("message.accessdenied"),
                     i18n.getMessage("message.accessdenied.view", viewName), null, true);
             message.setText(i18n.getMessage("message.accessdenied.view", viewName));
-            // E006 A: a view the user may not open answers 404, like an unknown
+            // A view the user may not open answers 404, like an unknown
             // path (the old app's page had no HTTP status of its own)
             return HttpStatusCode.NOT_FOUND.getCode();
         }

@@ -57,7 +57,7 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 
 /**
- * 1B-60: the hawkBit layout (the app shell) is built only for a logged-in user. Without one (an error view of an
+ * The hawkBit layout (the app shell) is built only for a logged-in user. Without one (an error view of an
  * unknown address below /UI/login/ reaches the layout for anyone) it shows the routed content only: no menu, no
  * header, no push, and it needs no user or tenant.
  */

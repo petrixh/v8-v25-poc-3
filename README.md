@@ -75,10 +75,14 @@ There are clients outside of the Eclipse IoT eco system as well, e.g.:
 | Test dependencies defined         |                   :white_check_mark:                   |                             :white_check_mark:                              |                        :white_check_mark:                        |                         :white_check_mark:                         |                    |
 | Versions tested                   |                          2.1                           |                          MySQL 8.0.23, AWS Aurora                          |                     MS SQL Server 2017/2019                      |                          PostgreSQL 12/13                          |  DB2 Server v11.1  |
 | Docker image with driver provided |                   :white_check_mark:                   |                     :white_check_mark: (Tag: "-mysql")                      |                        :white_check_mark:                        |                         :white_check_mark:                         |                    |
-| JDBC driver                       | [H2 2.1.214](https://github.com/h2database/h2database) | [MariaDB Connector/J 2.7.8](https://github.com/MariaDB/mariadb-connector-j) | [MSSQL-JDBC 10.2.3.jre8](https://github.com/Microsoft/mssql-jdbc) | [PostgreSQL JDBC Driver 42.3.8](https://github.com/pgjdbc/pgjdbc) |                    |
+| JDBC driver                       | [H2 2.2.222](https://github.com/h2database/h2database) | [MariaDB Connector/J 3.5.10](https://github.com/MariaDB/mariadb-connector-j) | [MSSQL-JDBC 13.4.0.jre11](https://github.com/Microsoft/mssql-jdbc) | [PostgreSQL JDBC Driver 42.7.14](https://github.com/pgjdbc/pgjdbc) |                    |
 | Status                            |                       Test, Dev                        |                              Production grade                               |                         Production grade                         |                             Test, Dev                              |     Test, Dev      |
 
+This version (Java 21, Spring Boot 4.1, Vaadin 25.3) has been tested with H2 (test suite) and MySQL 8.0.46 with MariaDB Connector/J 3.5.10; the other databases have not been tested with it yet.
+
 ## (Optional) RabbitMQ: 3.6,3.7,3.8
+
+This version has been tested with RabbitMQ 3.13.
 
 # Getting Started
 
@@ -94,6 +98,8 @@ Open the update server in your browser:
 [localhost:8080](http://localhost:8080)
 
 See below for how to build and run the update server on your own. In addition we have a [guide](https://www.eclipse.org/hawkbit/guides/runhawkbit/) for setting up a complete landscape.
+
+**Note**: the `hawkbit/hawkbit-update-server` image on Docker Hub is published by the Eclipse hawkBit project from its own releases, with the earlier Vaadin 8 UI. To run this version in Docker, build the images from this source first: see [hawkbit-runtime/docker](hawkbit-runtime/docker). The command above then starts the local image.
 
 **Note**: this docker image supports both DDI and DMF APIs. However, in order to have DMF API working you shall have started additionally RabbitMQ on localhost:5672 with user guest/guest. Then the DMF will use / vhost. See more at [guide](https://www.eclipse.org/hawkbit/guides/runhawkbit/) -> _Configure RabbitMQ connection settings_.
 
@@ -112,7 +118,27 @@ mvn clean install
 java -jar ./hawkbit-runtime/hawkbit-update-server/target/hawkbit-update-server-#version#.jar
 ```
 
-The build needs Java 21. The Vaadin 24 simple UI (`hawkbit-runtime/hawkbit-simple-ui`) is not part of the default build; it is behind the opt-in profile `simple-ui` and does not build on the new stack (Java 21 / Spring Boot 4) yet.
+The build needs Java 21 (tested with Maven 3.9). The Management UI runtimes (`hawkbit-vv8-ui`, `hawkbit-update-server`) run Vaadin's frontend build when they are packaged. It may download Node.js from `nodejs.org` and npm packages from `registry.npmjs.org` (Node.js is kept in `~/.vaadin` for later builds), so the build needs these hosts next to Maven Central; as long as the UI has no custom frontend files it uses Vaadin's pre-built bundle (see [hawkbit-ui](hawkbit-ui)).
+
+The Vaadin 24 simple UI (`hawkbit-runtime/hawkbit-simple-ui`) is not part of the default build. The Maven profile `simple-ui` (`mvn clean install -Psimple-ui`) only adds this module to the build of `hawkbit-runtime`. The module has not been ported to Java 21 / Spring Boot 4, so a build with the profile is expected to fail until it is.
+
+## Build and start the Management UI as separate services
+
+The Management UI can also run on its own, next to the Management server, with a shared database (not the in-memory H2) and RabbitMQ: see [hawkbit-vv8-ui](hawkbit-runtime/hawkbit-vv8-ui) and [hawkbit-mgmt-server](hawkbit-runtime/hawkbit-mgmt-server). The folder [env](env) starts this setup with MySQL 8.0 and RabbitMQ 3 in Docker with one command (`env/up.sh`, see `env/README.md`).
+
+The UI runs in Vaadin's production mode. Development mode, debugging and the theme: [hawkbit-ui](hawkbit-ui) and the [Custom Theme guide](docs/content/guides/customtheme.md).
+
+## Run the tests
+
+```bash
+mvn verify
+```
+
+The DMF integration tests need RabbitMQ; without a reachable broker they are skipped, unless `RABBITMQ_SERVER_REQUIRED=true` is set, which makes them fail instead (`RABBITMQ_TEST_HOSTNAME` names the broker host). How CI builds, starts and tests the app: [.github/CI.md](.github/CI.md).
+
+## End-to-end tests of the UI
+
+Playwright tests (Java, JUnit 5) of the management UI against a running app, in the opt-in profile `e2e`: `env/e2e.sh` starts a copy of the app in Docker, runs `mvn -Pe2e -pl hawkbit-runtime/hawkbit-vv8-ui-e2e verify` against it and removes it. How to run them and what they need: [env/README.md](env/README.md), "End-to-end tests". CI runs them in the job `e2e` ([.github/CI.md](.github/CI.md)).
 
 ## Start hawkBit [Device Simulator](https://github.com/eclipse/hawkbit-examples/tree/master/hawkbit-device-simulator) (optional)
 

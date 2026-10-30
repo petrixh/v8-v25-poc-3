@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 /**
  * A grid with a tooltip generator on some column covers the tooltips of the
  * components in the cells of the other columns (Flow), so those columns get a
- * generator that reads the component's tooltip text (2B-02).
+ * generator that reads the component's tooltip text.
  */
 @Feature("Unit Tests - Management UI")
 @Story("Grid component tooltips")

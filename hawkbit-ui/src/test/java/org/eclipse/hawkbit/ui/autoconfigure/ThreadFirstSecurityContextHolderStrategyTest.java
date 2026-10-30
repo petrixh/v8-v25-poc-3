@@ -118,7 +118,7 @@ class ThreadFirstSecurityContextHolderStrategyTest {
     }
 
     @Test
-    @Description("1B-29: a re-login of the same browser session during a switch leaves the old user on the request thread only until the request ends")
+    @Description("A re-login of the same browser session during a switch leaves the old user on the request thread only until the request ends")
     void contextLeftByReloginDuringSwitchEndsWithTheRequest() throws Exception {
         final SecurityContextHolderFilter filter = new SecurityContextHolderFilter(
                 new HttpSessionSecurityContextRepository());

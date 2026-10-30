@@ -14,11 +14,13 @@ import java.util.concurrent.locks.Lock;
 import jakarta.servlet.MultipartConfigElement;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
+import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
+import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -71,11 +73,16 @@ public class UploadProgressButtonLayout extends VerticalLayout {
      * @param uploadLock
      *            A common upload lock that enforced sequential upload within an
      *            UI instance
+     * @param quotaManagement
+     *            the {@link QuotaManagement}: the maximum artifact size is the
+     *            limit the browser applies before a file is sent
+     * @param uiNotification
+     *            the {@link UINotification}
      */
     public UploadProgressButtonLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final ArtifactUploadState artifactUploadState, final MultipartConfigElement multipartConfigElement,
             final ArtifactManagement artifactManagement, final SoftwareModuleManagement softwareManagement,
-            final Lock uploadLock) {
+            final Lock uploadLock, final QuotaManagement quotaManagement, final UINotification uiNotification) {
         this.artifactUploadState = artifactUploadState;
         this.artifactManagement = artifactManagement;
         this.uploadInfoWindow = new UploadProgressInfoWindow(i18n, artifactUploadState);
@@ -92,6 +99,14 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         // Vaadin 8 Upload: one file per click, uploaded at once, no file list
         this.uploadManager = new UploadManager(this);
         this.uploadManager.setMaxFiles(1);
+        // a file over the size limit is refused in the browser, before it is
+        // sent, and listed in the upload status window as the server does
+        final long maxFileSize = UploadLimits.maxFileSize(multipartConfigElement.getMaxFileSize(),
+                quotaManagement.getMaxArtifactSize());
+        this.uploadManager.setMaxFileSize(maxFileSize);
+        final ClientRefusedUpload refusedUpload = new ClientRefusedUpload(artifactManagement, softwareManagement, i18n,
+                uiNotification, uploadLock, maxFileSize);
+        this.uploadManager.addFileRejectedListener(refusedUpload::onFileRejected);
         this.uploadManager.addAllFinishedListener(event -> uploadManager.clearFileList());
         this.upload = new UploadFixed(i18n.getMessage("upload.file"), uploadManager);
         this.uploadLock = uploadLock;

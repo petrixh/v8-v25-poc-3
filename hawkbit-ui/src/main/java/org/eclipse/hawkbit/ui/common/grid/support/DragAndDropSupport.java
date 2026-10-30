@@ -9,7 +9,6 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.support;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +33,7 @@ import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.cronutils.utils.StringUtils;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.dnd.GridDragStartEvent;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.shared.Registration;
@@ -164,7 +164,7 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     }
 
     private List<T> getItemsToDrag(final GridDragStartEvent<T> event) {
-        final List<T> selectedItems = new ArrayList<>(event.getSource().getSelectedItems());
+        final List<T> selectedItems = SelectionSupport.getSelectedItemsAsLastFetched(event.getSource());
         final List<T> draggedVisibleItems = event.getDraggedItems();
 
         if (draggedVisibleItems.size() == 1 && !selectedItems.contains(draggedVisibleItems.get(0))) {

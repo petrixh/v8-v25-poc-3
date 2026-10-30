@@ -201,7 +201,7 @@ public class UISecurityConfigurationAdapter {
         // requests (UIDL, push, heartbeat, static resources) through and keeps
         // the navigation access control; no form login (the login view logs in
         // programmatically, as before), CSRF and logout stay as configured here
-        // E006: any other address under /UI needs only a logged-in user (the
+        // Any other address under /UI needs only a logged-in user (the
         // configurer's default denies it with 403), so an unknown path reaches
         // the router and gets the error view with 404
         httpSec.with(VaadinSecurityConfigurer.vaadin(), vaadin -> vaadin.enableCsrfConfiguration(false)
@@ -231,7 +231,7 @@ public class UISecurityConfigurationAdapter {
         // Vaadin configurer, which also requires authentication for any other
         // request
         httpSec.authorizeHttpRequests(requests -> requests.requestMatchers("/UI/login/**").permitAll());
-        // 1B-58: an unknown address below /UI/login/ answers 404 for an
+        // An unknown address below /UI/login/ answers 404 for an
         // anonymous user, as before, instead of reaching the router (the error
         // view in the shell needs a logged-in user)
         httpSec.addFilterBefore(new AnonymousUnknownLoginPathFilter(), AuthorizationFilter.class);
@@ -307,8 +307,8 @@ public class UISecurityConfigurationAdapter {
 
         // what vaadin4spring's VaadinUrlAuthenticationSuccessHandler did: the
         // target URL parameter, else the default target URL (it did not use
-        // the saved request, so the user lands on the start view as before,
-        // BR-026); the redirect goes through the browser (Page.setLocation)
+        // the saved request, so the user lands on the start view as before);
+        // the redirect goes through the browser (Page.setLocation)
         // because the login runs inside a Vaadin request
         private final SimpleUrlAuthenticationSuccessHandler redirectHandler = new SimpleUrlAuthenticationSuccessHandler();
 

@@ -172,7 +172,7 @@ class ExecutorSecurityContextPropagationTest {
     }
 
     @Test
-    @Description("1B-32: on a uiExecutor thread a bulk upload left a Vaadin session on (BR-011(d)), later tasks see their own submitter, never that session's user")
+    @Description("On a uiExecutor thread a bulk upload left a Vaadin session on, later tasks see their own submitter, never that session's user")
     void uiExecutorThreadWithStaleVaadinSession() {
         contextRunner.run(ctx -> {
             installUiStrategy();
@@ -196,7 +196,7 @@ class ExecutorSecurityContextPropagationTest {
     }
 
     @Test
-    @Description("1B-29: the same browser session logs in again while a pooled thread runs a switched block; the thread keeps the old user until the task ends, as the old thread-local holder did, and no later task sees it")
+    @Description("The same browser session logs in again while a pooled thread runs a switched block; the thread keeps the old user until the task ends, as the old thread-local holder did, and no later task sees it")
     void uiExecutorThreadAfterReloginDuringSwitch() {
         contextRunner.run(ctx -> {
             installUiStrategy();

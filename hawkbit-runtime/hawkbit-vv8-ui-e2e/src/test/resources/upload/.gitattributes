@@ -1,0 +1,2 @@
+# Upload fixtures: the test compares their exact bytes (size, checksums) with what the app shows.
+*.bin binary

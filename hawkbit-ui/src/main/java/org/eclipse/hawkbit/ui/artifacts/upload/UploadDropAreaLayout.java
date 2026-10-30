@@ -18,6 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import jakarta.servlet.MultipartConfigElement;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
+import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
@@ -59,6 +60,7 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
 
     private final transient MultipartConfigElement multipartConfigElement;
     private final transient Lock uploadLock = new ReentrantLock();
+    private final long maxFileSize;
     // dropped files are streamed one after the other, in the order their
     // requests arrive
     private final transient Lock dropQueueLock = new ReentrantLock(true);
@@ -82,10 +84,14 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
      * @param artifactManagement
      *            the {@link ArtifactManagement} for storing the uploaded
      *            artifacts
+     * @param quotaManagement
+     *            the {@link QuotaManagement}: the maximum artifact size is the
+     *            limit the browser applies before a file is sent
      */
     public UploadDropAreaLayout(final CommonUiDependencies uiDependencies, final ArtifactUploadState artifactUploadState,
             final MultipartConfigElement multipartConfigElement, final SoftwareModuleManagement softwareManagement,
-            final ArtifactManagement artifactManagement) {
+            final ArtifactManagement artifactManagement,
+            final QuotaManagement quotaManagement) {
         this.i18n = uiDependencies.getI18n();
         this.uiNotification = uiDependencies.getUiNotification();
         this.artifactUploadState = artifactUploadState;
@@ -94,7 +100,10 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
         this.artifactManagement = artifactManagement;
 
         this.uploadButtonLayout = new UploadProgressButtonLayout(i18n, uiDependencies.getEventBus(), artifactUploadState,
-                multipartConfigElement, artifactManagement, softwareManagement, uploadLock);
+                multipartConfigElement, artifactManagement, softwareManagement, uploadLock, quotaManagement,
+                uiNotification);
+        this.maxFileSize = UploadLimits.maxFileSize(multipartConfigElement.getMaxFileSize(),
+                quotaManagement.getMaxArtifactSize());
 
         buildLayout();
     }
@@ -122,10 +131,20 @@ public class UploadDropAreaLayout extends Composite<UploadDropZone>
         dropAreaLayout.add(uploadButtonLayout);
 
         final UploadManager dropUploadManager = new UploadManager(dropAreaLayout, new UploadFileDropHandler());
+        // a file over the size limit is refused in the browser, before it is
+        // sent, and listed in the upload status window as the server does
+        dropUploadManager.setMaxFileSize(maxFileSize);
+        final ClientRefusedUpload refusedUpload = new ClientRefusedUpload(artifactManagement, softwareManagement, i18n,
+                uiNotification, uploadLock, maxFileSize);
+        // the drop zone lists the refused files from the drop event, not from
+        // the manager's reject event (see ClientRefusedUpload#onFilesDropped)
         // the progress window shows the files; the drop zone keeps no list
         dropUploadManager.addAllFinishedListener(event -> dropUploadManager.clearFileList());
         dropZone = new UploadDropZone(dropAreaLayout, dropUploadManager);
         dropZone.setEnabled(false);
+        dropZone.getElement()
+                .addEventListener("drop", event -> refusedUpload.onFilesDropped(event.getEventData()))
+                .addEventData(ClientRefusedUpload.DROPPED_FILES).allowInert();
     }
 
     @Override

@@ -15,6 +15,7 @@ import java.util.List;
 import jakarta.servlet.MultipartConfigElement;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
+import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
@@ -58,18 +59,20 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
      *            SoftwareModuleManagement
      * @param multipartConfigElement
      *            MultipartConfigElement
+     * @param quotaManagement
+     *            QuotaManagement
      */
     public ArtifactDetailsGridLayout(final CommonUiDependencies uiDependencies,
             final ArtifactUploadState artifactUploadState,
             final ArtifactDetailsGridLayoutUiState artifactDetailsGridLayoutUiState,
             final ArtifactManagement artifactManagement, final SoftwareModuleManagement softwareManagement,
-            final MultipartConfigElement multipartConfigElement) {
+            final MultipartConfigElement multipartConfigElement, final QuotaManagement quotaManagement) {
         this.artifactDetailsHeader = new ArtifactDetailsGridHeader(uiDependencies, artifactDetailsGridLayoutUiState);
         this.artifactDetailsGrid = new ArtifactDetailsGrid(uiDependencies, artifactManagement);
 
         if (uiDependencies.getPermChecker().hasCreateRepositoryPermission()) {
             this.uploadDropAreaLayout = new UploadDropAreaLayout(uiDependencies, artifactUploadState,
-                    multipartConfigElement, softwareManagement, artifactManagement);
+                    multipartConfigElement, softwareManagement, artifactManagement, quotaManagement);
 
             buildLayout(artifactDetailsHeader, artifactDetailsGrid, uploadDropAreaLayout);
         } else {

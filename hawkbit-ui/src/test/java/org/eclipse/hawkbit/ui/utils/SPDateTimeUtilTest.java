@@ -39,7 +39,7 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 
 /**
- * 2B-01: dates in the browser's time zone, picked from its raw offset as
+ * Dates in the browser's time zone, picked from its raw offset as
  * Vaadin 8 did, also before the UI has its own browser details
  * ({@code vaadin.eagerServerLoad}).
  */

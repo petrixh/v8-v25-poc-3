@@ -1,6 +1,6 @@
 # Reproducible environment
 
-One command starts one isolated copy of the app: the UI runtime (`hawkbit-vv8-ui`, the module keeps its name; Vaadin 25 on Java 21 from stage 1a) with `hawkbit-mgmt-server`, MySQL 8.0 and RabbitMQ 3, seeded with a small synthetic data set. Several copies run side by side, each with its own network, database, broker and port. The scripts follow the replay runner's env-script contract (`up.sh`, `reset.sh`, `down.sh`, configured through `APP_ENV_*`).
+One command starts one isolated copy of the app: the UI runtime (`hawkbit-vv8-ui`, which keeps its name from the earlier Vaadin 8 UI and serves the Vaadin 25 UI on Java 21) with `hawkbit-mgmt-server`, MySQL 8.0 and RabbitMQ 3, seeded with a small synthetic data set. Several copies run side by side, each with its own network, database, broker and port. The scripts follow the replay runner's env-script contract (`up.sh`, `reset.sh`, `down.sh`, configured through `APP_ENV_*`).
 
 ## Needs
 
@@ -19,6 +19,7 @@ On the host, checked by `up.sh` and `reset.sh` at start; nothing else is install
 APP_ENV_PROJECT=copy-a APP_ENV_PORT=18181 env/up.sh     # build the image for HEAD if missing, start, seed; returns when the UI answers
 APP_ENV_PROJECT=copy-a APP_ENV_PORT=18181 env/reset.sh  # back to the seed state
 APP_ENV_PROJECT=copy-a env/down.sh                      # remove the copy
+APP_ENV_PROJECT=copy-a APP_ENV_PORT=18181 env/e2e.sh    # start, run the UI end-to-end tests, remove (see End-to-end tests)
 ```
 
 The UI is at `http://127.0.0.1:$APP_ENV_PORT/UI/`. `up.sh --no-build` starts from an existing image and fails if there is none.
@@ -28,6 +29,7 @@ The UI is at `http://127.0.0.1:$APP_ENV_PORT/UI/`. `up.sh --no-build` starts fro
 | `up.sh [--no-build]` | Builds the app image for `HEAD` if it does not exist yet (`--no-build`: it must exist). Starts the copy, runs the seed hook, takes the seed dump, gives mgmt-server the test users (if any), starts the UI; about 40-55 s with the image in place. Refuses to start when the copy already exists (any container, network or volume with its label, or a volume with one of its names). On failure it leaves what it started, for `down.sh` | 0 once `/UI/login` answers 200 |
 | `reset.sh` | Returns the running copy to the seed state (see Reset) | 0 once the UI answers again |
 | `down.sh` | Saves the DNS log and app logs, then removes every container, network and volume of the copy and its state dir. Safe after a half-finished or killed `up.sh` and when the copy is gone | always 0 |
+| `e2e.sh [--no-build] [--running] [-- <maven args>]` | `up.sh`, then the UI end-to-end tests against the copy, then `down.sh` (`--running`: a copy that is already up, left running). See End-to-end tests | Maven's: 0 when every test passed |
 
 ## Settings
 
@@ -74,7 +76,7 @@ Memory per copy, measured: about 2.45 GB for its containers (each JVM about 0.9 
 
 Both JVMs run with the settings the migration's pre-check proved on the old app, adapted to the new stack: Spring profile `mysql`, MariaDB JDBC driver 3.5.10 (the version Spring Boot 4.1.2 manages; 3.1.4 on the old app) on the loader path (`-Dloader.path`), the launcher `org.springframework.boot.loader.launch.PropertiesLauncher` (Boot 3.2 and later; `org.springframework.boot.loader.PropertiesLauncher` on the old app), `-Xms768m -Xmx768m`, uid 1000. The project's own `hawkbit-runtime/docker/docker_build/Dockerfile-mysql` differs: it puts the driver in `BOOT-INF/lib` and sets more JVM flags. It is not used here.
 
-**Runtime mode: production.** The scripts do not set the Vaadin mode. On the old app `hawkbit-ui/src/main/resources/hawkbit-ui-defaults.properties` sets it and the vv8-ui log shows `Set servlet init parameter [productionMode] = [true]`; check on the new app that the mode is production (the build runs the production frontend build) once the UI starts.
+**Runtime mode: production.** The scripts do not set the Vaadin mode: `hawkbit-ui/src/main/resources/hawkbit-ui-defaults.properties` sets `vaadin.productionMode=true`, the image holds the production build, and the vv8-ui log says `Vaadin is running in production mode.` Development mode cannot be switched on in this image by a property alone: it needs Vaadin's development dependencies and the unpacked class path of an IDE run (`hawkbit-ui/README.md`).
 
 **mgmt-server's admin** gets a new random password per copy, never printed. It is in `mgmt-admin.properties` in the copy's state dir (the dir has mode 700, the file mode 644 so the container's uid 1000 can read it), mounted read-only and loaded with `--spring.config.additional-location`. Only the seed uses it; mgmt-server has no port on the host.
 
@@ -135,6 +137,35 @@ awk '{print $3, $5}' env/.state/copies/<project>/dns/dns.log | sort | uniq -c
 # everything of the copy
 docker ps -a --filter label=mig.env.project=<project>; docker network ls --filter label=mig.env.project=<project>; docker volume ls --filter label=mig.env.project=<project>
 ```
+
+## End-to-end tests
+
+UI tests in `hawkbit-runtime/hawkbit-vv8-ui-e2e`: Playwright for Java 1.63.0 and JUnit 5, run by failsafe in the Maven profile `e2e`. They drive a headless Chromium against a running copy, as a user would (roles, labels, visible text), with the browser's time zone set to Europe/Helsinki. The tests are black-box: they use none of the app's classes. The module is in the build only with `-Pe2e`, so the default build neither downloads Playwright nor runs them.
+
+Needs, besides the above: JDK 21 and Maven 3.9 on the host (the tests run there, not in Docker), and on Linux the system libraries Chromium needs (Playwright's `install-deps chromium` installs them on Debian and Ubuntu; GitHub's Ubuntu runners have them). Node.js is not needed. The copy needs the seed and the test user `admin`, with its password as `MIG_TU_ADMIN_PW` in `APP_ENV_USERS_ENV` (as `.github/ci/test-users.sh` writes it).
+
+```sh
+# start a copy, run the tests, remove the copy (exit code: Maven's)
+APP_ENV_PROJECT=copy-a APP_ENV_PORT=18181 APP_ENV_USERS_PROPERTIES=<file> APP_ENV_USERS_ENV=<file> env/e2e.sh
+# against a copy that is already up; one test class
+APP_ENV_PROJECT=copy-a APP_ENV_PORT=18181 APP_ENV_USERS_ENV=<file> env/e2e.sh --running -- -Dit.test=Wf01LoginLogoutIT
+# Maven only, against any running UI (no reset unless -De2e.reset is given)
+mvn -Pe2e -pl hawkbit-runtime/hawkbit-vv8-ui-e2e verify -De2e.baseUrl=http://127.0.0.1:18181 -De2e.usersEnv=<file>
+```
+
+| Property (`-D`) | Default | Meaning |
+|---|---|---|
+| `e2e.baseUrl` | `http://127.0.0.1:18081` | The UI (`e2e.sh`: `http://127.0.0.1:$APP_ENV_PORT`) |
+| `e2e.usersEnv` | the environment variable `APP_ENV_USERS_ENV` | The test users' password file (`MIG_TU_<USER>_PW=...`); read at run time, never printed |
+| `e2e.reset` | none (`e2e.sh`: `env/reset.sh`) | Command run before each test class to return the copy to the seed state; it gets the `APP_ENV_*` of the shell |
+| `e2e.timezone` | `Europe/Helsinki` | Time zone of the browser |
+
+- Each test gets a fresh browser context (its own session). The browser may reach only the UI's host and port: any other request is aborted and fails the test. A console error, page error or HTTP status of 400 or more fails the step it happens in. A target's security token is hidden on every page. Failure messages are cleared of the test users' passwords (Playwright's log of a failed fill can hold the typed value).
+- A failing test leaves a screenshot in `hawkbit-runtime/hawkbit-vv8-ui-e2e/target/e2e/`; the reports are in `target/failsafe-reports/`. `e2e.sh` keeps Maven's output in `$APP_ENV_LOG_DIR` (`e2e-<commit>-<time>.log`).
+- Downloads: Playwright for Java from Maven Central (its `driver-bundle` jar, about 195 MB, carries Playwright's driver with a Node.js runtime per platform, so nothing is installed for it); at the first run the Chromium headless shell and ffmpeg (about 120 MB) from Playwright's CDN `cdn.playwright.dev` into Playwright's browser cache (`PLAYWRIGHT_BROWSERS_PATH`, default `~/.cache/ms-playwright` on Linux), shared with the CI smoke's Node Playwright of the same version. Playwright may fall back to `playwright.download.prss.microsoft.com`. `e2e.sh` fails when its log shows a download from any other host, or a browser install whose host it cannot read (it parses Playwright's "Downloading ... from <url>" lines).
+- The tests, one class per feature, each on a freshly reset copy: `Wf01LoginLogoutIT` (sign in, every view, sign out), `LoginRefusedIT` (wrong credentials), `TargetTagsIT` (target tags: create, drag targets onto one, filter, remove, delete), `DistributionSetRulesIT` (edit and delete sets, module assignment rules), `SoftwareModuleUploadIT` (create a module, upload two files with the button and by drop; the files are in the module's `src/test/resources/upload/`), `RolloutLifecycleIT` (create, start, pause, resume, next group, delete a rollout). Against a local copy they take about 6 minutes in all, `RolloutLifecycleIT` about 2 of them (it waits for the app's rollout scheduler).
+- A new test: a class `*IT` named after the feature in `org.eclipse.hawkbit.ui.e2e` that extends `AbstractUiE2eTest`, one `step(...)` per workflow step, with the helpers of `HawkbitUi` and `Grids` (lists). Icon-only buttons have no accessible name: find them by the component id the app gives them. A drag that the browser ends without a drop is repeated up to twice (`Grids.mouseDrag`), as a user drags again. The helpers rely on five things that are not public Vaadin API (the Flow client `isActive()` check, the tooltip overlay's `closing` attribute and `positionTarget` property, the `vaadin-tooltip` `target` property, the grid scroller's `scrolling` attribute) and on the grid's internal table structure (`table`, `thead`/`tbody`, `td` cells with slotted content; see the Javadoc of `HawkbitUi` and `Grids`): check them after a Vaadin update. Keep `playwright.version` in the module's pom equal to `PLAYWRIGHT_VERSION` in `.github/workflows/ci.yml` (the CI job `e2e` fails otherwise).
+- In CI the job `e2e` runs `env/e2e.sh` (`.github/CI.md`).
 
 ## With the replay runner
 
