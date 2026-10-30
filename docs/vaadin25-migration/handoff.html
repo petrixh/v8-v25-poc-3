@@ -130,7 +130,7 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
     <div class="status">Release candidate — awaiting acceptance (M3)</div>
   </div>
   <div class="meta"><table><tr><td>Version</td><td>1.0 (release candidate)</td></tr><tr><td>Date</td><td>2026-10-30</td></tr><tr><td>Status</td><td>Release candidate — awaiting acceptance (M3)</td></tr><tr><td>Prepared for</td><td>Operators, developers and users of the hawkBit Management UI</td></tr><tr><td>Prepared by</td><td>Vaadin migration team</td></tr></table></div>
-  <div class="foot">Release candidate — awaiting acceptance (M3). Milestone M2 passed on 30 October 2026. Written from the migrated code at commit 1c662d9 (merged into mig-dev as d8e794c on 30 October 2026), with every decision you made during the migration. Small fixes made in the hand-off stage are noted where they apply. The document becomes final when you accept the hand-off.</div>
+  <div class="foot">Release candidate — awaiting acceptance (M3). Milestone M2 passed on 30 October 2026. Written from the migrated code at commit 684b25a: the workflow stage's last commit 1c662d9 (merged into mig-dev as d8e794c on 30 October 2026) plus the small fixes of the hand-off stage, with every decision you made during the migration. The document becomes final when you accept the hand-off.</div>
 </section><nav class="toc"><h1 id="contents">Contents</h1><ol>
 <li class="l1"><a href="#executive-summary"><span class="t-num"></span><span class="t-title">Executive summary</span><span class="t-dots"></span><span class="t-page">3</span></a></li>
 <li class="l1"><a href="#about-this-document"><span class="t-num">1</span><span class="t-title">About this document</span><span class="t-dots"></span><span class="t-page">6</span></a></li>
@@ -147,7 +147,7 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
 <li class="l1"><a href="#what-changed-users"><span class="t-num">3</span><span class="t-title">What changed: users</span><span class="t-dots"></span><span class="t-page">13</span></a></li>
 <li class="l2"><a href="#look"><span class="t-num">3.1</span><span class="t-title">Look</span><span class="t-dots"></span><span class="t-page">13</span></a></li>
 <li class="l2"><a href="#behaviour-of-controls"><span class="t-num">3.2</span><span class="t-title">Behaviour of controls</span><span class="t-dots"></span><span class="t-page">14</span></a></li>
-<li class="l2"><a href="#uploads"><span class="t-num">3.3</span><span class="t-title">Uploads</span><span class="t-dots"></span><span class="t-page">15</span></a></li>
+<li class="l2"><a href="#uploads"><span class="t-num">3.3</span><span class="t-title">Uploads</span><span class="t-dots"></span><span class="t-page">16</span></a></li>
 <li class="l1"><a href="#what-changed-developers-and-integrators"><span class="t-num">4</span><span class="t-title">What changed: developers and integrators</span><span class="t-dots"></span><span class="t-page">17</span></a></li>
 <li class="l2"><a href="#apis"><span class="t-num">4.1</span><span class="t-title">APIs</span><span class="t-dots"></span><span class="t-page">17</span></a></li>
 <li class="l2"><a href="#ui-code-theme-and-security-context"><span class="t-num">4.2</span><span class="t-title">UI code, theme and security context</span><span class="t-dots"></span><span class="t-page">18</span></a></li>
@@ -161,30 +161,30 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
 <li class="l2"><a href="#container-images"><span class="t-num">5.5</span><span class="t-title">Container images</span><span class="t-dots"></span><span class="t-page">23</span></a></li>
 <li class="l2"><a href="#database-migration"><span class="t-num">5.6</span><span class="t-title">Database migration</span><span class="t-dots"></span><span class="t-page">24</span></a></li>
 <li class="l2"><a href="#expected-log-lines-at-startup"><span class="t-num">5.7</span><span class="t-title">Expected log lines at startup</span><span class="t-dots"></span><span class="t-page">25</span></a></li>
-<li class="l2"><a href="#content-security-policy"><span class="t-num">5.8</span><span class="t-title">Content-Security-Policy</span><span class="t-dots"></span><span class="t-page">25</span></a></li>
+<li class="l2"><a href="#content-security-policy"><span class="t-num">5.8</span><span class="t-title">Content-Security-Policy</span><span class="t-dots"></span><span class="t-page">26</span></a></li>
 <li class="l2"><a href="#security-before-production"><span class="t-num">5.9</span><span class="t-title">Security before production</span><span class="t-dots"></span><span class="t-page">26</span></a></li>
-<li class="l2"><a href="#third-party-dependency-list"><span class="t-num">5.10</span><span class="t-title">Third-party dependency list</span><span class="t-dots"></span><span class="t-page">26</span></a></li>
+<li class="l2"><a href="#third-party-dependency-list"><span class="t-num">5.10</span><span class="t-title">Third-party dependency list</span><span class="t-dots"></span><span class="t-page">27</span></a></li>
 <li class="l2"><a href="#cut-over-checklist"><span class="t-num">5.11</span><span class="t-title">Cut-over checklist</span><span class="t-dots"></span><span class="t-page">27</span></a></li>
-<li class="l1"><a href="#how-to-test"><span class="t-num">6</span><span class="t-title">How to test</span><span class="t-dots"></span><span class="t-page">28</span></a></li>
-<li class="l2"><a href="#unit-and-integration-tests"><span class="t-num">6.1</span><span class="t-title">Unit and integration tests</span><span class="t-dots"></span><span class="t-page">28</span></a></li>
-<li class="l2"><a href="#browser-end-to-end-tests"><span class="t-num">6.2</span><span class="t-title">Browser end-to-end tests</span><span class="t-dots"></span><span class="t-page">28</span></a></li>
-<li class="l2"><a href="#continuous-integration"><span class="t-num">6.3</span><span class="t-title">Continuous integration</span><span class="t-dots"></span><span class="t-page">28</span></a></li>
-<li class="l2"><a href="#manual-check"><span class="t-num">6.4</span><span class="t-title">Manual check</span><span class="t-dots"></span><span class="t-page">29</span></a></li>
-<li class="l1"><a href="#known-pre-existing-issues"><span class="t-num">7</span><span class="t-title">Known pre-existing issues</span><span class="t-dots"></span><span class="t-page">30</span></a></li>
-<li class="l2"><a href="#security"><span class="t-num">7.1</span><span class="t-title">Security</span><span class="t-dots"></span><span class="t-page">30</span></a></li>
-<li class="l2"><a href="#reliability-and-data"><span class="t-num">7.2</span><span class="t-title">Reliability and data</span><span class="t-dots"></span><span class="t-page">30</span></a></li>
-<li class="l1"><a href="#side-by-side-recordings"><span class="t-num">8</span><span class="t-title">Side-by-side recordings</span><span class="t-dots"></span><span class="t-page">32</span></a></li>
-<li class="l1"><a href="#follow-up-candidates-parking-lot"><span class="t-num">9</span><span class="t-title">Follow-up candidates (parking lot)</span><span class="t-dots"></span><span class="t-page">34</span></a></li>
-<li class="l2"><a href="#before-production"><span class="t-num">9.1</span><span class="t-title">Before production</span><span class="t-dots"></span><span class="t-page">34</span></a></li>
-<li class="l2"><a href="#security-and-accessibility"><span class="t-num">9.2</span><span class="t-title">Security and accessibility</span><span class="t-dots"></span><span class="t-page">34</span></a></li>
-<li class="l2"><a href="#operations-and-build"><span class="t-num">9.3</span><span class="t-title">Operations and build</span><span class="t-dots"></span><span class="t-page">34</span></a></li>
-<li class="l2"><a href="#look-restoration-toward-the-original-pixels"><span class="t-num">9.4</span><span class="t-title">Look (restoration toward the original pixels)</span><span class="t-dots"></span><span class="t-page">35</span></a></li>
-<li class="l2"><a href="#code-and-tests"><span class="t-num">9.5</span><span class="t-title">Code and tests</span><span class="t-dots"></span><span class="t-page">35</span></a></li>
-<li class="l1"><a href="#appendix-a-before-this-document-is-final"><span class="t-num"></span><span class="t-title">Appendix A. Before this document is final</span><span class="t-dots"></span><span class="t-page">37</span></a></li>
+<li class="l1"><a href="#how-to-test"><span class="t-num">6</span><span class="t-title">How to test</span><span class="t-dots"></span><span class="t-page">29</span></a></li>
+<li class="l2"><a href="#unit-and-integration-tests"><span class="t-num">6.1</span><span class="t-title">Unit and integration tests</span><span class="t-dots"></span><span class="t-page">29</span></a></li>
+<li class="l2"><a href="#browser-end-to-end-tests"><span class="t-num">6.2</span><span class="t-title">Browser end-to-end tests</span><span class="t-dots"></span><span class="t-page">29</span></a></li>
+<li class="l2"><a href="#continuous-integration"><span class="t-num">6.3</span><span class="t-title">Continuous integration</span><span class="t-dots"></span><span class="t-page">29</span></a></li>
+<li class="l2"><a href="#manual-check"><span class="t-num">6.4</span><span class="t-title">Manual check</span><span class="t-dots"></span><span class="t-page">30</span></a></li>
+<li class="l1"><a href="#known-pre-existing-issues"><span class="t-num">7</span><span class="t-title">Known pre-existing issues</span><span class="t-dots"></span><span class="t-page">31</span></a></li>
+<li class="l2"><a href="#security"><span class="t-num">7.1</span><span class="t-title">Security</span><span class="t-dots"></span><span class="t-page">31</span></a></li>
+<li class="l2"><a href="#reliability-and-data"><span class="t-num">7.2</span><span class="t-title">Reliability and data</span><span class="t-dots"></span><span class="t-page">31</span></a></li>
+<li class="l1"><a href="#side-by-side-recordings"><span class="t-num">8</span><span class="t-title">Side-by-side recordings</span><span class="t-dots"></span><span class="t-page">33</span></a></li>
+<li class="l1"><a href="#follow-up-candidates-parking-lot"><span class="t-num">9</span><span class="t-title">Follow-up candidates (parking lot)</span><span class="t-dots"></span><span class="t-page">35</span></a></li>
+<li class="l2"><a href="#before-production"><span class="t-num">9.1</span><span class="t-title">Before production</span><span class="t-dots"></span><span class="t-page">35</span></a></li>
+<li class="l2"><a href="#security-and-accessibility"><span class="t-num">9.2</span><span class="t-title">Security and accessibility</span><span class="t-dots"></span><span class="t-page">35</span></a></li>
+<li class="l2"><a href="#operations-and-build"><span class="t-num">9.3</span><span class="t-title">Operations and build</span><span class="t-dots"></span><span class="t-page">35</span></a></li>
+<li class="l2"><a href="#look-restoration-toward-the-original-pixels"><span class="t-num">9.4</span><span class="t-title">Look (restoration toward the original pixels)</span><span class="t-dots"></span><span class="t-page">36</span></a></li>
+<li class="l2"><a href="#code-and-tests"><span class="t-num">9.5</span><span class="t-title">Code and tests</span><span class="t-dots"></span><span class="t-page">36</span></a></li>
+<li class="l1"><a href="#appendix-a-before-this-document-is-final"><span class="t-num"></span><span class="t-title">Appendix A. Before this document is final</span><span class="t-dots"></span><span class="t-page">38</span></a></li>
 </ol></nav>
 <h1 id="executive-summary">Executive summary</h1>
 <div class="exec"><blockquote>
-<p><strong>Release candidate — awaiting acceptance (M3).</strong> This document describes the migrated code at commit <code>1c662d9</code>, the last commit of the workflow stage, which was merged into <code>mig-dev</code> unchanged (merge commit <code>d8e794c</code>) when you signed off the workflow milestone (M2) on 30 October 2026. It includes every answer you gave during the migration. A small fix made in the hand-off stage is noted where it applies (the tag filter tooltip, section 3.2), and one known open item is the MySQL release image&#39;s driver download (section 5.5). <strong>M2 passed on 30 October 2026; M3, your acceptance of the hand-off, is pending.</strong> The document becomes final when you accept the hand-off.</p>
+<p><strong>Release candidate — awaiting acceptance (M3).</strong> This document describes the migrated code at commit <code>684b25a</code>, the code put forward for your acceptance. It is the last commit of the workflow stage, <code>1c662d9</code>, which was merged into <code>mig-dev</code> unchanged (merge commit <code>d8e794c</code>) when you signed off the workflow milestone (M2) on 30 October 2026, plus three small fixes of the hand-off stage: the filter panel tooltips (section 3.2), the grid headers with a search (section 3.1) and the timing of one test. It includes every answer you gave during the migration. One known open item is the MySQL release image&#39;s driver download (section 5.5). <strong>M2 passed on 30 October 2026; M3, your acceptance of the hand-off, is pending.</strong> The document becomes final when you accept the hand-off.</p>
 </blockquote>
 <h2 id="outcome">Outcome</h2>
 <p>The hawkBit Management UI and every server program in the build now run on <strong>Vaadin 25.3, Spring Boot 4.1, Jakarta EE 11 and Java 21</strong>, replacing Vaadin 8.14, Spring Boot 2.7 and Java 17. The UI is a server-side Vaadin Flow application with free Vaadin components only: there is no GWT widget build, no Sass theme and no commercial component, and no Vaadin licence key is needed.</p>
@@ -254,7 +254,7 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
 <p>Section 2 to 4 give each change with its decision and date. The main answers:</p>
 <ul>
 <li><strong>Accepted as built:</strong> the new look (Lumo compact, hawkBit&#39;s colours, system font); one row height for every grid; field error messages as text under the field; forbidden and unknown views answer HTTP 404; focus starts in the Username field on the login page; the combo-box clear button; the notifications pop-up closing on Esc or a click outside; the bulk upload button; the tenant name as plain text; the upload changes, including two documented exceptions from one Vaadin safeguard for the upload drop area; browser tests in Java with Playwright; release images built from a local jar by default; accessible names added only where the migration had removed one.</li>
-<li><strong>Restored or added at your request:</strong> the hour/minute/second pop-up of the System Config time fields; the Deployment filter panel with one section always open; the login footer moved out of the old theme folder; upload size limits checked in the browser, so users get the message at once.</li>
+<li><strong>Restored or added at your request:</strong> the hour/minute/second pop-up of the System Config time fields; the Deployment filter panel with one section always open; the login footer moved out of the old theme folder; upload size limits checked in the browser, so users get the message at once; the filter panel tooltips shown beside the row, letting clicks pass through (30 October 2026).</li>
 <li><strong>Platform facts, not decisions:</strong> the changes the new platform forces (package names <code>jakarta.*</code>, renamed properties, Java API changes) are listed as facts.</li>
 </ul>
 </div><h1 id="about-this-document"><span class="num">1</span>About this document</h1>
@@ -309,7 +309,7 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
 <p><strong>In scope:</strong> the Management UI module (<code>hawkbit-ui</code>) and all server programs of the default build: Management server, Management UI runtime (<code>hawkbit-vv8-ui</code>, which keeps its old name), the all-in-one Update Server, and the DDI and DMF servers. All of them build, start and run on the new stack.</p>
 <p><strong>Out of scope:</strong> the separate Vaadin 24 &quot;simple UI&quot; (<code>hawkbit-runtime/hawkbit-simple-ui</code>). It is no longer part of the default build (section 2.5).</p>
 <h2 id="how-the-result-was-checked"><span class="num">1.3</span>How the result was checked</h2>
-<p>The original application was frozen at the commit tagged <code>baseline-green</code> on <code>main</code>. Both applications were run in the same isolated container setup, with MySQL 8.0, RabbitMQ 3, the same small synthetic data set and the same test users, in production mode and in Chromium. The 31 user workflows were recorded on the original application. They were then replayed on the migrated application and compared step by step: outcome, texts, data and screenshots. A difference was either fixed or put to you as a decision. Only differences you accepted count as &quot;accepted&quot;. A final run of all 31 workflows on the hand-off code is reported in the final migration report, which is delivered with this document.</p>
+<p>The original application was frozen at the commit tagged <code>baseline-green</code> on <code>main</code>. Both applications were run in the same isolated container setup, with MySQL 8.0, RabbitMQ 3, the same small synthetic data set and the same test users, in production mode and in Chromium. The 31 user workflows were recorded on the original application. They were then replayed on the migrated application and compared step by step: outcome, texts, data and screenshots. A difference was either fixed or put to you as a decision. Only differences you accepted count as &quot;accepted&quot;. A final run of all 31 workflows on the workflow stage&#39;s last commit, and a re-run on the final code of the five workflows that the hand-off fixes touch, are reported in the final migration report, which is delivered with this document.</p>
 <h2 id="status-words-used-in-the-change-tables"><span class="num">1.4</span>Status words used in the change tables</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -699,6 +699,12 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
 <td>Platform</td>
 </tr>
 <tr>
+<td>Grid headers with a search (Targets, Distributions, Software Modules, Rollouts, Target Filters, Upload)</td>
+<td>Icon buttons about 22 px apart, search field about 100 px wide → icon buttons <strong>slightly narrower</strong> than Vaadin 25&#39;s default (about 25 px instead of 33 px), and the open search field <strong>shrinks to the room</strong> the caption and the icons leave, with a small gap to the caption: about 48-57 px wide in a 1024 px window (original 68-80 px). Below 1024 px it can become too narrow to read the typed text (section 9)</td>
+<td>At Vaadin 25&#39;s default sizes the open search field pushed the icons out of the header, over the caption of the panel beside it; fixed in the hand-off stage</td>
+<td>Restored</td>
+</tr>
+<tr>
 <td>Detail tabs, status colours, rollout chart</td>
 <td>Framed purple tabs over a bordered box, 116 px high with scrolling; the old status colours and spinners; rollout &quot;Detail status&quot; as a coloured bar; groups pie chart drawn by the server (SVG) with the old slice colours</td>
 <td>Structural parity; the GWT chart was dropped</td>
@@ -764,10 +770,10 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
 <td>Restored (confirmed 29 Oct 2026)</td>
 </tr>
 <tr>
-<td>Tag filter buttons in the filter panels</td>
-<td>As before. In one build of the migration, the tooltip of a tag button stayed open after a click and covered part of the next tag row, so a click there could miss; this was fixed in the hand-off stage <!-- Hand-off stage: update this row if the tag filter tooltip fix changes how the buttons look or behave. --></td>
-<td>Parity</td>
-<td>Restored</td>
+<td>Tooltips of the filter panel buttons (tags, types and custom filters)</td>
+<td>Shown at the pointer, below and to the right of it → shown <strong>to the right of the row</strong>, beside the list, and <strong>clicks pass through the tooltip</strong>: a click on the next row, or on the grid beside the list, lands while the tooltip is still shown. The buttons themselves are unchanged</td>
+<td>Vaadin 25 tooltips open below their button and take the pointer, so the tooltip covered the next row and a click there missed; fixed in the hand-off stage. The click-through rule styles a part of Vaadin&#39;s tooltip: re-check it after a Vaadin upgrade</td>
+<td>Requested (30 Oct 2026)</td>
 </tr>
 <tr>
 <td>Login page</td>
@@ -1009,7 +1015,7 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
 </tr>
 <tr>
 <td>Security context in the UI</td>
-<td>The UI installs its own <code>SecurityContextHolderStrategy</code> (<code>ThreadFirstSecurityContextHolderStrategy</code>): a context set on the thread (system code, tenant switches) wins over the Vaadin session&#39;s user, as with the old holder. hawkBit&#39;s executors (<code>asyncExecutor</code>, <code>uiExecutor</code>, the task scheduler) run tasks with the submitter&#39;s user and tenant again. No access gained or lost. Tests prove that background work runs as the submitting user and tenant (9 paths, each with a negative control). <strong>Re-check both after upgrading Spring Security or vaadin-spring</strong></td>
+<td>The UI installs its own <code>SecurityContextHolderStrategy</code> (<code>ThreadFirstSecurityContextHolderStrategy</code>): a context set on the thread (system code, tenant switches) wins over the Vaadin session&#39;s user, as with the old holder. hawkBit&#39;s executors (<code>asyncExecutor</code>, <code>uiExecutor</code>, the task scheduler) run tasks with the submitter&#39;s user and tenant again. No access gained or lost. Tests prove that background work runs as the submitting user and tenant (9 paths, 8 negative controls). <strong>Re-check both after upgrading Spring Security or vaadin-spring</strong></td>
 <td>Vaadin&#39;s own strategy ignored hawkBit&#39;s &quot;run as system&quot;; Spring Security 6+ executors captured the strategy too early</td>
 <td>Restored</td>
 </tr>
@@ -1030,6 +1036,12 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
 <td>The &quot;Session already invalidated&quot; race during sign-out is logged as one WARN, without a notification (section 2.4)</td>
 <td>The handler failed with a NullPointerException there before</td>
 <td>Platform</td>
+</tr>
+<tr>
+<td>Filter panel button tooltips</td>
+<td>Placed at the end of the button (<code>AbstractFilterButtons.placeTooltipBesideRow</code>, used by every filter list and the custom filter list), and made to let the pointer through by one rule in <code>hawkbit.css</code> on the tooltip&#39;s exported <code>overlay</code> part, for buttons with the class <code>button-tag-no-border</code>. <strong>Re-check after a Vaadin upgrade</strong> that the part keeps its name; if it does not, the tooltip takes clicks again</td>
+<td>See section 3.2</td>
+<td>Requested (30 Oct 2026)</td>
 </tr>
 </tbody></table></div>
 <h2 id="tests-ci-and-development-environment"><span class="num">4.3</span>Tests, CI and development environment</h2>
@@ -1208,7 +1220,7 @@ docker build -t hawkbit_update_server:&lt;version&gt;-mysql . -f Dockerfile-mysq
 <li>Sign in to the UI and open each view.</li>
 </ol>
 <h2 id="expected-log-lines-at-startup"><span class="num">5.7</span>Expected log lines at startup</h2>
-<p>The migrated programs log some WARN lines at startup that the original did not. They are expected and harmless; do not raise alerts on them. Compared on the UI runtime and the Management server (28 October 2026):</p>
+<p>The migrated programs log some WARN lines at startup that the original did not. They are expected and harmless; do not raise alerts on them. Two programs were compared with the original: the UI runtime and the Management server (28 October 2026), and their startup logs were counted again on the final code (30 October 2026), with the same lines and counts. In all, the UI runtime logs 22 WARN lines at startup and the Management server 20; 5 and 1 of them are also in the original&#39;s log (below the table).</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -1221,13 +1233,13 @@ docker build -t hawkbit_update_server:&lt;version&gt;-mysql . -f Dockerfile-mysq
 <tbody><tr>
 <td><code>PostProcessorRegistrationDelegate$BeanPostProcessorChecker</code></td>
 <td>&quot;Bean &#39;…&#39; of type […] is not eligible for getting processed by all BeanPostProcessors&quot;</td>
-<td>About 15 lines in each program: data source, JPA and Spring Cloud beans and hawkBit&#39;s <code>RepositoryApplicationConfiguration</code>; in the UI runtime one more for the event bus (<code>EventBusConfiguration</code>)</td>
+<td>16 in the UI runtime and 16 in the Management server: the same 15 beans in both (data source, JPA and Spring Cloud beans and hawkBit&#39;s <code>RepositoryApplicationConfiguration</code>), plus one in the UI runtime for the event bus (<code>EventBusConfiguration</code>) and one in the Management server for Flyway&#39;s version converter (<code>stringOrNumberMigrationVersionConverter</code>)</td>
 <td>hawkBit declares two post-processor beans as instance methods, as before; Spring 7 now logs this at WARN (Spring 5 logged it at INFO). Kept unchanged for parity</td>
 </tr>
 <tr>
 <td><code>InitializeUserDetailsManagerConfigurer</code></td>
 <td>&quot;Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used …&quot;</td>
-<td>1 in each program</td>
+<td>1 in the UI runtime, 1 in the Management server</td>
 <td>Spring Security 7 message. Sign-in works as before</td>
 </tr>
 <tr>
@@ -1243,7 +1255,7 @@ docker build -t hawkbit_update_server:&lt;version&gt;-mysql . -f Dockerfile-mysq
 <td>Section 2.4</td>
 </tr>
 </tbody></table></div>
-<p>Not new, also in the original&#39;s log: four &quot;You are asking Spring Security to ignore …&quot; lines (now naming <code>PathPattern</code> instead of <code>Ant</code>) and &quot;spring.jpa.open-in-view is enabled by default&quot;. The startup logs of the Update Server, DDI server and DMF server were not compared with the original.</p>
+<p>Not new, also in the original&#39;s log: four &quot;You are asking Spring Security to ignore …&quot; lines in the UI runtime (now naming <code>PathPattern</code> instead of <code>Ant</code>) and &quot;spring.jpa.open-in-view is enabled by default&quot; in both programs. The startup logs of the Update Server, DDI server and DMF server were not compared with the original.</p>
 <h2 id="content-security-policy"><span class="num">5.8</span>Content-Security-Policy</h2>
 <p>hawkBit sets no Content-Security-Policy by default, as before. If you set one, through <code>hawkbit.server.security.content-security-policy</code> or in a proxy:</p>
 <ul>
@@ -1651,6 +1663,8 @@ connect-src &#39;self&#39;
 </ul>
 </li>
 <li>The date pickers show a four-digit year, and the time is cut in the rollout window at 1400 px (small).</li>
+<li>In a 1024 px window the Rollout view is wider than the window: the Rollouts grid and its header run past the right edge. The original behaves the same (small).</li>
+<li>The open search field in grid headers has no minimum width: below a 1024 px window it can become too narrow to read the typed text (tiny).</li>
 </ul>
 <h2 id="code-and-tests"><span class="num">9.5</span>Code and tests</h2>
 <ul>
@@ -1677,10 +1691,6 @@ connect-src &#39;self&#39;
 </li>
 </ul>
 <h1 id="appendix-a-before-this-document-is-final">Appendix A. Before this document is final</h1>
-<p>This release candidate becomes the final version when you accept the hand-off. Until then:</p>
-<ol>
-<li>Your test run and acceptance of the hand-off (M3). The workflow milestone (M2) passed on 30 October 2026.</li>
-<li>The final run of all 31 workflows on the hand-off code, reported in the final migration report.</li>
-</ol>
+<p>This release candidate becomes the final version when you accept the hand-off. What remains is your test run and acceptance of the hand-off (M3). The workflow milestone (M2) passed on 30 October 2026, and the final workflow runs on the hand-off code are done and reported in the final migration report.</p>
 <p>After acceptance, your own steps before production are in sections 5.5 (MySQL image driver check), 5.6, 5.9 and 5.10 and in the cut-over checklist (section 5.11).</p>
 </body></html>

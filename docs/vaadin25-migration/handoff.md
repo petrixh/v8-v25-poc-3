@@ -8,7 +8,7 @@ status: Release candidate — awaiting acceptance (M3)
 audience: Operators, developers and users of the hawkBit Management UI
 author: Vaadin migration team
 header: hawkBit migration to Vaadin 25 · Hand-off documentation
-notice: Release candidate — awaiting acceptance (M3). Milestone M2 passed on 30 October 2026. Written from the migrated code at commit 1c662d9 (merged into mig-dev as d8e794c on 30 October 2026), with every decision you made during the migration. Small fixes made in the hand-off stage are noted where they apply. The document becomes final when you accept the hand-off.
+notice: Release candidate — awaiting acceptance (M3). Milestone M2 passed on 30 October 2026. Written from the migrated code at commit 684b25a: the workflow stage's last commit 1c662d9 (merged into mig-dev as d8e794c on 30 October 2026) plus the small fixes of the hand-off stage, with every decision you made during the migration. The document becomes final when you accept the hand-off.
 ---
 
 [[TOC]]
@@ -17,7 +17,7 @@ notice: Release candidate — awaiting acceptance (M3). Milestone M2 passed on 3
 
 <div class="exec">
 
-> **Release candidate — awaiting acceptance (M3).** This document describes the migrated code at commit `1c662d9`, the last commit of the workflow stage, which was merged into `mig-dev` unchanged (merge commit `d8e794c`) when you signed off the workflow milestone (M2) on 30 October 2026. It includes every answer you gave during the migration. A small fix made in the hand-off stage is noted where it applies (the tag filter tooltip, section 3.2), and one known open item is the MySQL release image's driver download (section 5.5). **M2 passed on 30 October 2026; M3, your acceptance of the hand-off, is pending.** The document becomes final when you accept the hand-off.
+> **Release candidate — awaiting acceptance (M3).** This document describes the migrated code at commit `684b25a`, the code put forward for your acceptance. It is the last commit of the workflow stage, `1c662d9`, which was merged into `mig-dev` unchanged (merge commit `d8e794c`) when you signed off the workflow milestone (M2) on 30 October 2026, plus three small fixes of the hand-off stage: the filter panel tooltips (section 3.2), the grid headers with a search (section 3.1) and the timing of one test. It includes every answer you gave during the migration. One known open item is the MySQL release image's driver download (section 5.5). **M2 passed on 30 October 2026; M3, your acceptance of the hand-off, is pending.** The document becomes final when you accept the hand-off.
 
 ## Outcome {-}
 
@@ -67,7 +67,7 @@ No behaviour decision is open: every question put to you during the migration ha
 Section 2 to 4 give each change with its decision and date. The main answers:
 
 - **Accepted as built:** the new look (Lumo compact, hawkBit's colours, system font); one row height for every grid; field error messages as text under the field; forbidden and unknown views answer HTTP 404; focus starts in the Username field on the login page; the combo-box clear button; the notifications pop-up closing on Esc or a click outside; the bulk upload button; the tenant name as plain text; the upload changes, including two documented exceptions from one Vaadin safeguard for the upload drop area; browser tests in Java with Playwright; release images built from a local jar by default; accessible names added only where the migration had removed one.
-- **Restored or added at your request:** the hour/minute/second pop-up of the System Config time fields; the Deployment filter panel with one section always open; the login footer moved out of the old theme folder; upload size limits checked in the browser, so users get the message at once.
+- **Restored or added at your request:** the hour/minute/second pop-up of the System Config time fields; the Deployment filter panel with one section always open; the login footer moved out of the old theme folder; upload size limits checked in the browser, so users get the message at once; the filter panel tooltips shown beside the row, letting clicks pass through (30 October 2026).
 - **Platform facts, not decisions:** the changes the new platform forces (package names `jakarta.*`, renamed properties, Java API changes) are listed as facts.
 
 </div>
@@ -98,7 +98,7 @@ The source of this document, the build script and the generated HTML and PDF are
 
 ## How the result was checked
 
-The original application was frozen at the commit tagged `baseline-green` on `main`. Both applications were run in the same isolated container setup, with MySQL 8.0, RabbitMQ 3, the same small synthetic data set and the same test users, in production mode and in Chromium. The 31 user workflows were recorded on the original application. They were then replayed on the migrated application and compared step by step: outcome, texts, data and screenshots. A difference was either fixed or put to you as a decision. Only differences you accepted count as "accepted". A final run of all 31 workflows on the hand-off code is reported in the final migration report, which is delivered with this document.
+The original application was frozen at the commit tagged `baseline-green` on `main`. Both applications were run in the same isolated container setup, with MySQL 8.0, RabbitMQ 3, the same small synthetic data set and the same test users, in production mode and in Chromium. The 31 user workflows were recorded on the original application. They were then replayed on the migrated application and compared step by step: outcome, texts, data and screenshots. A difference was either fixed or put to you as a decision. Only differences you accepted count as "accepted". A final run of all 31 workflows on the workflow stage's last commit, and a re-run on the final code of the five workflows that the hand-off fixes touch, are reported in the final migration report, which is delivered with this document.
 
 ## Status words used in the change tables
 
@@ -205,6 +205,7 @@ The views, menus, permissions, texts and workflows are the same. Section 3.1 cov
 | Grids | Rows 31 px as before, solid purple selected row with white text, by one global rule for every grid | Old theme used one row-height value for all grids | Accepted (29 Oct 2026) |
 | Selection column | Multi-select grids show a **checkbox column**. Click, Ctrl/Cmd+click, Shift+click, Ctrl/Cmd+A and keys select as before (Ctrl/Shift ranges limited to 1000 rows, as before; ticking checkboxes has no such limit) | Vaadin 25's multi-select grid shows it; hiding it needs non-public API | Accepted (28 Oct 2026) |
 | Column visibility and headers | Columns are hidden and shown from a menu button at the end of the grid header (one extra narrow column), instead of Vaadin 8's column toggle. Grid header rows are always shown. Captions of grouped icon columns sit in the first column's header cell | Vaadin 25 Grid has no column menu or header hiding | Platform |
+| Grid headers with a search (Targets, Distributions, Software Modules, Rollouts, Target Filters, Upload) | Icon buttons about 22 px apart, search field about 100 px wide → icon buttons **slightly narrower** than Vaadin 25's default (about 25 px instead of 33 px), and the open search field **shrinks to the room** the caption and the icons leave, with a small gap to the caption: about 48-57 px wide in a 1024 px window (original 68-80 px). Below 1024 px it can become too narrow to read the typed text (section 9) | At Vaadin 25's default sizes the open search field pushed the icons out of the header, over the caption of the panel beside it; fixed in the hand-off stage | Restored |
 | Detail tabs, status colours, rollout chart | Framed purple tabs over a bordered box, 116 px high with scrolling; the old status colours and spinners; rollout "Detail status" as a coloured bar; groups pie chart drawn by the server (SVG) with the old slice colours | Structural parity; the GWT chart was dropped | Agreed / Accepted (29 Oct 2026, with the look) |
 | Window titles | Windows are Vaadin dialogs with the same titles, buttons, Esc and modality, and a close button in the header. Titles keep the old prefixes ("Metadata of …", "Activate automatic confirmations for …", "Artifact Details of …"); the name after the prefix is no longer bold | Vaadin 25 has no Window component | Platform |
 | Auto-confirmation button | Toggle-switch icon → checked / unchecked box icon | FontAwesome is not shipped; Vaadin icons have no toggle switch | Agreed |
@@ -219,7 +220,7 @@ The views, menus, permissions, texts and workflows are the same. Section 3.1 cov
 | Combo boxes that allowed an empty choice | Empty first item → a clear (x) button in the field; same empty result | Vaadin 25 ComboBox has no empty item | Accepted (29 Oct 2026) |
 | Notifications (bell) pop-up | Closes when it loses focus, opens below the button → closes on Esc or a click outside it, opens 40 px below the click point; unread counter is a separate element | Vaadin 25 dialogs have no focus-lost event | Accepted (29 Oct 2026) |
 | Deployment filter panel (Simple / Custom / Target type) | Exactly one section is open at all times, as before (an earlier migration step allowed all closed; this was restored) | Parity | Restored (confirmed 29 Oct 2026) |
-| Tag filter buttons in the filter panels | As before. In one build of the migration, the tooltip of a tag button stayed open after a click and covered part of the next tag row, so a click there could miss; this was fixed in the hand-off stage <!-- Hand-off stage: update this row if the tag filter tooltip fix changes how the buttons look or behave. --> | Parity | Restored |
+| Tooltips of the filter panel buttons (tags, types and custom filters) | Shown at the pointer, below and to the right of it → shown **to the right of the row**, beside the list, and **clicks pass through the tooltip**: a click on the next row, or on the grid beside the list, lands while the tooltip is still shown. The buttons themselves are unchanged | Vaadin 25 tooltips open below their button and take the pointer, so the tooltip covered the next row and a click there missed; fixed in the hand-off stage. The click-through rule styles a part of Vaadin's tooltip: re-check it after a Vaadin upgrade | Requested (30 Oct 2026) |
 | Login page | Keyboard focus starts in **Username** (old: the disabled Sign in button) | Restoring the old focus needed a fragile workaround | Accepted (29 Oct 2026) |
 | System Config polling and overdue times | Time field with an hour/minute/second pop-up → an `HH:mm:ss` text field (same parsing, limits and message) with a button at its start that opens the **hour/minute/second pop-up** (three drop-downs; a choice applies at once and is held to the minimum and maximum as before; Esc, a click outside or Tab out of the last drop-down closes it). The pop-up no longer shows today's date above the drop-downs; the caption is at the start of the row | No Vaadin 25 time field with a free format; the pop-up was rebuilt at your request | Requested (29 Oct 2026) |
 | Forced update time, rollout start time | One date-time field with a calendar pop-up → a date picker plus a time picker; same value. The year shows with four digits | No Vaadin 25 DateTimeField equivalent | Platform |
@@ -271,10 +272,11 @@ The views, menus, permissions, texts and workflows are the same. Section 3.1 cov
 | Login footer | Read from `VAADIN/themes/hawkbit/layouts/footer.html` → **`META-INF/resources/VAADIN/hawkbit/footer.html`** on the class path (constant `AbstractHawkbitLoginUI.FOOTER_RESOURCE`). **A custom footer at the old path is no longer read: move it.** Described in the Custom Theme guide | The old theme folder is gone | Requested (29 Oct 2026) |
 | Vaadin 8 theme sources | 27 SCSS files, 2 duplicate images, 2 `.gitignore` files, `dynamicStylesheet.js`, the whole `VAADIN/themes` folder (with a duplicate `favicon.ico`), the scss-lint rule in `CONTRIBUTING.md`, dead SCSS and widget-set entries in the root `pom.xml`, and comments citing SCSS or Valo removed or updated | They looked like a theme to edit but nothing reads them | Requested (29 Oct 2026) |
 | Event bus | The Vaadin4Spring event bus 2.0.0 (Apache 2.0) is copied into `hawkbit-ui` (package `org.vaadin.spring.events`); same API, adapted to Jakarta and Vaadin Flow scopes. The copied files are excluded from the project's licence-header check | No Vaadin 25 version exists | Agreed |
-| Security context in the UI | The UI installs its own `SecurityContextHolderStrategy` (`ThreadFirstSecurityContextHolderStrategy`): a context set on the thread (system code, tenant switches) wins over the Vaadin session's user, as with the old holder. hawkBit's executors (`asyncExecutor`, `uiExecutor`, the task scheduler) run tasks with the submitter's user and tenant again. No access gained or lost. Tests prove that background work runs as the submitting user and tenant (9 paths, each with a negative control). **Re-check both after upgrading Spring Security or vaadin-spring** | Vaadin's own strategy ignored hawkBit's "run as system"; Spring Security 6+ executors captured the strategy too early | Restored |
+| Security context in the UI | The UI installs its own `SecurityContextHolderStrategy` (`ThreadFirstSecurityContextHolderStrategy`): a context set on the thread (system code, tenant switches) wins over the Vaadin session's user, as with the old holder. hawkBit's executors (`asyncExecutor`, `uiExecutor`, the task scheduler) run tasks with the submitter's user and tenant again. No access gained or lost. Tests prove that background work runs as the submitting user and tenant (9 paths, 8 negative controls). **Re-check both after upgrading Spring Security or vaadin-spring** | Vaadin's own strategy ignored hawkBit's "run as system"; Spring Security 6+ executors captured the strategy too early | Restored |
 | Method security in the UI | `@EnableGlobalMethodSecurity` → `@EnableMethodSecurity` with the same switches | Spring Security 7 | Platform |
 | Upload drop area (`UploadDropAreaLayout`) | Two documented opt-outs from Vaadin's modal-inert safeguard: the upload handler (`isAllowInert()`) and the drop listener (`allowInert()`, which carries only file names and sizes). One method each, reversible. **Re-check both after a Vaadin upgrade**; if Vaadin's upload manager later lets its own reject listener run behind a modal window, the drop listener can go | See section 3.3 | Accepted (29 and 30 Oct 2026) |
 | UI error handler | The "Session already invalidated" race during sign-out is logged as one WARN, without a notification (section 2.4) | The handler failed with a NullPointerException there before | Platform |
+| Filter panel button tooltips | Placed at the end of the button (`AbstractFilterButtons.placeTooltipBesideRow`, used by every filter list and the custom filter list), and made to let the pointer through by one rule in `hawkbit.css` on the tooltip's exported `overlay` part, for buttons with the class `button-tag-no-border`. **Re-check after a Vaadin upgrade** that the part keeps its name; if it does not, the tooltip takes clicks again | See section 3.2 | Requested (30 Oct 2026) |
 
 ## Tests, CI and development environment
 
@@ -428,16 +430,16 @@ Before production, repeat the rehearsal on a copy of your own data:
 
 ## Expected log lines at startup
 
-The migrated programs log some WARN lines at startup that the original did not. They are expected and harmless; do not raise alerts on them. Compared on the UI runtime and the Management server (28 October 2026):
+The migrated programs log some WARN lines at startup that the original did not. They are expected and harmless; do not raise alerts on them. Two programs were compared with the original: the UI runtime and the Management server (28 October 2026), and their startup logs were counted again on the final code (30 October 2026), with the same lines and counts. In all, the UI runtime logs 22 WARN lines at startup and the Management server 20; 5 and 1 of them are also in the original's log (below the table).
 
 | Logger (short) | Message starts with | Where, how many | Why |
 |---|---|---|---|
-| `PostProcessorRegistrationDelegate$BeanPostProcessorChecker` | "Bean '…' of type […] is not eligible for getting processed by all BeanPostProcessors" | About 15 lines in each program: data source, JPA and Spring Cloud beans and hawkBit's `RepositoryApplicationConfiguration`; in the UI runtime one more for the event bus (`EventBusConfiguration`) | hawkBit declares two post-processor beans as instance methods, as before; Spring 7 now logs this at WARN (Spring 5 logged it at INFO). Kept unchanged for parity |
-| `InitializeUserDetailsManagerConfigurer` | "Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used …" | 1 in each program | Spring Security 7 message. Sign-in works as before |
+| `PostProcessorRegistrationDelegate$BeanPostProcessorChecker` | "Bean '…' of type […] is not eligible for getting processed by all BeanPostProcessors" | 16 in the UI runtime and 16 in the Management server: the same 15 beans in both (data source, JPA and Spring Cloud beans and hawkBit's `RepositoryApplicationConfiguration`), plus one in the UI runtime for the event bus (`EventBusConfiguration`) and one in the Management server for Flyway's version converter (`stringOrNumberMigrationVersionConverter`) | hawkBit declares two post-processor beans as instance methods, as before; Spring 7 now logs this at WARN (Spring 5 logged it at INFO). Kept unchanged for parity |
+| `InitializeUserDetailsManagerConfigurer` | "Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used …" | 1 in the UI runtime, 1 in the Management server | Spring Security 7 message. Sign-in works as before |
 | `SpringDocAppInitializer` | "SpringDoc /swagger-ui.html endpoint is enabled by default …" and "SpringDoc /v3/api-docs endpoint is enabled by default …" | 2 in the Management server | springdoc 3 message. The original serves the same endpoints without saying so. To switch them off in production: `springdoc.swagger-ui.enabled=false`, `springdoc.api-docs.enabled=false` |
 | `HV000272` (Hibernate Validator) | A message about `@Valid` on a container | 1 on the first validated use of two methods after each start (not at startup itself) | Section 2.4 |
 
-Not new, also in the original's log: four "You are asking Spring Security to ignore …" lines (now naming `PathPattern` instead of `Ant`) and "spring.jpa.open-in-view is enabled by default". The startup logs of the Update Server, DDI server and DMF server were not compared with the original.
+Not new, also in the original's log: four "You are asking Spring Security to ignore …" lines in the UI runtime (now naming `PathPattern` instead of `Ant`) and "spring.jpa.open-in-view is enabled by default" in both programs. The startup logs of the Update Server, DDI server and DMF server were not compared with the original.
 
 ## Content-Security-Policy
 
@@ -678,6 +680,8 @@ During the migration, improvements that were not needed for parity were written 
   - the order of the rollout status bar segments;
   - labels meant to be small or bold look normal (two CSS classes without a rule).
 - The date pickers show a four-digit year, and the time is cut in the rollout window at 1400 px (small).
+- In a 1024 px window the Rollout view is wider than the window: the Rollouts grid and its header run past the right edge. The original behaves the same (small).
+- The open search field in grid headers has no minimum width: below a 1024 px window it can become too narrow to read the typed text (tiny).
 
 ## Code and tests
 
@@ -701,9 +705,6 @@ During the migration, improvements that were not needed for parity were written 
 
 # Appendix A. Before this document is final {-}
 
-This release candidate becomes the final version when you accept the hand-off. Until then:
-
-1. Your test run and acceptance of the hand-off (M3). The workflow milestone (M2) passed on 30 October 2026.
-2. The final run of all 31 workflows on the hand-off code, reported in the final migration report.
+This release candidate becomes the final version when you accept the hand-off. What remains is your test run and acceptance of the hand-off (M3). The workflow milestone (M2) passed on 30 October 2026, and the final workflow runs on the hand-off code are done and reported in the final migration report.
 
 After acceptance, your own steps before production are in sections 5.5 (MySQL image driver check), 5.6, 5.9 and 5.10 and in the cut-over checklist (section 5.11).
