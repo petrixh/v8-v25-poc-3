@@ -188,7 +188,7 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
 </blockquote>
 <h2 id="outcome">Outcome</h2>
 <p>The hawkBit Management UI and every server program in the build now run on <strong>Vaadin 25.3, Spring Boot 4.1, Jakarta EE 11 and Java 21</strong>, replacing Vaadin 8.14, Spring Boot 2.7 and Java 17. The UI is a server-side Vaadin Flow application with free Vaadin components only: there is no GWT widget build, no Sass theme and no commercial component, and no Vaadin licence key is needed.</p>
-<p>The migrated version is on the branch <strong><code>mig-dev</code></strong>. The original stays on <code>main</code>, so the two can be compared. Nothing is merged into <code>main</code> as part of the hand-off (your decision, 29 October 2026).</p>
+<p>The code for your test run is on the M3 branch <strong><code>stage/3-handoff</code></strong> (the M3 pull request). After your acceptance it merges into <strong><code>mig-dev</code></strong>, which keeps the migrated version. The original stays on <code>main</code>, so the two can be compared. Nothing is merged into <code>main</code> as part of the hand-off (your decision, 29 October 2026).</p>
 <p>The migration was checked against the original application, with both run side by side:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -245,7 +245,7 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
 <h2 id="still-open">Still open</h2>
 <p>No behaviour decision is open: every question put to you during the migration has an answer, and the code follows it. What remains:</p>
 <ol>
-<li><strong>Your test run and acceptance of the hand-off (M3).</strong> The workflow milestone (M2) passed on 30 October 2026.</li>
+<li><strong>Your test run and acceptance of the hand-off (M3)</strong>, on the M3 branch <code>stage/3-handoff</code> (the M3 pull request); after your acceptance it merges into <code>mig-dev</code>. The workflow milestone (M2) passed on 30 October 2026.</li>
 <li><strong>Before production, your own actions:</strong> the security review (section 5.9); the database rehearsal on your data (section 5.6); new passwords for every default account (section 7.1).</li>
 <li><strong>Before you distribute the software:</strong> regenerate the third-party dependency list (section 5.10).</li>
 <li><strong>Before you use the MySQL release image:</strong> re-check its driver download stage once the MariaDB download host answers (section 5.5).</li>
@@ -1691,6 +1691,6 @@ connect-src &#39;self&#39;
 </li>
 </ul>
 <h1 id="appendix-a-before-this-document-is-final">Appendix A. Before this document is final</h1>
-<p>This release candidate becomes the final version when you accept the hand-off. What remains is your test run and acceptance of the hand-off (M3). The workflow milestone (M2) passed on 30 October 2026, and the final workflow runs on the hand-off code are done and reported in the final migration report.</p>
+<p>This release candidate becomes the final version when you accept the hand-off. What remains is your test run and acceptance of the hand-off (M3), on the M3 branch <code>stage/3-handoff</code> (the M3 pull request); after your acceptance it merges into <code>mig-dev</code>. The workflow milestone (M2) passed on 30 October 2026, and the final workflow runs on the hand-off code are done and reported in the final migration report.</p>
 <p>After acceptance, your own steps before production are in sections 5.5 (MySQL image driver check), 5.6, 5.9 and 5.10 and in the cut-over checklist (section 5.11).</p>
 </body></html>

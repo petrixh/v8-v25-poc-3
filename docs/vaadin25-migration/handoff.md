@@ -23,7 +23,7 @@ notice: Release candidate — awaiting acceptance (M3). Milestone M2 passed on 3
 
 The hawkBit Management UI and every server program in the build now run on **Vaadin 25.3, Spring Boot 4.1, Jakarta EE 11 and Java 21**, replacing Vaadin 8.14, Spring Boot 2.7 and Java 17. The UI is a server-side Vaadin Flow application with free Vaadin components only: there is no GWT widget build, no Sass theme and no commercial component, and no Vaadin licence key is needed.
 
-The migrated version is on the branch **`mig-dev`**. The original stays on `main`, so the two can be compared. Nothing is merged into `main` as part of the hand-off (your decision, 29 October 2026).
+The code for your test run is on the M3 branch **`stage/3-handoff`** (the M3 pull request). After your acceptance it merges into **`mig-dev`**, which keeps the migrated version. The original stays on `main`, so the two can be compared. Nothing is merged into `main` as part of the hand-off (your decision, 29 October 2026).
 
 The migration was checked against the original application, with both run side by side:
 
@@ -57,7 +57,7 @@ The migration was checked against the original application, with both run side b
 
 No behaviour decision is open: every question put to you during the migration has an answer, and the code follows it. What remains:
 
-1. **Your test run and acceptance of the hand-off (M3).** The workflow milestone (M2) passed on 30 October 2026.
+1. **Your test run and acceptance of the hand-off (M3)**, on the M3 branch `stage/3-handoff` (the M3 pull request); after your acceptance it merges into `mig-dev`. The workflow milestone (M2) passed on 30 October 2026.
 2. **Before production, your own actions:** the security review (section 5.9); the database rehearsal on your data (section 5.6); new passwords for every default account (section 7.1).
 3. **Before you distribute the software:** regenerate the third-party dependency list (section 5.10).
 4. **Before you use the MySQL release image:** re-check its driver download stage once the MariaDB download host answers (section 5.5).
@@ -705,6 +705,6 @@ During the migration, improvements that were not needed for parity were written 
 
 # Appendix A. Before this document is final {-}
 
-This release candidate becomes the final version when you accept the hand-off. What remains is your test run and acceptance of the hand-off (M3). The workflow milestone (M2) passed on 30 October 2026, and the final workflow runs on the hand-off code are done and reported in the final migration report.
+This release candidate becomes the final version when you accept the hand-off. What remains is your test run and acceptance of the hand-off (M3), on the M3 branch `stage/3-handoff` (the M3 pull request); after your acceptance it merges into `mig-dev`. The workflow milestone (M2) passed on 30 October 2026, and the final workflow runs on the hand-off code are done and reported in the final migration report.
 
 After acceptance, your own steps before production are in sections 5.5 (MySQL image driver check), 5.6, 5.9 and 5.10 and in the cut-over checklist (section 5.11).
