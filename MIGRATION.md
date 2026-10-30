@@ -1,5 +1,14 @@
 # hawkBit Migration Guides
 
+## Vaadin 25 migration (Vaadin 25, Spring Boot 4.1, Java 21)
+
+The Management UI and all server programs moved from Vaadin 8, Spring Boot 2.7 and Java 17 to Vaadin 25, Spring Boot 4.1 and Java 21. The hand-off documentation in [`docs/vaadin25-migration/`](docs/vaadin25-migration/) (`handoff.pdf`, or `handoff.md` as source) describes every change with its reason. Read it before you upgrade, in particular:
+
+- renamed configuration properties (`server.servlet.encoding.*`, `server.error.*`, `vaadin.servlet.*`) and the new Spring Boot launcher class names;
+- new UI addresses (`/UI/deployment` instead of `/UI/#!deployment`; old bookmarks are forwarded) and changed HTTP status codes;
+- the theme is plain CSS (Sass themes no longer apply) and the login footer has a new path;
+- container images, the database rehearsal (no schema change), expected startup log lines, Content-Security-Policy, security notes and the cut-over checklist.
+
 ## Release 0.2
 
 ### Configuration Property changes
