@@ -811,7 +811,7 @@ vaadin-button.button-tag-no-border {
 
 /*
  * The tooltip of a tag, type or custom filter button does not take the pointer: it sits beside the list, over the Targets
- * grid, and a click on the grid right after hovering a button must reach the grid (2B-24). "overlay" is a part the
+ * grid, and a click on the grid right after hovering a button must reach the grid. "overlay" is a part the
  * tooltip exports (exportparts) for styling.
  */
 vaadin-button.button-tag-no-border > vaadin-tooltip::part(overlay) {
