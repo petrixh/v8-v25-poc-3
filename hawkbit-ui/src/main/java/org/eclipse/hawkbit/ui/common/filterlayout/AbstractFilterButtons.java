@@ -138,7 +138,7 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
     /**
      * Puts the tooltip of a filter button to the right of the button, not below it. The button is as wide as its row,
      * as in Vaadin 8. A tooltip below it covers the next row, and unlike the Vaadin 8 tooltip a Flow tooltip takes
-     * the pointer, so a click on the next row right after hovering this one missed (2B-24).
+     * the pointer, so a click on the next row right after hovering this one missed.
      *
      * @param button
      *            a filter button with a tooltip
