@@ -33,6 +33,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.shared.Tooltip;
+import com.vaadin.flow.component.shared.Tooltip.TooltipPosition;
 import com.vaadin.flow.function.SerializableFunction;
 
 /**
@@ -133,12 +135,26 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
         return SPUIComponentProvider.getLabelIcon(colourFontIcon, colourIconId);
     }
 
+    /**
+     * Puts the tooltip of a filter button to the right of the button, not below it. The button is as wide as its row,
+     * as in Vaadin 8. A tooltip below it covers the next row, and unlike the Vaadin 8 tooltip a Flow tooltip takes
+     * the pointer, so a click on the next row right after hovering this one missed (2B-24).
+     *
+     * @param button
+     *            a filter button with a tooltip
+     */
+    public static void placeTooltipBesideRow(final Button button) {
+        Tooltip.forComponent(button).setPosition(TooltipPosition.END);
+    }
+
     private Button buildFilterNameButton(final T clickedFilter) {
         final String filterNameId = new StringBuilder(getFilterButtonIdPrefix()).append(".")
                 .append(clickedFilter.getId()).toString();
 
         final Button filterNameButton = SPUIComponentProvider.getButton(filterNameId, clickedFilter.getName(),
                 clickedFilter.getName(), null, false, null, SPUITagButtonStyle.class);
+
+        placeTooltipBesideRow(filterNameButton);
 
         filterNameButton.addClickListener(event -> getFilterButtonClickBehaviour().processFilterClick(clickedFilter));
 

@@ -77,6 +77,7 @@ public abstract class AbstractTargetTypeFilterButtons extends AbstractFilterButt
                 i18n.getMessage(UIMessageIdProvider.LABEL_NO_TARGET_TYPE),
                 i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_FILTER), "button-no-tag", false, null,
                 SPUITagButtonStyle.class);
+        placeTooltipBesideRow(noTargetType);
 
         final ProxyTargetType proxyTargetType = new ProxyTargetType();
         proxyTargetType.setNoTargetType(true);
