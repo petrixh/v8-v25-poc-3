@@ -1,0 +1,18 @@
+{
+  "name": "hawkbit-vaadin25-migration-docs",
+  "private": true,
+  "description": "Builds the Vaadin 25 migration hand-off document: handoff.md -> handoff.html -> handoff.pdf (see build.cjs)",
+  "license": "EPL-2.0",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "build": "node build.cjs"
+  },
+  "dependencies": {
+    "marked": "18.1.0",
+    "pdf-lib": "1.17.1",
+    "pdfjs-dist": "5.7.284",
+    "playwright": "1.63.0"
+  }
+}
