@@ -172,15 +172,15 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
 <li class="l2"><a href="#manual-check"><span class="t-num">6.4</span><span class="t-title">Manual check</span><span class="t-dots"></span><span class="t-page">30</span></a></li>
 <li class="l1"><a href="#known-pre-existing-issues"><span class="t-num">7</span><span class="t-title">Known pre-existing issues</span><span class="t-dots"></span><span class="t-page">31</span></a></li>
 <li class="l2"><a href="#security"><span class="t-num">7.1</span><span class="t-title">Security</span><span class="t-dots"></span><span class="t-page">31</span></a></li>
-<li class="l2"><a href="#reliability-and-data"><span class="t-num">7.2</span><span class="t-title">Reliability and data</span><span class="t-dots"></span><span class="t-page">31</span></a></li>
-<li class="l1"><a href="#side-by-side-recordings"><span class="t-num">8</span><span class="t-title">Side-by-side recordings</span><span class="t-dots"></span><span class="t-page">33</span></a></li>
-<li class="l1"><a href="#follow-up-candidates-parking-lot"><span class="t-num">9</span><span class="t-title">Follow-up candidates (parking lot)</span><span class="t-dots"></span><span class="t-page">35</span></a></li>
-<li class="l2"><a href="#before-production"><span class="t-num">9.1</span><span class="t-title">Before production</span><span class="t-dots"></span><span class="t-page">35</span></a></li>
-<li class="l2"><a href="#security-and-accessibility"><span class="t-num">9.2</span><span class="t-title">Security and accessibility</span><span class="t-dots"></span><span class="t-page">35</span></a></li>
-<li class="l2"><a href="#operations-and-build"><span class="t-num">9.3</span><span class="t-title">Operations and build</span><span class="t-dots"></span><span class="t-page">35</span></a></li>
-<li class="l2"><a href="#look-restoration-toward-the-original-pixels"><span class="t-num">9.4</span><span class="t-title">Look (restoration toward the original pixels)</span><span class="t-dots"></span><span class="t-page">36</span></a></li>
-<li class="l2"><a href="#code-and-tests"><span class="t-num">9.5</span><span class="t-title">Code and tests</span><span class="t-dots"></span><span class="t-page">36</span></a></li>
-<li class="l1"><a href="#appendix-a-before-this-document-is-final"><span class="t-num"></span><span class="t-title">Appendix A. Before this document is final</span><span class="t-dots"></span><span class="t-page">38</span></a></li>
+<li class="l2"><a href="#reliability-and-data"><span class="t-num">7.2</span><span class="t-title">Reliability and data</span><span class="t-dots"></span><span class="t-page">32</span></a></li>
+<li class="l1"><a href="#side-by-side-recordings"><span class="t-num">8</span><span class="t-title">Side-by-side recordings</span><span class="t-dots"></span><span class="t-page">34</span></a></li>
+<li class="l1"><a href="#follow-up-candidates-parking-lot"><span class="t-num">9</span><span class="t-title">Follow-up candidates (parking lot)</span><span class="t-dots"></span><span class="t-page">36</span></a></li>
+<li class="l2"><a href="#before-production"><span class="t-num">9.1</span><span class="t-title">Before production</span><span class="t-dots"></span><span class="t-page">36</span></a></li>
+<li class="l2"><a href="#security-and-accessibility"><span class="t-num">9.2</span><span class="t-title">Security and accessibility</span><span class="t-dots"></span><span class="t-page">36</span></a></li>
+<li class="l2"><a href="#operations-and-build"><span class="t-num">9.3</span><span class="t-title">Operations and build</span><span class="t-dots"></span><span class="t-page">36</span></a></li>
+<li class="l2"><a href="#look-restoration-toward-the-original-pixels"><span class="t-num">9.4</span><span class="t-title">Look (restoration toward the original pixels)</span><span class="t-dots"></span><span class="t-page">37</span></a></li>
+<li class="l2"><a href="#code-and-tests"><span class="t-num">9.5</span><span class="t-title">Code and tests</span><span class="t-dots"></span><span class="t-page">37</span></a></li>
+<li class="l1"><a href="#appendix-a-before-this-document-is-final"><span class="t-num"></span><span class="t-title">Appendix A. Before this document is final</span><span class="t-dots"></span><span class="t-page">39</span></a></li>
 </ol></nav>
 <h1 id="executive-summary">Executive summary</h1>
 <div class="exec"><blockquote>
@@ -203,7 +203,7 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
 </tr>
 <tr>
 <td>Backend and UI test suite</td>
-<td>Full suite: 1699 tests, 0 failures, 0 errors, 0 skipped. Continuous integration on the final commit: 1672 tests, 0 failures</td>
+<td>Full suite: 1699 tests, 0 failures, 0 errors, 0 skipped, on commit <code>684b25a</code>. Continuous integration on <code>684b25a</code>: 1672 tests, 0 failures</td>
 </tr>
 <tr>
 <td>Access matrix: 8 test users × every view, by menu and by address</td>
@@ -219,7 +219,7 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
 </tr>
 <tr>
 <td>Continuous integration (build, start, smoke test of every view for 4 users, test suite, 6 browser end-to-end tests)</td>
-<td>Green on the final commit</td>
+<td>Green on <code>684b25a</code>: 36 of 36 view checks, 1672 tests with 0 failures, 6 of 6 browser tests. Later commits change only documentation and code comments</td>
 </tr>
 <tr>
 <td>Soak test: 400 sign-in, all-views, sign-out cycles per app, about 2.5 hours each</td>
@@ -240,13 +240,14 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
 <li><strong>Strict Content-Security-Policy.</strong> The UI needs <code>&#39;unsafe-eval&#39;</code> in a Content-Security-Policy, as the original did (section 5.8).</li>
 <li><strong>MySQL release image:</strong> its driver download stage could not be run, because the MariaDB download host was down; re-check it with one command (section 5.5). The standard release image is verified.</li>
 <li><strong>Not verified:</strong> single sign-on (OIDC) and databases other than MySQL 8.0 and the test suite&#39;s H2 (as agreed). The Vaadin 24 &quot;simple UI&quot; module is not built by default and has not been ported.</li>
+<li><strong>No vulnerability scanning.</strong> The upstream project&#39;s nightly vulnerability scan was removed with its workflows, and nothing in CI scans the new dependency set. Run a dependency scan before production (section 5.9).</li>
 <li><strong>Pre-existing security weaknesses are kept as they were</strong>, as agreed: default passwords, the open redirect and cross-site sign-out, login throttling that can be bypassed, and a leftover device login on a message thread (section 7.1).</li>
 </ol>
 <h2 id="still-open">Still open</h2>
 <p>No behaviour decision is open: every question put to you during the migration has an answer, and the code follows it. What remains:</p>
 <ol>
 <li><strong>Your test run and acceptance of the hand-off (M3)</strong>, on the M3 branch <code>stage/3-handoff</code> (the M3 pull request); after your acceptance it merges into <code>mig-dev</code>. The workflow milestone (M2) passed on 30 October 2026.</li>
-<li><strong>Before production, your own actions:</strong> the security review (section 5.9); the database rehearsal on your data (section 5.6); new passwords for every default account (section 7.1).</li>
+<li><strong>Before production, your own actions:</strong> the security review (section 5.9); a dependency scan of the new stack (section 5.9); the database rehearsal on your data (section 5.6); new passwords for every default account (section 7.1).</li>
 <li><strong>Before you distribute the software:</strong> regenerate the third-party dependency list (section 5.10).</li>
 <li><strong>Before you use the MySQL release image:</strong> re-check its driver download stage once the MariaDB download host answers (section 5.5).</li>
 </ol>
@@ -260,7 +261,7 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
 </div><h1 id="about-this-document"><span class="num">1</span>About this document</h1>
 <h2 id="purpose-and-reader"><span class="num">1.1</span>Purpose and reader</h2>
 <p>This document hands over the migrated hawkBit application. It is written for three readers: <strong>operators</strong> who build, deploy and run it; <strong>developers</strong> who maintain and extend it; and <strong>product owners and users</strong> who need to know what looks or behaves differently. You do not need access to the migration team&#39;s working files to use it. Everything it names is either in your repository or explained here.</p>
-<p>The source of this document, the build script and the generated HTML and PDF are in the repository folder <code>docs/vaadin25-migration/</code>. The repository&#39;s upgrade guide <code>MIGRATION.md</code> points here.</p>
+<p>The source of this document, the build script and the generated HTML and PDF are in the repository folder <code>docs/vaadin25-migration/</code>. To rebuild the HTML and PDF after editing the source, run in that folder, with Node.js 22.13 or later: <code>npm ci</code> (installs the npm packages pinned in its <code>package-lock.json</code> into the folder&#39;s own, git-ignored <code>node_modules</code>), once per machine <code>npx playwright install chromium</code>, then <code>node build.cjs</code>. The repository&#39;s upgrade guide <code>MIGRATION.md</code> points here.</p>
 <h2 id="what-was-migrated"><span class="num">1.2</span>What was migrated</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -651,7 +652,7 @@ nav.toc .t-page { flex: 0 0 9mm; text-align: right; padding-right: 0.6mm; color:
 </tr>
 <tr>
 <td>Hand-off documents</td>
-<td>New folder <code>docs/vaadin25-migration/</code> with this document (source, HTML, PDF and build script); <code>MIGRATION.md</code> points to it</td>
+<td>New folder <code>docs/vaadin25-migration/</code> with this document (source, HTML, PDF, build script and its pinned npm packages in <code>package.json</code> and <code>package-lock.json</code>); <code>MIGRATION.md</code> points to it</td>
 <td>Hand-off</td>
 <td>Agreed</td>
 </tr>
@@ -1276,6 +1277,7 @@ connect-src &#39;self&#39;
 <li><strong>Human security review of anonymous Vaadin requests to the login addresses.</strong> The original answered 404 (or showed the login page) to Vaadin&#39;s protocol requests (<code>v-r=uidl</code>, <code>heartbeat</code>, <code>push</code>, <code>i18n</code>) sent without a session to <code>/UI/login</code>, <code>/UI/login/</code> and <code>/UI/login/...</code>. The migrated app gives Vaadin&#39;s standard answers for a request without a session (200 with a &quot;session expired&quot; JSON, 403 or 404) and sets no cookie. Browsers never send these requests; only crafted ones do. You accepted this (28 and 29 October 2026) and asked for a review by a security reviewer before production. <strong>Owner: your security reviewer.</strong> Check whether any of these answers creates state on the server or can be used for load (denial of service), and whether your proxy should block them. A plain load of the login page creates a session in both versions.</li>
 <li><strong>Two documented exceptions from one Vaadin safeguard (accepted).</strong> Vaadin ignores requests from parts of a page that sit behind an open modal window. The artifact upload drop area is allowed to receive its own uploads, and its drop listener its own drop events, while its modal &quot;Upload status&quot; window is open. The listener carries only file names and sizes and decides nothing on the server; the upload still needs a signed-in user with upload permission, and every server-side check applies. You accepted both (29 and 30 October 2026). Re-check them after each Vaadin upgrade (section 4.2).</li>
 <li><strong>Content-Security-Policy</strong> needs <code>&#39;unsafe-eval&#39;</code> (section 5.8).</li>
+<li><strong>No vulnerability scanning.</strong> The upstream project&#39;s nightly scan was removed with its workflows, together with its two recorded CVE acceptances (<code>.trivyignore</code>, section 2.5). Nothing scans the new dependency set. Add a dependency scan to CI and review its result before release.</li>
 <li><strong>Pre-existing issues kept for parity</strong> (section 7.1). For production, the most important are:<ul>
 <li>the open redirect and cross-site sign-out: <code>/UI/logout?login=&lt;any address&gt;</code> signs the user out and sends them to that address, and a link from another site can sign a user out;</li>
 <li>the leftover device login on a message thread: after a device download request over DMF, the message listener&#39;s thread keeps the last device&#39;s login and tenant until the next message replaces them. Nothing reads it today, but code added later that reads the login before authenticating would see another tenant. The original behaves the same;</li>
@@ -1312,7 +1314,7 @@ connect-src &#39;self&#39;
 <li>If you use a custom Sass theme, redo it as a CSS file; move a custom login footer to its new path (<code>docs/content/guides/customtheme.md</code>).</li>
 <li>If you integrate over DMF with your own message types, or read Spring Cloud Bus headers, see section 2.4.</li>
 <li>Rehearse the database start on a copy (section 5.6).</li>
-<li>Have the security review done (section 5.9) and change all default passwords (section 7.1).</li>
+<li>Have the security review done and run a dependency scan (section 5.9), and change all default passwords (section 7.1).</li>
 <li>Regenerate the third-party dependency list before distribution (section 5.10).</li>
 </ol>
 <h1 id="how-to-test"><span class="num">6</span>How to test</h1>
@@ -1320,7 +1322,7 @@ connect-src &#39;self&#39;
 <pre><code class="language-bash">mvn verify
 </code></pre>
 <p>The 89 DMF integration tests need RabbitMQ. Without a reachable broker they are <strong>skipped silently</strong> (pre-existing). Set <code>RABBITMQ_TEST_HOSTNAME=&lt;broker host&gt;</code> and <code>RABBITMQ_SERVER_REQUIRED=true</code> so that they run, or fail if the broker is missing. Some test classes depend on the order they run in (pre-existing). Run them in alphabetical order as CI does: <code>-Dsurefire.runOrder=alphabetical</code>.</p>
-<p>Last results: the full backend and UI suite ran 1699 tests with 0 failures, 0 errors and 0 skipped. The CI subset (the UI runtime and its modules, offline, with RabbitMQ) ran 1672 tests with 0 failures on the final commit.</p>
+<p>Last results, on commit <code>684b25a</code>: the full backend and UI suite ran 1699 tests with 0 failures, 0 errors and 0 skipped, and the CI subset (the UI runtime and its modules, offline, with RabbitMQ) ran 1672 tests with 0 failures. Later commits change only documentation and code comments.</p>
 <h2 id="browser-end-to-end-tests"><span class="num">6.2</span>Browser end-to-end tests</h2>
 <pre><code class="language-bash">APP_ENV_PROJECT=copy-a APP_ENV_PORT=18181 \
   APP_ENV_USERS_PROPERTIES=&lt;users file&gt; APP_ENV_USERS_ENV=&lt;password file&gt; env/e2e.sh
@@ -1387,9 +1389,9 @@ connect-src &#39;self&#39;
 <td>Same in both apps; an attacker would need to plant a session id</td>
 </tr>
 <tr>
-<td>Any root-level address containing a dot bypasses the whole security filter chain, including headers</td>
-<td>UI security configuration (<code>/*.*</code> ignored)</td>
-<td>Still present in the migrated code</td>
+<td>Some static paths bypass the security filter chain: <code>/documentation/**</code>, <code>/docs/**</code>, <code>/VAADIN/**</code> and any root-level address with a dot (<code>/*.*</code>) skip the whole chain, including the security headers</td>
+<td>UI security configuration (ignored paths)</td>
+<td>Same four paths in both versions</td>
 </tr>
 <tr>
 <td>A software module type colour set through the API is put into the page unescaped</td>
@@ -1614,10 +1616,11 @@ connect-src &#39;self&#39;
 </ul>
 <p>Six of the workflows also run as browser tests in the repository (section 6.2): 1, 2, 6, 17, 19 and 24.</p>
 <h1 id="follow-up-candidates-parking-lot"><span class="num">9</span>Follow-up candidates (parking lot)</h1>
-<p>During the migration, improvements that were not needed for parity were written down instead of built. They are input for a possible follow-up. Only the first item is needed before production; none blocks the hand-off. Size: tiny = under an hour, small = up to a day.</p>
+<p>During the migration, improvements that were not needed for parity were written down instead of built. They are input for a possible follow-up. Only the items of section 9.1 are needed before production; none blocks the hand-off. Size: tiny = under an hour, small = up to a day.</p>
 <h2 id="before-production"><span class="num">9.1</span>Before production</h2>
 <ul>
 <li><strong>Security review</strong> of anonymous Vaadin requests to the login addresses, together with the other security items of section 7.1 (section 5.9). Owner: your security reviewer. Small (review); the size of any fix is unknown.</li>
+<li><strong>Dependency scan</strong> of the new stack, and a scan step in CI (section 5.9). Small.</li>
 </ul>
 <h2 id="security-and-accessibility"><span class="num">9.2</span>Security and accessibility</h2>
 <ul>

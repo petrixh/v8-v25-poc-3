@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 // Builds the Vaadin 25 migration hand-off document: handoff.md -> handoff.html (self-contained, system fonts,
-// print CSS) -> handoff.pdf (A4, headless Chromium). All three files are in this folder; run from anywhere.
+// print CSS) -> handoff.pdf (A4, headless Chromium). All files are in this folder.
 //
-// Needs Node.js 20+ and four npm packages. Install them once, in a folder outside the repository:
+// Needs Node.js 22.13+ and the npm packages pinned in package.json / package-lock.json of this folder. They are
+// installed into this folder's node_modules (git-ignored) and loaded only from there. In this folder:
 //
-//   npm install --prefix /tmp/handoff-docs marked@18.1.0 pdf-lib@1.17.1 pdfjs-dist@5.7.284 playwright@1.63.0
-//   /tmp/handoff-docs/node_modules/.bin/playwright install chromium
-//   DOCS_DEPS=/tmp/handoff-docs node docs/vaadin25-migration/build.cjs
+//   npm ci                              # exact versions from package-lock.json, from the public npm registry
+//   npx playwright install chromium     # once per machine: the browser that prints the PDF
+//   node build.cjs                      # or: npm run build
 //
-// Optional: --png <dir> also writes one PNG per PDF page, to look at the result (needs @napi-rs/canvas@0.1 in DOCS_DEPS).
+// Optional: --png <dir> also writes one PNG per PDF page, to look at the result (uses @napi-rs/canvas, which
+// npm ci installs with pdfjs-dist where the platform has a build of it).
 //
 // The status line ("status:" in the front matter of handoff.md) is printed on the cover, in every page header and
 // footer, and as a bar on top of the HTML page. The contents gets page numbers from a first print (named
@@ -21,12 +23,21 @@ const path = require('path');
 const { pathToFileURL } = require('url');
 
 const HERE = __dirname;
-// npm packages: from DOCS_DEPS (a folder with node_modules), else the usual Node.js lookup, else the global install.
+// npm packages: only from this folder's node_modules (installed with npm ci); never from a parent folder or the
+// global install.
+const DEPS = path.join(HERE, 'node_modules');
 function resolveDep(spec) {
-  const paths = [process.env.DOCS_DEPS, HERE].filter(Boolean);
-  try { return require.resolve(spec, { paths }); } catch (e) { if (e.code !== 'MODULE_NOT_FOUND') throw e; }
-  const root = require('child_process').execSync('npm root -g', { encoding: 'utf8' }).trim();
-  return require.resolve(spec, { paths: [path.dirname(root)] });
+  let file;
+  try {
+    file = require.resolve(spec, { paths: [HERE] });
+  } catch (e) {
+    if (e.code !== 'MODULE_NOT_FOUND') throw e;
+    throw new Error(`npm package "${spec}" is missing: run "npm ci" in ${HERE}`);
+  }
+  if (!file.startsWith(DEPS + path.sep)) {
+    throw new Error(`npm package "${spec}" resolved outside ${DEPS} (${file}): run "npm ci" in ${HERE}`);
+  }
+  return file;
 }
 const req = (m) => require(resolveDep(m));
 const { Marked } = req('marked');

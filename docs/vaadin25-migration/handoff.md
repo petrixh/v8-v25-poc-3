@@ -30,11 +30,11 @@ The migration was checked against the original application, with both run side b
 | Check | Result on the migrated app |
 |---|---|
 | 31 user workflows (all agreed as critical), replayed on both apps and compared step by step | **31 of 31 pass or show only a difference you accepted**: 25 pass, 6 differ in an accepted way (field error messages under the field: 3; forbidden views answer 404: 3) |
-| Backend and UI test suite | Full suite: 1699 tests, 0 failures, 0 errors, 0 skipped. Continuous integration on the final commit: 1672 tests, 0 failures |
+| Backend and UI test suite | Full suite: 1699 tests, 0 failures, 0 errors, 0 skipped, on commit `684b25a`. Continuous integration on `684b25a`: 1672 tests, 0 failures |
 | Access matrix: 8 test users × every view, by menu and by address | Identical to the original app |
 | HTTP behaviour of the login, sign-out, UI and error addresses and the security headers | No access weakened; each difference fixed or accepted |
 | A change made through the REST API appears in an open view | Within 2.2 s on both apps (20 of 20 readings) |
-| Continuous integration (build, start, smoke test of every view for 4 users, test suite, 6 browser end-to-end tests) | Green on the final commit |
+| Continuous integration (build, start, smoke test of every view for 4 users, test suite, 6 browser end-to-end tests) | Green on `684b25a`: 36 of 36 view checks, 1672 tests with 0 failures, 6 of 6 browser tests. Later commits change only documentation and code comments |
 | Soak test: 400 sign-in, all-views, sign-out cycles per app, about 2.5 hours each | Memory and threads flat on both apps; the migrated app uses fewer threads (73 against 81). Two framework log errors in 400 sign-outs (section 2.4) |
 
 ## What changed {-}
@@ -51,14 +51,15 @@ The migration was checked against the original application, with both run side b
 4. **Strict Content-Security-Policy.** The UI needs `'unsafe-eval'` in a Content-Security-Policy, as the original did (section 5.8).
 5. **MySQL release image:** its driver download stage could not be run, because the MariaDB download host was down; re-check it with one command (section 5.5). The standard release image is verified.
 6. **Not verified:** single sign-on (OIDC) and databases other than MySQL 8.0 and the test suite's H2 (as agreed). The Vaadin 24 "simple UI" module is not built by default and has not been ported.
-7. **Pre-existing security weaknesses are kept as they were**, as agreed: default passwords, the open redirect and cross-site sign-out, login throttling that can be bypassed, and a leftover device login on a message thread (section 7.1).
+7. **No vulnerability scanning.** The upstream project's nightly vulnerability scan was removed with its workflows, and nothing in CI scans the new dependency set. Run a dependency scan before production (section 5.9).
+8. **Pre-existing security weaknesses are kept as they were**, as agreed: default passwords, the open redirect and cross-site sign-out, login throttling that can be bypassed, and a leftover device login on a message thread (section 7.1).
 
 ## Still open {-}
 
 No behaviour decision is open: every question put to you during the migration has an answer, and the code follows it. What remains:
 
 1. **Your test run and acceptance of the hand-off (M3)**, on the M3 branch `stage/3-handoff` (the M3 pull request); after your acceptance it merges into `mig-dev`. The workflow milestone (M2) passed on 30 October 2026.
-2. **Before production, your own actions:** the security review (section 5.9); the database rehearsal on your data (section 5.6); new passwords for every default account (section 7.1).
+2. **Before production, your own actions:** the security review (section 5.9); a dependency scan of the new stack (section 5.9); the database rehearsal on your data (section 5.6); new passwords for every default account (section 7.1).
 3. **Before you distribute the software:** regenerate the third-party dependency list (section 5.10).
 4. **Before you use the MySQL release image:** re-check its driver download stage once the MariaDB download host answers (section 5.5).
 
@@ -78,7 +79,7 @@ Section 2 to 4 give each change with its decision and date. The main answers:
 
 This document hands over the migrated hawkBit application. It is written for three readers: **operators** who build, deploy and run it; **developers** who maintain and extend it; and **product owners and users** who need to know what looks or behaves differently. You do not need access to the migration team's working files to use it. Everything it names is either in your repository or explained here.
 
-The source of this document, the build script and the generated HTML and PDF are in the repository folder `docs/vaadin25-migration/`. The repository's upgrade guide `MIGRATION.md` points here.
+The source of this document, the build script and the generated HTML and PDF are in the repository folder `docs/vaadin25-migration/`. To rebuild the HTML and PDF after editing the source, run in that folder, with Node.js 22.13 or later: `npm ci` (installs the npm packages pinned in its `package-lock.json` into the folder's own, git-ignored `node_modules`), once per machine `npx playwright install chromium`, then `node build.cjs`. The repository's upgrade guide `MIGRATION.md` points here.
 
 ## What was migrated
 
@@ -190,7 +191,7 @@ These matter if you run proxies, monitoring, security scanners or API clients th
 | Upstream automation | The upstream project's GitHub Actions (nightly vulnerability scan, stale-issue bot, first-PR greeting) and `.trivyignore` with two CVE acceptances removed. The repository's own CI replaces them (section 6.3). The upstream CircleCI and Azure files are still there but inactive, and they still name JDK 17 | Not part of the app; the migration has its own CI | Agreed |
 | Licence of copied code | The Vaadin4Spring event bus (Apache 2.0) is now source inside `hawkbit-ui` (section 4.2), with its licence text in `licenses/APACHE-2.0.txt` and a line in `.3rd-party/DEPENDENCIES` | No Vaadin 25 version of the add-on exists | Agreed |
 | `.3rd-party/DEPENDENCIES` | Still lists the old stack (Vaadin 8, Spring 5.3, …); only the event bus line was edited. **Regenerate it before you distribute** (section 5.10). It was not regenerated during the migration, because the tool contacts Eclipse Foundation services and the migration agreed to make no contact with the upstream project | It is generated output | Your action |
-| Hand-off documents | New folder `docs/vaadin25-migration/` with this document (source, HTML, PDF and build script); `MIGRATION.md` points to it | Hand-off | Agreed |
+| Hand-off documents | New folder `docs/vaadin25-migration/` with this document (source, HTML, PDF, build script and its pinned npm packages in `package.json` and `package-lock.json`); `MIGRATION.md` points to it | Hand-off | Agreed |
 
 # What changed: users
 
@@ -465,7 +466,8 @@ Read this with section 7.1 (pre-existing issues) before you put the migrated ver
 1. **Human security review of anonymous Vaadin requests to the login addresses.** The original answered 404 (or showed the login page) to Vaadin's protocol requests (`v-r=uidl`, `heartbeat`, `push`, `i18n`) sent without a session to `/UI/login`, `/UI/login/` and `/UI/login/...`. The migrated app gives Vaadin's standard answers for a request without a session (200 with a "session expired" JSON, 403 or 404) and sets no cookie. Browsers never send these requests; only crafted ones do. You accepted this (28 and 29 October 2026) and asked for a review by a security reviewer before production. **Owner: your security reviewer.** Check whether any of these answers creates state on the server or can be used for load (denial of service), and whether your proxy should block them. A plain load of the login page creates a session in both versions.
 2. **Two documented exceptions from one Vaadin safeguard (accepted).** Vaadin ignores requests from parts of a page that sit behind an open modal window. The artifact upload drop area is allowed to receive its own uploads, and its drop listener its own drop events, while its modal "Upload status" window is open. The listener carries only file names and sizes and decides nothing on the server; the upload still needs a signed-in user with upload permission, and every server-side check applies. You accepted both (29 and 30 October 2026). Re-check them after each Vaadin upgrade (section 4.2).
 3. **Content-Security-Policy** needs `'unsafe-eval'` (section 5.8).
-4. **Pre-existing issues kept for parity** (section 7.1). For production, the most important are:
+4. **No vulnerability scanning.** The upstream project's nightly scan was removed with its workflows, together with its two recorded CVE acceptances (`.trivyignore`, section 2.5). Nothing scans the new dependency set. Add a dependency scan to CI and review its result before release.
+5. **Pre-existing issues kept for parity** (section 7.1). For production, the most important are:
    - the open redirect and cross-site sign-out: `/UI/logout?login=<any address>` signs the user out and sends them to that address, and a link from another site can sign a user out;
    - the leftover device login on a message thread: after a device download request over DMF, the message listener's thread keeps the last device's login and tenant until the next message replaces them. Nothing reads it today, but code added later that reads the login before authenticating would see another tenant. The original behaves the same;
    - the shipped default passwords.
@@ -506,7 +508,7 @@ mvn clean install -DskipTests -Ddash.skip=false \
 8. If you use a custom Sass theme, redo it as a CSS file; move a custom login footer to its new path (`docs/content/guides/customtheme.md`).
 9. If you integrate over DMF with your own message types, or read Spring Cloud Bus headers, see section 2.4.
 10. Rehearse the database start on a copy (section 5.6).
-11. Have the security review done (section 5.9) and change all default passwords (section 7.1).
+11. Have the security review done and run a dependency scan (section 5.9), and change all default passwords (section 7.1).
 12. Regenerate the third-party dependency list before distribution (section 5.10).
 
 # How to test
@@ -519,7 +521,7 @@ mvn verify
 
 The 89 DMF integration tests need RabbitMQ. Without a reachable broker they are **skipped silently** (pre-existing). Set `RABBITMQ_TEST_HOSTNAME=<broker host>` and `RABBITMQ_SERVER_REQUIRED=true` so that they run, or fail if the broker is missing. Some test classes depend on the order they run in (pre-existing). Run them in alphabetical order as CI does: `-Dsurefire.runOrder=alphabetical`.
 
-Last results: the full backend and UI suite ran 1699 tests with 0 failures, 0 errors and 0 skipped. The CI subset (the UI runtime and its modules, offline, with RabbitMQ) ran 1672 tests with 0 failures on the final commit.
+Last results, on commit `684b25a`: the full backend and UI suite ran 1699 tests with 0 failures, 0 errors and 0 skipped, and the CI subset (the UI runtime and its modules, offline, with RabbitMQ) ran 1672 tests with 0 failures. Later commits change only documentation and code comments.
 
 ## Browser end-to-end tests
 
@@ -566,7 +568,7 @@ These issues exist in the original application. They were found during the migra
 | **Login throttling can be bypassed:** the only throttle keys on the client-supplied `X-Forwarded-For` header and skips private ranges. There is no account lockout | `DosFilter`, `IpUtil` | Kept |
 | **Leftover device login on a DMF message thread:** after a download authentication message, the listener keeps the last device's login and tenant on its pooled thread. The next message authenticates first, so nothing reads it today | `hawkbit-dmf-amqp`, `AmqpAuthenticationMessageHandler` | Same in both versions. Found by a test written during the migration; code that reads the login before authenticating would see another tenant |
 | No new session id at login (session fixation) | UI login | Same in both apps; an attacker would need to plant a session id |
-| Any root-level address containing a dot bypasses the whole security filter chain, including headers | UI security configuration (`/*.*` ignored) | Still present in the migrated code |
+| Some static paths bypass the security filter chain: `/documentation/**`, `/docs/**`, `/VAADIN/**` and any root-level address with a dot (`/*.*`) skip the whole chain, including the security headers | UI security configuration (ignored paths) | Same four paths in both versions |
 | A software module type colour set through the API is put into the page unescaped | Distributions view | The migrated app limits it to a CSS rule (old: script) |
 | The bulk upload failure reason is shown as HTML (self-reflected only) | Bulk upload window | Kept |
 | OIDC logout handler races between concurrent sign-outs | OIDC configuration | Not on the verified path (OIDC not verified) |
@@ -632,11 +634,12 @@ Six of the workflows also run as browser tests in the repository (section 6.2): 
 
 # Follow-up candidates (parking lot)
 
-During the migration, improvements that were not needed for parity were written down instead of built. They are input for a possible follow-up. Only the first item is needed before production; none blocks the hand-off. Size: tiny = under an hour, small = up to a day.
+During the migration, improvements that were not needed for parity were written down instead of built. They are input for a possible follow-up. Only the items of section 9.1 are needed before production; none blocks the hand-off. Size: tiny = under an hour, small = up to a day.
 
 ## Before production
 
 - **Security review** of anonymous Vaadin requests to the login addresses, together with the other security items of section 7.1 (section 5.9). Owner: your security reviewer. Small (review); the size of any fix is unknown.
+- **Dependency scan** of the new stack, and a scan step in CI (section 5.9). Small.
 
 ## Security and accessibility
 

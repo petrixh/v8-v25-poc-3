@@ -1,0 +1,5 @@
+# npm packages for build.cjs, installed with "npm ci"
+node_modules/
+# docs/.gitignore ignores npm files as leftovers; these two pin the build of this folder
+!package.json
+!package-lock.json
